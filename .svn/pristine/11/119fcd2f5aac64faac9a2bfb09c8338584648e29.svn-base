@@ -1,0 +1,9 @@
+.grid-item {  
+    width:33%;/*or others percents*/
+    height: 100%;
+    border: 2px solid hsla(0, 0%, 100%, 1);
+    /*following properties, fix problem*/
+    margin-left:-1px;
+    transform:translateX(1px);} 
+
+  

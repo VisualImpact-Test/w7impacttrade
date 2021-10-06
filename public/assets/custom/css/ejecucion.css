@@ -1,0 +1,23 @@
+.celda_azulv{
+    background: #526ac1;
+    color: white;
+}
+
+ 
+.btn-info {
+    color: #fff;
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.btn-info:not(:disabled):not(.disabled).active, .btn-info:not(:disabled):not(.disabled):active, .show>.btn-info.dropdown-toggle {
+    color: #fff;
+    background-color: #0f59a9;
+    border-color: #0f59a9;
+}
+
+.btn-info:hover {
+    color: #fff;
+    background-color: #0f59a9;
+    border-color: #0f59a9;
+}

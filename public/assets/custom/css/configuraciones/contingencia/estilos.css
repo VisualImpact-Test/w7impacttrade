@@ -1,0 +1,26 @@
+.table td,
+.table th {
+    vertical-align: middle;
+}
+
+.btn-outline-danger.disabled,
+.btn-outline-danger:disabled {
+    color: #545454;
+}
+
+.color-C { color: #5cb85c; }
+.color-N { color: #666; }
+.color-I { color: #f6ea67; }
+.color-F { color: #d9534f; }
+
+.leyenda {
+    position: relative;
+    z-index: 1;
+    display: block;
+    min-height: 1.5rem;
+}
+
+.form-control {
+    display: inherit;
+    width: auto;
+}

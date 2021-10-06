@@ -1,0 +1,34 @@
+.bg-general { background-color: #606060; color: #fff; }
+.bg-obligatorio { background-color: #003366; color: #fff; }
+.bg-iniciativa { background-color: #cc3333; color: #fff; }
+.bg-adicional { background-color: #13b4ea; color: #fff; }
+.bg-gray { background-color: #c7c7c7; }
+
+.text-obligatorio { color: #003366; }
+.text-iniciativa { color: #cc3333; }
+.text-adicional { color: #13b4ea; }
+.text-gray { color: #c7c7c7; }
+
+.text-obligatorio-1 { font-weight: bold; color: #04b404; }
+.text-obligatorio-0 { font-weight: bold; color: #ff0000; }
+
+.verDetalleClientes {
+    cursor: pointer;
+    text-decoration: underline;
+    color: #0d6efd;
+}
+
+.centraTabla {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.table td,
+.table th {
+    vertical-align: middle !important;
+}
+
+.table th {
+    text-align: center;
+}
+

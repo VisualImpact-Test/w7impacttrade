@@ -1,0 +1,1 @@
+<div><img id="foto" src="<?= $foto; ?>" class="img-responsive center-block img-thumbnail" style="height:480px;width:480px;" /></div>

@@ -1,0 +1,16 @@
+
+td.details-control {
+    background: url('https://datatables.net/examples/resources/details_open.png') no-repeat center center;
+    cursor: pointer;
+}
+tr.details td.details-control {
+    background: url('https://datatables.net/examples/resources/details_close.png') no-repeat center center;
+}
+table.dataTable tr.selected td.select-checkbox:after{
+    margin-top: -7px !important;
+    margin-left: -2px !important;
+}
+table.dataTable tbody td.select-checkbox:before{
+    width: 1.5em !important;
+    height: 1.5em !important;
+}

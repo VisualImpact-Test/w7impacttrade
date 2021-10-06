@@ -1,0 +1,14 @@
+/*******RUTAS*******/
+.color-C { color: #5cb85c; }
+.color-N { color: #666; }
+.color-I { color: #f6ea67; }
+.color-F { color: #d9534f; } 
+
+.tdDisabledRuta{
+	background-color: #e6e6e6; 
+	color: #717171;
+}
+
+.tdDisabledRutacuenta{
+	display: none;
+}

@@ -1,0 +1,15 @@
+/*****************GESTION GERENCIAL - INICIATIVAS**************/
+.tdSuccess {
+	background-color: green;
+	color: #fff;
+}
+.tdNoSuccess{
+	background-color: red;
+	color: #fff;
+}
+.fotoMiniatura{
+	width: 16px;
+	border: 1px solid #CCC;
+	margin: 0 auto;
+}
+/*****************FIN GESTION GERENCIAL - INICIATIVAS**************/

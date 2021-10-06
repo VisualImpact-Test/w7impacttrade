@@ -1,0 +1,305 @@
+/*******RUTAS*******/
+.color-C { color: #5cb85c; }
+.color-N { color: #666; }
+.color-I { color: #f6ea67; }
+.color-F { color: #d9534f; } 
+
+.tdDisabledRuta{
+	background-color: #efe8e8; 
+	color: #b7b2aa;
+}
+
+.grid-item {  
+    /*width:33%;or others percents*/
+    /*height :auto;
+    border: 2px solid hsla(0, 0%, 100%, 1);
+    /*following properties, fix problem*/
+    /*margin-left:-1px;
+    transform:translateX(1px);*/
+    width: 33%;
+    max-height: 250px;
+    border: 2px solid hsla(0, 0%, 100%, 1);
+    object-fit: cover;
+
+
+} 
+
+.grid-item-widst{
+    height: 250px;
+    /*object-fit: none !important;*/
+}
+
+.slick-foto{
+    width: 100%;
+    height: auto;
+}
+
+.modal-lg{
+    max-width: 600px !important;
+}
+
+.slick-arrow{
+	height: 100% !important;
+    margin: 5px !important;
+    background: #3a3a3a !important;
+}
+.slick-prev{
+	font-family: "Font Awesome 5 Free" !important;
+	content: "\f095"  !important;   
+	font-weight: 900 !important;
+}
+
+.modal-content-image{
+	background: black;
+}
+.modal-header-image{
+    background: black;
+	color: white;
+	border: 0;
+}
+.btn-close-modal{
+	background: black;
+}
+.btn-close-image{
+	color: white;
+}
+.modal-footer{
+	border: 0;
+}
+ 
+  .lb-load{
+	text-indent: 1em;
+	font-size: 0.8em;
+	color: #ccc;
+}
+
+.input-post {
+    width: 100%;
+}
+
+.dv-button {
+	margin-top: 1em;
+}
+
+.col-right {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.red-user-photo {
+    width: 50px;
+    height: 50px;
+    overflow: hidden;
+    border-radius: 100%;
+    margin-left: -4px;
+    margin-right: 14px;
+	font-size: 48px;
+	text-align: center;
+}
+
+
+
+.red-card-user-name {
+    font-size: 16px;
+    font-weight: 500;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    color: #062c48;
+    margin-top: 3px;
+    cursor: pointer;
+}
+
+.red-card-user-position {
+    font-size: 14px;
+    font-weight: 300;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    color: #7a94a5;
+    padding-top: 4px;
+    padding-left: 3px;
+}
+
+.red-post-text {
+    font-family: Roboto;
+    font-size: 14px;
+    font-weight: normal;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: 1.33;
+    letter-spacing: normal;
+    color: #596679;
+    margin-top: 11px;
+    margin-left: 4px;
+    margin-right: 3px;
+    margin-bottom: 7px;
+}
+
+.red-card-time-ago {
+    font-size: 12px;
+    font-weight: 300;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    color: #b9c5cd;
+    margin-top: 3px;
+}
+
+.input-group-icon-pre {
+    border-right-width: 0px;
+    padding-right: 7px;
+    border-bottom: 1px solid #ced4da;
+    border-left: 1px solid #ced4da;
+    border-top: 1px solid #ced4da;
+    border-radius: .3rem;
+    padding-left: 7px;
+    padding-top: 7px;
+    border: 1px solid #ebedef;
+    border-right: none;
+	font-size: 20px;
+	color: #cbcfd2;
+}
+
+#publication-input{
+	font-size: 12px;
+}
+
+#publication-input::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+  color: #cbcfd2;
+  opacity: 1; /* Firefox */
+}
+
+#publication-input::-ms-input-placeholder { /* Internet Explorer 10-11 */
+  color: #cbcfd2;
+}
+
+#publication-input::-ms-input-placeholder { /* Microsoft Edge */
+  color: #cbcfd2;
+}
+/*
+.input-group-prepend {
+    margin-right: -1px;
+}
+*/
+
+.textarea-post {
+    height: 42px;
+    border-left: none;
+    border-right: none;
+    border-bottom: 1px solid #ebedef;
+    border-top: 1px solid #ebedef;
+}
+
+.container-hash-arrow {
+    border-right: 1px solid #ebedef;
+    border-top: 1px solid #ebedef;
+    border-bottom: 1px solid #ebedef;
+    border-radius: .3rem;
+}
+.input-group-append {
+    margin-left: -1px;
+}
+.input-group-append, .input-group-prepend {
+    display: -ms-flexbox;
+    display: flex;
+}
+
+#button-hashtag-container {
+    background-color: transparent;
+    color: #8692a3;
+    border-left: none;
+    padding: 0px 8px;
+    color: #1398e9;
+    font-size: 18px;
+    border: none;
+    padding-bottom: 6px;
+}
+
+.red-user-photo-mini {
+    width: 50px;
+    height: 50px;
+    overflow: hidden;
+    border-radius: 100%;
+    margin-left: -4px;
+    margin-right: 14px;
+	font-size: 24px;
+	text-align: center;
+}
+
+/******************/
+/* #main.bg-container { background: transparent; } */
+
+.app-page-title { display: none; }
+.text-muted-2 { color: #e2e2e2!important; }
+.ui-menu { background-color: white; border: 1px solid #dedede; font-size: 12px; }
+
+textarea {
+	resize: none;
+}
+
+textarea#comentario {
+	border-radius: 1.25rem;
+	border: none;
+	/* height: 65px; */
+	display: block;
+	overflow: hidden;
+}
+
+textarea#comentario::placeholder {
+	font-size: 15px;
+}
+
+input#estado::placeholder {
+	font-size: 13px;
+}
+
+input::placeholder, textarea::placeholder {
+	color: #ababab !important;
+}
+
+.comentario {
+	padding: 10px 20px;
+    background-color: #f0f2f5;
+    border-radius: 1rem;
+	border: none;
+}
+
+.subcomentario {
+	padding: 10px 20px;
+    background-color: #fff;
+    border-radius: 1rem;
+	border: none;
+}
+
+/* .comentario-fotos img { width: 50% !important; } */
+
+.bg-success-gradient { background: linear-gradient(90deg, #86ff7c, #6ffeff); }
+.bg-warning-gradient { background: linear-gradient(90deg, #ffc107, #e52e71); }
+.bg-primary-gradient { background: linear-gradient(90deg, #007bff, #e52e71) }
+.bg-purple-gradient { background: linear-gradient(90deg, #5011ad , #e52e71); }
+.bg-aqua-gradient { background: linear-gradient(90deg, #0bfff1 , #361ff3); }
+
+.content-card:not(.d-none) { z-index: 2001; }
+.ui-menu.ui-autocomplete { z-index: 2002; }
+
+.card-top { top: 50px; }
+
+.card { border-radius: 1rem; }
+.card-head.bg-purple-gradient,
+.card-head.bg-aqua-gradient { border-radius: 1rem 1rem 0 0; }
+
+
+.imgs-grid-modal { z-index: 1050; background-color: #000000d9; }
+.imgs-grid .imgs-grid-image:before { background-color: transparent; }
+
+.imgs-grid .imgs-grid-image .view-all .view-all-text { font-size: 25px; font-weight: bold;}
+.imgs-grid .imgs-grid-image .view-all:hover .view-all-text { text-decoration: none; }
+
+.imgs-grid-modal .modal-indicator ul li,
+.imgs-grid-modal .modal-indicator ul li.selected { width: 25px; height: 8px; border-radius: 1rem; }
+
+

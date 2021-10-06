@@ -1,0 +1,508 @@
+<?php 
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+class Auditoria extends MY_Controller{
+
+	public function __construct(){
+		parent::__construct();
+		$this->load->model('M_auditoria','model');
+	}
+
+	public function index(){
+		$config = array();
+		$config['css']['style'] = array(
+			'assets/libs/datatables/dataTables.bootstrap4.min',
+			'assets/libs/datatables/buttons.bootstrap4.min',
+			'assets/custom/css/auditoria'
+		);
+		$config['js']['script'] = array(
+			'assets/libs/datatables/datatables',
+			'assets/libs/datatables/responsive.bootstrap4.min',
+			'assets/custom/js/core/datatables-defaults',
+			'assets/custom/js/auditoria'
+		);
+
+		$config['nav']['menu_active']='65';
+		$config['data']['icon'] = 'fas fa-gavel';
+		$config['data']['title'] = 'Auditoria';
+		$config['data']['message'] = 'Auditoria';
+		$config['view']='modulos/auditoria/index';
+		
+		$this->view($config);
+	}
+
+	public function visibilidad(){
+		$result = $this->result;
+		$data = json_decode($this->input->post('data'));
+		$fechas = explode(' - ', $data->{'txt-fechas'});
+
+		$input = array();
+		$input['fecIni'] = $fechas[0];
+		$input['fecFin'] = $fechas[1];
+
+		$input['visibFormato'] = $data->{'rd-visib-formato'};
+		$input['visibColumn'] = isset($data->{'chk-visib-column'}) ? $data->{'chk-visib-column'} : [];
+			if( !is_array($input['visibColumn']) ) $input['visibColumn'] = [ $input['visibColumn'] ];
+
+		$input['idCuenta'] = $this->sessIdCuenta;
+		$input['idProyecto'] = $this->sessIdProyecto;
+
+		$input['idGrupoCanal'] = $data->{'grupo_filtro'};
+		$input['idCanal'] = $data->{'canal_filtro'};
+
+		$input['distribuidora_filtro'] = empty($data->{'distribuidora_filtro'}) ? '' : $data->{'distribuidora_filtro'};
+		$input['zona_filtro'] = empty($data->{'zona_filtro'}) ? '' : $data->{'zona_filtro'};
+		$input['plaza_filtro'] = empty($data->{'plaza_filtro'}) ? '' : $data->{'plaza_filtro'};
+		$input['cadena_filtro'] = empty($data->{'cadena_filtro'}) ? '' : $data->{'cadena_filtro'};
+		$input['banner_filtro'] = empty($data->{'banner_filtro'}) ? '' : $data->{'banner_filtro'};
+
+		$input['tipoUsuario_filtro'] = $data->{'tipoUsuario_filtro'};
+		$input['usuario_filtro'] = !empty($data->{'usuario_filtro'}) ? (is_array($data->{'usuario_filtro'}) ? implode(",",$data->{'usuario_filtro'}) : $data->{'usuario_filtro'}) : '' ;
+		$input['frecuencia_filtro'] = $data->{'frecuencia_filtro'} ;
+
+		$data = [];
+		$data['visibColumn'] = $input['visibColumn'];
+
+		$data['visitas'] = $this->model->obtener_visitas($input);
+		$data['clienteTipo'] = $this->model->obtener_clienteTipo($input);
+
+		$data['obligatorios'] = $this->model->obtener_elementos_obligatorios($input);
+		$data['adicionales'] = $this->model->obtener_elementos_adicionales($input);
+		$data['iniciativas'] = $this->model->obtener_iniciativas($input);
+
+		$resultado_obligatorio = $this->model->obtener_resultados_obligatorios($input);
+		$resultado_adicionales = $this->model->obtener_resultados_adicionales($input);
+		$resultado_iniciativas = $this->model->obtener_resultados_iniciativas($input);
+
+		$data['resultados_obligatorios'] = array();
+		$data['resultados_adicionales'] = array();
+		$data['resultados_iniciativas'] = array();
+
+		$data['total_eo'] = [];
+		$data['total_eo_si'] = [];
+		$data['total_eo_no'] = [];
+		$data['total_eo_ad'] = [];
+
+		foreach( $resultado_obligatorio as $row){
+			$data['resultados_obligatorios'][$row['idVisita']]['porcentajeEo'] = $row['porcentaje'];
+
+			if( !isset($data['resultados_obligatorios'][$row['idVisita']][$row['idElementoVis']]['cantidad']) ||
+				empty($data['resultados_obligatorios'][$row['idVisita']][$row['idElementoVis']]['cantidad'])
+			)
+				$data['resultados_obligatorios'][$row['idVisita']][$row['idElementoVis']]['cantidad'] = $row['cantidad'];
+
+
+			$data['resultados_obligatorios'][$row['idVisita']][$row['idElementoVis']][$row['idVariable']]['presencia'] = $row['presencia'];
+			$data['resultados_obligatorios'][$row['idVisita']][$row['idElementoVis']][$row['idVariable']]['comentario'] = $row['descripcion'];
+			$data['resultados_obligatorios'][$row['idVisita']][$row['idElementoVis']][$row['idVariable']]['foto'] = $row['fotoUrl'];
+
+			if( !isset($data['total_eo'][$row['idVisita']]) ) $data['total_eo'][$row['idVisita']] = [];
+			if( !isset($data['total_eo_si'][$row['idVisita']]) ) $data['total_eo_si'][$row['idVisita']] = [];
+			if( !isset($data['total_eo_no'][$row['idVisita']]) ) $data['total_eo_no'][$row['idVisita']] = [];
+			if( !isset($data['total_eo_ad'][$row['idVisita']]) ) $data['total_eo_ad'][$row['idVisita']] = [];
+
+			if( isset($data['resultados_obligatorios'][$row['idVisita']][$row['idElementoVis']][2]['presencia']) &&
+				isset($data['resultados_obligatorios'][$row['idVisita']][$row['idElementoVis']][3]['presencia']) &&
+				$data['resultados_obligatorios'][$row['idVisita']][$row['idElementoVis']][2]['presencia'] == 1 &&
+				$data['resultados_obligatorios'][$row['idVisita']][$row['idElementoVis']][3]['presencia'] == 1
+			){
+				$data['total_eo_si'][$row['idVisita']][$row['idElementoVis']] = $row['idElementoVis'];
+			}
+			else{
+				$data['total_eo_no'][$row['idVisita']][$row['idElementoVis']] = $row['idElementoVis'];
+			}
+
+			$data['total_eo'][$row['idVisita']][$row['idElementoVis']] = $row['idElementoVis'];
+			$data['total_eo_ad'][$row['idVisita']]["o-{$row['idElementoVis']}"] = $row['idElementoVis'];
+		}
+
+		foreach( $resultado_adicionales as $row){
+			$data['resultados_adicionales'][$row['idVisita']]['porcentajeAd'] = $row['porcentaje'];
+			$data['resultados_adicionales'][$row['idVisita']][$row['idElementoVis']] = $row['presencia'];
+
+			if( !isset($data['total_eo_ad'][$row['idVisita']]) ) $data['total_eo_ad'][$row['idVisita']] = [];
+			$data['total_eo_ad'][$row['idVisita']]["o-{$row['idElementoVis']}"] = $row['idElementoVis'];
+		}
+
+		foreach( $resultado_iniciativas as $row){
+			$data['resultados_iniciativas'][$row['idVisita']]['porcentajeI'] = $row['porcentaje'];
+			$data['resultados_iniciativas'][$row['idVisita']][$row['idElementoVis']] = $row['presencia'];
+		}
+
+		$html = '';
+		if ( !empty($data['visitas'])) {
+			$result['result'] = 1;
+			$result['data']['table'] = 'tb-auditoria';
+			$segmentacion = getSegmentacion([ 'grupoCanal_filtro' => $input['idGrupoCanal'] ]);
+			$data['segmentacion'] = $segmentacion;
+			$html .= $this->load->view("modulos/auditoria/visibilidad", $data, true);
+		} else {
+			$html .= getMensajeGestion('noRegistros');
+			
+		}
+
+		$result['data']['html'] = $html;
+
+		echo json_encode($result);
+	}	
+
+	public function modulacion(){
+		$result = $this->result;
+			$input = json_decode($this->input->post('data'), true);
+			$query = $this->model->get_visitas_modulacion($input);
+			if( empty($query) )
+				$result['data']['view'] = createMessage([ 'type' => 2, 'message' => 'No se ha generado ningún registro' ]);
+			else
+				$result['data']['view'] = $this->load->view('modulos/auditoria/modulacion', [ 'data' => $query ], true);
+
+		echo json_encode($result);
+	}
+
+	public function observaciones(){
+		
+		$result = $this->result;
+		$data = json_decode($this->input->post('data'));
+		$fechas = explode(' - ', $data->{'txt-fechas'});
+
+		$input = array();
+		$input['fecIni'] = $fechas[0];
+		$input['fecFin'] = $fechas[1];
+
+		$input['idCuenta'] = $this->sessIdCuenta;
+		$input['idProyecto'] = $this->sessIdProyecto;
+
+		$input['idGrupoCanal'] = $data->{'grupo_filtro'};
+		$input['idCanal'] = $data->{'canal_filtro'};
+
+		$input['distribuidora_filtro'] = empty($data->{'distribuidora_filtro'}) ? '' : $data->{'distribuidora_filtro'};
+		$input['zona_filtro'] = empty($data->{'zona_filtro'}) ? '' : $data->{'zona_filtro'};
+		$input['plaza_filtro'] = empty($data->{'plaza_filtro'}) ? '' : $data->{'plaza_filtro'};
+		$input['cadena_filtro'] = empty($data->{'cadena_filtro'}) ? '' : $data->{'cadena_filtro'};
+		$input['banner_filtro'] = empty($data->{'banner_filtro'}) ? '' : $data->{'banner_filtro'};
+		$input['tipoUsuario_filtro'] = $data->{'tipoUsuario_filtro'};
+		$input['usuario_filtro'] = !empty($data->{'usuario_filtro'}) ? (is_array($data->{'usuario_filtro'}) ? implode(",",$data->{'usuario_filtro'}) : $data->{'usuario_filtro'}) : '' ;
+		$input['frecuencia_filtro'] = $data->{'frecuencia_filtro'} ;
+		
+		$array = array();
+		$array['visitas'] = $this->model->get_visitas_observaciones($input)->result_array();
+		$html = '';
+		if ( !empty($array['visitas'])) {
+			$result['result'] = 1;
+			$result['data']['table'] = 'tb-observaciones';
+			$segmentacion = getSegmentacion([ 'grupoCanal_filtro' => $input['idGrupoCanal'] ]);
+			$array['segmentacion'] = $segmentacion;
+			$html .= $this->load->view("modulos/auditoria/observaciones", $array, true);
+			$result['data']['configTable'] =  [	
+				'columnDefs' => 
+					[ 0 => 
+						[
+							"visible"=> false, 
+							"targets" => []
+						]
+					],
+			  ];
+		} else {
+			$html .= getMensajeGestion('noRegistros');
+			
+		}
+
+		$result['data']['html'] = $html;
+
+		echo json_encode($result);
+	}	
+	
+	public function preciomarcado(){
+		$result = $this->result;
+		$data = json_decode($this->input->post('data'));
+		$fechas = explode(' - ', $data->{'txt-fechas'});
+
+		$input = array();
+		$input['fecIni'] = $fechas[0];
+		$input['fecFin'] = $fechas[1];
+
+		$input['visibFormato'] = 1;
+
+		$input['idCuenta'] = $this->sessIdCuenta;
+		$input['idProyecto'] = $this->sessIdProyecto;
+
+		$input['idGrupoCanal'] = $data->{'grupo_filtro'};
+		$input['idCanal'] = $data->{'canal_filtro'};
+
+		$input['distribuidora_filtro'] = empty($data->{'distribuidora_filtro'}) ? '' : $data->{'distribuidora_filtro'};
+		$input['zona_filtro'] = empty($data->{'zona_filtro'}) ? '' : $data->{'zona_filtro'};
+		$input['plaza_filtro'] = empty($data->{'plaza_filtro'}) ? '' : $data->{'plaza_filtro'};
+		$input['cadena_filtro'] = empty($data->{'cadena_filtro'}) ? '' : $data->{'cadena_filtro'};
+		$input['banner_filtro'] = empty($data->{'banner_filtro'}) ? '' : $data->{'banner_filtro'};
+		$input['tipoUsuario_filtro'] = $data->{'tipoUsuario_filtro'};
+		$input['usuario_filtro'] = !empty($data->{'usuario_filtro'}) ? (is_array($data->{'usuario_filtro'}) ? implode(",",$data->{'usuario_filtro'}) : $data->{'usuario_filtro'}) : '' ;
+		$input['frecuencia_filtro'] = $data->{'frecuencia_filtro'} ;
+		
+		$array = array();
+		$array['visitas'] = $this->model->obtener_visitas($input);
+		$array['elementos'] = $this->model->obtener_elementos_obligatorios($input);
+
+		$resultado_obligatorio = $this->model->obtener_resultados_obligatorios($input);
+		$data_resultados = $this->model->hfs_data_resultados_precios_marcados($input)->result_array();
+		$elementos_pm=$this->model->obtener_elementos_obligatorios_pm($input);
+
+		foreach( $data_resultados as $row){
+			$array['data_resultados'][$row['idVisita']]['porcentajePM'] = $row['porcentajePM'];
+		}
+
+		$array['resultados_obligatorios'] = array();
+		$array['elementos_visita'] = array();
+	
+		foreach( $resultado_obligatorio as $row){
+			$array['resultados_obligatorios'][$row['idVisita']][$row['idElementoVis']][$row['idVariable']]['presencia'] = $row['presencia'];
+		}
+		foreach($elementos_pm as $fila){
+			$array['elementos_visita'][$fila['idListVisibilidadObl']][$fila['idGrupoCanal']][$fila['idElementoVis']] = '1';
+		}
+		
+
+		$html = '';
+		if ( !empty($array['visitas'])) {
+			$result['result'] = 1;
+			$result['data']['table'] = 'tb-preciomarcado';
+			$segmentacion = getSegmentacion([ 'grupoCanal_filtro' => $input['idGrupoCanal'] ]);
+			$array['segmentacion'] = $segmentacion;
+			$html = $this->load->view("modulos/auditoria/preciomarcado", $array, true);
+
+			$result['data']['configTable'] =  [	
+				'columnDefs' =>
+					[ 0 =>
+						[
+							"visible"=> false, 
+							"targets" => [] 
+						]
+					],
+			];
+
+		} else {
+			$html = getMensajeGestion('noRegistros');
+		}
+
+		$result['data']['html'] = $html;
+
+		echo json_encode($result);
+	}
+
+	public function resultados(){
+		$result = $this->result;
+		$data = json_decode($this->input->post('data'));
+		$fechas = explode(' - ', $data->{'txt-fechas'});
+
+		$input = array();
+		$input['fecIni'] = $fechas[0];
+		$input['fecFin'] = $fechas[1];
+
+		$input['idCuenta'] = $this->sessIdCuenta;
+		$input['idProyecto'] = $this->sessIdProyecto;
+
+		$input['idGrupoCanal'] = $data->{'grupo_filtro'};
+		$input['idCanal'] = $data->{'canal_filtro'};
+
+		$input['distribuidora_filtro'] = empty($data->{'distribuidora_filtro'}) ? '' : $data->{'distribuidora_filtro'};
+		$input['zona_filtro'] = empty($data->{'zona_filtro'}) ? '' : $data->{'zona_filtro'};
+		$input['plaza_filtro'] = empty($data->{'plaza_filtro'}) ? '' : $data->{'plaza_filtro'};
+		$input['cadena_filtro'] = empty($data->{'cadena_filtro'}) ? '' : $data->{'cadena_filtro'};
+		$input['banner_filtro'] = empty($data->{'banner_filtro'}) ? '' : $data->{'banner_filtro'};
+		$input['tipoUsuario_filtro'] = $data->{'tipoUsuario_filtro'};
+		$input['usuario_filtro'] = !empty($data->{'usuario_filtro'}) ? (is_array($data->{'usuario_filtro'}) ? implode(",",$data->{'usuario_filtro'}) : $data->{'usuario_filtro'}) : '' ;
+		$input['frecuencia_filtro'] = $data->{'frecuencia_filtro'} ;
+		$array = array();
+		$array['clientes'] = $this->model->get_clientes($input)->result_array();
+		$html = '';
+		if ( !empty($array['clientes'])) {
+			$result['result'] = 1;
+			$resultados=$this->model->obtener_resultados_auditores($input)->result_array();
+
+			foreach($resultados as $fila){
+				$array['porcentajeCliente'][$fila['idCliente']]['pCliente']=$fila['porcentajeCliente'];
+				$array['porcentajeGTM'][$fila['idCliente']]['pGTM']=$fila['porcentajeGTM'];
+			}
+
+			$result['data']['table'] = 'tb-resultados';
+			$segmentacion = getSegmentacion([ 'grupoCanal_filtro' => $input['idGrupoCanal'] ]);
+			$array['segmentacion'] = $segmentacion;
+			$html .= $this->load->view("modulos/auditoria/resultados", $array, true);
+			$result['data']['configTable'] =  [	
+				'columnDefs' => 
+					[ 0 => 
+						[
+							"visible"=> false, 
+							"targets" => []
+						]
+					],
+			  ];
+		} else {
+			$html .= getMensajeGestion('noRegistros');
+			
+		}
+
+		$result['data']['html'] = $html;
+
+		echo json_encode($result);
+	}
+
+	public function resumen(){
+		ini_set('memory_limit','4096M');
+		set_time_limit(0);
+
+		$result = $this->result;
+		$data = json_decode($this->input->post('data'));
+		$fechas = explode(' - ', $data->{'txt-fechas'});
+
+		$input = array();
+		$input['fecIni'] = $fechas[0];
+		$input['fecFin'] = $fechas[1];
+
+		$input['idCuenta'] = $this->sessIdCuenta;
+		$input['idProyecto'] = $this->sessIdProyecto;
+
+		$input['idGrupoCanal'] = $data->{'grupo_filtro'};
+		$input['idCanal'] = $data->{'canal_filtro'};
+		$array = array();
+		$input['tipoUsuario_filtro'] = $data->{'tipoUsuario_filtro'};
+		$input['usuario_filtro'] = !empty($data->{'usuario_filtro'}) ? (is_array($data->{'usuario_filtro'}) ? implode(",",$data->{'usuario_filtro'}) : $data->{'usuario_filtro'}) : '' ;
+		$input['frecuencia_filtro'] = $data->{'frecuencia_filtro'} ;
+		$array['usuarios'] = $this->model->get_usuarios($input)->result_array();
+		$html = '';
+		if ( !empty($array['usuarios'])) {
+			$result['result'] = 1;
+
+			$array['fechas'] = $this->model->listar_fechas($input)->result_array();
+			$resumen=$this->model->obtener_resumen_usuarios($input)->result_array();
+
+			foreach($resumen as $fila){
+				$array['vProgramadas'][$fila['idUsuario']][$fila['fecha']]['vProg']=$fila['vProg'];
+				$array['vRealizadas'][$fila['idUsuario']][$fila['fecha']]['vReal']=$fila['vReal'];
+				$array['vEfectivas'][$fila['idUsuario']][$fila['fecha']]['vEfec']=$fila['vEfec'];
+				$array['vProgramadasTotalEmpleado'][$fila['idUsuario']]['vProgTotalEmpleado']=$fila['vProgTotalEmpleado'];
+				$array['vRealizadasTotalEmpleado'][$fila['idUsuario']]['vRealTotalEmpleado']=$fila['vRealTotalEmpleado'];
+				$array['vEfectivasTotalEmpleado'][$fila['idUsuario']]['vEfecTotalEmpleado']=$fila['vEfecTotalEmpleado'];
+				$array['vProgramadasTotalFecha'][$fila['fecha']]['vProgTotalFecha']=$fila['vProgTotalFecha'];
+				$array['vRealizadasTotalFecha'][$fila['fecha']]['vRealTotalFecha']=$fila['vRealTotalFecha'];
+				$array['vEfectivasTotalFecha'][$fila['fecha']]['vEfecTotalFecha']=$fila['vEfecTotalFecha'];
+			}
+
+			$result['data']['table'] = 'tb-resumen';
+			$html .= $this->load->view("modulos/auditoria/resumen", $array, true);
+			$result['data']['configTable'] =  [	
+				'columnDefs' => 
+					[ 0 => 
+						[
+							"visible"=> false, 
+							"targets" => [3] 
+						]
+					],
+			  ];
+		} else {
+			$html .= getMensajeGestion('noRegistros');
+			
+		}
+
+		$result['data']['html'] = $html;
+
+		echo json_encode($result);
+	}
+
+	public function cobertura()
+	{
+		$result = $this->result;
+		$data = json_decode($this->input->post('data'));
+		$fechas = explode(' - ', $data->{'txt-fechas'});
+
+		$input = array();
+		$input['fecIni'] = $fechas[0];
+		$input['fecFin'] = $fechas[1];
+
+		$input['idCuenta'] = $this->sessIdCuenta;
+		$input['idProyecto'] = $this->sessIdProyecto;
+
+		$input['idGrupoCanal'] = $data->{'grupo_filtro'};
+		$input['idCanal'] = $data->{'canal_filtro'};
+		$input['idClienteTipo'] = $data->{'sl_tipo_cliente'};
+
+		$array = array();
+		$array['distribuidoras'] = $this->model->listar_distribuidoras($input)->result_array();
+		$html = '';
+		if (!empty($array['distribuidoras'])) {
+			$result['result'] = 1;
+			$array['canales'] = $this->model->listar_canales($input)->result_array();
+			$clientes_basemadre = $this->model->obtener_clientes_distribuidoras($input)->result_array();
+
+			foreach ($clientes_basemadre AS $fila) {
+				$array['clientesBaseMadreDistCanal'][$fila['idDistribuidoraSucursal']][$fila['idCanal']]['cliDistCanal'] = $fila['cliDistCanal'];
+				$array['clientesBaseMadreDist'][$fila['idDistribuidoraSucursal']]['cliDist'] = $fila['cliDist'];
+				$array['clientesBaseMadreCanal'][$fila['idCanal']]['cliCanal'] = $fila['cliCanal'];
+			}
+
+			$clientes_programados = $this->model->obtener_clientes_programados_distribuidoras($input)->result_array();
+
+			foreach ($clientes_programados AS $fila) {
+				$array['clientesProgramadosDistCanal'][$fila['idDistribuidoraSucursal']][$fila['idCanal']]['cliDistCanal'] = $fila['cliDistCanal'];
+				$array['clientesProgramadosDist'][$fila['idDistribuidoraSucursal']]['cliDist'] = $fila['cliDist'];
+				$array['clientesProgramadosCanal'][$fila['idCanal']]['cliCanal'] = $fila['cliCanal'];
+			}
+
+			$result['data']['table'] = 'tb-cobertura';
+			$html .= $this->load->view("modulos/auditoria/cobertura", $array, true);
+			$result['data']['configTable'] =  [
+				'columnDefs' =>
+				[
+					0 =>
+					[
+						"visible" => false,
+						"targets" => []
+					]
+				],
+			];
+		} else {
+			$html .= getMensajeGestion('noRegistros');
+		}
+
+		$result['data']['html'] = $html;
+
+		echo json_encode($result);
+	}
+
+	function cobertura_detalle(){
+		$result = $this->result;
+		$data = json_decode($this->input->post('data'), true);
+		$fechas = explode(' - ', $data['txt-fechas']);
+
+		$input = [];
+		$array = [];
+		$html = getMensajeGestion('noRegistros');
+
+		$input['fecIni'] = $fechas[0];
+		$input['fecFin'] = $fechas[1];
+
+		$input['idCuenta'] = $this->sessIdCuenta;
+		$input['idProyecto'] = $this->sessIdProyecto;
+
+		$input['idGrupoCanal'] = $data['grupo_filtro'];
+		$input['idCanal'] = $data['canal_filtro'];
+
+		$input['distSucursal'] = $data['distSucursal'];
+		$input['canal'] = $data['canal'];
+		$input['idClienteTipo'] = $data['sl_tipo_cliente'];
+
+		if($data['tipo'] == 'cbm'){
+			$array['clientes'] = $this->model->detalle_cobertura_auditores($input)->result_array();
+		}
+		if($data['tipo'] == 'cp'){
+			$array['clientes'] = $this->model->detalle_cobertura_programados_auditores($input)->result_array();
+		}
+
+		if(!empty($array['clientes'])){
+			$html = $this->load->view("modulos/auditoria/cobertura_detalle", $array, true);
+		}
+
+		$result['data']['html'] = $html;
+
+		echo json_encode($result);
+	}
+}
+?>
