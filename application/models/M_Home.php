@@ -126,12 +126,14 @@ class M_Home extends MY_Model{
                 END
             END condicion
     FROM 
-        trade.data_ruta r
+        trade.data_ruta r WITH(NOLOCK)
         JOIN trade.data_visita v ON r.idRuta = v.idRuta
     WHERE 
         r.fecha BETWEEN @inicio_mes AND @hoy
         AND r.estado = 1
         AND v.estado = 1
+
+
         $filtros
     ), lista_final AS (SELECT DISTINCT
         COUNT(idVisita) OVER () totalProg
@@ -198,7 +200,7 @@ class M_Home extends MY_Model{
                     END
                 END condicion
         FROM 
-            trade.data_ruta r
+            trade.data_ruta r WITH(NOLOCK)
             JOIN trade.data_visita v ON r.idRuta = v.idRuta
         WHERE 
             r.fecha BETWEEN @inicio_mes AND @hoy

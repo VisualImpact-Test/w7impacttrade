@@ -1395,7 +1395,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 			$join = '';
 			$columnas = [];
 			$columnas_bd = '';
+			$tiposegmentacion = '';
 			if (in_array($grupoCanal, GC_TRADICIONALES)) {
+				$tiposegmentacion = 'tradicional';
 				$str_permisos = getPermisosUsuario(['segmentacion' => 1]);
 				!empty($str_permisos) ? $filtro_permiso .= " AND sctd.idDistribuidoraSucursal IN ({$str_permisos})": '';
 				$join .= " JOIN trade.segmentacionClienteTradicional sct ON ch.idSegClienteTradicional = sct.idSegClienteTradicional ";
@@ -1415,6 +1417,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 						,d.nombre AS distribuidora
 						, ubi1.provincia AS ciudadDistribuidoraSuc
 						, ubi1.cod_ubigeo AS codUbigeoDisitrito
+						, ds.idDistribuidoraSucursal
 						';
 					// JOINS para la consulta a base de datos
 					$join .= " LEFT JOIN trade.distribuidoraSucursal ds ON ds.idDistribuidoraSucursal = sctd.idDistribuidoraSucursal ";
@@ -1425,6 +1428,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 			}
 			if (in_array($grupoCanal, GC_MAYORISTAS)) {
+				$tiposegmentacion = 'mayorista';
 				$str_permisos = getPermisosUsuario(['segmentacion' => 2]);
 				!empty($str_permisos) ? $filtro_permiso .= " AND sct.idPlaza IN ({$str_permisos})": '';
 				$join .= " JOIN trade.segmentacionClienteTradicional sct ON ch.idSegClienteTradicional = sct.idSegClienteTradicional {$filtro_permiso} ";
@@ -1437,15 +1441,19 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 					);
 					$columnas_bd .= '
 						,pl.nombre AS plaza 
+						,pl.idPlaza
 						, z.nombre AS zona
+						, ds.idDistribuidoraSucursal
 						';
 
 					$join .= " LEFT JOIN trade.plaza pl ON pl.idPlaza = sct.idPlaza";
 					$join .= " LEFT JOIN trade.zona z ON ch.idZona = z.idZona";
+					$join .= " LEFT JOIN trade.distribuidoraSucursal ds ON ds.idDistribuidoraSucursal = sctd.idDistribuidoraSucursal ";
 				};
 			}
 
 			if (in_array($grupoCanal, GC_MODERNOS)) {
+				$tiposegmentacion = 'moderno';
 				$str_permisos = getPermisosUsuario(['segmentacion' => 3]);
 				!empty($str_permisos) ? $filtro_permiso .= " AND scm.idBanner IN ({$str_permisos})": '';
 				$join .= " JOIN trade.segmentacionClienteModerno scm ON ch.idSegClienteModerno = scm.idSegClienteModerno {$str_permisos} ";
@@ -1477,6 +1485,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		$result['headers'] = !empty($columnas) ? $columnas : '';
 		$result['columnas_bd'] = !empty($columnas_bd) ? $columnas_bd : '';
 		$result['grupoCanal'] = !empty($grupoCanal) ? $grupoCanal : '';
+		$result['tipoSegmentacion'] = !empty($tiposegmentacion) ? $tiposegmentacion : '';
 
 		return $result;
 	}

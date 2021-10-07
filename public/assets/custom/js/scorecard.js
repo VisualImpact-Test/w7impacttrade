@@ -76,8 +76,10 @@ var Scorecard = {
 			var title = control.data('title');
 			var ruta = control.data('ruta');
 			var tipo = control.data('tipo');
+			var str_clientes = control.data('codClientes');
+			var grupoCanal = control.data('grupoCanal');
 			//
-			var data = { idSubCanal:idSubCanal,fecIni:fecIni,fecFin:fecFin,tipo:tipo };
+			var data = { 'idSubCanal':idSubCanal,'fecIni':fecIni,'fecFin':fecFin,'tipo':tipo,'str_clientes':str_clientes,'grupoCanal':grupoCanal };
 			var jsonString = { 'data': JSON.stringify(data) };
 			var configAjax = { 'url': Scorecard.url + ruta, 'data': jsonString };
 
@@ -90,6 +92,31 @@ var Scorecard = {
 				var html = '';
 					html += a.data;
 				Fn.showModal({ id:modalId,show:true,title:title,content:html,btn:btn, width:"80%"});
+			});
+		});
+		$(document).on('click', '.lk-show-gps1', function(){
+			var control =  $(this);
+			var latitud = control.data('latitud');
+		    var longitud = control.data('longitud');
+		    var latitud_cliente = control.data('latitud-cliente');
+		    var longitud_cliente = control.data('longitud-cliente');
+			//
+			var cliente = control.data('cliente');
+			var usuario = control.data('usuario');
+			var perfil = control.data('perfil');
+			//
+		    var type = control.data('type');
+
+		    var data = { type:type, latitud:latitud, longitud:longitud,latitud_cliente:latitud_cliente,longitud_cliente:longitud_cliente, cliente:cliente, usuario:usuario, perfil:perfil };
+			var jsonString = { 'data': JSON.stringify(data) };
+			var configAjax = { 'url': Scorecard.url + 'mostrarMapa', 'data': jsonString };
+
+			$.when( Fn.ajax(configAjax) ).then( function(a){
+				++modalId;
+				var fn='Fn.showModal({ id:'+modalId+',show:false });';
+				var btn=new Array();
+					btn[0]={title:'Cerrar',fn:fn};
+				Fn.showModal({ id:modalId,show:true,title:a.msg.title,content:a.data,btn:btn, width:"90%" });
 			});
 		});
 

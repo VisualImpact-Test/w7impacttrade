@@ -82,7 +82,7 @@
 						if ($i % 2 != 0) $style = ""; ?>
 						<? if ($i == 1 && $j == 1) { ?>
 
-							<tr>
+							<tr> 
 								<td style="" rowspan="<?= $value['rowspan']; ?>"><?= $value['nombre'] ?></td>
 								<td style="" rowspan="<?= $value_c['rowspan']; ?>"><?= $value_c['nombre'] ?></td>
 								<td style=""><?= $value_s['nombre'] ?></td>
@@ -98,7 +98,7 @@
 								<td class="cartera1"><?= $carteraObj ?></td>
 								<td class="cartera1"><?= $carteraObjPor . '%' ?></td>
 								<td class="cartera1">
-									<?= ($carteraAct > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_cartera" data-title="Cartera Activa" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-tipo="" >' . $carteraAct . '</a>' : 0 ?>
+									<?= ($carteraAct > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_cartera" data-title="Cartera Activa" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-grupo-canal="'.$row.'" data-tipo="" >' . $carteraAct . '</a>' : 0 ?>
 								</td>
 								<td class="cartera1"><?= $carteraActPor . '%' ?></td>
 								<td style="text-align:center;"><?= $carteraAct_carteraObj . '%' ?></td>
@@ -123,11 +123,11 @@
 								<td class="cartera2"><?= $carteraPlan ?></td> <!-- AQUI ESTOY -->
 								<td class="cartera2"><?= $mensual ?></td>
 								<td class="cartera2">
-									<?= ($carteraExcl > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_cartera" data-title="Exclusiones" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-tipo="EXCLUSION" >' . $carteraExcl . '</a>' : 0 ?>
+									<?= ($carteraExcl > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_cartera" data-title="Exclusiones" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-grupo-canal="'.$row.'" data-tipo="EXCLUSION" >' . $carteraExcl . '</a>' : 0 ?>
 								</td>
 								<td class="cartera2"><?= $carteraHabil ?></td>
 								<td class="cartera2">
-									<?= ($carteraCobe > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_cartera" data-title="Exclusiones" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-tipo="EFECTIVA">' . $carteraCobe . '</a>' : 0 ?>
+									<?= ($carteraCobe > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_cartera" data-title="Exclusiones" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-grupo-canal="'.$row.'" data-tipo="EFECTIVA" data-cod-clientes="'.implode(",",$vcliente_efectiva[$row_s]).'">' . $carteraCobe . '</a>' : 0 ?>
 								</td>
 								<td style="text-align:center;"><?= $porcentaje . '%' ?></td>
 
@@ -151,22 +151,22 @@
 
 								<td class="visita1"><?= $carteraPlan ?></td>
 								<td class="visita1">
-									<?= ($visitaProg > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="Visitas Programadas" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-tipo="" >' . $visitaProg . '</a>' : 0 ?>
+									<?= ($visitaProg > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="Visitas Programadas" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-grupo-canal="'.$row.'" data-tipo="" >' . $visitaProg . '</a>' : 0 ?>
 								</td>
 								<td class="visita1">
-									<?= ($visitaExclu > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="Visitas EXcluidas" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-tipo="EXCLUIDAS" >' . $visitaExclu . '</a>' : 0 ?>
+									<?= ($visitaExclu > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="Visitas EXcluidas" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-grupo-canal="'.$row.'" data-tipo="EXCLUIDAS" >' . $visitaExclu . '</a>' : 0 ?>
 								</td>
 								<td class="visita1">
-									<?= ($visitaHabiles > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="Visitas Habiles" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-tipo="HABILES" >' . $visitaHabiles . '</a>' : 0 ?>
+									<?= ($visitaHabiles > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="Visitas Habiles" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-grupo-canal="'.$row.'" data-tipo="HABILES" >' . $visitaHabiles . '</a>' : 0 ?>
 								</td>
 								<td class="visita1">
-									<?= ($visitaEfec > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="Visitas Habiles" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-tipo="EFECTIVA" >' . $visitaEfec . '</a>' : 0 ?>
+									<?= ($visitaEfec > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="Visitas Habiles" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-grupo-canal="'.$row.'" data-tipo="EFECTIVA" >' . $visitaEfec . '</a>' : 0 ?>
 								</td>
 								<td class="visita1">
-									<?= ($visitaNoEfec > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="Visitas Habiles" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-tipo="NO EFECTIVA" >' . $visitaNoEfec . '</a>' : 0 ?>
+									<?= ($visitaNoEfec > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="Visitas Habiles" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-grupo-canal="'.$row.'" data-tipo="NO EFECTIVA" >' . $visitaNoEfec . '</a>' : 0 ?>
 								</td>
 								<td class="visita1">
-									<?= ($visitaInci > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="INCIDENCIAS" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-tipo="INCIDENCIAS" >' . $visitaInci . '</a>' : 0 ?>
+									<?= ($visitaInci > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="INCIDENCIA" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-grupo-canal="'.$row.'" data-tipo="INCIDENCIA" >' . $visitaInci . '</a>' : 0 ?>
 								</td>
 								<td style="text-align:center;"><?= $porcentaje . '%' ?></td>
 
@@ -187,7 +187,7 @@
 								<td class="cartera1"><?= $carteraObj ?></td>
 								<td class="cartera1"><?= $carteraObjPor . '%' ?></td>
 								<td class="cartera1">
-									<?= ($carteraAct > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_cartera" data-title="Cartera Activa" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-tipo="" >' . $carteraAct . '</a>' : 0 ?>
+									<?= ($carteraAct > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_cartera" data-title="Cartera Activa" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-grupo-canal="'.$row.'" data-tipo="" >' . $carteraAct . '</a>' : 0 ?>
 								</td>
 								<td class="cartera1"><?= $carteraActPor . '%' ?></td>
 								<td style="text-align:center;"><?= $carteraAct_carteraObj . '%' ?></td>
@@ -212,11 +212,11 @@
 								<td class="cartera2"><?= $carteraPlan ?></td>
 								<td class="cartera2"><?= $mensual ?></td>
 								<td class="cartera2">
-									<?= ($carteraExcl > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_cartera" data-title="Exclusiones" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-tipo="EXCLUSION">' . $carteraExcl . '</a>' : 0 ?>
+									<?= ($carteraExcl > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_cartera" data-title="Exclusiones" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-grupo-canal="'.$row.'" data-tipo="EXCLUSION">' . $carteraExcl . '</a>' : 0 ?>
 								</td>
 								<td class="cartera2"><?= $carteraHabil ?></td>
 								<td class="cartera2">
-									<?= ($carteraCobe > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_cartera" data-title="Exclusiones" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-tipo="EFECTIVA">' . $carteraCobe . '</a>' : 0 ?>
+									<?= ($carteraCobe > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_cartera" data-title="Exclusiones" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-grupo-canal="'.$row.'" data-tipo="EFECTIVA" data-cod-clientes="'.implode(",",$vcliente_efectiva[$row_s]).'">' . $carteraCobe . '</a>' : 0 ?>
 								</td>
 								<td style="text-align:center;"><?= $porcentaje . '%' ?></td>
 
@@ -240,22 +240,22 @@
 
 								<td class="visita1"><?= $carteraPlan ?></td>
 								<td class="visita1">
-									<?= ($visitaProg > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="Visitas Programadas" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-tipo="" >' . $visitaProg . '</a>' : 0 ?>
+									<?= ($visitaProg > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="Visitas Programadas" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-grupo-canal="'.$row.'" data-tipo="" >' . $visitaProg . '</a>' : 0 ?>
 								</td>
 								<td class="visita1">
-									<?= ($visitaExclu > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="Visitas EXcluidas" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-tipo="EXCLUIDAS" >' . $visitaExclu . '</a>' : 0 ?>
+									<?= ($visitaExclu > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="Visitas EXcluidas" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-grupo-canal="'.$row.'" data-tipo="EXCLUIDAS" >' . $visitaExclu . '</a>' : 0 ?>
 								</td>
 								<td class="visita1">
-									<?= ($visitaHabiles > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="Visitas Habiles" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-tipo="HABILES" >' . $visitaHabiles . '</a>' : 0 ?>
+									<?= ($visitaHabiles > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="Visitas Habiles" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-grupo-canal="'.$row.'" data-tipo="HABILES" >' . $visitaHabiles . '</a>' : 0 ?>
 								</td>
 								<td class="visita1">
-									<?= ($visitaEfec > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="Visitas Habiles" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-tipo="EFECTIVA" >' . $visitaEfec . '</a>' : 0 ?>
+									<?= ($visitaEfec > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="Visitas Habiles" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-grupo-canal="'.$row.'" data-tipo="EFECTIVA" >' . $visitaEfec . '</a>' : 0 ?>
 								</td>
 								<td class="visita1">
-									<?= ($visitaNoEfec > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="Visitas Habiles" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-tipo="NO EFECTIVA" >' . $visitaNoEfec . '</a>' : 0 ?>
+									<?= ($visitaNoEfec > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="Visitas Habiles" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-grupo-canal="'.$row.'" data-tipo="NO EFECTIVA" >' . $visitaNoEfec . '</a>' : 0 ?>
 								</td>
 								<td class="visita1">
-									<?= ($visitaInci > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="INCIDENCIAS" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-tipo="INCIDENCIAS" >' . $visitaInci . '</a>' : 0 ?>
+									<?= ($visitaInci > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="INCIDENCIA" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-grupo-canal="'.$row.'" data-tipo="INCIDENCIA" >' . $visitaInci . '</a>' : 0 ?>
 								</td>
 								<td style="text-align:center;"><?= $porcentaje . '%' ?></td>
 
@@ -275,7 +275,7 @@
 								<td class="cartera1"><?= $carteraObj ?></td>
 								<td class="cartera1"><?= $carteraObjPor . '%' ?></td>
 								<td class="cartera1">
-									<?= ($carteraAct > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_cartera" data-title="Cartera Activa" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-tipo="" >' . $carteraAct . '</a>' : 0 ?>
+									<?= ($carteraAct > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_cartera" data-title="Cartera Activa" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-grupo-canal="'.$row.'" data-tipo="" >' . $carteraAct . '</a>' : 0 ?>
 								</td>
 								<td class="cartera1"><?= $carteraActPor . '%' ?></td>
 								<td style="text-align:center;"><?= $carteraAct_carteraObj . '%' ?></td>
@@ -300,11 +300,11 @@
 								<td class="cartera2"><?= $carteraPlan ?></td>
 								<td class="cartera2"><?= $mensual ?></td>
 								<td class="cartera2">
-									<?= ($carteraExcl > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_cartera" data-title="Exclusiones" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-tipo="EXCLUSION">' . $carteraExcl . '</a>' : 0 ?>
+									<?= ($carteraExcl > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_cartera" data-title="Exclusiones" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-grupo-canal="'.$row.'" data-tipo="EXCLUSION">' . $carteraExcl . '</a>' : 0 ?>
 								</td>
 								<td class="cartera2"><?= $carteraHabil ?></td>
 								<td class="cartera2">
-									<?= ($carteraCobe > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_cartera" data-title="Exclusiones" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-tipo="EFECTIVA">' . $carteraCobe . '</a>' : 0 ?>
+									<?= ($carteraCobe > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_cartera" data-title="Exclusiones" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-grupo-canal="'.$row.'" data-tipo="EFECTIVA" data-cod-clientes="'.implode(",",$vcliente_efectiva[$row_s]).'">' . $carteraCobe . '</a>' : 0 ?>
 								</td>
 								<td style="text-align:center;"><?= $porcentaje . '%' ?></td>
 
@@ -328,22 +328,22 @@
 
 								<td class="visita1"><?= $carteraPlan ?></td>
 								<td class="visita1">
-									<?= ($visitaProg > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="Visitas Programadas" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-tipo="" >' . $visitaProg . '</a>' : 0 ?>
+									<?= ($visitaProg > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="Visitas Programadas" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-grupo-canal="'.$row.'" data-tipo="" >' . $visitaProg . '</a>' : 0 ?>
 								</td>
 								<td class="visita1">
-									<?= ($visitaExclu > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="Visitas EXcluidas" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-tipo="EXCLUIDAS" >' . $visitaExclu . '</a>' : 0 ?>
+									<?= ($visitaExclu > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="Visitas EXcluidas" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-grupo-canal="'.$row.'" data-tipo="EXCLUIDAS" >' . $visitaExclu . '</a>' : 0 ?>
 								</td>
 								<td class="visita1">
-									<?= ($visitaHabiles > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="Visitas Habiles" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-tipo="HABILES" >' . $visitaHabiles . '</a>' : 0 ?>
+									<?= ($visitaHabiles > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="Visitas Habiles" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-grupo-canal="'.$row.'" data-tipo="HABILES" >' . $visitaHabiles . '</a>' : 0 ?>
 								</td>
 								<td class="visita1">
-									<?= ($visitaEfec > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="Visitas Habiles" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-tipo="EFECTIVA" >' . $visitaEfec . '</a>' : 0 ?>
+									<?= ($visitaEfec > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="Visitas Habiles" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-grupo-canal="'.$row.'" data-tipo="EFECTIVA" >' . $visitaEfec . '</a>' : 0 ?>
 								</td>
 								<td class="visita1">
-									<?= ($visitaNoEfec > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="Visitas Habiles" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-tipo="NO EFECTIVA" >' . $visitaNoEfec . '</a>' : 0 ?>
+									<?= ($visitaNoEfec > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="Visitas Habiles" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-grupo-canal="'.$row.'" data-tipo="NO EFECTIVA" >' . $visitaNoEfec . '</a>' : 0 ?>
 								</td>
 								<td class="visita1">
-									<?= ($visitaInci > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="INCIDENCIAS" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-tipo="INCIDENCIAS" >' . $visitaInci . '</a>' : 0 ?>
+									<?= ($visitaInci > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="INCIDENCIA" data-subcanal="' . $row_s . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-grupo-canal="'.$row.'" data-tipo="INCIDENCIA" >' . $visitaInci . '</a>' : 0 ?>
 								</td>
 								<td style="text-align:center;"><?= $porcentaje . '%' ?></td>
 
@@ -361,7 +361,7 @@
 				<td class="cartera1"><?= $carteraTotalObjetivo ?></td>
 				<td class="cartera1"><?= ($carteraTotalObjetivo > 0) ? '100%' : '0%' ?></td>
 				<td class="cartera1">
-					<?= ($carteraTotal > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_cartera" data-title="Cartera Activa" data-subcanal="" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-tipo="" >' . $carteraTotal . '</a>' : 0 ?>
+					<?= ($carteraTotal > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_cartera" data-title="Cartera Activa" data-subcanal="" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-grupo-canal="'.$row.'" data-tipo="" >' . $carteraTotal . '</a>' : 0 ?>
 					<? //=$carteraTotal
 					?>
 				</td>
@@ -373,7 +373,7 @@
 				<td class="cartera2"><?= $total_cartera_exclusion ?></td>
 				<td class="cartera2"><?= $total_cartera_habil ?></td>
 				<td class="cartera2">
-					<?= ($carteraCobe > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_cartera" data-title="Exclusiones" data-subcanal="" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-tipo="EFECTIVA">' . $total_cartera_cobertura . '</a>' : 0 ?>
+					<?= ($carteraCobe > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_cartera" data-title="Exclusiones" data-subcanal="" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-grupo-canal="'.$row.'" data-cod-clientes="'.implode(",",$vcliente_efectiva['total']).'" data-tipo="EFECTIVA">' . $total_cartera_cobertura . '</a>' : 0 ?>
 					<? //=$total_cartera_cobertura
 					?>
 				</td>
@@ -381,31 +381,31 @@
 
 				<td class="visita1"><?= $total_visita_planeada ?></td>
 				<td class="visita1">
-					<?= ($total_visita_programada > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="Visitas Programadas" data-subcanal="" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-tipo="" >' . $total_visita_programada . '</a>' : 0 ?>
+					<?= ($total_visita_programada > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="Visitas Programadas" data-subcanal="" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-grupo-canal="'.$row.'" data-tipo="" >' . $total_visita_programada . '</a>' : 0 ?>
 					<? //=$total_visita_programada
 					?>
 				</td>
 				<td class="visita1">
-					<?= ($total_visita_excluida > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="Visitas EXcluidas" data-subcanal="" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-tipo="EXCLUIDAS" >' . $total_visita_excluida . '</a>' : 0 ?>
+					<?= ($total_visita_excluida > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="Visitas EXcluidas" data-subcanal="" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-grupo-canal="'.$row.'" data-tipo="EXCLUIDAS" >' . $total_visita_excluida . '</a>' : 0 ?>
 					<? //=$total_visita_excluida
 					?>
 				</td>
 				<td class="visita1">
-					<?= ($total_visita_habiles > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="Visitas Habiles" data-subcanal="" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-tipo="HABILES" >' . $total_visita_habiles . '</a>' : 0 ?>
+					<?= ($total_visita_habiles > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="Visitas Habiles" data-subcanal="" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-grupo-canal="'.$row.'" data-tipo="HABILES" >' . $total_visita_habiles . '</a>' : 0 ?>
 					<? //=$total_visita_habiles
 					?>
 				</td>
 				<td class="visita1">
-					<?= ($total_visita_efectivas > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="Visitas Habiles" data-subcanal="" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-tipo="EFECTIVA" >' . $total_visita_efectivas . '</a>' : 0 ?>
+					<?= ($total_visita_efectivas > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="Visitas Habiles" data-subcanal="" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-grupo-canal="'.$row.'" data-tipo="EFECTIVA" >' . $total_visita_efectivas . '</a>' : 0 ?>
 					<? //=$total_visita_efectivas
 					?>
 				</td>
 				<td class="visita1">
-					<?= ($total_visita_no_efectivas > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="Visitas Habiles" data-subcanal="" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-tipo="NO EFECTIVA" >' . $total_visita_no_efectivas . '</a>' : 0 ?>
+					<?= ($total_visita_no_efectivas > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="Visitas Habiles" data-subcanal="" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-grupo-canal="'.$row.'" data-tipo="NO EFECTIVA" >' . $total_visita_no_efectivas . '</a>' : 0 ?>
 					<? //=$total_visita_no_efectivas
 					?></td>
 				<td class="visita1">
-					<?= ($total_visita_incidencias > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="INCIDENCIAS" data-subcanal="" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-tipo="INCIDENCIAS" >' . $total_visita_incidencias . '</a>' : 0 ?>
+					<?= ($total_visita_incidencias > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_visita" data-title="INCIDENCIA" data-subcanal="" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-grupo-canal="'.$row.'" data-tipo="INCIDENCIA" >' . $total_visita_incidencias . '</a>' : 0 ?>
 					<? //=$total_visita_incidencias
 					?></td>
 				<td style="text-align:center;"><?= ($total_visita_habiles > 0) ? ROUND($total_visita_efectivas / $total_visita_habiles * 100, 2) . '%' : '0%'; ?></td>

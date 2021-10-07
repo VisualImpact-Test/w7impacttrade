@@ -82,6 +82,9 @@ class Scorecard extends MY_Controller{
 		
 		//VISITAS
 
+		$vcliente_efectiva = [];
+		$vcliente_incidencia= [];
+		$vcliente_noefectiva = [];
 		foreach($visitas as $row){
 			$array['carteraPlaneada'][$row['idSubCanal']]= $row['total_subcanal'];
 			$array['visitaProgramada'][$row['idSubCanal']]= $row['visitas_programadas'];
@@ -89,20 +92,31 @@ class Scorecard extends MY_Controller{
 				$array['carteraExclusion'][$row['idSubCanal']]= $row['total_subcanal'];
 				$array['visitaExclusion'][$row['idSubCanal']]= $row['total_subcanal'];
 			}
-
+			
 			elseif($row['estadoVisita']=='EFECTIVA'){
-				$array['carteraCobertura'][$row['idSubCanal']]= $row['total_subcanal'];
+				$array['carteraCobertura'][$row['idSubCanal']]= $row['cobertura_subcanal'];
 				$array['visitaEfectiva'][$row['idSubCanal']]= $row['total_subcanal'];
+				$vcliente_efectiva[$row['idSubCanal']][] = $row['idCliente'];
+				$vcliente_efectiva['total'][] = $row['idCliente'];
 			}
 
 			elseif($row['estadoVisita']=='NO EFECTIVA'){
 				$array['visitaNoEfectiva'][$row['idSubCanal']]= $row['total_subcanal'];
+				$vcliente_noefectiva[$row['idSubCanal']][] = $row['idCliente'];
+				$vcliente_noefectiva['total'][] = $row['idCliente'];
 			}
 
 			elseif($row['estadoVisita']=='INCIDENCIA'){
 				$array['visitaIncidencia'][$row['idSubCanal']]= $row['total_subcanal'];
+				$vcliente_incidencia[$row['idSubCanal']][] = $row['idCliente'];
+				$vcliente_incidencia['total'][] = $row['idCliente'];
+
 			}	
 		}
+
+		$array['vcliente_efectiva'] = !empty($vcliente_efectiva) ? $vcliente_efectiva : '' ;
+		$array['vcliente_noefectiva'] = !empty($vcliente_efectiva) ? $vcliente_noefectiva : '' ;
+		$array['vcliente_incidencia'] = !empty($vcliente_incidencia) ? $vcliente_incidencia : '' ;
 
 		$html = getMensajeGestion('noRegistros');
 
@@ -125,12 +139,17 @@ class Scorecard extends MY_Controller{
 		$input['fecFin'] = $data->{'fecFin'};
 		$input['idsubcanal'] = $data->{'idSubCanal'};
 		$input['tipo'] = $data->{'tipo'};
+		$input['str_clientes'] = !empty($data->{'str_clientes'}) ?  $data->{'str_clientes'} : '' ;
+		$input['grupoCanal'] = !empty($data->{'grupoCanal'}) ?  $data->{'grupoCanal'} : '' ;
 		
-		$array['cartera'] = $this->model->obtener_cartera($input);
+		$array['cartera'] = $this->model->obtener_cartera_seg($input);
 		$this->aSessTrack = $this->model->aSessTrack;
-		
 		$html = '';
 		if ( !empty($array['cartera'])) {
+
+			$array['segmentacion'] = getSegmentacion(['grupoCanal_filtro' => $input['grupoCanal']]);
+			$array['usuarios'] = $this->permisos_usuarios($array['segmentacion']['tipoSegmentacion'],$input);
+
 			$result['result'] = 1;
 			$html = $this->load->view("modulos/scorecard/detalle_cartera", $array, true);
 		} else {
@@ -154,14 +173,19 @@ class Scorecard extends MY_Controller{
 		$input['fecFin'] = $data->{'fecFin'};
 		$input['idsubcanal'] = $data->{'idSubCanal'};
 		$input['tipo'] = $data->{'tipo'};
+		$input['grupoCanal'] = !empty($data->{'grupoCanal'}) ?  $data->{'grupoCanal'} : '' ;
 		
-		$array['cartera'] = $this->model->obtener_visitas($input);
+		$array['cartera'] = $this->model->obtener_visitas_seg($input);
 		$this->aSessTrack = $this->model->aSessTrack;
 		
 		$html = '';
 		if ( !empty($array['cartera'])) {
+
+			$array['segmentacion'] = getSegmentacion(['grupoCanal_filtro' => $input['grupoCanal']]);
+			$array['usuarios'] = $this->permisos_usuarios($array['segmentacion']['tipoSegmentacion'],$input);
+
 			$result['result'] = 1;
-			$html = $this->load->view("modulos/scorecard/detalle_cartera", $array, true);
+			$html = $this->load->view("modulos/scorecard/detalle_visita", $array, true);
 		} else {
 			$html = '<div class="alert alert-danger" role="alert">';
 				$html .= '<i class="fas fa-info-circle"></i> NO SE HA GENERADO NINGUN REGISTRO.';
@@ -171,7 +195,54 @@ class Scorecard extends MY_Controller{
 		$result['data'] = $html;
 
 		echo json_encode($result);
-		
+	}
+	public function permisos_usuarios($tipoSegmentacion = '',$input = []){
+		$array['usuarios'] = [];
+		if($tipoSegmentacion == 'tradicional'){
+			$permisos_usuarios = $this->model->obtenerUsuariosPermisosDistribuidoraSucursal($input);
+			foreach ($permisos_usuarios as $k => $v) {
+				$array['usuarios'][$v['idTipoUsuario']][$v['idDistribuidoraSucursal']] = $v['nombreUsuario'];
+			}
+		}else if($tipoSegmentacion == 'mayorista'){
+			$permisos_usuarios = $this->model->obtenerUsuariosPermisosPlaza($input);
+			foreach ($permisos_usuarios as $k => $v) {
+				$array['usuarios'][$v['idTipoUsuario']][$v['idPlaza']] = $v['nombreUsuario'];
+			}
+		}else if($tipoSegmentacion == 'moderno'){
+			$permisos_usuarios = $this->model->obtenerUsuariosPermisosBanner($input);
+			foreach ($permisos_usuarios as $k => $v) {
+				$array['usuarios'][$v['idTipoUsuario']][$v['idBanner']] = $v['nombreUsuario'];
+			}
+		}
+
+		return $array['usuarios'] ;
+	}
+	public function mostrarMapa(){
+		$result = $this->result;
+		$data = json_decode($this->input->post('data'));
+
+		//Datos Generales
+		$type = $data->{'type'};
+
+		$array = array();
+		$array['cliente'] = $data->{'cliente'};
+		$array['usuario'] = $data->{'usuario'};
+		$array['perfil'] = $data->{'perfil'};
+		$array['latitud']= $data->{'latitud'};
+		$array['longitud']= $data->{'longitud'};
+		$array['latitud_cliente']= $data->{'latitud_cliente'};
+		$array['longitud_cliente']= $data->{'longitud_cliente'};
+
+		$result['result'] = 1;
+		$result['msg']['title'] = 'GOOGLE MAPS';
+		if( $type == 'ini' ){ 
+			$result['data'] = $this->load->view("modulos/rutas/verMapa_inicio", $array, true); 
+		}
+		elseif( $type == 'fin' ){
+			$result['data'] = $this->load->view("modulos/rutas/verMapa_fin", $array, true); 
+		}
+
+		echo json_encode($result);
 	}
 }
 ?>

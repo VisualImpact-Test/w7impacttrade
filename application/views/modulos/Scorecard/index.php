@@ -93,4 +93,8 @@
 		</div>
 	</div>
 </div>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDcH2xfbm8z-5iSE4knkRJiNKRhKQrhH6E&callback=initMap"></script>
 <script type="text/javascript" src="assets/libs/anychart/anychart-base.min.js"></script>
+<script type="text/javascript" src="assets/libs/anychart/anychart-ui.min.js"></script>
+<script type="text/javascript" src="assets/libs/anychart/anychart-map.min.js"></script>
+<script type="text/javascript" src="assets/libs/anychart/countries/peru.js"></script>

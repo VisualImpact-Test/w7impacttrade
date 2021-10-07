@@ -77,7 +77,8 @@ class M_scorecard extends MY_Model{
 		$filtros = '';
 
 		$filtros.=!empty($input['idsubcanal'])?'AND sca.idClienteTipo ='.$input['idsubcanal'] :'';
-		$filtros.=!empty($input['tipo'])?'AND sca.idClienteTipo ='.$input['idsubcanal'] :'';
+		// $filtros.=!empty($input['tipo'])?'AND sca.idClienteTipo ='.$input['idsubcanal'] :'';
+		$filtros .=!empty($input['str_clientes'])?'AND c.idCliente IN ('.$input['str_clientes'].')' :'';
 		$filtros .= !empty($input['idGrupoCanal']) ? 'AND gc.idGrupoCanal =' . $input['idGrupoCanal'] : '';
 		$filtros .= !empty($input['idCanal']) ? 'AND ca.idCanal =' . $input['idCanal'] : '';
 
@@ -93,8 +94,8 @@ class M_scorecard extends MY_Model{
 				, 'SUPERVISOR' supervisor
 				, gc.idGrupoCanal
 				, gc.nombre grupoCanal
-				, CASE WHEN gc.idGrupoCanal=4 THEN d.nombre ELSE p.nombre END 'DISTRIBUIDORA-PLAZA'
-				, CASE WHEN gc.idGrupoCanal=4 THEN ubd.departamento ELSE ubp.departamento END 'CIUDAD'
+				 , CASE WHEN gc.idGrupoCanal=4 THEN d.nombre ELSE p.nombre END 'DISTRIBUIDORA-PLAZA'
+				 , CASE WHEN gc.idGrupoCanal=4 THEN ubd.departamento ELSE ubp.departamento END 'CIUDAD'
 				, ca.idCanal
 				, ca.nombre canal
 				--, sca.idSubCanal
@@ -102,6 +103,7 @@ class M_scorecard extends MY_Model{
 				, sca.idClienteTipo AS idSubCanal
 				, sca.nombre AS subcanal
 				, c.codCliente
+				, c.codDist
 				, c.razonSocial
 				, c.direccion
 				, ISNULL(co.cartera,0) cartera
@@ -119,17 +121,17 @@ class M_scorecard extends MY_Model{
 				--LEFT JOIN trade.subCanal sca ON sca.idSubCanal = sn.idSubCanal AND sca.estado = 1
 				JOIN trade.cliente_tipo sca ON sca.idClienteTipo = sn.idClienteTipo AND sca.estado = 1
 				JOIN trade.grupoCanal gc ON gc.idGrupoCanal = ca.idGrupoCanal 
-				
-				JOIN trade.segmentacionClienteTradicional scm ON scm.idSegClienteTradicional = ch.idSegClienteTradicional
 				LEFT JOIN General.dbo.ubigeo ub ON ub.cod_ubigeo = c.cod_ubigeo
-				LEFT JOIN trade.distribuidoraSucursal ds ON ds.idDistribuidoraSucursal = scm.idDistribuidoraSucursal
-				LEFT JOIN trade.distribuidora d ON d.idDistribuidora = ds.idDistribuidora AND d.estado=1
-				LEFT JOIN General.dbo.ubigeo ubd ON ubd.cod_ubigeo = ds.cod_ubigeo
-				LEFT JOIN trade.plaza p ON p.idPlaza = scm.idPlaza
-				LEFT JOIN General.dbo.ubigeo ubp ON ubp.cod_ubigeo = p.cod_ubigeo
-
-				LEFT JOIN trade.cartera_objetivo co
+				 
+				 JOIN trade.segmentacionClienteTradicional scm ON scm.idSegClienteTradicional = ch.idSegClienteTradicional
+				 LEFT JOIN trade.distribuidoraSucursal ds ON ds.idDistribuidoraSucursal = scm.idDistribuidoraSucursal
+				 LEFT JOIN trade.distribuidora d ON d.idDistribuidora = ds.idDistribuidora AND d.estado=1
+				 LEFT JOIN General.dbo.ubigeo ubd ON ubd.cod_ubigeo = ds.cod_ubigeo
+				 LEFT JOIN trade.plaza p ON p.idPlaza = scm.idPlaza
+				 LEFT JOIN General.dbo.ubigeo ubp ON ubp.cod_ubigeo = p.cod_ubigeo
+				   LEFT JOIN trade.cartera_objetivo co
 					ON co.idSubCanal = sca.idClienteTipo
+				
 			WHERE
 				c.estado = 1 
 				{$filtros}
@@ -174,6 +176,7 @@ class M_scorecard extends MY_Model{
 				*
 				, COUNT(idCliente) OVER (PARTITION BY idSubCanal,estadoVisita) total_subcanal
 				, COUNT(idCliente) OVER (PARTITION BY idSubCanal) visitas_programadas
+				, COUNT(CASE WHEN cant_cliente = 1 THEN idCliente END) OVER (PARTITION BY idSubCanal,estadoVisita) cobertura_subcanal
 			FROM (
 				SELECT DISTINCT 
 					  v.idCliente
@@ -206,6 +209,8 @@ class M_scorecard extends MY_Model{
 						ELSE 'NO EFECTIVA'
 					END estadoVisita
 					, v.idFrecuencia
+					, ROW_NUMBER() OVER (PARTITION BY v.idCliente ORDER BY v.razonSocial) cant_cliente
+
 				FROM
 					trade.data_ruta r
 					JOIN trade.data_visita v
@@ -239,6 +244,270 @@ class M_scorecard extends MY_Model{
 				{$filtro}
 		";
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visita' ];
+		return $this->db->query($sql)->result_array();
+	}
+
+	public function obtener_visitas_seg($input = array() ){
+		
+		$sessIdTipoUsuario = $this->idTipoUsuario;
+		$sessDemo = $this->demo;
+		$sessIdProyecto = $this->sessIdProyecto;
+		$input['idProyecto'] = $sessIdProyecto;
+
+		$fecIni = $input['fecIni'];
+		$fecFin = $input['fecFin'];
+		$filtro = '';
+		$subfiltros = '';
+
+		$filtro.=!empty($input['idsubcanal'])?' AND idSubCanal ='.$input['idsubcanal'] :' AND idSubCanal IN(SELECT  idClienteTipo FROM trade.cliente_tipo WHERE estado = 1)';
+		if(!empty($input['tipo'])){
+			if($input['tipo']!='HABILES'){
+				$filtro.=!empty($input['tipo'])?"AND estadoVisita ='".$input['tipo']."' ":'';
+			}else{
+				$filtro.=!empty($input['tipo'])?"AND estadoVisita NOT IN ('EXCLUIDAS')":'';
+			}
+		}
+
+		$subfiltros .= !empty($input['idGrupoCanal']) ? 'AND gc.idGrupoCanal =' . $input['idGrupoCanal'] : '';
+		$subfiltros .= !empty($input['idCanal']) ? 'AND ca.idCanal =' . $input['idCanal'] : '';
+		$subfiltros .= !empty($input['idProyecto']) ? 'AND r.idProyecto =' . $input['idProyecto'] : '';
+		//$subfiltros .= !empty($input['idCuenta']) ? 'AND cu.idCuenta =' . $input['idCuenta'] : '';
+
+		if( $sessIdTipoUsuario != 4 ){
+			if( empty($sessDemo) ) $subfiltros .=  " AND r.demo = 0";
+			else $subfiltros .=  " AND (r.demo = 0 OR r.idUsuario = {$this->idUsuario})";
+		}
+		$segmentacion = getSegmentacion(['grupoCanal_filtro' => $input['grupoCanal']]);
+
+		$sql = "
+			DECLARE @fecIni date='".$fecIni."',@fecFin date='".$fecFin."';
+			SELECT 
+				*
+				, COUNT(idCliente) OVER (PARTITION BY idSubCanal,estadoVisita) total_subcanal
+				, COUNT(idCliente) OVER (PARTITION BY idSubCanal) visitas_programadas
+			FROM (
+				SELECT DISTINCT 
+					  v.idCliente
+					, 'EJECUTIVO' ejecutivo
+					, 'COORDINADOR' coordinador
+					, 'SUPERVISOR' supervisor
+					, gc.idGrupoCanal
+					, gc.nombre grupoCanal
+					-- , CASE WHEN gc.idGrupoCanal=4 THEN d.nombre ELSE p.nombre END 'DISTRIBUIDORA-PLAZA'
+					-- , CASE WHEN gc.idGrupoCanal=4 THEN ubd.departamento ELSE ubp.departamento END 'CIUDAD'
+					, ca.idCanal
+					, ca.nombre canal
+					--, sca.idSubCanal
+					--, sca.nombre subcanal
+					, sca.idClienteTipo AS idSubCanal
+					, sca.nombre AS subcanal
+					, v.codCliente
+					, v.razonSocial
+					, v.direccion
+					, v.idVisita
+					, v.numFotos
+					, v.estadoIncidencia
+					, v.horaIni
+					, v.horaFin
+					, CONVERT(VARCHAR(8), v.horaIni) hora_ini
+					, CONVERT(VARCHAR(8), v.horaFin) hora_fin
+					, DATEDIFF(MINUTE,v.horaIni,v.horaFin) minutos
+					, v.estado
+					, r.fecha
+					, r.nombreUsuario
+					, r.idUsuario
+					, r.idTipoUsuario
+					, r.tipoUsuario
+					, vi.nombreIncidencia incidencia_nombre
+					, CONVERT(VARCHAR(8), vi.hora) incidencia_hora
+					, ISNULL(v.latIni,0) lati_ini
+					, ISNULL(v.lonIni,0) long_ini
+					, ISNULL(v.latFin,0) lati_fin
+					, ISNULL(v.lonFin,0) long_fin
+					, ISNULL(c.latitud,0) latitud
+					, ISNULL(c.longitud,0) longitud
+					, CASE 
+						WHEN v.horaIni IS NOT NULL AND v.horaFin IS NOT NULL AND v.numFotos >= 1 AND estadoIncidencia <> 1 THEN 'EFECTIVA'  
+						WHEN v.horaIni IS NULL AND v.horaFin IS NULL AND v.numFotos IS NULL AND estadoIncidencia = 1 THEN 'INCIDENCIA'
+						ELSE 'NO EFECTIVA'
+					END estadoVisita
+					, v.idFrecuencia
+					{$segmentacion['columnas_bd']}
+
+				FROM
+					trade.data_ruta r
+					JOIN trade.data_visita v
+						ON v.idRuta = r.idRuta
+						AND r.fecha BETWEEN @fecIni AND @fecFin
+					JOIN trade.cliente c ON c.idCliente = v.idCliente
+					JOIN ".getClienteHistoricoCuenta()." ch ON ch.idCliente = v.idCliente 
+						AND General.dbo.fn_fechaVigente(ch.fecIni,ch.fecFin,@fecIni,@fecFin)=1 AND ch.idProyecto = {$sessIdProyecto} 
+					JOIN trade.proyecto py ON py.idProyecto = r.idProyecto
+					JOIN trade.cuenta cu ON cu.idCuenta = py.idCuenta
+					JOIN trade.segmentacionNegocio sn ON sn.idSegNegocio = ch.idSegNegocio AND sn.estado = 1 
+					JOIN trade.canal ca ON ca.idCanal = sn.idCanal AND ca.estado=1 AND ca.idCanal NOT IN (11)
+					--LEFT JOIN trade.subCanal sca ON sca.idSubCanal = sn.idSubCanal AND sca.estado = 1
+					JOIN trade.cliente_tipo sca ON sca.idClienteTipo = sn.idClienteTipo AND sca.estado = 1
+					JOIN trade.grupoCanal gc ON gc.idGrupoCanal = ca.idGrupoCanal 
+					LEFT JOIN trade.data_visitaIncidencia vi ON vi.idVisita = v.idVisita
+					-- JOIN trade.segmentacionClienteTradicional scm ON scm.idSegClienteTradicional = ch.idSegClienteTradicional
+					-- LEFT JOIN trade.distribuidoraSucursal ds ON ds.idDistribuidoraSucursal = scm.idDistribuidoraSucursal
+					-- LEFT JOIN trade.distribuidora d ON d.idDistribuidora = ds.idDistribuidora AND d.estado=1
+					-- LEFT JOIN General.dbo.ubigeo ubd ON ubd.cod_ubigeo = ds.cod_ubigeo
+					-- LEFT JOIN trade.plaza p ON p.idPlaza = scm.idPlaza
+					-- LEFT JOIN General.dbo.ubigeo ubp ON ubp.cod_ubigeo = p.cod_ubigeo
+					{$segmentacion['join']}
+				WHERE
+					1=1
+					{$subfiltros}
+			)a
+			WHERE
+				1=1
+				{$filtro}
+		";
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visita' ];
+		return $this->db->query($sql)->result_array();
+	}
+	public function obtener_cartera_seg($input = array() ){
+		$fecIni = $input['fecIni'];
+		$fecFin = $input['fecFin'];
+		$filtros = '';
+
+		$input['idProyecto'] = $this->sessIdProyecto;
+
+		$filtros.=!empty($input['idsubcanal'])?'AND sca.idClienteTipo ='.$input['idsubcanal'] :'';
+		// $filtros.=!empty($input['tipo'])?'AND sca.idClienteTipo ='.$input['idsubcanal'] :'';
+		$filtros .=!empty($input['str_clientes'])?'AND c.idCliente IN ('.$input['str_clientes'].')' :'';
+		$filtros .= !empty($input['idGrupoCanal']) ? 'AND gc.idGrupoCanal =' . $input['idGrupoCanal'] : '';
+		$filtros .= !empty($input['idCanal']) ? 'AND ca.idCanal =' . $input['idCanal'] : '';
+
+		$filtros .= !empty($input['idProyecto']) ? 'AND py.idProyecto =' . $input['idProyecto'] : '';
+		$filtros .= !empty($input['idCuenta']) ? 'AND cu.idCuenta =' . $input['idCuenta'] : '';
+
+		$segmentacion = getSegmentacion(['grupoCanal_filtro' => $input['grupoCanal']]);
+		$sql ="
+			DECLARE @fecIni date='".$fecIni."',@fecFin date='".$fecFin."';
+			WITH lista_cartera AS(
+				SELECT DISTINCT
+					c.idCliente
+					, 'EJECUTIVO' ejecutivo
+					, 'COORDINADOR' coordinador
+					, 'SUPERVISOR' supervisor
+					, gc.idGrupoCanal
+					, gc.nombre grupoCanal
+					-- , CASE WHEN gc.idGrupoCanal=4 THEN d.nombre ELSE p.nombre END 'DISTRIBUIDORA-PLAZA'
+					-- , CASE WHEN gc.idGrupoCanal=4 THEN ubd.departamento ELSE ubp.departamento END 'CIUDAD'
+					, ca.idCanal
+					, ca.nombre canal
+					--, sca.idSubCanal
+					--, sca.nombre subcanal
+					, sca.idClienteTipo AS idSubCanal
+					, sca.nombre AS subcanal
+					, c.codCliente
+					, c.codDist
+					, c.razonSocial
+					, c.direccion
+					, ISNULL(co.cartera,0) cartera
+					, COUNT(c.idCliente) OVER (PARTITION BY sca.idClienteTipo) total_subcanal
+					, COUNT(c.idCliente) OVER () total
+					, ROW_NUMBER() OVER (PARTITION BY c.idCliente ORDER BY c.razonSocial) fila_cliente
+
+					{$segmentacion['columnas_bd']}
+					
+				FROM
+					trade.cliente c
+					JOIN ".getClienteHistoricoCuenta()." ch ON ch.idCliente = c.idCliente 
+						AND General.dbo.fn_fechaVigente(ch.fecIni,ch.fecFin,@fecIni,@fecFin)=1
+					JOIN trade.proyecto py ON py.idProyecto = ch.idProyecto
+					JOIN trade.cuenta cu ON cu.idCuenta = py.idCuenta
+					JOIN trade.segmentacionNegocio sn ON sn.idSegNegocio = ch.idSegNegocio AND sn.estado = 1 
+					JOIN trade.canal ca ON ca.idCanal = sn.idCanal AND ca.estado=1 AND ca.idCanal NOT IN (11)
+					--LEFT JOIN trade.subCanal sca ON sca.idSubCanal = sn.idSubCanal AND sca.estado = 1
+					JOIN trade.cliente_tipo sca ON sca.idClienteTipo = sn.idClienteTipo AND sca.estado = 1
+					JOIN trade.grupoCanal gc ON gc.idGrupoCanal = ca.idGrupoCanal 
+					LEFT JOIN General.dbo.ubigeo ub ON ub.cod_ubigeo = c.cod_ubigeo
+					
+					-- JOIN trade.segmentacionClienteTradicional scm ON scm.idSegClienteTradicional = ch.idSegClienteTradicional
+					-- LEFT JOIN trade.distribuidoraSucursal ds ON ds.idDistribuidoraSucursal = scm.idDistribuidoraSucursal
+					-- LEFT JOIN trade.distribuidora d ON d.idDistribuidora = ds.idDistribuidora AND d.estado=1
+					-- LEFT JOIN General.dbo.ubigeo ubd ON ubd.cod_ubigeo = ds.cod_ubigeo
+					-- LEFT JOIN trade.plaza p ON p.idPlaza = scm.idPlaza
+					-- LEFT JOIN General.dbo.ubigeo ubp ON ubp.cod_ubigeo = p.cod_ubigeo
+					LEFT JOIN trade.cartera_objetivo co
+						ON co.idSubCanal = sca.idClienteTipo
+					{$segmentacion['join']}
+				WHERE
+					c.estado = 1 
+					{$filtros}
+				)
+				SELECT * FROM lista_cartera 
+				WHERE fila_cliente = 1
+		";
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.cliente' ];
+		return $this->db->query($sql)->result_array();
+	}
+
+	public function obtenerUsuariosPermisosDistribuidoraSucursal($input)
+	{
+		$fecIni = $input['fecIni'];
+		$fecFin = $input['fecFin'];
+
+		$sql = "
+		DECLARE @fecIni date='".$fecIni."',@fecFin date='".$fecFin."';
+		SELECT DISTINCT
+		u.idUsuario
+		,ISNULL(u.nombres,'') + ' ' +ISNULL(u.apePaterno,'') + ' ' +ISNULL(u.apeMaterno,'') nombreUsuario
+		,u.numDocumento
+		,uhds.idDistribuidoraSucursal
+		,ut.idTipoUsuario
+		,ut.nombre tipoUsuario
+		FROM trade.usuario u 
+		JOIN trade.usuario_historico uh ON uh.idUsuario = u.idUsuario AND uh.idTipoUsuario IN(2,6,10) AND General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,@fecIni,@fecFin)=1
+		JOIN trade.usuario_tipo ut ON ut.idTipoUsuario = uh.idTipoUsuario
+		JOIN trade.usuario_historicoDistribuidoraSucursal uhds ON uhds.idUsuarioHist = uh.idUsuarioHist AND uhds.estado = 1
+		";
+		return $this->db->query($sql)->result_array();
+	}
+	public function obtenerUsuariosPermisosPlaza($input)
+	{
+		$fecIni = $input['fecIni'];
+		$fecFin = $input['fecFin'];
+
+		$sql = "
+		DECLARE @fecIni date='".$fecIni."',@fecFin date='".$fecFin."';
+		SELECT DISTINCT
+		u.idUsuario
+		,ISNULL(u.nombres,'') + ' ' +ISNULL(u.apePaterno,'') + ' ' +ISNULL(u.apeMaterno,'') nombreUsuario
+		,u.numDocumento
+		,uhp.idPlaza
+		,ut.idTipoUsuario
+		,ut.nombre tipoUsuario
+		FROM trade.usuario u 
+		JOIN trade.usuario_historico uh ON uh.idUsuario = u.idUsuario AND uh.idTipoUsuario IN(2,6,10) AND General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,@fecIni,@fecFin)=1
+		JOIN trade.usuario_tipo ut ON ut.idTipoUsuario = uh.idTipoUsuario
+		JOIN trade.usuario_historicoPlaza uhp ON uhp.idUsuarioHist = uh.idUsuarioHist
+		";
+		return $this->db->query($sql)->result_array();
+	}
+	public function obtenerUsuariosPermisosBanner($input)
+	{
+		$fecIni = $input['fecIni'];
+		$fecFin = $input['fecFin'];
+
+		$sql = "
+		DECLARE @fecIni date='".$fecIni."',@fecFin date='".$fecFin."';
+		SELECT DISTINCT
+		u.idUsuario
+		,ISNULL(u.nombres,'') + ' ' +ISNULL(u.apePaterno,'') + ' ' +ISNULL(u.apeMaterno,'') nombreUsuario
+		,u.numDocumento
+		,uhb.idBanner
+		,ut.idTipoUsuario
+		,ut.nombre tipoUsuario
+		FROM trade.usuario u 
+		JOIN trade.usuario_historico uh ON uh.idUsuario = u.idUsuario AND uh.idTipoUsuario IN(2,6,10) AND General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,@fecIni,@fecFin)=1
+		JOIN trade.usuario_tipo ut ON ut.idTipoUsuario = uh.idTipoUsuario
+		JOIN trade.usuario_historicoBanner uhb ON uhb.idUsuarioHist = uh.idUsuarioHist
+		";
 		return $this->db->query($sql)->result_array();
 	}
 
