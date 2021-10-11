@@ -25,6 +25,18 @@ class M_iniciativas extends MY_Model{
 		$filtros .= !empty($input['grupoCanal']) ? ' AND ca.idGrupoCanal='.$input['grupoCanal'] : '';
 		$filtros .= !empty($input['canal']) ? ' AND v.idCanal='.$input['canal'] : '';
 		$filtros .= !empty($input['subcanal']) ? ' AND sn.idSubCanal='.$input['subcanal'] : '';
+
+		$filtros .= !empty($input['tipoUsuario_filtro']) ? " AND uh.idTipoUsuario=".$input['tipoUsuario_filtro'] : "";
+		$filtros .= !empty($input['usuario_filtro']) ? " AND uh.idUsuario=".$input['usuario_filtro'] : "";
+
+		$filtros .= !empty($input['distribuidoraSucursal_filtro']) ? ' AND ds.idDistribuidoraSucursal='.$input['distribuidoraSucursal_filtro'] : '';
+		$filtros .= !empty($input['distribuidora_filtro']) ? ' AND d.idDistribuidora='.$input['distribuidora_filtro'] : '';
+		$filtros .= !empty($input['zona_filtro']) ? ' AND z.idZona='.$input['zona_filtro'] : '';
+		$filtros .= !empty($input['plaza_filtro']) ? ' AND pl.idPlaza='.$input['plaza_filtro'] : '';
+		$filtros .= !empty($input['cadena_filtro']) ? ' AND cad.idCadena='.$input['cadena_filtro'] : '';
+		$filtros .= !empty($input['banner_filtro']) ? ' AND ba.idBanner='.$input['banner_filtro'] : '';
+
+
 		$filtros .= !empty($input['usuario']) ? ' AND r.idUsuario='.$input['usuario'] : '';
 		if(!empty($input['foto'])){
 			if($input['foto']=="si"){
@@ -97,6 +109,10 @@ class M_iniciativas extends MY_Model{
 					ON v.idVisita = i.idVisita
 				JOIN trade.data_ruta r
 					ON r.idRuta = v.idRuta
+				JOIN trade.usuario_historico uh On uh.idUsuario=r.idUsuario
+					AND General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,@fecIni,@fecFin)=1
+					AND uh.idProyecto=r.idProyecto
+
 				JOIN trade.cliente c 
 					ON c.idCliente = v.idCliente
 				LEFT JOIN ".getClienteHistoricoCuenta()." ch
@@ -121,7 +137,7 @@ class M_iniciativas extends MY_Model{
 					ON vf.idVisitaFoto = id.idVisitaFoto
 				{$segmentacion['join']}
 
-			WHERE 1=1
+			WHERE r.fecha BETWEEN @fecIni AND @fecFin
 			{$filtros}
 			{$filtro_demo}
 

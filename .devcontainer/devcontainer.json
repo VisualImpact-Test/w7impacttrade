@@ -1,0 +1,7 @@
+{
+	"name": "${localWorkspaceFolderBasename} - Container",
+	"dockerComposeFile": ["../../docker-compose.yml"],
+	"service": "${localWorkspaceFolderBasename}",
+	"workspaceFolder": "/var/www/html/${localWorkspaceFolderBasename}",
+	"extensions": ["felixfbecker.php-debug"],
+}

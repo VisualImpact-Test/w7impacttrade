@@ -68,8 +68,30 @@ var Encuesta = {
 		$(document).ready(function () {
 			$('#btn-filtrarEncuesta').click();
 			$(".flt_grupoCanal").change();
-			$('#idEncuesta').selectpicker();
+			//$('#idEncuesta').selectpicker();
 		});
+
+		$(document).on('click','#btn-encuesta-pdf', function(e){
+			e.preventDefault();
+			//
+			var elementos = new Array();
+			$("input[name='check[]']:checked").each(function(){ elementos.push($(this).val()); });
+			//
+			if(elementos == ""){
+				++modalId;
+				var fns='Fn.showModal({ id:'+modalId+',show:false });';
+				var btn=new Array();
+				btn[0]={title:'Aceptar',fn:fns};
+				Fn.showModal({ id:modalId,show:true,title:'ALERTA',content:'Debe seleccionar por lo menos un registro para poder descargar el PDF',btn:btn });
+			} else {
+				var data=Fn.formSerializeObject( Encuesta.idFormFiltros );
+				data['elementos_det']=elementos;
+				var jsonString={ 'data':JSON.stringify( data ) };
+				var url = site_url+Encuesta.url+'encuesta_pdf';
+				Fn.download(url,jsonString);
+			}
+		});
+
 	},
 }
 Encuesta.load();

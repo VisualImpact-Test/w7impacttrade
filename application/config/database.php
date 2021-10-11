@@ -77,9 +77,12 @@ $query_builder = TRUE;
 
 $db['default'] = array(
 	'dsn'	=> '',
-	'hostname' => '192.168.1.254',
-	'username' => 'administrador.ti',
-	'password' => 'Wn3*6OrIEg5b',
+	// 'hostname' => '192.168.1.254',
+	// 'username' => 'administrador.ti',
+	// 'password' => 'Wn3*6OrIEg5b',
+	'hostname' => 'DESKTOP-46JQPHP\DEVL',
+	'username' => 'sa',
+	'password' => '123456',
 	// 'hostname' => '192.168.50.47',
 	// 'username' => 'pruebas.desarrollo',
 	// 'password' => '%&Prueb4asV1',

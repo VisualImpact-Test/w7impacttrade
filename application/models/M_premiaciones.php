@@ -26,6 +26,18 @@ class M_premiaciones extends MY_Model{
 		(!empty($input['idGrupoCanal'])) ? $filtros .= " AND gc.idGrupoCanal = ".$input['idGrupoCanal'] : "";
 		(!empty($input['idCanal'])) ? $filtros .= " AND ca.idCanal = ".$input['idCanal'] : "";
 
+		$filtros .= !empty($input['tipoUsuario']) ? " AND uh.idTipoUsuario=".$input['tipoUsuario'] : "";
+		$filtros .= !empty($input['usuario']) ? " AND uh.idUsuario=".$input['usuario'] : "";
+
+		$filtros .= !empty($input['distribuidoraSucursal']) ? ' AND ds.idDistribuidoraSucursal='.$input['distribuidoraSucursal'] : '';
+		$filtros .= !empty($input['distribuidora']) ? ' AND d.idDistribuidora='.$input['distribuidora'] : '';
+		$filtros .= !empty($input['zona']) ? ' AND z.idZona='.$input['zona'] : '';
+		$filtros .= !empty($input['plaza']) ? ' AND pl.idPlaza='.$input['plaza'] : '';
+		$filtros .= !empty($input['cadena']) ? ' AND cad.idCadena='.$input['cadena'] : '';
+		$filtros .= !empty($input['banner']) ? ' AND ba.idBanner='.$input['banner'] : '';
+
+
+
 		!empty($externo) ? $filtros.= " AND vp.estado = 1": '';
 
 		$demo = $this->demo;
@@ -74,13 +86,16 @@ class M_premiaciones extends MY_Model{
 
 			FROM 
 				trade.data_visitaPremiacion vp
-				LEFT JOIN trade.data_visita v
+				JOIN trade.data_visita v
 					ON v.idVisita = vp.idVisita
-				LEFT JOIN trade.data_ruta r
+				JOIN trade.data_ruta r
 					ON r.idRuta = v.idRuta
+				JOIN trade.usuario_historico uh On uh.idUsuario=r.idUsuario
+					AND General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,@fecIni,@fecFin)=1
+					AND uh.idProyecto=r.idProyecto
 				JOIN trade.cliente c 
 					ON c.idCliente = v.idCliente
-				LEFT JOIN ".getClienteHistoricoCuenta()." ch
+				JOIN ".getClienteHistoricoCuenta()." ch
 					ON ch.idCliente = v.idCliente
 					AND General.dbo.fn_fechavigente(ch.fecIni,ch.fecFin,@fecIni,@fecFin)=1
 					AND ch.idProyecto={$proyecto}
@@ -104,7 +119,6 @@ class M_premiaciones extends MY_Model{
 			AND r.estado = 1 
 			AND v.estado = 1{$filtros}
 		";
-
 		return $this->query($sql);
 	}
 

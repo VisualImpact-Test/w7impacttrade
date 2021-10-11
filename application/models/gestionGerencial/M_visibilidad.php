@@ -12,10 +12,24 @@ class M_visibilidad extends MY_Model{
 		if(empty($input['proyecto_filtro'])){
 		$filtros.= getPermisos('cuenta');
 		}else{
-		$filtros .= !empty($input['idCuenta']) ? ' AND r.idCuenta='.$input['idCuenta'] : '';
-		$filtros .= !empty($input['proyecto_filtro']) ? ' AND r.idProyecto='.$input['proyecto_filtro'] : '';
-		$filtros .= !empty($input['grupoCanal_filtro']) ? ' AND ca.idGrupoCanal='.$input['grupoCanal_filtro'] : '';
-		$filtros .= !empty($input['canal_filtro']) ? ' AND v.idCanal='.$input['canal_filtro'] : '';
+			$filtros .= !empty($input['idCuenta']) ? ' AND r.idCuenta='.$input['idCuenta'] : '';
+			$filtros .= !empty($input['proyecto_filtro']) ? ' AND r.idProyecto='.$input['proyecto_filtro'] : '';
+			$filtros .= !empty($input['grupoCanal_filtro']) ? ' AND ca.idGrupoCanal='.$input['grupoCanal_filtro'] : '';
+			$filtros .= !empty($input['canal_filtro']) ? ' AND v.idCanal='.$input['canal_filtro'] : '';
+
+			$filtros .= !empty($input['subcanal_filtro']) ? " AND subca.idSubCanal=".$input['subcanal_filtro'] : "";
+
+
+			$filtros .= !empty($input['tipoUsuario_filtro']) ? " AND uh.idTipoUsuario=".$input['tipoUsuario_filtro'] : "";
+			$filtros .= !empty($input['usuario_filtro']) ? " AND uh.idUsuario=".$input['usuario_filtro'] : "";
+
+			$filtros .= !empty($input['distribuidoraSucursal_filtro']) ? ' AND ds.idDistribuidoraSucursal='.$input['distribuidoraSucursal_filtro'] : '';
+			$filtros .= !empty($input['distribuidora_filtro']) ? ' AND d.idDistribuidora='.$input['distribuidora_filtro'] : '';
+			$filtros .= !empty($input['zona_filtro']) ? ' AND z.idZona='.$input['zona_filtro'] : '';
+			$filtros .= !empty($input['plaza_filtro']) ? ' AND pl.idPlaza='.$input['plaza_filtro'] : '';
+			$filtros .= !empty($input['cadena_filtro']) ? ' AND cad.idCadena='.$input['cadena_filtro'] : '';
+			$filtros .= !empty($input['banner_filtro']) ? ' AND ba.idBanner='.$input['banner_filtro'] : '';
+			
 		}
 		$cliente_historico = getClienteHistoricoCuenta();
 
@@ -30,6 +44,7 @@ class M_visibilidad extends MY_Model{
 		$sql = "
 			DECLARE @fecIni date='".$input['fecIni']."',@fecFin date='".$input['fecFin']."';
 		SELECT
+			distinct
 			r.idRuta
 			, r.fecha
 			, us.nombres+' '+us.apePaterno+' '+us.apeMaterno AS supervisor
@@ -53,6 +68,9 @@ class M_visibilidad extends MY_Model{
 
 		FROM trade.data_ruta r
 		JOIN trade.data_visita v ON v.idRuta=r.idRuta
+		JOIN trade.usuario_historico uh On uh.idUsuario=r.idUsuario
+				and General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,@fecIni,@fecFin)=1
+				and uh.idProyecto=r.idProyecto
 		JOIN trade.data_visitaVisibilidadTrad dvv ON dvv.idVisita=v.idVisita
 		JOIN trade.cuenta cu ON cu.idCuenta=r.idCuenta
 		JOIN trade.canal ca ON ca.idCanal=v.idCanal
@@ -904,15 +922,30 @@ class M_visibilidad extends MY_Model{
 		$filtros .= !empty($input['grupoCanal_filtro']) ? ' AND gc.idGrupoCanal='.$input['grupoCanal_filtro'] : '';
 		$filtros .= !empty($input['canal_filtro']) ? ' AND c.idCanal='.$input['canal_filtro'] : '';
 
+		$filtros .= !empty($input['subcanal_filtro']) ? " AND subca.idSubCanal=".$input['subcanal_filtro'] : "";
+
+
+		$filtros .= !empty($input['tipoUsuario_filtro']) ? " AND uh.idTipoUsuario=".$input['tipoUsuario_filtro'] : "";
+		$filtros .= !empty($input['usuario_filtro']) ? " AND uh.idUsuario=".$input['usuario_filtro'] : "";
+
+		$filtros .= !empty($input['distribuidoraSucursal_filtro']) ? ' AND ds.idDistribuidoraSucursal='.$input['distribuidoraSucursal_filtro'] : '';
+		$filtros .= !empty($input['distribuidora_filtro']) ? ' AND d.idDistribuidora='.$input['distribuidora_filtro'] : '';
+		$filtros .= !empty($input['zona_filtro']) ? ' AND z.idZona='.$input['zona_filtro'] : '';
+		$filtros .= !empty($input['plaza_filtro']) ? ' AND pl.idPlaza='.$input['plaza_filtro'] : '';
+		$filtros .= !empty($input['cadena_filtro']) ? ' AND cad.idCadena='.$input['cadena_filtro'] : '';
+		$filtros .= !empty($input['banner_filtro']) ? ' AND ba.idBanner='.$input['banner_filtro'] : '';
+		
+		$segmentacion = getSegmentacion(['grupoCanal_filtro'=>$input['grupoCanal_filtro']]);
+
 		$sql = "
 		DECLARE @fecha DATE=GETDATE(), @fecIni DATE='".$input['fecIni']."', @fecFin DATE='".$input['fecFin']."';
 		select 
+			distinct
 			gc.idGrupoCanal,
 			gc.nombre as grupoCanal,
 			c.idCanal,
 			c.nombre as canal,
-			ds.idDistribuidoraSucursal,
-			d.nombre + ' - ' + ubi.distrito as distribuidoraSucursal,
+		 
 			v.idCliente,
 			ch.razonSocial,
 			ch.codCliente,
@@ -932,12 +965,17 @@ class M_visibilidad extends MY_Model{
 			vit.idVisitaFoto,
 			vit.condicion_elemento,
 			dvf.fotoUrl
+			{$segmentacion['columnas_bd']}
 
 		from  trade.data_visitaVisibilidadTrad vi
 
 		JOIN trade.data_visitaVisibilidadTradDet vit  ON vi.idVisitaVisibilidad=vit.idVisitaVisibilidad
 		JOIN trade.data_visita v ON v.idVisita=vi.idVisita
 		JOIN trade.data_ruta r ON r.idRuta=v.idRuta 
+		JOIN trade.usuario_historico uh On uh.idUsuario=r.idUsuario
+				and General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,@fecIni,@fecFin)=1
+				and uh.idProyecto=r.idProyecto
+
 		JOIN trade.usuario u ON u.idUsuario=r.idUsuario
 		JOIN ".getClienteHistoricoCuenta()." ch ON ch.idCliente=v.idCliente
 			AND (
@@ -960,14 +998,11 @@ class M_visibilidad extends MY_Model{
 		LEFT JOIN trade.data_visitaFotos dvf ON dvf.idVisitaFoto=vit.idVisitaFoto
 
 		LEFT JOIN General.dbo.ubigeo ubi ON ubi.cod_ubigeo=v.cod_ubigeo
-		LEFT JOIN trade.plaza pl ON pl.idPlaza=v.idPlaza
-		LEFT JOIN trade.distribuidoraSucursal ds ON ds.idDistribuidoraSucursal=v.idDistribuidoraSucursal
-		LEFT JOIN trade.distribuidora d ON d.idDistribuidora=ds.idDistribuidora
-		LEFT JOIN General.dbo.ubigeo ubi1 ON ubi1.cod_ubigeo=ds.cod_ubigeo
+		{$segmentacion['join']}
+
 		where vi.idVisita IN (  ".$input['elementos_det']." )
 		{$filtros}
 		";
-
 		$query = $this->db->query($sql);
 		$result = array();
 		if ( $query ) {

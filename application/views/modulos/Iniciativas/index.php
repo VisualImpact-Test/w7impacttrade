@@ -44,7 +44,7 @@
                 <div class="form-row">
                     <div class="col-md-12">
 
-                        <div class="mb-2 mr-sm-2 position-relative form-group">
+						<div class="mb-2 mr-sm-2 position-relative form-group">
 							<label>Fotos:</label><br>
 							<div role="group" class="btn-group btn-group-toggle" data-toggle="buttons">
 								<label class="btn btn-outline-trade-visual border-0 active">
@@ -80,31 +80,7 @@
 							</div>
 						</div>
 
-
-                        <div class="mb-2 mr-sm-2 position-relative form-group">
-							<label for="idElemento">Elementos:</label>
-							<div class="col-xs-10">
-								<select class="selectpicker ui my_select2Full" id="idElemento" name="idElemento" title="Elementos (Todo)" data-live-search="true" multiple data-actions-box="true">
-									<?php foreach ($elementos as $row) { ?>
-										<option class="dropdown-item" value="<?= $row['idElementoVis'] ?>"><?= $row['nombre'] ?></option>
-									<? } ?>
-								</select>
-							</div>
-						</div>
-
-                        <div class="mb-2 mr-sm-2 position-relative form-group">
-							<label for="idDistribuidoraSucursal">Distribuidora Sucursal:</label>
-							<div class="col-xs-10">
-								<select class="selectpicker ui my_select2Full" id="idDistribuidoraSucursal" name="idDistribuidoraSucursal" title="Distribuidora Sucursal (Todo)" data-live-search="true" multiple data-actions-box="true">
-									<?php foreach ($distribuidoras as $row) { ?>
-										<option class="dropdown-item" value="<?= $row['idDistribuidoraSucursal'] ?>"><?= $row['distribuidoraSucursal'] ?></option>
-									<? } ?>
-								</select>
-							</div>
-						</div>
-                        
-
-                        <div class="mb-2 mr-sm-2 position-relative form-group">
+						<div class="mb-2 mr-sm-2 position-relative form-group">
                             <div class="field">
                                 <div class="ui my_calendar">
                                     <div class="ui input left icon" style="width:100%">
@@ -114,6 +90,20 @@
                                 </div>
                             </div>
                         </div>
+
+                        
+
+                        <!-- <div class="mb-2 mr-sm-2 position-relative form-group">
+							<label for="idDistribuidoraSucursal">Distribuidora Sucursal:</label>
+							<div class="col-xs-10">
+								<select class="selectpicker ui my_select2Full" id="idDistribuidoraSucursal" name="idDistribuidoraSucursal" title="Distribuidora Sucursal (Todo)" data-live-search="true" multiple data-actions-box="true">
+									<?php foreach ($distribuidoras as $row) { ?>
+										<option class="dropdown-item" value="<?= $row['idDistribuidoraSucursal'] ?>"><?= $row['distribuidoraSucursal'] ?></option>
+									<? } ?>
+								</select>
+							</div>
+						</div> -->
+                        
 
                         <div class="mb-2 mr-sm-2 position-relative form-group filtros_iniciativa">
 							<?= getFiltros(['cuenta' => ['label' => 'Cuenta', 'name' => 'cuenta_filtro', 'id' => 'cuenta_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]) ?>
@@ -134,25 +124,67 @@
 							<?= getFiltros(['subCanal' => ['label' => 'Sub Canal', 'name' => 'subcanal_filtro', 'id' => 'subcanal_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]); ?>
 						</div>
 
-                        <div class="mb-2 mr-sm-2 position-relative form-group custom_tooltip">
+						<div class="mb-2 mr-sm-2  position-relative form-group filtros_asistencia custom_tooltip">
 							<span class="tooltiptext">Tipo Usuario</span>
-							<select id="tipoUsuario" name="tipoUsuario" class="form-control form-control-sm my_select2Full sl-width-150">
-								<option value="">-- Tipo Usuario --</option>
-								<? foreach ($tipoUsuario as $key => $tipo): ?>
-									<option value="<?=$tipo['idTipoUsuario']?>"><?=$tipo['tipoUsuario']?></option>
-								<? endforeach ?>
+							<?= getFiltros(['tipoUsuario' => ['label' => 'Tipo usuario', 'name' => 'tipoUsuario_filtro', 'id' => 'tipoUsuario_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]) ?>
+						</div>
+						<div class="mb-2 mr-sm-2  position-relative form-group filtros_asistencia custom_tooltip">
+							<span class="tooltiptext">Usuarios <i class="clean_usuario_filtro fas fa-times"></i></span>
+							<select class="form-control" id="usuario_filtro" name="usuario_filtro">
+								<option value=""> Cod Usuario -- Nombre Usuario </option>
 							</select>
 						</div>
 
-                        <div class="mb-2 mr-sm-2  position-relative form-group custom_tooltip">
-							<span class="tooltiptext">Usuario</span>
-							<select id="usuario" name="usuario" class="form-control form-control-sm my_select2Full sl-width-150">
-								<option value="">-- Usuario --</option>
-							</select>
+						
+
+
+                        <div class="mb-2 mr-sm-2 position-relative form-group">
+							<label for="idElemento">Elementos:</label>
+							<div class="col-xs-10">
+								<select class="selectpicker ui my_select2Full" id="idElemento" name="idElemento" title="Elementos (Todo)" data-live-search="true" multiple data-actions-box="true">
+									<?php foreach ($elementos as $row) { ?>
+										<option class="dropdown-item" value="<?= $row['idElementoVis'] ?>"><?= $row['nombre'] ?></option>
+									<? } ?>
+								</select>
+							</div>
 						</div>
-                        <br>
-                                
-                        
+
+						<div class="filtros_secundarios">
+							<div class="filtros_generados">
+								<h5 class="mt-1 mb-1 text-bold-500"><i class="fal fa-table"></i> Filtros Generados</h5>
+								<div class="filtros_gc filtros_HFS d-none">
+									<div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip">
+										<span class="tooltiptext">Distribuidora</span>
+										<?= getFiltros(['distribuidora' => ['label' => 'Distribuidora', 'name' => 'distribuidora_filtro', 'id' => 'distribuidora_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]); ?>
+									</div>
+									<div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip">
+										<span class="tooltiptext">Sucursal</span>
+										<?= getFiltros(['distribuidoraSucursal' => ['label' => 'Distribuidora Sucursal', 'name' => 'distribuidoraSucursal_filtro', 'id' => 'distribuidoraSucursal_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]); ?>
+									</div>
+									<div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip">
+										<span class="tooltiptext">Zona</span>
+										<?= getFiltros(['zona' => ['label' => 'Zona', 'name' => 'zona_filtro', 'id' => 'zona_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]); ?>
+									</div>
+								</div>
+								<div class="filtros_gc filtros_WHLS d-none">
+									<div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip">
+										<span class="tooltiptext">Plaza</span>
+										<?= getFiltros(['plaza' => ['label' => 'Plaza', 'name' => 'plaza_filtro', 'id' => 'plaza_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]); ?>
+									</div>
+								</div>
+								<div class="filtros_gc filtros_HSM filtros_Moderno d-none">
+									<div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip">
+										<span class="tooltiptext">Cadena</span>
+										<?= getFiltros(['cadena' => ['label' => 'Cadena', 'name' => 'cadena_filtro', 'id' => 'cadena_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]); ?>
+									</div>
+									<div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip">
+										<span class="tooltiptext">Banner</span>
+										<?= getFiltros(['banner' => ['label' => 'Banner', 'name' => 'banner_filtro', 'id' => 'banner_filtro', 'data' => false, 'select2' => 'ui my_select2Full', 'html' => '']]); ?>
+									</div>
+								</div>
+							</div>
+						</div>
+
 
                     </div>
                 </div>

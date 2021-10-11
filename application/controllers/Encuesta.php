@@ -17,6 +17,7 @@ class Encuesta extends MY_Controller
 		$config['nav']['menu_active'] = '5';
 		$config['css']['style'] = [];
 		$config['js']['script'] = [
+			'assets/libs/fileDownload/jquery.fileDownload',
 			'assets/libs/datatables/responsive.bootstrap4.min',
 			'assets/custom/js/core/datatables-defaults',
 			'assets/custom/js/core/anyChartCustom',
@@ -959,4 +960,240 @@ class Encuesta extends MY_Controller
 
 		echo json_encode($result);
 	}
+
+
+	public function encuesta_pdf(){ 
+
+		//
+		$post=json_decode($this->input->post('data'),true);
+		$elementos = $post['elementos_det'];
+
+		$params = array();
+	
+
+		$params= array();
+		$params['idCuenta'] = empty($post['cuenta_filtro']) ? "" : $post['cuenta_filtro'];
+		$params['idProyecto'] = empty($post['proyecto_filtro']) ? "" : $post['proyecto_filtro'];
+		$params['idGrupoCanal'] = empty($post['grupo_filtro']) ? "" : $post['grupo_filtro'];
+		$params['idCanal'] = empty($post['canal_filtro']) ? "" : $post['canal_filtro'];
+		$params['idEncuesta'] = empty($post['idEncuesta']) ? "" : $post['idEncuesta'];
+		$params['tipoPregunta'] = empty($post['tipoPregunta']) ? "" : $post['tipoPregunta'];
+		$params['txt-fechas'] = empty($post['txt-fechas']) ? "" : $post['txt-fechas'];
+
+		$params['distribuidora_filtro'] = empty($post['distribuidora_filtro']) ? '' : $post['distribuidora_filtro'];
+		$params['zona_filtro'] = empty($post['zona_filtro']) ? '' : $post['zona_filtro'];
+		$params['plaza_filtro'] = empty($post['plaza_filtro']) ? '' : $post['plaza_filtro'];
+		$params['cadena_filtro'] = empty($post['cadena_filtro']) ? '' : $post['cadena_filtro'];
+		$params['banner_filtro'] = empty($post['banner_filtro']) ? '' : $post['banner_filtro'];
+
+		if(is_array($elementos)){
+			$params['elementos_det'] = implode(",",$elementos);
+		}else{
+			$params['elementos_det']=$elementos;
+		}
+
+		$visitas = $this->m_encuesta->query_visitaEncuesta($params)->result_array();
+
+
+
+		ini_set('memory_limit','1024M');
+		set_time_limit(0);
+		//
+		require APPPATH . '/vendor/autoload.php';
+		$mpdf = new \Mpdf\Mpdf();
+		
+		if (count($visitas) > 0) {
+			$encuesta = $this->m_encuesta->query_visitaEncuestaDet($params)->result_array();
+			$array_resultados = array();
+			foreach ($visitas as $row) {
+				$array_resultados[$row['idVisita']][$row['idEncuesta']]['fecha'] = $row['fecha'];
+				$array_resultados[$row['idVisita']][$row['idEncuesta']]['usuario'] = $row['usuario'];
+				$array_resultados[$row['idVisita']][$row['idEncuesta']]['hora'] = $row['horaIni'];
+				$array_resultados[$row['idVisita']][$row['idEncuesta']]['razonSocial'] = $row['razonSocial'];
+				$array_resultados[$row['idVisita']][$row['idEncuesta']]['distribuidora'] = $row['distribuidora'];
+				$array_resultados[$row['idVisita']][$row['idEncuesta']]['cliente'] = $row['razonSocial'];
+				$array_resultados[$row['idVisita']][$row['idEncuesta']]['encuesta'] = $row['encuesta'];
+			}
+
+			$array_grafico = array();
+			foreach ($encuesta as $fila) {
+
+				$array_resultados[$fila['idVisita']][$fila['idEncuesta']]['fotos'][$fila['idVisitaFoto']]= $fila['imgRef'];
+				
+				if ($fila['idTipoPregunta'] == 1) {
+					$array_resultados[$fila['idVisita']][$fila['idEncuesta']]['preguntas'][$fila['idPregunta']]['nombre']= $fila['pregunta'];
+					$array_resultados[$fila['idVisita']][$fila['idEncuesta']]['preguntas'][$fila['idPregunta']]['respuesta']= $fila['respuesta'];
+				}
+
+				if ($fila['idTipoPregunta'] == 2) {
+					$array_resultados[$fila['idVisita']][$fila['idEncuesta']]['preguntas'][$fila['idPregunta']]['nombre']= $fila['pregunta'];
+					$array_resultados[$fila['idVisita']][$fila['idEncuesta']]['preguntas'][$fila['idPregunta']]['respuesta']= $fila['respuesta'];
+				}
+
+				if ($fila['idTipoPregunta'] == 3) {
+					$array_resultados[$fila['idVisita']][$fila['idEncuesta']]['preguntas'][$fila['idPregunta']]['nombre']= $fila['pregunta'];
+
+					if( isset($array_resultados[$fila['idVisita']][$fila['idEncuesta']]['preguntas'][$fila['idPregunta']]['respuesta'])){
+						$array_resultados[$fila['idVisita']][$fila['idEncuesta']]['preguntas'][$fila['idPregunta']]['respuesta'][$fila['idAlternativa']]=$fila['respuesta'];
+					}else{
+						$array_resultados[$fila['idVisita']][$fila['idEncuesta']]['preguntas'][$fila['idPregunta']]['respuesta']= array();
+						$array_resultados[$fila['idVisita']][$fila['idEncuesta']]['preguntas'][$fila['idPregunta']]['respuesta'][$fila['idAlternativa']]=$fila['respuesta'];
+					}
+					
+				}
+			}
+			
+			$visitasTotal=count($visitas);
+
+			$www=base_url().'public/';
+			$style="
+			<style>
+					body{ 
+						font-family: 'Century Gothic', 
+						CenturyGothic, AppleGothic,
+						 sans-serif; 
+						font-size: 12px 
+					}
+					span{ color: #1370C5; font-size: 11px; }
+					.content{ display: table; width: 100%; }
+					.descripcion{ margin: 0 auto; width: 100% }
+					.descripcion th, .descripcion td{ padding: 3px; }
+					.descripcion .img td{ border-top: 1px solid #000; border-bottom: 1px solid #000; }
+					.detalle{ border-collapse: collapse; width: 100%; margin: 0 auto; }
+					.detalle th{ background-color: #1370C5; color: white; text-align: center; }
+					.detalle th, .detalle td{ padding: 8px; }
+					.detalle tr:nth-child(even){ background-color: #f2f2f2 }
+					.ancho10{ display: table; width: 100%; margin: 10px 0px; }
+					.ancho50{ display: table; width: 100%;}
+					.left{ display: inline-block; width: 100%;  }
+					.foto{ height: 180px; width: 300px; margin:5px; }
+					.head{ display: table; width: 100%; border: 1px solid #000; border-radius: 8px; }
+					.head2{ display: inline-block; float: left; width: 5%; height: 35px; background-color: #ffffff ; border-radius: 8px 0px 0px 8px; }
+					.head3{ display: inline-block; float: left; width: 95%; height: 35px; background-color: #1370C5; color: #ffffff; border-radius: 0px 8px 8px 0px;}
+					.head4{ padding: 10px; }
+					.imgicon{ width: 100%; padding: 5px }
+			</style>
+			";
+
+			$header='<div class="head" >';
+				$header.='<div class="head2">';
+						$header.='<img class="imgicon" src="'.$www.'/assets/images/pg-2.png"  >';
+				$header.='</div>';
+				$header.='<div class="head3">';
+					$header.='<div class="head4">';
+						$header.='<strong>Reporte Fotográfico de Encuesta </strong>';
+					$header.='</div>';
+				$header.='</div>';
+			$header.='</div>';
+			
+			$newPage = 0;
+			//
+			if( $visitasTotal>400 ){
+				//
+				$html='Se encontraron más de 400 registros. Excedio el maximo permitido.';
+				//
+				$mpdf->SetHTMLHeader($header);
+				$mpdf->setFooter('{PAGENO}');
+				$mpdf->AddPage();
+				$mpdf->WriteHTML($style);
+				$mpdf->WriteHTML($html);
+			} elseif( $visitasTotal>0 && $visitasTotal<400 ){
+				$html = ''; $num=1; $cant=0;
+					foreach($array_resultados as $rowVisita){ 
+
+						foreach($rowVisita as $row){ 
+							
+						//if (in_array($row->idUsuario, $arrayGTM)) { 
+							$cant++;
+							//
+							$html.='<br>';
+							$html.='<div class="content">';
+								$html .= '<table class="descripcion">';
+									$html .= '<tbody>';
+										$html .= '<tr>';
+											$html .= '<td>ENCUESTA: <span>'.$row['encuesta'].'</span> </td>';
+										$html .= '</tr>';
+										$html .= '<tr>';
+											$html .= '<td>FECHA: <span>'.$row['fecha'].'</span> </td>';
+										$html .= '</tr>';
+										$html .= '<tr>';
+											$html .= '<td>USUARIO: <span>'.$row['usuario'].'</span>  </td>';
+										$html .= '</tr>';
+										$html .= '<tr>';
+											$html .= '<td>HORA: <span>'.$row['hora'].'</span> </td>';
+										$html .= '</tr>';
+										$html .= '<tr>';
+											$html .= '<td>DISTRIBUIDORA: <span>'.$row['distribuidora'].'</span> </td>';
+										$html .= '</tr>';
+										$html .= '<tr>';
+											$html .= '<td>CLIENTE: <span>'.$row['cliente'].'</span> </td>';
+										$html .= '</tr>';
+										$html .= '<tr class="img">';
+											if(!empty($row['fotos'])){
+												$html .= '<td >';
+												foreach($row['fotos'] as $rowFotos){
+													$html .= '<img class="foto" src="'.('http://movil.visualimpact.com.pe/fotos/impactTrade_Android/encuesta/'.$rowFotos).'" width="280" height="200" />';
+												}
+												$html.=' </td> ';
+											} else {
+												$html .= '<td ><img class="foto" src="'.$www.'/images/sin-imagen.jpg" width="280" height="200" /></td>';
+											}
+										$html .= '</tr>';
+
+										if(!empty($row['preguntas'])){
+											
+											foreach($row['preguntas'] as $rowPreguntas){
+												$html .= '<tr>';
+													if( $rowPreguntas!=null){
+														if( is_array($rowPreguntas['respuesta'])){
+															$resp= implode(" , ", $rowPreguntas['respuesta'] );
+															$html .= '<td>'.$rowPreguntas['nombre'].': <span> '.$resp.'</span> </td>';
+														}else{
+															$html .= '<td>'.$rowPreguntas['nombre'].': <span> '.$rowPreguntas['respuesta'].'</span> </td>';
+														}
+													}
+												$html .= '</tr>';
+											}
+										}
+
+
+									$html .= '</tbody>';
+								$html .= '</table>';
+							$html .= '</div>';
+							//
+							//
+							$mpdf->SetHTMLHeader($header);
+							$mpdf->setFooter('{PAGENO}');
+							$mpdf->AddPage();
+							$mpdf->WriteHTML($style);
+							$mpdf->WriteHTML($html);
+							//
+							$html = '';
+							
+							$num++;
+						
+						}
+					}
+			} else {
+				//
+				$html='No se encontraron resultados para la consulta realizada.';
+				//
+				$mpdf->SetHTMLHeader($header);
+				$mpdf->setFooter('{PAGENO}');
+				$mpdf->AddPage();
+				$mpdf->WriteHTML($style);
+				$mpdf->WriteHTML($html);
+			}
+			//
+
+
+		}
+
+		header('Set-Cookie: fileDownload=true; path=/');
+		header('Cache-Control: max-age=60, must-revalidate');
+		$mpdf->Output("Encuesta.pdf", \Mpdf\Output\Destination::DOWNLOAD);
+
+		
+	}
+
 }

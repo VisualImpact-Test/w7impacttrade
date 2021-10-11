@@ -34,6 +34,9 @@
 				<button type="button" class="btn btn-outline-trade-visual border-0" data-url="filtrar" id="btn-filtrarEncuesta" title="Filtrar">
 					<i class="fa fa-search"></i> <span class="txt_filtro"></span>
 				</button>
+				<button type="button" class="btn btn-outline-trade-visual border-0" data-url="pdf" id="btn-encuesta-pdf" title="PDF">
+					<i class="fa fa-file-pdf"></i> <span class="txt_filtro"></span>
+				</button>
 			</div>
 			<hr>
 			<div class="customizer-content-filter">

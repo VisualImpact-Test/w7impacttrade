@@ -29,65 +29,94 @@
 
 				<?
 				$rows = 0;
-				foreach ($categorias as $idCat => $categoria) {
-					if (isset($elementos[$idCat])) {
-						if (count($elementos[$idCat]) > 0) {
-							$rows += count($elementos[$idCat]);
+				if(!empty($categorias)){
+					foreach ($categorias as $idCat => $categoria) {
+						if (isset($elementos[$idCat])) {
+							if (count($elementos[$idCat]) > 0) {
+								$rows += count($elementos[$idCat]);
+							}
 						}
 					}
-				}
-				$rows = $rows * 4;
+					$rows = $rows * 4;
 				?>
-				<th class="text-center" rowspan="1" colspan="<?= $rows ?>">PRODUCTOS</th>
+					<th class="text-center" rowspan="1" colspan="<?= $rows ?>">PRODUCTOS</th>
+
+				<?
+				}else{
+					?>
+						<th class="text-center" rowspan="1" colspan="1"> - </th>
+					<?
+				}
+				?>
+				
+				
 			</tr>
 
 			<tr>
 				<?
 				$rows = 0;
-				foreach ($categorias as $idCat => $categoria) {
-					if (isset($elementos[$idCat])) {
-						if (count($elementos[$idCat]) > 0) {
-							$rows = count($elementos[$idCat]);
-							$rows = $rows * 4;
-				?>
-							<th class="text-center" rowspan="1" colspan="<?= $rows ?>"><?= $categoria ?></th>
-				<?
+				if(!empty($categorias)){
+					foreach ($categorias as $idCat => $categoria) {
+						if (isset($elementos[$idCat])) {
+							if (count($elementos[$idCat]) > 0) {
+								$rows = count($elementos[$idCat]);
+								$rows = $rows * 4;
+					?>
+								<th class="text-center" rowspan="1" colspan="<?= $rows ?>"><?= $categoria ?></th>
+					<?
+							}
 						}
 					}
+				}else{
+					?>
+						<th class="text-center" rowspan="1" colspan="1"> - </th>
+					<?
 				}
 				?>
 			</tr>
 
 			<tr>
 				<?
-				foreach ($categorias as $idCat => $categoria) {
-					if (isset($elementos[$idCat])) {
-						if (count($elementos[$idCat]) > 0) {
-							foreach ($elementos[$idCat] as $idEle => $eleme) {
-				?>
-								<th class="text-center" colspan="4"><?= $eleme ?></th>
-				<?
+				if(!empty($categorias)){
+					foreach ($categorias as $idCat => $categoria) {
+						if (isset($elementos[$idCat])) {
+							if (count($elementos[$idCat]) > 0) {
+								foreach ($elementos[$idCat] as $idEle => $eleme) {
+					?>
+									<th class="text-center" colspan="4"><?= $eleme ?></th>
+					<?
+								}
 							}
 						}
 					}
+				}else{
+					?>
+						<th class="text-center" rowspan="1" colspan="1"> - </th>
+					<?
 				}
 				?>
 			</tr>
 			<tr>
 				<?
-				foreach ($categorias as $idCat => $categoria) {
-					if (isset($elementos[$idCat])) {
-						if (count($elementos[$idCat]) > 0) {
-							foreach ($elementos[$idCat] as $idEle => $eleme) {
-				?>
-								<th class="text-center noVis" rowspan="1">PRESENCIA</th>
-								<th class="text-center noVis" rowspan="1">OBSERVACION</th>
-								<th class="text-center noVis" rowspan="1">ESTADO</th>
-								<th class="text-center noVis" rowspan="1">FOTO</th>
-				<?
+				if(!empty($categorias)){
+					foreach ($categorias as $idCat => $categoria) {
+						if (isset($elementos[$idCat])) {
+							if (count($elementos[$idCat]) > 0) {
+								foreach ($elementos[$idCat] as $idEle => $eleme) {
+					?>
+									<th class="text-center noVis" rowspan="1">PRESENCIA</th>
+									<th class="text-center noVis" rowspan="1">OBSERVACION</th>
+									<th class="text-center noVis" rowspan="1">ESTADO</th>
+									<th class="text-center noVis" rowspan="1">FOTO</th>
+					<?
+								}
 							}
 						}
 					}
+				}else{
+					?>
+						<th class="text-center" rowspan="1" colspan="1"> - </th>
+					<?
 				}
 				?>
 
@@ -125,64 +154,67 @@
                     <td class="text-left"><?= verificarEmpty($row["provincia"], 3) ?></td>
                     <td class="text-left"><?= verificarEmpty($row["distrito"], 3) ?></td>
 					<?
+					if(!empty($categorias)){
+						foreach ($categorias as $idCat => $categoria) {
+							if (isset($elementos[$idCat])) {
+								if (count($elementos[$idCat]) > 0) {
+									foreach ($elementos[$idCat] as $idEle => $eleme) {
+										$res = true;
 
-					foreach ($categorias as $idCat => $categoria) {
-						if (isset($elementos[$idCat])) {
-							if (count($elementos[$idCat]) > 0) {
-								foreach ($elementos[$idCat] as $idEle => $eleme) {
-									$res = true;
-
-									foreach ($detalle as $row_d) {
-										if ($row['idVisita'] == $row_d['idVisita']) {
-											if ($row_d['idProducto'] == $idEle) {
-												$res = false;
+										foreach ($detalle as $row_d) {
+											if ($row['idVisita'] == $row_d['idVisita']) {
+												if ($row_d['idProducto'] == $idEle) {
+													$res = false;
 
 
-												$elemento_pertenece = false;
-												if (isset($lista)) {
-													if (isset($lista[$row['idVisita']])) {
-														if (isset($lista[$row['idVisita']][$row_d['idProducto']])) {
-															$elemento_pertenece = true;
+													$elemento_pertenece = false;
+													if (isset($lista)) {
+														if (isset($lista[$row['idVisita']])) {
+															if (isset($lista[$row['idVisita']][$row_d['idProducto']])) {
+																$elemento_pertenece = true;
+															}
 														}
 													}
-												}
-					?>
-												<td class="text-center" <?= ($elemento_pertenece) ? 'style="background: #b2d6f5;"' : '' ?>><?= (!empty($row_d['presencia']) ? ($row_d['presencia'] == 1 ? 'SI' : 'NO') : '-') ?></td>
-												<td class="text-center" <?= ($elemento_pertenece) ? 'style="background: #b2d6f5;"' : '' ?>><?= (!empty($row_d['observacion']) ? $row_d['observacion'] : '-') ?></td>
-												<td class="text-center" <?= ($elemento_pertenece) ? 'style="background: #b2d6f5;"' : '' ?>><?= (!empty($row_d['estado']) ? $row_d['estado'] : '-') ?></td>
-												<?
-												$fotoImg = (isset($row_d['foto']) && !empty($row_d['foto'])) ? foto_controlador('surtido/' . $row_d['foto']) : '';
-												if (!empty($fotoImg)) {
-													// $fotoImg = '<a href="javascript:;" class="lk-foto-1" data-content="img-fotoprincipal-' . $row_d['idVisita'] . '-' . $row_d['idProducto'] . '">
-													// 							<img class="fotoMiniatura foto" name="img-fotoprincipal-' . $row_d['idVisita'] . '-' . $row_d['idProducto'] . '" id="img-fotoprincipal-' . $row_d['idVisita'] . '-' . $row_d['idProducto'] . '" src="' . $fotoImg . '" alt=""></a>';
-													$fotoImg = '<button class="btn btn-outline-secondary border-0 lk-foto-1" title="Ver Foto" name="img-fotoprincipal-' . $row_d['idVisita'] . '-' . $row_d['idProducto'] . '" id="img-fotoprincipal-' . $row_d['idVisita'] . '-' . $row_d['idProducto'] . '" data-content="img-fotoprincipal-' . $row_d['idVisita'] . '-' . $row_d['idProducto'] . '" src="' . $fotoImg . '">';
-														$fotoImg .= '<i class="fas fa-image fa-lg"></i>';
-													$fotoImg .= '</button>';
-												}
-												?>
-												<td class="text-center" <?= ($elemento_pertenece) ? 'style="background: #b2d6f5;"' : '' ?>><?= (!empty($fotoImg) ? $fotoImg : '-'); ?></td>
+						?>
+													<td class="text-center" <?= ($elemento_pertenece) ? 'style="background: #b2d6f5;"' : '' ?>><?= (!empty($row_d['presencia']) ? ($row_d['presencia'] == 1 ? 'SI' : 'NO') : '-') ?></td>
+													<td class="text-center" <?= ($elemento_pertenece) ? 'style="background: #b2d6f5;"' : '' ?>><?= (!empty($row_d['observacion']) ? $row_d['observacion'] : '-') ?></td>
+													<td class="text-center" <?= ($elemento_pertenece) ? 'style="background: #b2d6f5;"' : '' ?>><?= (!empty($row_d['estado']) ? $row_d['estado'] : '-') ?></td>
+													<?
+													$fotoImg = (isset($row_d['foto']) && !empty($row_d['foto'])) ? foto_controlador('surtido/' . $row_d['foto']) : '';
+													if (!empty($fotoImg)) {
+														// $fotoImg = '<a href="javascript:;" class="lk-foto-1" data-content="img-fotoprincipal-' . $row_d['idVisita'] . '-' . $row_d['idProducto'] . '">
+														// 							<img class="fotoMiniatura foto" name="img-fotoprincipal-' . $row_d['idVisita'] . '-' . $row_d['idProducto'] . '" id="img-fotoprincipal-' . $row_d['idVisita'] . '-' . $row_d['idProducto'] . '" src="' . $fotoImg . '" alt=""></a>';
+														$fotoImg = '<button class="btn btn-outline-secondary border-0 lk-foto-1" title="Ver Foto" name="img-fotoprincipal-' . $row_d['idVisita'] . '-' . $row_d['idProducto'] . '" id="img-fotoprincipal-' . $row_d['idVisita'] . '-' . $row_d['idProducto'] . '" data-content="img-fotoprincipal-' . $row_d['idVisita'] . '-' . $row_d['idProducto'] . '" src="' . $fotoImg . '">';
+															$fotoImg .= '<i class="fas fa-image fa-lg"></i>';
+														$fotoImg .= '</button>';
+													}
+													?>
+													<td class="text-center" <?= ($elemento_pertenece) ? 'style="background: #b2d6f5;"' : '' ?>><?= (!empty($fotoImg) ? $fotoImg : '-'); ?></td>
 
-										<?
-												break;
+											<?
+													break;
+												}
 											}
 										}
-									}
 
-									if ($res) {
-										?>
-										<td class="text-center" rowspan="1"> - </td>
-										<td class="text-center" rowspan="1"> - </td>
-										<td class="text-center" rowspan="1"> - </td>
-										<td class="text-center" rowspan="1"> - </td>
-					<?
+										if ($res) {
+											?>
+											<td class="text-center" rowspan="1"> - </td>
+											<td class="text-center" rowspan="1"> - </td>
+											<td class="text-center" rowspan="1"> - </td>
+											<td class="text-center" rowspan="1"> - </td>
+						<?
+										}
 									}
 								}
 							}
 						}
+					}else{
+						?>
+							<th class="text-center" rowspan="1" colspan="1"> - </th>
+						<?
 					}
 					?>
-
-
 
 				</tr>
 			<?

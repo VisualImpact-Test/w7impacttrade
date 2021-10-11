@@ -53,8 +53,18 @@ class Fotografico extends MY_Controller
 			, 'tipoUsuario' => !empty($post['sl_tipoUsuario']) ? $post['sl_tipoUsuario'] : ''
 			, 'grupoCanal' => !empty($post['grupo_filtro']) ? $post['grupo_filtro'] : ''
 			, 'canal' => !empty($post['canal_filtro']) ? $post['canal_filtro'] : ''
-			, 'zona' => !empty($post['zona_filtro']) ? $post['zona_filtro'] : ''
+
+
+			, 'tipoUsuario' => !empty($post['tipoUsuario_filtro']) ? $post['tipoUsuario_filtro'] : ''
+			, 'usuario' => !empty($post['usuario_filtro']) ? $post['usuario_filtro'] : ''
+			
+			, 'distribuidoraSucursal' => !empty($post['distribuidoraSucursal_filtro']) ? $post['distribuidoraSucursal_filtro'] : ''
 			, 'distribuidora' => !empty($post['distribuidora_filtro']) ? $post['distribuidora_filtro'] : ''
+			, 'zona' => !empty($post['zona_filtro']) ? $post['zona_filtro'] : ''
+			, 'plaza' => !empty($post['plaza_filtro']) ? $post['plaza_filtro'] : ''
+			, 'cadena' => !empty($post['cadena_filtro']) ? $post['cadena_filtro'] : ''
+			, 'banner' => !empty($post['banner_filtro']) ? $post['banner_filtro'] : ''
+
 		);
 
 		$array['visitas'] = $this->model->obtener_visitas($params);

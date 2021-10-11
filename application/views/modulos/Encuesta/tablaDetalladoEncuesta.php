@@ -3,6 +3,7 @@
         <thead>
             <tr>
                 <th rowspan="2" class="noVis text-center">#</th>
+                <th class="text-center align-middle" rowspan="2">HABILITAR PDF</th>
                 <th rowspan="2" class="text-center">FECHA</th>
                 <th rowspan="2" class="text-center">GRUPO CANAL</th>
                 <th rowspan="2" class="text-center">CANAL</th>
@@ -46,6 +47,9 @@
             ?>
                 <tr>
                     <td><?= $contador ?></td>
+                    <td class="text-center">
+						<input name="check[]" id="check" class="check" type="checkbox" value="<?= $visita['idVisita']; ?>" />
+					</td>
                     <td><?= verificarEmpty($visita["fecha"], 3) ?></td>
                     <td><?= verificarEmpty($visita["grupoCanal"], 3) ?></td>
                     <td><?= verificarEmpty($visita["canal"], 3) ?></td>

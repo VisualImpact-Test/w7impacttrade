@@ -905,15 +905,26 @@ class M_precios extends CI_Model{
 		$sessDemo = $this->demo;
 
 		$filtros = "";
-		if (isset($post["ch-competencia"]) && !in_array("pg", $post["ch-competencia"]) && in_array("competencia", $post["ch-competencia"])) $filtros .= " AND pro.flagCompetencia = 1";
-		if (isset($post["ch-competencia"]) && in_array("pg", $post["ch-competencia"]) && !in_array("competencia", $post["ch-competencia"])) $filtros .= " AND pro.flagCompetencia = 0";
-		if (!empty($post["tipoUsuario"])) $filtros .= " AND uh.idTipoUsuario = " . $post["tipoUsuario"];
-		if (!empty($post["usuario"])) $filtros .= " AND u.idUsuario = " . $post["usuario"];
+		if (!empty($post["ch-competencia"])){
+			if( is_array($post["ch-competencia"])){
+
+			}else if($post["ch-competencia"]=="pg"){
+				$filtros .= " AND pro.flagCompetencia = 0";
+			}else if($post["ch-competencia"]=="competencia"){
+				$filtros .= " AND pro.flagCompetencia = 1";
+			}
+
+		}
+	
 		if (!empty($post["categoria"])) $filtros .= " AND p.idCategoria = " . $post["categoria"];
 		if (!empty($post["marca"])) $filtros .= " AND p.idMarca = " . $post["marca"];
 		if (!empty($post["producto"])) $filtros .= " AND p.idProducto = " . $post["producto"];
 		if (!empty($post["idCuenta"])) $filtros .= " AND r.idCuenta = " . $post["idCuenta"];
 
+		$filtros .= !empty($post['tipoUsuario_filtro']) ? " AND uh.idTipoUsuario=".$post['tipoUsuario_filtro'] : "";
+		$filtros .= !empty($post['usuario_filtro']) ? " AND uh.idUsuario=".$post['usuario_filtro'] : "";
+
+		$filtros .= !empty($post['distribuidoraSucursal_filtro']) ? ' AND ds.idDistribuidoraSucursal='.$post['distribuidoraSucursal_filtro'] : '';
 		$filtros .= !empty($post['distribuidora_filtro']) ? ' AND d.idDistribuidora='.$post['distribuidora_filtro'] : '';
 		$filtros .= !empty($post['zona_filtro']) ? ' AND z.idZona='.$post['zona_filtro'] : '';
 		$filtros .= !empty($post['plaza_filtro']) ? ' AND pl.idPlaza='.$post['plaza_filtro'] : '';
@@ -963,6 +974,10 @@ class M_precios extends CI_Model{
 				JOIN trade.data_visitaPreciosDet vpd ON vp.idVisitaPrecios = vpd.idVisitaPrecios
 				JOIN trade.producto pro ON vpd.idProducto = pro.idProducto
 				JOIN trade.producto_categoria procat ON pro.idCategoria = procat.idCategoria
+				JOIN trade.usuario_historico uh On uh.idUsuario=r.idUsuario
+					and General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,@fecIni,@fecFin)=1
+					and uh.idProyecto=r.idProyecto
+					
 				LEFT JOIN trade.producto_marca promar ON pro.idMarca = promar.idMarca
 
 				LEFT JOIN trade.usuario_tipo ut ON r.idTipoUsuario = ut.idTipoUsuario

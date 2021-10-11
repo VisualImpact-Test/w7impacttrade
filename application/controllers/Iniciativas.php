@@ -61,7 +61,17 @@ class Iniciativas extends MY_Controller
 		$params['subcanal'] =$post['subcanal_filtro'];
 		$params['foto'] =$post['conFoto'];
 		$params['validado'] =$post['validado'];	
-		$params['usuario'] =$post['usuario'];	
+
+		$params['tipoUsuario'] = empty($post->{'tipoUsuario_filtro'}) ? '' : $post->{'tipoUsuario_filtro'};
+		$params['usuario'] = empty($post->{'usuario_filtro'}) ? '' : $post->{'usuario_filtro'};
+		
+		$params['distribuidoraSucursal'] = empty($post->{'distribuidoraSucursal_filtro'}) ? '' : $post->{'distribuidoraSucursal_filtro'};
+		$params['distribuidora'] = empty($post->{'distribuidora_filtro'}) ? '' : $post->{'distribuidora_filtro'};
+		$params['zona'] = empty($post->{'zona_filtro'}) ? '' : $post->{'zona_filtro'};
+		$params['plaza'] = empty($post->{'plaza_filtro'}) ? '' : $post->{'plaza_filtro'};
+		$params['cadena'] = empty($post->{'cadena_filtro'}) ? '' : $post->{'cadena_filtro'};
+		$params['banner'] = empty($post->{'banner_filtro'}) ? '' : $post->{'banner_filtro'};
+
 
 		$elementos="";
 		if( !empty($post['idElemento'])){

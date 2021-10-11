@@ -35,8 +35,12 @@ var Premiaciones = {
 			var f = $('#txt-fechas').val();
 			var fechas = f.split('-');
 
-			datos['fecIni'] = fechas[0];
-			datos['fecFin'] = fechas[1];
+			//datos['fecIni'] = fechas[0];
+			//datos['fecFin'] = fechas[1];
+			var datos = Fn.formSerializeObject('formFiltroPremiaciones');
+			datos['fecIni']= fechas[0];
+			datos['fecFin']= fechas[1];
+			
 			var data = { 'data': JSON.stringify({ datos }) };
 			var url = Premiaciones.url + 'premiaciones_pdf';
 			Fn.download(url, data);

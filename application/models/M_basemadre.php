@@ -117,7 +117,13 @@ class M_basemadre extends MY_Model{
 				$filtros .= !empty($input['cadena_filtro']) ? ' AND cd.idCadena='.$input['cadena_filtro'] : '';
 				$filtros .= !empty($input['banner_filtro']) ? ' AND b.idBanner='.$input['banner_filtro'] : '';
 			}
-
+		
+		if($input['idProyecto']==14){
+			$tabla_historico= 'trade.cliente_historico_aje';
+		}else{
+			$tabla_historico= getClienteHistoricoCuenta();
+		}
+		
 		$segmentacion = getSegmentacion(['grupoCanal_filtro' => $input['grupoCanal']]);
 		$sql = "
 		DECLARE @fecIni date='".$input['fecIni']."',@fecFin date='".$input['fecFin']."';
@@ -141,7 +147,7 @@ class M_basemadre extends MY_Model{
 			, ctp.nombre AS clienteTipo
 		FROM
 			trade.cliente c
-			JOIN ".getClienteHistoricoCuenta()." ch ON ch.idCliente = c.idCliente 
+			JOIN ".$tabla_historico." ch ON ch.idCliente = c.idCliente 
 				AND (
 					ch.fecIni <= ISNULL( ch.fecFin, @fecFin)
 					AND (

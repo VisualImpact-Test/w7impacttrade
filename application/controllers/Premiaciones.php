@@ -47,7 +47,21 @@ class Premiaciones extends MY_Controller
 		$fechaIni = $fechas[0];
 		$fechaFin = $fechas[1];
 		$params = array(
-			'fecIni' => $fechaIni, 'fecFin' => $fechaFin, 'idPremiacion' => $post['sel-premiacion'], 'idGrupoCanal' => $post['grupoCanal_filtro'], 'idCanal' => $post['canal_filtro']
+			'fecIni' => $fechaIni, 'fecFin' => $fechaFin, 
+			'idPremiacion' => $post['sel-premiacion'], 
+			'idGrupoCanal' => $post['grupoCanal_filtro'], 
+			'idCanal' => $post['canal_filtro'],
+			
+			'tipoUsuario' => empty($data->{'tipoUsuario_filtro'}) ? '' : $data->{'tipoUsuario_filtro'},
+			'usuario' => empty($data->{'usuario_filtro'}) ? '' : $data->{'usuario_filtro'},
+			
+			'distribuidoraSucursal' => empty($data->{'distribuidoraSucursal_filtro'}) ? '' : $data->{'distribuidoraSucursal_filtro'},
+			'distribuidora' => empty($data->{'distribuidora_filtro'}) ? '' : $data->{'distribuidora_filtro'},
+			'zona' => empty($data->{'zona_filtro'}) ? '' : $data->{'zona_filtro'},
+			'plaza' => empty($data->{'plaza_filtro'}) ? '' : $data->{'plaza_filtro'},
+			'cadena' => empty($data->{'cadena_filtro'}) ? '' : $data->{'cadena_filtro'},
+			'banner' => empty($data->{'banner_filtro'}) ? '' : $data->{'banner_filtro'},
+	
 		);
 		$array['premiaciones'] = $this->model->obtener_premiacionesvisita($params);
 
@@ -77,8 +91,21 @@ class Premiaciones extends MY_Controller
 		$fecFin = $post['datos']['fecFin'];
 		
 		$params = array(
-			  'fecIni' => $fecIni
-			, 'fecFin' => $fecFin
+			  'fecIni' => $fecIni,
+			   'fecFin' => $fecFin,
+			'idPremiacion' => $post['datos']['sel-premiacion'],
+			'idGrupoCanal' => $post['datos']['grupoCanal_filtro'], 
+			'idCanal' => $post['datos']['canal_filtro'],
+			
+			'tipoUsuario' => empty( $post['datos']['tipoUsuario_filtro']) ? '' :  $post['datos']['tipoUsuario_filtro'],
+			'usuario' => empty( $post['datos']['usuario_filtro']) ? '' :  $post['datos']['usuario_filtro'],
+			
+			'distribuidoraSucursal' => empty( $post['datos']['distribuidoraSucursal_filtro']) ? '' :  $post['datos']['distribuidoraSucursal_filtro'],
+			'distribuidora' => empty( $post['datos']['distribuidora_filtro']) ? '' :  $post['datos']['distribuidora_filtro'],
+			'zona' => empty( $post['datos']['zona_filtro']) ? '' :  $post['datos']['zona_filtro'],
+			'plaza' => empty( $post['datos']['plaza_filtro']) ? '' :  $post['datos']['plaza_filtro'],
+			'cadena' => empty( $post['datos']['cadena_filtro']) ? '' :  $post['datos']['cadena_filtro'],
+			'banner' => empty( $post['datos']['banner_filtro']) ? '' :  $post['datos']['banner_filtro'],
 		);
 
 		$visitasTotal = $this->model->obtener_premiacionesvisita($params);

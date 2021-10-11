@@ -58,12 +58,6 @@
                             </div>
                         </div>
                         <div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip">
-                            <span class="tooltiptext">Tipo Usuario</span>
-                            <select name="sl_tipoUsuario" id="sl_tipoUsuario" class="ui my_select2Full form-control">
-                                <?= htmlSelectOptionArray2(['query' => $tiposUsuario, 'id' => 'idTipoUsuario', 'value' => 'nombre', 'title' => '-- Tipo Usuario --']); ?>
-                            </select>
-                        </div>
-                        <div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip">
                             <span class="tooltiptext">Grupo Canal</span>
                             <?= getFiltros(['grupoCanal' => ['label' => false, 'name' => 'grupo_filtro', 'id' => 'grupo_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]) ?>
                         </div>
@@ -71,14 +65,53 @@
                             <span class="tooltiptext">Canal</span>
                             <?= getFiltros(['canal' => ['label' => 'Canal', 'name' => 'canal_filtro', 'id' => 'canal_filtro', 'data' => false, 'select2' => 'ui my_select2Full', 'html' => '']]) ?>
                         </div>
-                        <div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip">
-                            <span class="tooltiptext">Zona</span>
-                            <?= getFiltros(['zona' => ['label' => 'Zona', 'name' => 'zona_filtro', 'id' => 'zona_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]); ?>
-                        </div>
-                        <div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip">
-                            <span class="tooltiptext">Distribuidora</span>
-                            <?= getFiltros(['distribuidora' => ['label' => 'Distribuidora', 'name' => 'distribuidora_filtro', 'id' => 'distribuidora_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]); ?>
-                        </div>
+
+                        <div class="mb-2 mr-sm-2  position-relative form-group filtros_asistencia custom_tooltip">
+							<span class="tooltiptext">Tipo Usuario</span>
+							<?= getFiltros(['tipoUsuario' => ['label' => 'Tipo usuario', 'name' => 'tipoUsuario_filtro', 'id' => 'tipoUsuario_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]) ?>
+						</div>
+						<div class="mb-2 mr-sm-2  position-relative form-group filtros_asistencia custom_tooltip">
+							<span class="tooltiptext">Usuarios <i class="clean_usuario_filtro fas fa-times"></i></span>
+							<select class="form-control" id="usuario_filtro" name="usuario_filtro">
+								<option value=""> Cod Usuario -- Nombre Usuario </option>
+							</select>
+						</div>
+                        
+                        <div class="filtros_secundarios">
+							<div class="filtros_generados">
+								<h5 class="mt-1 mb-1 text-bold-500"><i class="fal fa-table"></i> Filtros Generados</h5>
+								<div class="filtros_gc filtros_HFS d-none">
+									<div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip">
+										<span class="tooltiptext">Distribuidora</span>
+										<?= getFiltros(['distribuidora' => ['label' => 'Distribuidora', 'name' => 'distribuidora_filtro', 'id' => 'distribuidora_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]); ?>
+									</div>
+									<div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip">
+										<span class="tooltiptext">Sucursal</span>
+										<?= getFiltros(['distribuidoraSucursal' => ['label' => 'Distribuidora Sucursal', 'name' => 'distribuidoraSucursal_filtro', 'id' => 'distribuidoraSucursal_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]); ?>
+									</div>
+									<div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip">
+										<span class="tooltiptext">Zona</span>
+										<?= getFiltros(['zona' => ['label' => 'Zona', 'name' => 'zona_filtro', 'id' => 'zona_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]); ?>
+									</div>
+								</div>
+								<div class="filtros_gc filtros_WHLS d-none">
+									<div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip">
+										<span class="tooltiptext">Plaza</span>
+										<?= getFiltros(['plaza' => ['label' => 'Plaza', 'name' => 'plaza_filtro', 'id' => 'plaza_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]); ?>
+									</div>
+								</div>
+								<div class="filtros_gc filtros_HSM filtros_Moderno d-none">
+									<div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip">
+										<span class="tooltiptext">Cadena</span>
+										<?= getFiltros(['cadena' => ['label' => 'Cadena', 'name' => 'cadena_filtro', 'id' => 'cadena_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]); ?>
+									</div>
+									<div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip">
+										<span class="tooltiptext">Banner</span>
+										<?= getFiltros(['banner' => ['label' => 'Banner', 'name' => 'banner_filtro', 'id' => 'banner_filtro', 'data' => false, 'select2' => 'ui my_select2Full', 'html' => '']]); ?>
+									</div>
+								</div>
+							</div>
+						</div>
                     </div>
                 </div>
             </div>

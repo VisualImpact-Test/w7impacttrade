@@ -17,6 +17,10 @@ class M_ordenTrabajo extends MY_Model{
 		$filtros .= !empty($input['grupoCanal_filtro']) ? ' AND ca.idGrupoCanal='.$input['grupoCanal_filtro'] : '';
 		$filtros .= !empty($input['canal_filtro']) ? ' AND v.idCanal='.$input['canal_filtro'] : '';
 
+		$filtros .= !empty($input['tipoUsuario_filtro']) ? " AND uh.idTipoUsuario=".$input['tipoUsuario_filtro'] : "";
+		$filtros .= !empty($input['usuario_filtro']) ? " AND uh.idUsuario=".$input['usuario_filtro'] : "";
+
+		$filtros .= !empty($input['distribuidoraSucursal_filtro']) ? ' AND ds.idDistribuidoraSucursal='.$input['distribuidoraSucursal_filtro'] : '';
 		$filtros .= !empty($input['distribuidora_filtro']) ? ' AND d.idDistribuidora='.$input['distribuidora_filtro'] : '';
 		$filtros .= !empty($input['zona_filtro']) ? ' AND z.idZona='.$input['zona_filtro'] : '';
 		$filtros .= !empty($input['plaza_filtro']) ? ' AND pl.idPlaza='.$input['plaza_filtro'] : '';
@@ -64,6 +68,10 @@ class M_ordenTrabajo extends MY_Model{
 				{$segmentacion['columnas_bd']}
 			FROM trade.data_ruta r
 			JOIN trade.data_visita v ON v.idRuta=r.idRuta
+			JOIN trade.usuario_historico uh On uh.idUsuario=r.idUsuario
+				AND General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,@fecIni,@fecFin)=1
+				AND uh.idProyecto=r.idProyecto
+				
 			JOIN ".getClienteHistoricoCuenta()." ch
 				ON ch.idCliente = v.idCliente
 				AND General.dbo.fn_fechaVigente(ch.fecIni,ch.fecFin,@fecIni,@fecFin)=1
@@ -74,7 +82,6 @@ class M_ordenTrabajo extends MY_Model{
 				ON sn.idSubCanal=sc.idSubCanal
 			LEFT JOIN trade.cliente_tipo ct
 				ON ct.idClienteTipo = sn.idClienteTipo
-			LEFT JOIN trade.zona z ON z.idZona = ch.idZona
 
 			JOIN trade.data_visitaVisibilidadObligatorio vvo ON vvo.idVisita=v.idVisita
 			JOIN trade.data_visitaVisibilidadObligatorioDet vvd ON vvd.idVisitaVisibilidad=vvo.idVisitaVisibilidad
@@ -88,6 +95,7 @@ class M_ordenTrabajo extends MY_Model{
 			--LEFT JOIN trade.distribuidoraSucursal ds ON ds.idDistribuidoraSucursal=v.idDistribuidoraSucursal
 			--LEFT JOIN trade.distribuidora d ON d.idDistribuidora=ds.idDistribuidora
 			--LEFT JOIN General.dbo.ubigeo ubi1 ON ubi1.cod_ubigeo=ds.cod_ubigeo
+
 
 			LEFT JOIN trade.encargado ec ON ec.idEncargado=r.idEncargado
 			LEFT JOIN trade.usuario us ON us.idUsuario=ec.idUsuario

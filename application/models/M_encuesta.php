@@ -74,6 +74,8 @@ class M_encuesta extends MY_Model
 			$orderby = 'ORDER BY fecha, tipoUsuario, distribuidora, canal, ciudad, provincia, distrito ASC';
 		}
 
+		if (!empty($input['elementos_det'])) $filtros .= " AND v.idVisita IN (  ".$input['elementos_det']." )";
+
 		$sql = "
 		DECLARE @fecIni DATE='" . $fechas[0] . "',@fecFin DATE='" . $fechas[1] . "';
 		SELECT DISTINCT
@@ -98,10 +100,15 @@ class M_encuesta extends MY_Model
 				, v.lonIni longitud
 				, ti.nombre incidencia
 				, ve.idVisitaEncuesta encuestado
+				, v.horaIni
+				, e.idEncuesta
+				, e.nombre encuesta
 				{$segmentacion['columnas_bd']}
 			FROM trade.data_ruta r
 			JOIN trade.data_visita v ON r.idRuta=v.idRuta
 			JOIN trade.data_visitaEncuesta ve ON v.idVisita=ve.idVisita
+			JOIN trade.encuesta e ON e.idEncuesta=ve.idEncuesta
+
 			JOIN trade.cliente c ON v.idCliente=c.idCliente
 			LEFT JOIN General.dbo.ubigeo ubi01 ON c.cod_ubigeo=ubi01.cod_ubigeo
 			JOIN trade.canal ca ON ca.idCanal = v.idCanal
@@ -160,7 +167,6 @@ class M_encuesta extends MY_Model
 				$filtros
 			ORDER BY e.idEncuesta,ep.orden
 		";
-		
 		return $this->db->query($sql);
 	}
 
@@ -175,11 +181,17 @@ class M_encuesta extends MY_Model
 		$filtros .= !empty($input['idGrupoCanal']) ? ' AND ca.idGrupoCanal = '.$input['idGrupoCanal'] : '';
 		$filtros .= !empty($input['idCanal']) ? ' AND ca.idCanal = '.$input['idCanal'] : '';
 		
+		
+
+
 		if (!empty($input['idEncuesta'])) $filtros .= " AND ve.idEncuesta IN ( " . $input['idEncuesta']. ')';
+
+		if (!empty($input['elementos_det'])) $filtros .= " AND v.idVisita IN (  ".$input['elementos_det']." )";
+
 		$sql = "
 		DECLARE @fecIni DATE='" . $fechas[0] . "',@fecFin DATE='" . $fechas[1] . "';
 			SELECT
-				v.idVisita,ve.idEncuesta,vf.fotoUrl imgRef,
+				v.idVisita,ve.idEncuesta,vf.idVisitaFoto,vf.fotoUrl imgRef,
 				ep.idPregunta,ep.idTipoPregunta,
 				isnull(ea.nombre,ved.respuesta) 'respuesta'
 				, v.idCliente
@@ -216,9 +228,11 @@ class M_encuesta extends MY_Model
 			LEFT JOIN trade.encargado enc ON enc.idEncargado=sub.idEncargado
 
 			WHERE r.estado=1 AND v.estado=1  AND r.demo=0
+			
 			AND r.fecha between @fecIni AND @fecFin 
 		$filtros
 		";
+		
 		
 		return $this->db->query($sql);
 	}

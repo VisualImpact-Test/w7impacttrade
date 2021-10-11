@@ -19,11 +19,19 @@ class M_fotografico extends MY_Model{
 	public function obtener_visitas($input=array()){
 		$filtros = "";
 
-		!empty($input['tipoUsuario']) ? $filtros .= " AND r.idTipoUsuario = {$input['tipoUsuario']} ":  '';
 		!empty($input['grupoCanal']) ? $filtros .= " AND gc.idGrupoCanal = {$input['grupoCanal']} ":  '';
 		!empty($input['canal']) ? $filtros .= " AND ca.idCanal = {$input['canal']} ":  '';
-		!empty($input['distribuidora']) ? $filtros .= " AND d.idDistribuidora = {$input['distribuidora']} ":  '';
-		!empty($input['zona']) ? $filtros .= " AND ch.idZona = {$input['zona']} ":  '';
+
+		$filtros .= !empty($input['tipoUsuario']) ? " AND uh.idTipoUsuario=".$input['tipoUsuario'] : "";
+		$filtros .= !empty($input['usuario']) ? " AND uh.idUsuario=".$input['usuario'] : "";
+
+		$filtros .= !empty($input['distribuidoraSucursal']) ? ' AND ds.idDistribuidoraSucursal='.$input['distribuidoraSucursal'] : '';
+		$filtros .= !empty($input['distribuidora']) ? ' AND d.idDistribuidora='.$input['distribuidora'] : '';
+		$filtros .= !empty($input['zona']) ? ' AND z.idZona='.$input['zona'] : '';
+		$filtros .= !empty($input['plaza']) ? ' AND pl.idPlaza='.$input['plaza'] : '';
+		$filtros .= !empty($input['cadena']) ? ' AND cad.idCadena='.$input['cadena'] : '';
+		$filtros .= !empty($input['banner']) ? ' AND ba.idBanner='.$input['banner'] : '';
+
 		
 		$demo = $this->demo;
 		$filtro_demo = '';
@@ -55,6 +63,9 @@ class M_fotografico extends MY_Model{
 				trade.data_visita v
 				JOIN trade.data_ruta r
 					ON r.idRuta = v.idRuta
+				JOIN trade.usuario_historico uh On uh.idUsuario=r.idUsuario
+					and General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,@fecIni,@fecFin)=1
+					and uh.idProyecto=r.idProyecto
 				JOIN trade.cliente c 
 					ON c.idCliente = v.idCliente
 				JOIN ".getClienteHistoricoCuenta()." ch
@@ -79,7 +90,6 @@ class M_fotografico extends MY_Model{
 				{$filtros}
 				{$filtro_demo}
 		";
-
 		return $this->query($sql);
 	}
 	

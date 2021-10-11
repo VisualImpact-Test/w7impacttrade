@@ -10,18 +10,22 @@ class M_inteligencia extends MY_Model{
 	public function obtener_visitas($input=array()){
 		$filtros = "";
 		if(empty($input['proyecto_filtro'])){
-		$filtros.= getPermisos('cuenta');
+			$filtros.= getPermisos('cuenta');
 		}else{
-		$filtros .= !empty($input['idCuenta']) ? ' AND r.idCuenta='.$input['idCuenta'] : '';
-		$filtros .= !empty($input['proyecto_filtro']) ? ' AND r.idProyecto='.$input['proyecto_filtro'] : '';
-		$filtros .= !empty($input['grupoCanal_filtro']) ? ' AND ca.idGrupoCanal='.$input['grupoCanal_filtro'] : '';
-		$filtros .= !empty($input['canal_filtro']) ? ' AND v.idCanal='.$input['canal_filtro'] : '';
+			$filtros .= !empty($input['idCuenta']) ? ' AND r.idCuenta='.$input['idCuenta'] : '';
+			$filtros .= !empty($input['proyecto_filtro']) ? ' AND r.idProyecto='.$input['proyecto_filtro'] : '';
+			$filtros .= !empty($input['grupoCanal_filtro']) ? ' AND ca.idGrupoCanal='.$input['grupoCanal_filtro'] : '';
+			$filtros .= !empty($input['canal_filtro']) ? ' AND v.idCanal='.$input['canal_filtro'] : '';
 
-		$filtros .= !empty($input['distribuidora_filtro']) ? ' AND d.idDistribuidora='.$input['distribuidora_filtro'] : '';
-		$filtros .= !empty($input['zona_filtro']) ? ' AND z.idZona='.$input['zona_filtro'] : '';
-		$filtros .= !empty($input['plaza_filtro']) ? ' AND pl.idPlaza='.$input['plaza_filtro'] : '';
-		$filtros .= !empty($input['cadena_filtro']) ? ' AND cad.idCadena='.$input['cadena_filtro'] : '';
-		$filtros .= !empty($input['banner_filtro']) ? ' AND ba.idBanner='.$input['banner_filtro'] : '';
+			$filtros .= !empty($input['tipoUsuario_filtro']) ? " AND uh.idTipoUsuario=".$input['tipoUsuario_filtro'] : "";
+			$filtros .= !empty($input['usuario_filtro']) ? " AND uh.idUsuario=".$input['usuario_filtro'] : "";
+
+			$filtros .= !empty($input['distribuidoraSucursal_filtro']) ? ' AND ds.idDistribuidoraSucursal='.$input['distribuidoraSucursal_filtro'] : '';
+			$filtros .= !empty($input['distribuidora_filtro']) ? ' AND d.idDistribuidora='.$input['distribuidora_filtro'] : '';
+			$filtros .= !empty($input['zona_filtro']) ? ' AND z.idZona='.$input['zona_filtro'] : '';
+			$filtros .= !empty($input['plaza_filtro']) ? ' AND pl.idPlaza='.$input['plaza_filtro'] : '';
+			$filtros .= !empty($input['cadena_filtro']) ? ' AND cad.idCadena='.$input['cadena_filtro'] : '';
+			$filtros .= !empty($input['banner_filtro']) ? ' AND ba.idBanner='.$input['banner_filtro'] : '';
 		}
 
 		$segmentacion = getSegmentacion($input);
@@ -65,6 +69,11 @@ class M_inteligencia extends MY_Model{
 			JOIN trade.data_visita v ON v.idRuta=r.idRuta
 			JOIN ".getClienteHistoricoCuenta()." ch
 				ON ch.idCliente = v.idCliente AND General.dbo.fn_fechaVigente(ch.fecIni,ch.fecFin,@fecIni,@fecFin)=1
+			JOIN trade.usuario_historico uh On uh.idUsuario=r.idUsuario
+			 and General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,@fecIni,@fecFin)=1
+			 and uh.idProyecto=r.idProyecto
+
+
 			LEFT JOIN trade.cliente c ON v.idCliente = c.idCliente
 			LEFT JOIN trade.segmentacionNegocio sn
 				ON sn.idSegNegocio = ch.idSegNegocio
@@ -78,11 +87,6 @@ class M_inteligencia extends MY_Model{
 			JOIN trade.grupoCanal gc ON ca.idGrupoCanal=gc.idGrupoCanal
 			LEFT JOIN General.dbo.ubigeo ubi ON ubi.cod_ubigeo=v.cod_ubigeo
 
-			--LEFT JOIN trade.plaza pl ON pl.idPlaza=v.idPlaza
-			--LEFT JOIN trade.distribuidoraSucursal ds ON ds.idDistribuidoraSucursal=v.idDistribuidoraSucursal
-			--LEFT JOIN trade.distribuidora d ON d.idDistribuidora=ds.idDistribuidora
-			--LEFT JOIN General.dbo.ubigeo ubi1 ON ubi1.cod_ubigeo=ds.cod_ubigeo
-
 			LEFT JOIN trade.encargado ec ON ec.idEncargado=r.idEncargado
 			LEFT JOIN trade.usuario us ON us.idUsuario=ec.idUsuario
 			LEFT JOIN trade.usuario_tipo ut ON r.idTipoUsuario = ut.idTipoUsuario
@@ -91,7 +95,6 @@ class M_inteligencia extends MY_Model{
 			AND r.demo = 0 AND r.estado = 1 AND v.estado = 1{$filtros}
 			ORDER BY fecha, departamento, canal, tipoUsuario, supervisor, nombreUsuario  ASC
 		";		
-
 		$query = $this->db->query($sql);
 		$result = array();
 		if ( $query ) {
@@ -111,6 +114,7 @@ class M_inteligencia extends MY_Model{
 			$filtros .= !empty($input['grupoCanal_filtro']) ? ' AND ca.idGrupoCanal='.$input['grupoCanal_filtro'] : '';
 			$filtros .= !empty($input['canal_filtro']) ? ' AND v.idCanal='.$input['canal_filtro'] : '';
 			$filtros .= !empty($input['idTipo']) ? ' AND cp.idTipoElementoCompetencia='.$input['idTipo'] : '';
+			
 		}
 
 		$sql = "

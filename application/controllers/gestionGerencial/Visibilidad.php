@@ -49,6 +49,21 @@ class Visibilidad extends MY_Controller{
 		$input['grupoCanal_filtro'] = $data->{'grupoCanal_filtro'};
 		$input['canal_filtro'] = $data->{'canal_filtro'};
 
+		$input['subcanal_filtro'] = empty($data->{'subcanal_filtro'}) ? '' : $data->{'subcanal_filtro'};
+
+
+		$input['tipoUsuario_filtro'] = empty($data->{'tipoUsuario_filtro'}) ? '' : $data->{'tipoUsuario_filtro'};
+		$input['usuario_filtro'] = empty($data->{'usuario_filtro'}) ? '' : $data->{'usuario_filtro'};
+
+		$input['distribuidoraSucursal_filtro'] = empty($data->{'distribuidoraSucursal_filtro'}) ? '' : $data->{'distribuidoraSucursal_filtro'};
+		$input['distribuidora_filtro'] = empty($data->{'distribuidora_filtro'}) ? '' : $data->{'distribuidora_filtro'};
+		$input['zona_filtro'] = empty($data->{'zona_filtro'}) ? '' : $data->{'zona_filtro'};
+		$input['plaza_filtro'] = empty($data->{'plaza_filtro'}) ? '' : $data->{'plaza_filtro'};
+		$input['cadena_filtro'] = empty($data->{'cadena_filtro'}) ? '' : $data->{'cadena_filtro'};
+		$input['banner_filtro'] = empty($data->{'banner_filtro'}) ? '' : $data->{'banner_filtro'};
+
+
+
 		if(isset( $data->{'idElemento'})){
 			$elementos = $data->{'idElemento'};
 			if(is_array($elementos)){
@@ -137,6 +152,21 @@ class Visibilidad extends MY_Controller{
 		$params['proyecto_filtro'] = $post->{'proyecto_filtro'};
 		$params['grupoCanal_filtro'] = $post->{'grupoCanal_filtro'};
 		$params['canal_filtro'] = $post->{'canal_filtro'};
+
+
+		$params['subcanal_filtro'] = empty($data->{'subcanal_filtro'}) ? '' : $data->{'subcanal_filtro'};
+
+
+		$params['tipoUsuario_filtro'] = empty($data->{'tipoUsuario_filtro'}) ? '' : $data->{'tipoUsuario_filtro'};
+		$params['usuario_filtro'] = empty($data->{'usuario_filtro'}) ? '' : $data->{'usuario_filtro'};
+
+		$params['distribuidoraSucursal_filtro'] = empty($data->{'distribuidoraSucursal_filtro'}) ? '' : $data->{'distribuidoraSucursal_filtro'};
+		$params['distribuidora_filtro'] = empty($data->{'distribuidora_filtro'}) ? '' : $data->{'distribuidora_filtro'};
+		$params['zona_filtro'] = empty($data->{'zona_filtro'}) ? '' : $data->{'zona_filtro'};
+		$params['plaza_filtro'] = empty($data->{'plaza_filtro'}) ? '' : $data->{'plaza_filtro'};
+		$params['cadena_filtro'] = empty($data->{'cadena_filtro'}) ? '' : $data->{'cadena_filtro'};
+		$params['banner_filtro'] = empty($data->{'banner_filtro'}) ? '' : $data->{'banner_filtro'};
+		
 		/*====Filtrado=====*/
 
 		if(is_array($elementos)){
