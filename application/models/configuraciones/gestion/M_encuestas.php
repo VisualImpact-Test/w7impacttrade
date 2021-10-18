@@ -371,6 +371,7 @@ class M_encuestas extends My_Model
 		];
 		if(!empty($post['fechaFin'])){$insert['fecFin']=$post['fechaFin'];}
 		if(!empty($post['cliente'])){$insert['idCliente']=$post['cliente'];}
+		if(!empty($post['grupoCanal_form'])){$insert['idGrupoCanal']=$post['grupoCanal_form'];}
 		if(!empty($post['canal_form'])){$insert['idCanal']=$post['canal_form'];}
 		if(!empty($post['tipoUsuario_form'])){$insert['idTipoUsuario']=$post['tipoUsuario_form'];}
 
@@ -435,8 +436,9 @@ class M_encuestas extends My_Model
 			'fechaModificacion' => getActualDateTime(),
 		];
 		if(!empty($post['fechaFin'])){$update['fecFin']=$post['fechaFin'];}
-		if(!empty($post['canal_form'])){$update['idCanal']=$post['canal_form'];}
-		if(!empty($post['tipoUsuario_form'])){$update['idTipoUsuario']=$post['tipoUsuario_form'];}
+		if(!empty($post['grupoCanal_form'])){$update['idGrupoCanal']=$post['grupoCanal_form'];}
+		if(!empty($post['canal_form'])){$update['idCanal']=$post['canal_form'];}else{$update['idCanal']=NULL;}
+		if(!empty($post['tipoUsuario_form'])){$update['idTipoUsuario']=$post['tipoUsuario_form'];}else{$update['idTipoUsuario']=NULL;}
 
 		$where = [
 			$this->tablas['lista']['id'] => $post['idLista']
@@ -483,13 +485,13 @@ class M_encuestas extends My_Model
 				,cli.razonSocial
 				,cli.codCliente
 				, ut. nombre as tipo
-				, c.idGrupoCanal
+				, gc.idGrupoCanal
 				, gc.nombre as grupoCanal
 				FROM trade.list_encuesta lst
 				JOIN trade.proyecto p ON p.idProyecto  = lst.idProyecto
 				JOIN trade.cuenta cu ON cu.idCuenta=p.idCuenta
 				LEFT JOIN trade.canal c ON c.idCanal = lst.idCanal
-				LEFT JOIN trade.grupoCanal gc ON gc.idGrupoCanal=c.idGrupoCanal
+				LEFT JOIN trade.grupoCanal gc ON gc.idGrupoCanal=lst.idGrupoCanal
 				LEFT JOIN trade.cliente cli ON cli.idCliente = lst.idCliente
 				LEFT JOIN trade.Usuario_tipo ut ON ut.idTipoUsuario = lst.idTipoUsuario
 				{$filtros}

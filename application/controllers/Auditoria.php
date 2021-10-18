@@ -107,6 +107,8 @@ class Auditoria extends MY_Controller{
 				$data['resultados_obligatorios'][$row['idVisita']][$row['idElementoVis']][3]['presencia'] == 1
 			){
 				$data['total_eo_si'][$row['idVisita']][$row['idElementoVis']] = $row['idElementoVis'];
+				if( isset($data['total_eo_no'][$row['idVisita']][$row['idElementoVis']]) )
+					unset($data['total_eo_no'][$row['idVisita']][$row['idElementoVis']]);
 			}
 			else{
 				$data['total_eo_no'][$row['idVisita']][$row['idElementoVis']] = $row['idElementoVis'];

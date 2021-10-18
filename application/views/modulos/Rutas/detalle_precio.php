@@ -6,8 +6,10 @@
 			<th class="text-center align-middle">#</th>
 			<th class="text-center align-middle">PRODUCTO</th>
 			<th class="text-center align-middle">PRECIO</th>
-			<th class="text-center align-middle">PRECIO REGULAR</th>
-			<th class="text-center align-middle">PRECIO OFERTA</th>
+			<!-- <th class="text-center align-middle">PRECIO REGULAR</th>
+			<th class="text-center align-middle">PRECIO OFERTA</th> -->
+
+			<?=getColumnasAdicionales(['idModulo' => 10])['headers_adicionales'];?>
 		</tr>
 	</thead>
 	<tbody>
@@ -16,8 +18,11 @@
 				<td><?=$i++?></td>
 				<td><?=$row['producto']?></td>
 				<td class="text-center"><?=!empty($row['precio'])? $row['precio'] : '-'?></td>
-				<td class="text-center"><?=!empty($row['precioRegular'])? $row['precioRegular'] : '-'?></td>
-				<td class="text-center"><?=!empty($row['precioOferta'])? $row['precioOferta'] : '-'?></td>
+				<!-- <td class="text-center"><?=!empty($row['precioRegular'])? $row['precioRegular'] : '-'?></td>
+				<td class="text-center"><?=!empty($row['precioOferta'])? $row['precioOferta'] : '-'?></td> -->
+				<? foreach(getColumnasAdicionales(['idModulo' => 10])['body_adicionales'] AS $k => $r) {?>
+					<td class="text-center"><?=verificarEmpty($row[$r], 3)?></td>
+				<? } ?>
 			</tr>
 		<? } ?>
 	</tbody>

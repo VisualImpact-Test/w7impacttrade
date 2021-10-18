@@ -38,7 +38,7 @@
 					<td class="text-left"><?= verificarEmpty($fila['canal'], 3); ?></td>
 					<td class="text-left"><?= verificarEmpty($fila['subCanal'], 3); ?></td>
 					<? foreach ($segmentacion['headers'] as $k => $v) { ?>
-						<td class="text-<?= (!empty($row[($v['columna'])]) ? $v['align'] : 'left') ?>"><?= (!empty($row[($v['columna'])]) ? $row[($v['columna'])] : '-') ?></td>
+						<td class="text-<?= (!empty($fila[($v['columna'])]) ? $v['align'] : 'left') ?>"><?= (!empty($fila[($v['columna'])]) ? $fila[($v['columna'])] : '-') ?></td>
 					<? } ?>
 					<td class="text-center"><?= verificarEmpty($fila['idCliente'], 3); ?></td>
 					<td class="text-center"><?= verificarEmpty($fila['codCliente'], 3); ?></td>

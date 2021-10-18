@@ -239,6 +239,13 @@ class Control extends MY_Controller{
 
 		echo json_encode($result);
 	}
+	public function json_pdv(){
+		$result = $this->result;
+		$get = $this->input->get();
+		$result['items']= $this->m_control->get_clientes_json($get)->result_array();
+
+		echo json_encode($result);
+	}
 
 }
 ?>

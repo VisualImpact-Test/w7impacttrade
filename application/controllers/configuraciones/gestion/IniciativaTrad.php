@@ -66,6 +66,8 @@ class Iniciativatrad extends MY_Controller
 
 		$config = array();
 		$config['css']['style'] = [
+			'assets/libs/datatables/dataTables.bootstrap4.min',
+			'assets/libs/datatables/buttons.bootstrap4.min',
 			'assets/libs/dataTables-1.10.20/datatables',
 			'assets/libs/handsontable@7.4.2/dist/handsontable.full.min',
 			'assets/libs/handsontable@7.4.2/dist/pikaday/pikaday'
@@ -88,7 +90,6 @@ class Iniciativatrad extends MY_Controller
 		$config['data']['title'] = 'Iniciativas';
 		$config['data']['message'] = 'Iniciativa Tradicional';
         $config['view'] = $this->carpetaHtml.'index';
-
 
 		$this->view($config);
 	}
@@ -141,10 +142,7 @@ class Iniciativatrad extends MY_Controller
 					'estado' => $estado, 
 				];
 			}
-			
-			
 		}
-		
 
 		$cambioEstado = $this->model->actualizarMasivo($tabla, $update, $idTabla);
 
@@ -865,23 +863,56 @@ class Iniciativatrad extends MY_Controller
 
 	public function getTablaLista()
 	{
+		ini_set('memory_limit', '1024M');
 		$result = $this->result;
 		$post = json_decode($this->input->post('data'), true);
 
-		$data = $this->model->getListas($post)->result_array();
+		$fechas = explode('-', $post['txt-fechas']);
 
+		$params = [
+			'fecIni' => $fechas[0]
+			, 'fecFin' => $fechas[1]
+		];
+
+		$params['cuenta'] = $this->sessIdCuenta;
+		$params['proyecto'] = $this->sessIdProyecto;
+
+		$params['grupoCanal'] = $post['grupoCanal'];
+		$params['canal']  = $post['canal'];
+
+		$params['distribuidora'] = empty($post['distribuidora_filtro']) ? '' : $post['distribuidora_filtro'];
+		$params['zona'] = empty($post['zona_filtro']) ? '' : $post['zona_filtro'];
+		$params['plaza'] = empty($post['plaza_filtro']) ? '' : $post['plaza_filtro'];
+		$params['cadena'] = empty($post['cadena_filtro']) ? '' : $post['cadena_filtro'];
+		$params['banner'] = empty($post['banner_filtro']) ? '' : $post['banner_filtro'];
+
+		$distribuidoraSucursal="";
+		if( !empty($post['distribuidoraSucursal_filtro'])){
+			if( is_array($post['distribuidoraSucursal_filtro'])){
+				$distribuidoraSucursal = implode(",",$post['distribuidoraSucursal_filtro']);
+			}else{
+				$distribuidoraSucursal = $post['distribuidoraSucursal_filtro'];
+			}
+		}
+		$params['distribuidoraSucursal'] = $distribuidoraSucursal;
+
+		$data = $this->model->getListas($params)->result_array();
 
 		$result['result'] = 1;
 		if (count($data) < 1) {
 			$result['data']['html'] = getMensajeGestion('noResultados');
 		} else {
 			$dataParaVista['data'] = $data;
+			$segmentacion = getSegmentacion(['grupoCanal_filtro' => $post['grupoCanal']]);
+			$dataParaVista['segmentacion'] = $segmentacion;
+			$result['data']['grupoCanal'] = $segmentacion['grupoCanal'];
 			$result['data']['html'] = $this->load->view($this->html['lista']['tabla'], $dataParaVista, true);
 		}
 
 		$this->aSessTrack = $this->model->aSessTrack;
 		echo json_encode($result);
 	}
+
 	public function getFormNewLista()
 	{
 		$result = $this->result;
@@ -915,6 +946,7 @@ class Iniciativatrad extends MY_Controller
 		$this->aSessTrack = $this->model->aSessTrack;
 		echo json_encode($result);
 	}
+
 	public function getClientesProyecto(){
 		$result = $this->result;
 		$post= json_decode($this->input->post('data'), true);
@@ -962,7 +994,7 @@ class Iniciativatrad extends MY_Controller
 
 		$dataParaVista['elementos'] = $this->model->getListaElementosIniciativa()->result_array();
 		$dataParaVista['iniciativas'] = $this->model->getIniciativas()->result_array();
-		$dataParaVista['data'] = $this->model->getListas($post)->row_array();
+		$dataParaVista['data'] = $this->model->getListasSinFiltros($post)->row_array();
 		if(!empty($dataParaVista['data']['idCanal'])) $dataParaVista['clientes'] = $this->model->getSegCliente($dataParaVista['data'])->result_array();
 		
 		$dataParaVista['lista_elementos'] =  $this->model->getListaElementos($post)->result_array();
@@ -1063,8 +1095,6 @@ class Iniciativatrad extends MY_Controller
 		$this->aSessTrack = $this->model->aSessTrack;
 		echo json_encode($result);
 	}
-
-
 
 	public function actualizarLista()
 	{
@@ -2016,6 +2046,34 @@ class Iniciativatrad extends MY_Controller
 		$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
 		$objWriter->save('php://output');	
 		////
+	}
+
+	public function actualizarListasVigentes()
+	{
+		$post = json_decode($this->input->post('data'), true);
+		$result = $this->result;
+
+		$fechas = explode('-', $post['txt-fechas']);
+
+		$post = [
+			'fecIni' => $fechas[0],
+			'fecFin' => $fechas[1]
+		];
+
+		$post['cuenta'] = $this->sessIdCuenta;
+		$post['proyecto'] = $this->sessIdProyecto;
+
+		$result['result'] = $this->model->actualizarListasVigentes($post)['status'];
+
+		$result['msg']['title'] = 'Alerta!';
+		$result['msg']['content'] = getMensajeGestion('actualizacionErronea');
+
+		if ($result['result'] == true) {
+			$result['msg']['title'] = 'Hecho!';
+			$result['msg']['content'] = getMensajeGestion('actualizacionExitosa');
+		}
+
+		echo json_encode($result);
 	}
 
 }

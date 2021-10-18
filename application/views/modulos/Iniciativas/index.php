@@ -34,16 +34,16 @@
                 <button class="btn btn-outline-trade-visual border-0 btn-consultar" data-url="filtrar" id="btn-consultar" title="Consultar">
                     <i class="fa fa-search"></i>
                 </button>
-                <button class="btn btn-pdf btn-outline-trade-visual border-0" title=" PDF" ><i class="fa fa-file-pdf" aria-hidden="true"></i></button>
-                <button class="btn btn-inhabilitar btn-outline-trade-visual border-0" title=" Inhabilitar" ><i class="fa fa-times" aria-hidden="true"></i></button>
-                <button class="btn btn-validar btn-outline-trade-visual border-0" title=" Validar" ><i class="fa fa-check" aria-hidden="true"></i></button>
+                <button class="btn btn-pdf btn-outline-trade-visual border-0" title="PDF" ><i class="fa fa-file-pdf" aria-hidden="true"></i></button>
+                <button class="btn btn-inhabilitar btn-outline-trade-visual border-0" title="Inhabilitar" data-tipoHabilitar="0" ><i class="far fa-thumbs-down" aria-hidden="true"></i></button>
+                <button class="btn btn-habilitar btn-outline-trade-visual border-0" title="Habilitar" data-tipoHabilitar="1" ><i class="far fa-thumbs-up" aria-hidden="true"></i></button>
+                <button class="btn btn-validar btn-outline-trade-visual border-0" title="Validar" ><i class="fa fa-check" aria-hidden="true"></i></button>
             </div>
             <hr>
             <div class="customizer-content-filter">
                 <h5 class="mt-1 mb-1 text-bold-500"><i class="fal fa-table"></i> Filtros</h5>
                 <div class="form-row">
                     <div class="col-md-12">
-
 						<div class="mb-2 mr-sm-2 position-relative form-group">
 							<label>Fotos:</label><br>
 							<div role="group" class="btn-group btn-group-toggle" data-toggle="buttons">
@@ -81,6 +81,24 @@
 						</div>
 
 						<div class="mb-2 mr-sm-2 position-relative form-group">
+							<label>Habilitado:</label><br>
+							<div role="group" class="btn-group btn-group-toggle" data-toggle="buttons">
+								<label class="btn btn-outline-trade-visual border-0 active">
+									<input type="radio" name="habilitado" value="todo" checked="checked">
+									Todo
+								</label>
+								<label class="btn btn-outline-trade-visual border-0">
+									<input type="radio" name="habilitado" value="si">
+									Si
+								</label>
+                                <label class="btn btn-outline-trade-visual border-0">
+									<input type="radio" name="habilitado" value="no">
+									No
+								</label>
+							</div>
+						</div>
+
+						<div class="mb-2 mr-sm-2 position-relative form-group">
                             <div class="field">
                                 <div class="ui my_calendar">
                                     <div class="ui input left icon" style="width:100%">
@@ -90,20 +108,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        
-
-                        <!-- <div class="mb-2 mr-sm-2 position-relative form-group">
-							<label for="idDistribuidoraSucursal">Distribuidora Sucursal:</label>
-							<div class="col-xs-10">
-								<select class="selectpicker ui my_select2Full" id="idDistribuidoraSucursal" name="idDistribuidoraSucursal" title="Distribuidora Sucursal (Todo)" data-live-search="true" multiple data-actions-box="true">
-									<?php foreach ($distribuidoras as $row) { ?>
-										<option class="dropdown-item" value="<?= $row['idDistribuidoraSucursal'] ?>"><?= $row['distribuidoraSucursal'] ?></option>
-									<? } ?>
-								</select>
-							</div>
-						</div> -->
-                        
 
                         <div class="mb-2 mr-sm-2 position-relative form-group filtros_iniciativa">
 							<?= getFiltros(['cuenta' => ['label' => 'Cuenta', 'name' => 'cuenta_filtro', 'id' => 'cuenta_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]) ?>
@@ -135,15 +139,23 @@
 							</select>
 						</div>
 
-						
-
-
                         <div class="mb-2 mr-sm-2 position-relative form-group">
 							<label for="idElemento">Elementos:</label>
 							<div class="col-xs-10">
 								<select class="selectpicker ui my_select2Full" id="idElemento" name="idElemento" title="Elementos (Todo)" data-live-search="true" multiple data-actions-box="true">
 									<?php foreach ($elementos as $row) { ?>
 										<option class="dropdown-item" value="<?= $row['idElementoVis'] ?>"><?= $row['nombre'] ?></option>
+									<? } ?>
+								</select>
+							</div>
+						</div>
+
+						<div class="mb-2 mr-sm-2 position-relative form-group">
+							<label for="idIniciativa">Iniciativas:</label>
+							<div class="col-xs-10">
+								<select class="selectpicker ui my_select2Full" id="idIniciativa" name="idIniciativa" title="Iniciativas (Todo)" data-live-search="true" multiple data-actions-box="true">
+									<?php foreach ($iniciativas as $row) { ?>
+										<option class="dropdown-item" value="<?= $row['idIniciativa'] ?>"><?= $row['nombre'] ?></option>
 									<? } ?>
 								</select>
 							</div>
@@ -159,7 +171,7 @@
 									</div>
 									<div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip">
 										<span class="tooltiptext">Sucursal</span>
-										<?= getFiltros(['distribuidoraSucursal' => ['label' => 'Distribuidora Sucursal', 'name' => 'distribuidoraSucursal_filtro', 'id' => 'distribuidoraSucursal_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]); ?>
+										<?= getFiltros(['distribuidoraSucursal' => ['label' => false, 'name' => 'distribuidoraSucursal_filtro', 'id' => 'distribuidoraSucursal_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '', 'multiple' => true]]); ?>
 									</div>
 									<div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip">
 										<span class="tooltiptext">Zona</span>

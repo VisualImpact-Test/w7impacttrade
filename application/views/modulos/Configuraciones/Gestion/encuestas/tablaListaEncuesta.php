@@ -9,6 +9,7 @@
                 <th class="text-center">COD CLIENTE</th>
                 <th class="text-center">CLIENTE</th>
                 <th class="text-center">TIPO USUARIO</th>
+                <th class="text-center">GRUPO CANAL</th>
                 <th class="text-center">CANAL</th>
                 <th class="text-center">PROYECTO</th>
                 <th class="text-center">FECHA INICIO</th>
@@ -35,6 +36,7 @@
                     <td><?= !empty($value['codCliente']) ? $value['codCliente'] : '-' ?></td>
                     <td><?= !empty($value['razonSocial']) ? $value['razonSocial'] : verificarEmpty($value['nombreComercial'],3) ?></td>
                     <td><?= !empty($value['tipo']) ? $value['tipo'] : '-' ?></td>
+                    <td><?= !empty($value['grupoCanal']) ? $value['grupoCanal'] : '-' ?></td>
                     <td><?= !empty($value['canal']) ? $value['canal'] : '-' ?></td>
                     <td><?= !empty($value['proyecto']) ? $value['proyecto'] : '-' ?></td>
                     <td data-order="<?= strtotime($value['fecIni']) ?>"><?= !empty($value['fecIni']) ? date_change_format($value['fecIni'])  : '-' ?></td>

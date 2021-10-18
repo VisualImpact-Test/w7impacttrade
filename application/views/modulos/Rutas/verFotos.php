@@ -24,6 +24,9 @@
 				case 'VISIBILIDAD AUDITORIA':
 					$modulo = 'visibilidadAuditoria';
 					break;
+				case 'EVIDENCIA FOTOGRAFICA':
+					$modulo = 'evidenciaFotografica';
+					break;
 				default:
 					$modulo = $row['modulo'];
 					break;

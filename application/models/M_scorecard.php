@@ -67,6 +67,7 @@ class M_scorecard extends MY_Model{
 			ORDER BY 
 				idGrupoCanal,idCanal,idSubCanal
 		";
+		
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.canal' ];
 		return $this->db->query($sql)->result_array();
 	}
@@ -136,6 +137,7 @@ class M_scorecard extends MY_Model{
 				c.estado = 1 
 				{$filtros}
 		";
+		
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.cliente' ];
 		return $this->db->query($sql)->result_array();
 	}
@@ -216,6 +218,7 @@ class M_scorecard extends MY_Model{
 					JOIN trade.data_visita v
 						ON v.idRuta = r.idRuta
 						AND r.fecha BETWEEN @fecIni AND @fecFin
+						AND r.idTIpoUsuario IN(1)
 					
 					JOIN ".getClienteHistoricoCuenta()." ch ON ch.idCliente = v.idCliente 
 						AND General.dbo.fn_fechaVigente(ch.fecIni,ch.fecFin,@fecIni,@fecFin)=1 AND ch.idProyecto = {$sessIdProyecto} 
@@ -236,7 +239,6 @@ class M_scorecard extends MY_Model{
 					LEFT JOIN General.dbo.ubigeo ubp ON ubp.cod_ubigeo = p.cod_ubigeo
 				WHERE
 					1=1
-					
 					{$subfiltros}
 			)a
 			WHERE
@@ -302,6 +304,7 @@ class M_scorecard extends MY_Model{
 					, sca.idClienteTipo AS idSubCanal
 					, sca.nombre AS subcanal
 					, v.codCliente
+					, c.codDist
 					, v.razonSocial
 					, v.direccion
 					, v.idVisita
@@ -339,6 +342,7 @@ class M_scorecard extends MY_Model{
 					JOIN trade.data_visita v
 						ON v.idRuta = r.idRuta
 						AND r.fecha BETWEEN @fecIni AND @fecFin
+						AND r.idTIpoUsuario IN(1)
 					JOIN trade.cliente c ON c.idCliente = v.idCliente
 					JOIN ".getClienteHistoricoCuenta()." ch ON ch.idCliente = v.idCliente 
 						AND General.dbo.fn_fechaVigente(ch.fecIni,ch.fecFin,@fecIni,@fecFin)=1 AND ch.idProyecto = {$sessIdProyecto} 
@@ -365,6 +369,7 @@ class M_scorecard extends MY_Model{
 				1=1
 				{$filtro}
 		";
+
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visita' ];
 		return $this->db->query($sql)->result_array();
 	}

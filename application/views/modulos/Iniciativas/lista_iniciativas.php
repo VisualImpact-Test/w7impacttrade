@@ -3,10 +3,11 @@
 		<thead>
 			<tr>
 				<th>TOTAL: <?= count($iniciativas) ?></th>
-				<th colspan="21"></th>
+				<th colspan="25"></th>
 			</tr>
 			<tr>
 				<th class="text-center align-middle noVis" >#</th>
+				<th class="text-center align-middle">SELECCIONAR</th>
 				<th class="text-center align-middle">FECHA</th>
 				<th class="text-center align-middle ">PERFIL USUARIO</th>
 				<th class="text-center align-middle ">COD USUARIO</th>
@@ -25,12 +26,12 @@
 				<th class="text-center align-middle">ELEMENTO</th>
 				<th class="text-center align-middle">PRESENCIA</th>
 				<th class="text-center align-middle">MOTIVO</th>
+				<th class="text-center align-middle">CUENTA CON PRODUCTO</th>
 				<th class="text-center align-middle">CANTIDAD</th>
 				<th class="text-center align-middle">FOTO</th>
 				<th class="text-center align-middle">EDITADO</th>
 				<th class="text-center align-middle">VALIDADO</th>
 				<th class="text-center align-middle">EDITAR / ESTADO</th>
-				<th class="text-center align-middle">INHABILITAR / PDF</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -40,6 +41,7 @@
 			?>
 				<tr>
 					<td class="text-center" style="text-align:center;vertical-align: middle;"><?= $ix; ?></td>
+					<td class="text-center" style="text-align:center;vertical-align: middle;"><input name="check" id="check" class="check" type="checkbox" value="<?= $row['idVisitaIniciativaTradDet'] ?>"></td>
 					<td class="text-center" style="text-align:center;vertical-align: middle;"><?= !empty($row['fecha']) ? $row['fecha'] : '-' ; ?></td>
 					<td class="text-left" style="text-align:center;vertical-align: middle;"><?= !empty($row['tipoUsuario'])?  $row['tipoUsuario'] : '-' ; ?></td>
 					<td class="text-center" style="text-align:center;vertical-align: middle;"><?= !empty($row['idUsuario']) ? $row['idUsuario'] : '-'; ?></td>
@@ -58,6 +60,7 @@
 					<td class="text-left" style="text-align:center;vertical-align: middle;"><?= !empty($row['elementoIniciativa'])? $row['elementoIniciativa'] : '-'; ?></td>
 					<td class="text-center" style="text-align:center;vertical-align: middle;"><?= ($row['presencia'] == 1) ? 'SI' : 'NO'; ?></td>
 					<td class="text-center" style="text-align:center;vertical-align: middle;"><?= !empty($row['estadoIniciativa'])? $row['estadoIniciativa'] : '-'; ?></td>
+					<td class="text-center" style="text-align:center;vertical-align: middle;"><?= !empty($row['cuentaConProducto'])? 'SI' : 'NO'; ?></td>
 					<td class="text-center" style="text-align:center;vertical-align: middle;"><?= ($row['cantidad'] > 0) ? $row['cantidad'] : '-'; ?></td>
 					<?
 					if(!empty($row['foto'])){
@@ -71,22 +74,21 @@
 					<?
 					if ($row['validacion_analista'] == 1) {
 						if ($row['presencia'] == 1) {
-							$edicion = '<a href="javascript:;" style="margin-right:5px;" class="btn-editar-iniciativas" data-id="' . $row['idVisitaIniciativaTradDet'] . '"><i class="fa fa-pencil-square-o" style="font-size: 16px !important;"></i></a>
-						<span id="spanValidacion-' . $row['idVisitaIniciativaTradDet'] . '">HABILITADO</span><a id="hrefValidacion-' . $row['idVisitaIniciativaTradDet'] . '" href="javascript:;" style="margin-left:5px;" class="btn-actualizar-validacion-analista" data-id="' . $row['idVisitaIniciativaTradDet'] . '" data-validacion="1"><i class="fa fa-refresh"></i></a>';
+							$edicion = '<a href="javascript:;" style="margin-right:5px;" class="btn-editar-iniciativas" data-id="' . $row['idVisitaIniciativaTradDet'] . '" title="Editar"><i class="fa fa-pencil" style="font-size: 16px;"></i></a>
+						<span id="spanValidacion-' . $row['idVisitaIniciativaTradDet'] . '">HABILITADO</span><a id="hrefValidacion-' . $row['idVisitaIniciativaTradDet'] . '" href="javascript:;" style="margin-left:5px;" class="btn-actualizar-validacion-analista" data-id="' . $row['idVisitaIniciativaTradDet'] . '" data-validacion="1" title="Habilitar/Inhabilitar"><i class="fad fa-sync-alt" style="font-size: 16px;"></i></a>';
 						} else {
-							$edicion = '<span id="spanValidacion-' . $row['idVisitaIniciativaTradDet'] . '">HABILITADO</span><a id="hrefValidacion-' . $row['idVisitaIniciativaTradDet'] . '" href="javascript:;" style="margin-left:5px;" class="btn-actualizar-validacion-analista" data-id="' . $row['idVisitaIniciativaTradDet'] . '" data-validacion="1"><i class="fa fa-refresh"></i></a>';
+							$edicion = '<span id="spanValidacion-' . $row['idVisitaIniciativaTradDet'] . '">HABILITADO</span><a id="hrefValidacion-' . $row['idVisitaIniciativaTradDet'] . '" href="javascript:;" style="margin-left:5px;" class="btn-actualizar-validacion-analista" data-id="' . $row['idVisitaIniciativaTradDet'] . '" data-validacion="1" title="Habilitar/Inhabilitar"><i class="fad fa-sync-alt" style="font-size: 16px;"></i></a>';
 						}
 					} else {
 						if ($row['presencia'] == 1) {
-							$edicion = '<a href="javascript:;" style="margin-right:5px;" class="btn-editar-iniciativas" data-id="' . $row['idVisitaIniciativaTradDet'] . '"><i class="fa fa-pencil-square-o" style="font-size: 16px !important;"></i></a>
-						<span id="spanValidacion-' . $row['idVisitaIniciativaTradDet'] . '">INHABILITADO</span><a id="hrefValidacion-' . $row['idVisitaIniciativaTradDet'] . '" href="javascript:;" style="margin-left:5px;" class="btn-actualizar-validacion-analista" data-id="' . $row['idVisitaIniciativaTradDet'] . '" data-validacion="1"><i class="fa fa-refresh"></i></a>';
+							$edicion = '<a href="javascript:;" style="margin-right:5px;" class="btn-editar-iniciativas" data-id="' . $row['idVisitaIniciativaTradDet'] . '" title="Editar"><i class="fa fa-pencil" style="font-size: 16px;"></i></a>
+						<span id="spanValidacion-' . $row['idVisitaIniciativaTradDet'] . '">INHABILITADO</span><a id="hrefValidacion-' . $row['idVisitaIniciativaTradDet'] . '" href="javascript:;" style="margin-left:5px;" class="btn-actualizar-validacion-analista" data-id="' . $row['idVisitaIniciativaTradDet'] . '" data-validacion="1" title="Habilitar/Inhabilitar"><i class="fad fa-sync-alt" style="font-size: 16px;"></i></a>';
 						} else {
-							$edicion = '<span id="spanValidacion-' . $row['idVisitaIniciativaTradDet'] . '">INHABILITADO</span><a id="hrefValidacion-' . $row['idVisitaIniciativaTradDet'] . '" href="javascript:;" style="margin-left:5px;" class="btn-actualizar-validacion-analista" data-id="' . $row['idVisitaIniciativaTradDet'] . '" data-validacion="1"><i class="fa fa-refresh"></i></a>';
+							$edicion = '<span id="spanValidacion-' . $row['idVisitaIniciativaTradDet'] . '">INHABILITADO</span><a id="hrefValidacion-' . $row['idVisitaIniciativaTradDet'] . '" href="javascript:;" style="margin-left:5px;" class="btn-actualizar-validacion-analista" data-id="' . $row['idVisitaIniciativaTradDet'] . '" data-validacion="1" title="Habilitar/Inhabilitar"><i class="fad fa-sync-alt" style="font-size: 16px;"></i></a>';
 						}
 					}
 					?>
 					<td class="text-center" style="text-align:center;vertical-align: middle;"><?= $edicion; ?></td>
-					<td class="text-center" style="text-align:center;vertical-align: middle;"><input name="check" id="check" class="check" type="checkbox" value="<?= $row['idVisitaIniciativaTradDet'] ?>"></td>
 					<!--EJECUTIVO-->
 					<!--<td class="text-center" style="text-align:center;vertical-align: middle;">
 				<? if ($row['presencia'] == 1) { ?>

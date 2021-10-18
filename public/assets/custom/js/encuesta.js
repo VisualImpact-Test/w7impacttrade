@@ -75,7 +75,14 @@ var Encuesta = {
 			e.preventDefault();
 			//
 			var elementos = new Array();
-			$("input[name='check[]']:checked").each(function(){ elementos.push($(this).val()); });
+
+			$('#tablaDetalladoEncuesta').DataTable().rows().every(function (rowIdx, tableLoop, rowLoop) {
+				var data = this.node();
+				if( $(data).find('.check').prop('checked')==true){
+					elementos.push($(data).find('.check').val());
+				}
+			});
+			//$("input[name='check[]']:checked").each(function(){ elementos.push($(this).val()); });
 			//
 			if(elementos == ""){
 				++modalId;
@@ -90,6 +97,23 @@ var Encuesta = {
 				var url = site_url+Encuesta.url+'encuesta_pdf';
 				Fn.download(url,jsonString);
 			}
+		});
+
+		$(document).on('click','#chkb-habilitarTodos', function(){
+			var input = $(this);
+			
+			if (input.is(':checked')) {
+				$('#tablaDetalladoEncuesta').DataTable().rows().every(function (rowIdx, tableLoop, rowLoop) {
+					var data = this.node();
+					$(data).find('.check').prop('checked', true);
+				});
+			} else {
+				$('#tablaDetalladoEncuesta').DataTable().rows().every(function (rowIdx, tableLoop, rowLoop) {
+					var data = this.node();
+					$(data).find('.check').prop('checked', false);
+				});
+			}
+
 		});
 
 	},

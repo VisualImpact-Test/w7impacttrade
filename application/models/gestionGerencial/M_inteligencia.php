@@ -150,6 +150,11 @@ class M_inteligencia extends MY_Model{
 				, vitd.vigenciaIniActivacion
 				, vitd.vigenciaFinActivacion
 
+				, vitd.nombreSku
+				, vitd.cantidadSku
+				, umi.nombre AS umSku
+				, vitd.accion
+
 				, vf.fotoUrl 'foto'
 			FROM trade.data_ruta r
 			JOIN trade.data_visita v ON v.idRuta=r.idRuta
@@ -162,6 +167,7 @@ class M_inteligencia extends MY_Model{
 			JOIN trade.producto_marca pm ON pm.idMarca=vitd.idMarca
 			JOIN trade.tipoElementoCompetencia cp ON cp.idTipoElementoCompetencia=vitd.idTipoElementoCompetencia
 			LEFT JOIN trade.data_visitaFotos vf ON vf.idVisitaFoto=vitd.idVisitaFoto
+			LEFT JOIN trade.unidadMedidaInteligencia umi ON vitd.idUnidadMedida = umi.idUnidadMedida
 			WHERE r.fecha BETWEEN @fecIni AND @fecFin
 			AND r.demo = 0 AND r.estado = 1 AND v.estado = 1{$filtros}
 		";

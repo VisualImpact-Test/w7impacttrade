@@ -36,7 +36,9 @@ class M_control extends MY_Model{
 				cu.urlCSS AS cssCuenta,
 				cu.urlLogo AS logoCuenta,
 				py.idProyecto,
-				py.nombre AS proyecto
+				py.nombre AS proyecto,
+				ISNULL(cu.abreviacion,'CUENTA') abreviacionCuenta
+				
 			FROM trade.cuenta cu
 			JOIN trade.proyecto py ON cu.idCuenta = py.idCuenta
 			WHERE cu.idCuenta = {$input['idCuenta']}
@@ -560,5 +562,50 @@ class M_control extends MY_Model{
 		return $this->db->query($sql)->result_array();
 	}
 
+	public function getColumnasAdicionales($params = []){
+		$idCuenta = $this->sessIdCuenta;
+		$idProyecto = $this->sessIdProyecto;
 
+		$filtro = "";
+
+		$sql = "
+		SELECT
+			cd.idCampoDinamico
+			, cd.idGrupoCanal
+			, ca.columna
+			, UPPER(fn.Split_On_Upper_Case(ca.columna)) AS header
+		FROM trade.configuracion_campo_dinamico cd
+		JOIN trade.aplicacion_modulo m ON cd.idModulo = m.idModulo
+		JOIN trade.configuracion_campo_adicional ca ON cd.idCampoAdicional = ca.idCampoAdicional
+		WHERE cd.estado = 1
+		AND cd.idCuenta = {$idCuenta}
+		AND cd.idProyecto = {$idProyecto}
+		AND m.idModuloGrupo = {$params['idModulo']}
+		";
+		return $this->db->query($sql)->result_array();
+	}
+
+	public function get_clientes_json($params = [])
+	{
+		$idCuenta = $this->sessIdCuenta;
+		$idProyecto = $this->sessIdProyecto;
+	
+		$filtros = '';
+		$demo = $this->demo;$filtro_demo = '';
+
+		!empty($params['input']) ? $filtros .= " AND (idCliente LIKE('%".$params['input']."%') 
+												OR razonSocial LIKE('%".$params['input']."%') 
+												OR nombreComercial LIKE('%".$params['input']."%') 
+												)": '' ;
+		$sql = "
+		SELECT 
+		idCliente id
+		,CONVERT(VARCHAR,idCliente) + ' - '+razonSocial
+		FROM
+		trade.cliente
+		WHERE estado = 1
+		{$filtros}
+		ORDER BY idCliente DESC";
+		return $this->db->query($sql);
+	}
 }

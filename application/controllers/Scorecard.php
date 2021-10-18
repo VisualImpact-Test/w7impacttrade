@@ -53,7 +53,9 @@ class Scorecard extends MY_Controller{
 		$array['fecFin'] = $fechas[1];
 
 		$canales = $this->model->obtener_canales($input);
+
 		$cartera = $this->model->obtener_cartera($input);
+		
 		$visitas = $this->model->obtener_visitas($input);
 
 		$this->aSessTrack = $this->model->aSessTrack;

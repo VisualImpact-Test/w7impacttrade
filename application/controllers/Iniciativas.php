@@ -28,17 +28,14 @@ class Iniciativas extends MY_Controller
 		$config['data']['message'] = 'Iniciativas';
 		$config['view'] = 'modulos/iniciativas/index';
 
-		$params = array();
-		$params['cuenta']=$this->session->userdata('idCuenta');
-		$rs_tipo_usuario = $this->model->obtener_tipos_usuarios($params);
-		$config['data']['tipoUsuario'] = $rs_tipo_usuario;
+		$params = [];
+		$params['cuenta'] = $this->sessIdCuenta;
+		$params['proyecto'] = $this->sessIdProyecto;
 
-		$rs_elementos = $this->model->obtener_elementos_visibilidad($params);
-		$config['data']['elementos'] = $rs_elementos;
-
-		$rs_distribuidora = $this->model->obtener_distribuidora_sucursal();
-		$config['data']['distribuidoras'] = $rs_distribuidora;
-
+		$config['data']['tipoUsuario'] = $this->model->obtener_tipos_usuarios($params);
+		$config['data']['elementos'] = $this->model->obtener_elementos_visibilidad($params);
+		$config['data']['iniciativas'] = $this->model->obtener_elementos_iniciativas($params);
+		$config['data']['distribuidoras'] = $this->model->obtener_distribuidora_sucursal();
 
 		$this->view($config);
 	}
@@ -46,7 +43,7 @@ class Iniciativas extends MY_Controller
 	public function lista_iniciativas(){
 		$post = json_decode($this->input->post('data'), true);
 		
-		$fechas = explode('-',$post['txt-fechas']);
+		$fechas = explode('-', $post['txt-fechas']);
 		$fechaIni = $fechas[0];
 		$fechaFin = $fechas[1];
 		$params = array(
@@ -54,24 +51,23 @@ class Iniciativas extends MY_Controller
 			, 'fecFin' => $fechaFin
 		);
 
-		$params['cuenta'] =$post['cuenta_filtro'];
-		$params['proyecto'] =$post['proyecto_filtro'];
-		$params['grupoCanal'] =$post['grupoCanal_filtro'];
-		$params['canal']  =$post['canal_filtro'];
-		$params['subcanal'] =$post['subcanal_filtro'];
-		$params['foto'] =$post['conFoto'];
-		$params['validado'] =$post['validado'];	
+		$params['cuenta'] = $post['cuenta_filtro'];
+		$params['proyecto'] = $post['proyecto_filtro'];
+		$params['grupoCanal'] = $post['grupoCanal_filtro'];
+		$params['canal']  = $post['canal_filtro'];
+		$params['subcanal'] = $post['subcanal_filtro'];
+		$params['foto'] = $post['conFoto'];
+		$params['validado'] = $post['validado'];
+		$params['habilitado'] = $post['habilitado'];
 
-		$params['tipoUsuario'] = empty($post->{'tipoUsuario_filtro'}) ? '' : $post->{'tipoUsuario_filtro'};
-		$params['usuario'] = empty($post->{'usuario_filtro'}) ? '' : $post->{'usuario_filtro'};
+		$params['tipoUsuario'] = empty($post['tipoUsuario_filtro']) ? '' : $post['tipoUsuario_filtro'];
+		$params['usuario'] = empty($post['usuario_filtro']) ? '' : $post['usuario_filtro'];
 		
-		$params['distribuidoraSucursal'] = empty($post->{'distribuidoraSucursal_filtro'}) ? '' : $post->{'distribuidoraSucursal_filtro'};
-		$params['distribuidora'] = empty($post->{'distribuidora_filtro'}) ? '' : $post->{'distribuidora_filtro'};
-		$params['zona'] = empty($post->{'zona_filtro'}) ? '' : $post->{'zona_filtro'};
-		$params['plaza'] = empty($post->{'plaza_filtro'}) ? '' : $post->{'plaza_filtro'};
-		$params['cadena'] = empty($post->{'cadena_filtro'}) ? '' : $post->{'cadena_filtro'};
-		$params['banner'] = empty($post->{'banner_filtro'}) ? '' : $post->{'banner_filtro'};
-
+		$params['distribuidora'] = empty($post['distribuidora_filtro']) ? '' : $post['distribuidora_filtro'];
+		$params['zona'] = empty($post['zona_filtro']) ? '' : $post['zona_filtro'];
+		$params['plaza'] = empty($post['plaza_filtro']) ? '' : $post['plaza_filtro'];
+		$params['cadena'] = empty($post['cadena_filtro']) ? '' : $post['cadena_filtro'];
+		$params['banner'] = empty($post['banner_filtro']) ? '' : $post['banner_filtro'];
 
 		$elementos="";
 		if( !empty($post['idElemento'])){
@@ -81,17 +77,27 @@ class Iniciativas extends MY_Controller
 				$elementos=$post['idElemento'];
 			}
 		}
-		$params['elementos'] =$elementos;
+		$params['elementos'] = $elementos;
 
-		$idDistribuidoraSucursal="";
-		if( !empty($post['idDistribuidoraSucursal'])){
-			if( is_array($post['idDistribuidoraSucursal'])){
-				$idDistribuidoraSucursal=implode(",",$post['idDistribuidoraSucursal']);
+		$iniciativas = "";
+		if( !empty($post['idIniciativa']) ){
+			if( is_array($post['idIniciativa']) ){
+				$iniciativas = implode(",", $post['idIniciativa']);
 			}else{
-				$idDistribuidoraSucursal=$post['idDistribuidoraSucursal'];
+				$iniciativas = $post['idIniciativa'];
 			}
 		}
-		$params['idDistribuidoraSucursal'] =$idDistribuidoraSucursal;
+		$params['iniciativas'] = $iniciativas;
+
+		$distribuidoraSucursal="";
+		if( !empty($post['distribuidoraSucursal_filtro'])){
+			if( is_array($post['distribuidoraSucursal_filtro'])){
+				$distribuidoraSucursal = implode(",",$post['distribuidoraSucursal_filtro']);
+			}else{
+				$distribuidoraSucursal = $post['distribuidoraSucursal_filtro'];
+			}
+		}
+		$params['distribuidoraSucursal'] = $distribuidoraSucursal;
 		$array['iniciativas'] = $this->model->obtener_iniciativas($params);
 		
 		 if( count($array['iniciativas']) < 1 ) {
@@ -112,33 +118,41 @@ class Iniciativas extends MY_Controller
 		$post = json_decode($this->input->post('data'), true);
 
 		$params = array(
-			  'idIniciativaDet' => $post['idIniciativaDet']
+			'idIniciativaDet' => $post['idIniciativaDet'],
+			'idCuenta' => $this->sessIdCuenta
 		);
 		$array['iniciativas'] = $this->model->obtener_iniciativas_det($params);
+
 		$array['estados'] = $this->model->obtener_estados();
 		
-		$result['result']=1;
-		$result['data']=$this->load->view("modulos/iniciativas/editar_iniciativas", $array, true);
+		$result['result'] = 1;
+		$result['data'] = $this->load->view("modulos/iniciativas/editar_iniciativas", $array, true);
 		
 		echo json_encode($result);
 	}
-	
-	public function actualizar_iniciativas(){
-		$post = json_decode($this->input->post('data'), true);
-		// [sel-presencia] => 1 [] => 0 [idIniciativaDet] => 13 [idMotivo]
-		$editar = array(
-			   'presencia' => $post['sel-presencia']
-			,  'cantidad' => $post['txt-cantidad']
-			,  'idEstadoIniciativa' => $post['idMotivo']
-			,  'editado' => 1
-		);
 
-		$this->db->where('idVisitaIniciativaTradDet', $post['idIniciativaDet'] );
-		$this->db->update('trade.data_visitaIniciativaTradDet', $editar);
-		
-		$result['result']=1;
-		$result['data']='<div style="margin-top:15px;background:#6cde6c;color:black;padding:15px;border-radius:20px;font-weight:bold;">SE ACTUALIZO DATA CON EXITO.</div>';
-		
+	public function actualizar_iniciativas()
+	{
+		$post = json_decode($this->input->post('data'), true);
+		$result = $this->result;
+
+		$post['editar'] = [
+			'presencia' => $post['sel-presencia'],
+			'cantidad' => $post['txt-cantidad'],
+			'idEstadoIniciativa' => verificarEmpty($post['sel-motivo'], 4),
+			'editado' => 1
+		];
+
+		$result['result'] = $this->model->editarIniciativa($post)['status'];
+
+		$result['msg']['title'] = 'Alerta!';
+		$result['msg']['content'] = getMensajeGestion('actualizacionErronea');
+
+		if ($result['result'] == true) {
+			$result['msg']['title'] = 'Hecho!';
+			$result['msg']['content'] = getMensajeGestion('actualizacionExitosa');
+		}
+
 		echo json_encode($result);
 	}
 	
@@ -164,21 +178,17 @@ class Iniciativas extends MY_Controller
 	
 	public function inhabilitar_iniciativas(){
 		$post = json_decode($this->input->post('data'), true);
-		$total = count($post);
+		$result = $this->result;
 
-		for($i=0; $i<$total;$i++){
-			if(!empty($post[$i]['iniciativas'])){
-				$editar = array(
-					'validacion_analista' => 0
-				);
+		$result['result'] = $this->model->actualizarIniciativa($post)['status'];
 
-				$this->db->where('idVisitaIniciativaTradDet',  $post[$i]['iniciativas'][0] );
-				$this->db->update('trade.data_visitaIniciativaTradDet', $editar);
-			}
+		$result['msg']['title'] = 'Alerta!';
+		$result['msg']['content'] = getMensajeGestion('actualizacionErronea');
+
+		if($result['result'] == true){
+			$result['msg']['title'] = 'Hecho!';
+			$result['msg']['content'] = getMensajeGestion('actualizacionExitosa');
 		}
-
-		$result['result']=1;
-		$result['data']='SE ACTUALIZO CON EXITO.';
 		
 		echo json_encode($result); 
 	}
@@ -382,7 +392,6 @@ class Iniciativas extends MY_Controller
 		$mpdf->Output('ppp.pdf','D');
 	}
 
-
 	public function obtener_usuarios(){
 		$post = json_decode($this->input->post('data'), true);
 		$idTipoUsuario= $post['idTipoUsuario'];
@@ -398,5 +407,18 @@ class Iniciativas extends MY_Controller
 		echo json_encode($result);
 	}
 
+	public function actualizar_vigentes(){
+		$post = json_decode($this->input->post('data'), true);
+		$idTipoUsuario= $post['idTipoUsuario'];
 
+		$params = array();
+		$params['cuenta']=$this->session->userdata('idCuenta');
+		$params['idTipoUsuario']=$idTipoUsuario;
+
+		$result=array();
+		$rs_usuarios = $this->model->obtener_usuarios($params);
+		$result['data']['usuarios'] = $rs_usuarios;
+		$result['result']=1;
+		echo json_encode($result);
+	}
 }

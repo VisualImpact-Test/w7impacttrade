@@ -33,6 +33,7 @@
 				<th class="text-center" colspan="3" rowspan="1">INICIATIVA</th>
 				<th class="text-center" colspan="4" rowspan="1">PRECIO</th>
 				<th class="text-center" colspan="3" rowspan="1">ACTIVACION</th>
+				<th class="text-center" colspan="4" rowspan="1">ACCION COMERCIAL</th>
 
 				<th class="text-center" colspan="1" rowspan="2">FOTO</th>
 			</tr>
@@ -61,6 +62,11 @@
 				<th class="text-center" rowspan="1">DESCRIPCION</th>
 				<th class="text-center" rowspan="1">VIGENCIA INICIO</th>
 				<th class="text-center" rowspan="1">VIGENCIA FIN</th>
+
+				<th class="text-center" rowspan="1">NOMBRE</th>
+				<th class="text-center" rowspan="1">CANTIDAD</th>
+				<th class="text-center" rowspan="1">UNIDAD MEDIDA</th>
+				<th class="text-center" rowspan="1">DESCRIPCION</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -117,6 +123,11 @@
 							<td class="text-left"><?= (!empty($row_d['descripcionActivacion']) ? $row_d['descripcionActivacion'] : '-') ?></td>
 							<td class="text-center"><?= (!empty($row_d['vigenciaIniActivacion']) ? $row_d['vigenciaIniActivacion'] : '-') ?></td>
 							<td class="text-center"><?= (!empty($row_d['vigenciaFinActivacion']) ? $row_d['vigenciaFinActivacion'] : '-') ?></td>
+
+							<td class="text-left"><?= (!empty($row_d['nombreSku']) ? $row_d['nombreSku'] : '-') ?></td>
+							<td class="text-center"><?= (!empty($row_d['cantidadSku']) ? $row_d['cantidadSku'] : '-') ?></td>
+							<td class="text-center"><?= (!empty($row_d['umSku']) ? $row_d['umSku'] : '-') ?></td>
+							<td class="text-center"><?= (!empty($row_d['accion']) ? $row_d['accion'] : '-') ?></td>
 							<?
 							$fotoImg = (isset($row_d['foto']) && !empty($row_d['foto'])) ? $this->fotos_url . 'inteligencia/' . $row_d['foto'] : '';
 							if (!empty($fotoImg)) {

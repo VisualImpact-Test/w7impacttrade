@@ -1,5 +1,5 @@
 <div style="padding:20px; border: 1px solid #E6E9ED;">
-	<form name="editar" id="editar" method="post" autocomplete="off">
+	<form name="editarIniciativas" id="editarIniciativas" method="post" autocomplete="off">
 		<div class="form-group">
 			<label>PRESENCIA</label>
 			<select class="form-control" name="sel-presencia" id="sel-presencia">
@@ -11,7 +11,7 @@
 		</div>
 		<div class="form-group">
 			<label>MOTIVO</label>
-			<select class="form-control" name="sel-motivo" id="sel-motivo" disabled="">
+			<select class="form-control" name="sel-motivo" id="sel-motivo">
 				<option value="0">SELECCIONE MOTIVO</option>
 				<? foreach($estados as $row){ ?>
 				<?

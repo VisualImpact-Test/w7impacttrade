@@ -3,27 +3,6 @@
 		border-collapse: collapse !important;
 	}
 </style>
-<?
-$disabledTH['Encuestas'] = 'tdDisabledRutacuenta';
-$disabledTH['CheckProducto'] = 'tdDisabledRutacuenta';
-$disabledTH['Precios'] = 'tdDisabledRutacuenta';
-$disabledTH['Promociones'] = 'tdDisabledRutacuenta';
-$disabledTH['Fotos'] = 'tdDisabledRutacuenta';
-$disabledTH['Inventario'] = 'tdDisabledRutacuenta';
-$disabledTH['Visibilidad'] = 'tdDisabledRutacuenta';
-$disabledTH['MantenimientoCliente'] = 'tdDisabledRutacuenta';
-$disabledTH['Iniciativas'] = 'tdDisabledRutacuenta';
-$disabledTH['InteligenciaCompetitiva'] = 'tdDisabledRutacuenta';
-$disabledTH['OrdenTrabajo'] = 'tdDisabledRutacuenta';
-$disabledTH['VisibilidadAuditoria'] = 'tdDisabledRutacuenta';
-$disabledTH['Premiacion'] = 'tdDisabledRutacuenta';
-$disabledTH['Modulacion'] = 'tdDisabledRutacuenta';
-$disabledTH['Observacion'] = 'tdDisabledRutacuenta';
-
-foreach ($permisos_modulos_cuenta as $key => $row) {
-	$disabledTH[preg_replace('/\s+/', '', $row['nombre'])] = '';
-}
-?>
 <div class="card-datatable">
 	<table id="tb-rutasDetalle" class="table table-striped table-bordered nowrap w-100" style="font-size:12px;">
 		<thead class="text-center align-middle">
@@ -58,7 +37,7 @@ foreach ($permisos_modulos_cuenta as $key => $row) {
 				<th rowspan="2" class="text-center">TIEMPO (MIN)</th>
 				<th rowspan="2" class="text-center">INCIDENCIA</th>
 				<th rowspan="2" class="text-center colCondicion">CONDICIÓN</th>
-				<th colspan="15" class="text-center">MÓDULOS</th>
+				<th colspan="17" class="text-center">MÓDULOS</th>
 			</tr>
 			<tr class="text-black">
 				<th class="text-center thEncuesta <?= !empty($disabledTH['Encuestas'])?$disabledTH['Encuestas']." hideCol noVis " : '' ?>">ENCUESTA</th>
@@ -76,6 +55,8 @@ foreach ($permisos_modulos_cuenta as $key => $row) {
 				<th class="text-center thPremiacion <?= !empty($disabledTH['Premiacion']) ? $disabledTH['Premiacion']." hideCol noVis" : ''  ?>  ">PREMIACIÓN</th>
 				<th class="text-center thSurtido <?= !empty($disabledTH['Modulacion'])? $disabledTH['Modulacion']." hideCol noVis" : '' ?>  ">SURTIDO</th>
 				<th class="text-center thObservacion <?= !empty($disabledTH['Observacion'])?  $disabledTH['Observacion']." hideCol noVis" : '' ?>  ">OBSERVACION</th>
+				<th class="text-center thTareas <?= !empty($disabledTH['Tareas'])?  $disabledTH['Tareas']." hideCol noVis" : '' ?>  ">TAREAS</th>
+				<th class="text-center thEvidenciaFotografica <?= !empty($disabledTH['EvidenciaFotografica'])?  $disabledTH['EvidenciaFotografica']." hideCol noVis" : '' ?>  ">EVIDENCIA FOTOGRAFICA</th>
 			</tr>
 		</thead>
 		<tbody>

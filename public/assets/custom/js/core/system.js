@@ -479,6 +479,31 @@ var View={
 			}
 		});
 
+		$(document).on('click', '.lk-export-excel-old', function() {
+			var id = $(this).attr("data-content");
+			$('#'+id).table2excel({
+				exclude: ".noExl",
+				name: "Excel Document Name",
+				//filename: id + new Date().toISOString().replace(/[\-\:\.]/g, "") + ".xls",
+				filename: id + ".xls",  
+				fileext: ".xls",
+				exclude_img: true,
+				exclude_links: true,
+				exclude_inputs: true,
+				preserveColors:true,
+			});
+			
+			/* var title = $(this).attr("data-title");
+			if( content != '' ){
+				var datos = ExportarExcel.getData( content );
+				var reporte = title;
+				if(datos) {
+					var contenido = ExportarExcel.generateExcel(datos);
+					if(contenido) { ExportarExcel.downloadExcel(contenido, reporte); }
+				}	
+			} */
+		});
+
 		$(document).on('click','span#img-close',function(e){
 			e.preventDefault();
 
@@ -1168,6 +1193,35 @@ var View={
 			},
 			placeholder: 'COD - NOMBRE - DOCUMENTO',
 			minimumInputLength: 3,
+		});
+		$("#pdv_filtro").select2({
+			ajax: {
+				url: site_url + 'control/'+ "json_pdv/",
+				dataType: 'json',
+				delay: 250,
+				data: function (params) {
+				return {
+					input: params.term, 
+					page: params.page
+				};
+				},
+				processResults: function (data, params) {
+				params.page = params.page || 1;
+				return {
+					results: data.items,
+					pagination: {
+					more: (params.page * 30) < data.total_count
+					}
+				};
+				},
+				cache: true
+			},
+			placeholder: 'COD VISUAL - RAZÓN SOCIAL',
+			minimumInputLength: 3,
+			dropdownParent: $(".customizer-content"),
+		});
+		$(".clean_pdv_filtro").on('click',function(){
+			$("#pdv_filtro").val(null).trigger("change");
 		});
 		$(".clean_usuario_filtro").on('click',function(){
 			$("#usuario_filtro").val(null).trigger("change");

@@ -8,10 +8,9 @@
 				<th class="text-center align-middle">CHECK</th>
 				<th class="text-center align-middle">UND MEDIDA</th>
 				<th class="text-center align-middle">MOTIVO</th>
-				<!--th class="text-center align-middle">QUIEBRE</th>
-				<th class="text-center align-middle">STOCK</th-->
 				<th class="text-center align-middle">FOTO</th>
 
+				<?=getColumnasAdicionales(['idModulo' => 3])['headers_adicionales'];?>
 			</tr>
 		</thead>
 		<tbody>
@@ -20,11 +19,9 @@
 				<tr>
 					<td><?=$i++?></td>
 					<td><?=!empty($row['producto'])?$row['producto']:'-';?></td>
-					<td class="text-center"><?=!empty($row['presencia']) ? 'SI' : '-'?></td>
+					<td class="text-center"><?=!empty($row['presencia']) ? 'SI' : 'NO'?></td>
 					<td class="text-center"><?=!empty($row['unidadMedida']) ? $row['unidadMedida'] : '-' ?></td>
 					<td class="text-center"><?=!empty($row['motivo']) ? $row['motivo'] : '-' ?></td>
-					<!--td class="text-center"><?//= !empty($row['quiebre'])?'<strong>SI</strong>':'-';?></td>
-					<td class="text-center"><?//= !empty($row['stock'])?$row['stock']:'-';?></td-->
 					<td class="text-center">
 						<?if( !empty($row['foto']) ){?>
 							<?$fotoUrl = site_url("controlFoto/obtener_carpeta_foto/checklist/{$row['foto']}");?>
@@ -33,6 +30,13 @@
 							</a>
 						<?} else echo '-';?>
 					</td>
+					<? foreach(getColumnasAdicionales(['idModulo' => 3])['body_adicionales'] AS $k => $r) {?>
+						<? if($r == 'quiebre') { ?>
+							<td class="text-center"><?=!empty($row[$r]) ? 'SI' : 'NO'?></td>
+						<? }else { ?>
+							<td class="text-center"><?=verificarEmpty($row[$r], 3)?></td>
+						<? }?>
+					<? } ?>
 				</tr>
 			<? } ?>
 		</tbody>

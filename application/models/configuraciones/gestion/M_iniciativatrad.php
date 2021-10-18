@@ -5,6 +5,7 @@ class M_iniciativatrad extends My_Model
 {
 
 	var $aSessTrack = [];
+	var $CI;
 
 	public function __construct()
 	{
@@ -19,11 +20,9 @@ class M_iniciativatrad extends My_Model
 			'motivoIniciativa' => ['tabla'=>'trade.estadoIniciativaTrad','id'=>'idEstadoIniciativa'],
 			'listaDetElemento' =>['tabla'=>'trade.list_iniciativaTradDetElemento','id'=>'idListIniciativaTradDetEle'],
 			'motivoElementoVisibilidad' => ['tabla'=>'trade.motivoElementoVisibilidadTrad','id'=>'idMotivoElementoVis'],
-
 			'iniciativaTradElemento' => ['tabla'=>'trade.iniciativaTradElemento','id'=>'idIniciativaTradElemento'],
-
-
 		];
+		$this->CI = &get_instance();
 	}
 
 	// SECCION ELEMENTO
@@ -772,35 +771,55 @@ class M_iniciativatrad extends My_Model
 	}
 
 	// SECCION LISTA
-	public function getListas($post)
+	public function getListas($params = [])
 	{
-		$filtros = " WHERE 1 = 1";
-		if (!empty($post['id'])) $filtros .= " AND lst.".$this->tablas['lista']['id']." = " . $post['id'];
+		$filtros = "";
+		if (!empty($params['id'])) $filtros .= " AND lst.".$this->tablas['lista']['id']." = " . $params['id'];
 		
 		/*Filtros */
-		if(!empty($post['proyecto']))$filtros .= " AND p.idProyecto=".$post['proyecto'];
-		if(!empty($post['grupoCanal']))$filtros .= " AND gc.idGrupoCanal=".$post['grupoCanal'];
-		if(!empty($post['canal']))$filtros .= " AND c.idCanal=".$post['canal'];
+		if(!empty($params['cuenta']))$filtros .= " AND p.idCuenta=".$params['cuenta'];
+		if(!empty($params['proyecto']))$filtros .= " AND p.idProyecto=".$params['proyecto'];
+		if(!empty($params['grupoCanal']))$filtros .= " AND gc.idGrupoCanal=".$params['grupoCanal'];
+		if(!empty($params['canal']))$filtros .= " AND c.idCanal=".$params['canal'];
 		/*=====*/
 
+		$filtros .= !empty($params['distribuidora']) ? ' AND d.idDistribuidora='.$params['distribuidora'] : '';
+		$filtros .= !empty($params['zona']) ? ' AND z.idZona='.$params['zona'] : '';
+		$filtros .= !empty($params['plaza']) ? ' AND pl.idPlaza='.$params['plaza'] : '';
+		$filtros .= !empty($params['cadena']) ? ' AND cad.idCadena='.$params['cadena'] : '';
+		$filtros .= !empty($params['banner']) ? ' AND ba.idBanner='.$params['banner'] : '';
+		$filtros .= !empty($params['usuario']) ? ' AND r.idUsuario='.$params['usuario'] : '';
+		$filtros .= !empty($params['idDistribuidoraSucursal']) ? ' AND sct.idDistribuidoraSucursal IN ('.$params['idDistribuidoraSucursal'].')' : '';
+
+		$segmentacion = getSegmentacion(['grupoCanal_filtro'=>$params['grupoCanal']]);
+
 		$sql = "
-				SELECT 
-				distinct
-				lst.*
-				,p.nombre proyecto
-				,c.nombre canal 
-				,cli.nombreComercial
-				,cli.razonSocial
-                ,cli.codCliente
-				,gc.nombre grupoCanal
+				DECLARE
+					@fecIni DATE = '".$params['fecIni']."',
+					@fecFin DATE = '".$params['fecFin']."',
+					@fechaHoy DATE = GETDATE();
+				SELECT
+					lst.*
+					,p.nombre proyecto
+					,c.nombre canal 
+					,cli.nombreComercial
+					,cli.razonSocial
+					,cli.codCliente
+					,gc.nombre grupoCanal
+					{$segmentacion['columnas_bd']}
 				FROM ".$this->tablas['lista']['tabla']." lst
 				JOIN trade.proyecto p ON p.idProyecto  = lst.idProyecto
 				LEFT JOIN trade.canal c ON c.idCanal = lst.idCanal
                 LEFT JOIN trade.cliente cli ON cli.idCliente = lst.idCliente
+				LEFT JOIN ".getClienteHistoricoCuenta()." ch ON cli.idCliente = ch.idCliente AND fn.datesBetween(ch.fecIni, ch.fecFin, @fechaHoy, @fechaHoy) = 1 AND ch.idProyecto = {$params['proyecto']}
 				LEFT JOIN trade.grupoCanal gc ON gc.idGrupoCanal = lst.idGrupoCanal
+				{$segmentacion['join']}
+				WHERE 1 = 1
 				{$filtros}
+				AND General.dbo.fn_fechavigente(lst.fecIni,lst.fecFin,@fecIni,@fecFin)=1
 				ORDER BY lst.estado DESC,lst.fecIni ASC
 			";
+
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => $this->tablas['lista']['tabla'] ];
 		return $this->db->query($sql);
 	}
@@ -1420,5 +1439,85 @@ class M_iniciativatrad extends My_Model
 		$this->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => $this->tablas['elemento']['tabla'], 'id' => $this->insertId ];
 		return $insert;
 	}
+
+	public function actualizarListasVigentes($params = [])
+	{
+		$result = [
+			'status' => false,
+			'id' => '',
+		];
+		$filtros = "";
+
+		$filtros .= !empty($params['cuenta']) ?  " AND p.idCuenta=".$params['cuenta'] : "";
+		$filtros .= !empty($params['proyecto']) ?  " AND p.idProyecto=".$params['proyecto'] : "";
+
+		$this->db->trans_begin();
+
+		$this->db->query("
+		DECLARE
+			@fechaHoy DATE = GETDATE(),
+			@fecIni DATE = '{$params['fecIni']}',
+			@fecFin DATE = '{$params['fecFin']}';
+
+		UPDATE trade.list_iniciativaTrad
+		SET trade.list_iniciativaTrad.fecFin = @fechaHoy
+		WHERE
+		trade.list_iniciativaTrad.idListIniciativaTrad IN (
+		SELECT
+			lst.idListIniciativaTrad
+		FROM trade.list_iniciativaTrad lst
+		JOIN trade.proyecto p ON p.idProyecto  = lst.idProyecto
+		WHERE 1 = 1
+			{$filtros}
+		AND General.dbo.fn_fechavigente(lst.fecIni,lst.fecFin,@fecIni,@fecFin)=1
+		)
+		");
+
+		$id = $this->db->insert_id();
+		$aSessTrack = [ 'idAccion' => 7, 'tabla' => 'trade.list_iniciativaTrad', 'id' => $id ];
+
+		if ( $this->db->trans_status() === FALSE ) {
+			$this->db->trans_rollback();
+		} else {
+			$this->db->trans_commit();
+			$result['status'] = true;
+			$result['id'] = $id;
+
+			$this->CI->aSessTrack[] = $aSessTrack;
+		}
+
+		return $result;
+	}
+
+	public function getListasSinFiltros($post)
+    {
+        $filtros = " WHERE 1 = 1";
+        if (!empty($post['id'])) $filtros .= " AND lst.".$this->tablas['lista']['id']." = " . $post['id'];
+
+        if(!empty($post['proyecto']))$filtros .= " AND p.idProyecto=".$post['proyecto'];
+        if(!empty($post['grupoCanal']))$filtros .= " AND gc.idGrupoCanal=".$post['grupoCanal'];
+        if(!empty($post['canal']))$filtros .= " AND c.idCanal=".$post['canal'];
+
+        $sql = "
+                SELECT 
+                distinct
+                lst.*
+                ,p.nombre proyecto
+                ,c.nombre canal 
+                ,cli.nombreComercial
+                ,cli.razonSocial
+                ,cli.codCliente
+                ,gc.nombre grupoCanal
+                FROM ".$this->tablas['lista']['tabla']." lst
+                JOIN trade.proyecto p ON p.idProyecto  = lst.idProyecto
+                LEFT JOIN trade.canal c ON c.idCanal = lst.idCanal
+                LEFT JOIN trade.cliente cli ON cli.idCliente = lst.idCliente
+                LEFT JOIN trade.grupoCanal gc ON gc.idGrupoCanal = lst.idGrupoCanal
+                {$filtros}
+                ORDER BY lst.estado DESC,lst.fecIni ASC
+            ";
+        $this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => $this->tablas['lista']['tabla'] ];
+        return $this->db->query($sql);
+    }
 
 }

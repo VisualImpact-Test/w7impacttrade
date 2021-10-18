@@ -663,6 +663,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 				$name = !empty($val['name']) ? 'name="'.$val['name'].'"' : '';
 				$id = !empty($val['id']) ? 'id="'.$val['id'].'"' : '';
+				$multiple = !empty($val['multiple']) ? 'multiple' : '';
 				$class = 'class="flt_'.$idx.' form-control form-control-sm ';
 
 					if( empty($hide) ) $class .= $val['select2'];
@@ -681,7 +682,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 				$attr = array($id, $class, $name);
 				$attr = implode(' ', $attr);
 
-				$selectHtml .= '<select '.$attr.' required  >';
+				$selectHtml .= '<select '.$attr.' required '.$multiple.'  >';
 				if($label){
 					$selectHtml .= '<option value="">-- '.($label).' --</option>';
 				}
@@ -783,7 +784,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		}
 	}
 
-	function getMensajeGestion($tipoMensaje){
+	function getMensajeGestion($tipoMensaje,$input = []){
 		$mensaje = [
 			'actualizacionExitosa' => createMessage(array("type" => 1, "message" => 'La actualización se realizó correctamente')),
 			'actualizacionErronea' => createMessage(array("type"=> 2, "message"=>'Hubo un error en la actualización, intentélo nuevamente después de verificar que todos los campos se hayan llenado correctamente')),
@@ -811,7 +812,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 							</div>',
             'noCuentaProyecto' => '<div class="alert alert-warning m-3 noResultado" role="alert">
                                 <i class="fal fa-exclamation-triangle"></i> Seleccione una Cuenta y/o Proyecto para realizar consultas.
-                            </div>'
+                            </div>',
+			'custom' => '<div class="'.(!empty($input['class']) ? $input['class'] : '').'" role="alert">
+							<i class="'.(!empty($input['icono']) ? $input['icono'] : '').'"></i> '.(!empty($input['message']) ? $input['message'] : '').'.
+						</div>'
 		];
 
 		return $mensaje[$tipoMensaje];
@@ -1373,6 +1377,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		if ($idCuenta == "13") {
 			$retorno = "trade.cliente_historico_visualimpact";
 		};
+		if ($idCuenta == "2") {
+			$retorno = "trade.cliente_historico_aje";
+		};
 
 		return $retorno;
 	}
@@ -1528,4 +1535,30 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 
 		return $string;
+	}
+
+	function getColumnasAdicionales($params){
+		$CI = &get_instance();
+		$CI->load->model('M_control', 'm_control');
+
+		$columnas_adicionales_query = $CI->m_control->getColumnasAdicionales(['idModulo' => $params['idModulo']]);
+		$columnas_adicionales = '';
+		$headers_adicionales = '';
+		$body_adicionales = [];
+
+		if(!empty($columnas_adicionales_query)){
+			foreach($columnas_adicionales_query AS $key => $row){
+				$shortag = !empty($params['shortag']) ? $params['shortag'] : NULL;
+				if(empty($shortag)){
+					$shortag = '';
+				}else{
+					$shortag = $shortag.'.';
+				}
+				$columnas_adicionales .= ','.$shortag.$row['columna'];
+				$headers_adicionales .= '<th class="text-center align-middle">'.$row['header'].'</th>';
+				$body_adicionales[] = $row['columna'];
+			}
+		}
+
+		return ['columnas_adicionales' => $columnas_adicionales, 'headers_adicionales' => $headers_adicionales, 'body_adicionales' => $body_adicionales];
 	}

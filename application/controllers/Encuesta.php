@@ -1003,14 +1003,14 @@ class Encuesta extends MY_Controller
 		$mpdf = new \Mpdf\Mpdf();
 		
 		if (count($visitas) > 0) {
-			$encuesta = $this->m_encuesta->query_visitaEncuestaDet($params)->result_array();
+			$encuesta = $this->m_encuesta->query_visitaEncuestaDetPdf($params)->result_array();
 			$array_resultados = array();
 			foreach ($visitas as $row) {
 				$array_resultados[$row['idVisita']][$row['idEncuesta']]['fecha'] = $row['fecha'];
 				$array_resultados[$row['idVisita']][$row['idEncuesta']]['usuario'] = $row['usuario'];
 				$array_resultados[$row['idVisita']][$row['idEncuesta']]['hora'] = $row['horaIni'];
 				$array_resultados[$row['idVisita']][$row['idEncuesta']]['razonSocial'] = $row['razonSocial'];
-				$array_resultados[$row['idVisita']][$row['idEncuesta']]['distribuidora'] = $row['distribuidora'];
+				$array_resultados[$row['idVisita']][$row['idEncuesta']]['distribuidora'] = (!empty($row['distribuidora']) ? $row['distribuidora'] : '' );
 				$array_resultados[$row['idVisita']][$row['idEncuesta']]['cliente'] = $row['razonSocial'];
 				$array_resultados[$row['idVisita']][$row['idEncuesta']]['encuesta'] = $row['encuesta'];
 			}
@@ -1018,7 +1018,13 @@ class Encuesta extends MY_Controller
 			$array_grafico = array();
 			foreach ($encuesta as $fila) {
 
-				$array_resultados[$fila['idVisita']][$fila['idEncuesta']]['fotos'][$fila['idVisitaFoto']]= $fila['imgRef'];
+				if($fila['imgRef']!=null){
+					$array_resultados[$fila['idVisita']][$fila['idEncuesta']]['fotos'][$fila['idVisitaFoto']]= $fila['imgRef'];
+				}
+
+				if($fila['imgRefAlt']!=null){
+					$array_resultados[$fila['idVisita']][$fila['idEncuesta']]['fotos'][$fila['idVisitaFotoAlt']]= $fila['imgRefAlt'];
+				}
 				
 				if ($fila['idTipoPregunta'] == 1) {
 					$array_resultados[$fila['idVisita']][$fila['idEncuesta']]['preguntas'][$fila['idPregunta']]['nombre']= $fila['pregunta'];
@@ -1090,7 +1096,7 @@ class Encuesta extends MY_Controller
 			//
 			if( $visitasTotal>400 ){
 				//
-				$html='Se encontraron más de 400 registros. Excedio el maximo permitido.';
+				$html='<br>Se encontraron más de 400 registros. Excedio el maximo permitido.';
 				//
 				$mpdf->SetHTMLHeader($header);
 				$mpdf->setFooter('{PAGENO}');
@@ -1120,7 +1126,7 @@ class Encuesta extends MY_Controller
 											$html .= '<td>USUARIO: <span>'.$row['usuario'].'</span>  </td>';
 										$html .= '</tr>';
 										$html .= '<tr>';
-											$html .= '<td>HORA: <span>'.$row['hora'].'</span> </td>';
+											$html .= '<td>HORA: <span>'.time_change_format($row['hora']).'</span> </td>';
 										$html .= '</tr>';
 										$html .= '<tr>';
 											$html .= '<td>DISTRIBUIDORA: <span>'.$row['distribuidora'].'</span> </td>';
@@ -1131,12 +1137,18 @@ class Encuesta extends MY_Controller
 										$html .= '<tr class="img">';
 											if(!empty($row['fotos'])){
 												$html .= '<td >';
-												foreach($row['fotos'] as $rowFotos){
-													$html .= '<img class="foto" src="'.('http://movil.visualimpact.com.pe/fotos/impactTrade_Android/encuesta/'.$rowFotos).'" width="280" height="200" />';
+												if( count($row['fotos'])>0)
+												{
+													foreach($row['fotos'] as $rowFotos){
+														if($rowFotos!=null){
+															$html .= '<img class="foto" src="'.('http://movil.visualimpact.com.pe/fotos/impactTrade_Android/encuestas/'.$rowFotos).'" width="280" height="200" />';
+														}
+													}
 												}
+												
 												$html.=' </td> ';
 											} else {
-												$html .= '<td ><img class="foto" src="'.$www.'/images/sin-imagen.jpg" width="280" height="200" /></td>';
+												$html .= '<td >Sin Fotos.</td>';
 											}
 										$html .= '</tr>';
 

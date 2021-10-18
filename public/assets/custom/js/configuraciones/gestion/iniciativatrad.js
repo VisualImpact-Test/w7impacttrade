@@ -10,18 +10,17 @@ var IniciativaTrad = {
     
     customDataTable: function () {
         
-     },
+    },
 
     load: function () {
 
         $(document).ready(function (e) {
             IniciativaTrad.eventos();
             Gestion.urlActivo = 'configuraciones/gestion/IniciativaTrad/';
-            $(".card-body > ul > li > a[class*='active']").click();
+            $(".card-body > ul > li > a[class*='active']").dblclick();
         });
 
-
-        $(".card-body > ul > li > a").click(function (e) {
+        $(".card-body > ul > li > a").dblclick(function (e) {
             e.preventDefault();
 
             var indiceSeccion=$(this).data('value');
@@ -155,13 +154,7 @@ var IniciativaTrad = {
                         $('#lblElementoActual').val(elemento);
                     });
                 }
-
-            }
-
-
-           
-
-           
+            }           
         });
 
         $(document).on("click", ".btn-seleccionarMotivosExistente", function (e) {
@@ -218,6 +211,42 @@ var IniciativaTrad = {
 				Fn.showModal({ id:modalId,title:a.msg.title,content:message,btn:btn,show:true, width:a.data.htmlWidth});
 			});
 		});
+
+        $(document).on('click','#btn-finListasVigentes', function(e){
+			e.preventDefault();
+
+			++modalId;
+            let fn = [];
+            let btn = [];
+            let msgConfirm = "¿Está seguro(a) de actualizar las listas vigentes? Esto actualizará todos las listas que se encuentren vigentes en el rango de fecha seleccionado."
+            let titleConfirm = "Alerta!";
+
+            fn[0] = 'Fn.showModal({ id:'+modalId+',show:false });';
+            fn[1] = 'Fn.showModal({ id:'+modalId+',show:false });';
+            btn[0] = {title:'Cerrar', fn:fn[0],};
+            btn[1] = {title:'Aceptar', fn:fn[1], class:'btn-trade-visual border-0 btn-btnConfirmActualizarListas'};
+
+            Fn.showModal({ id:modalId, title:titleConfirm, content:msgConfirm, btn:btn, show:true, width:'50%'});
+		});
+
+        $(document).on('click','.btn-btnConfirmActualizarListas', function(e){
+			e.preventDefault();
+
+			let data = { 'txt-fechas': $('#txt-fechas').val() };
+			let jsonString = {data: JSON.stringify(data)};
+			let configAjax = {url: Gestion.urlActivo + 'actualizarListasVigentes', data:jsonString };
+
+			$.when(Fn.ajax(configAjax)).then( function(a){
+				++modalId;
+				let fn = [];
+				let btn = [];
+
+                fn[0] = 'Fn.showModal({ id:'+modalId+',show:false });$(".btn-Consultar").click();';
+                btn[0] = {title:'Cerrar', fn:fn[0]};
+
+				Fn.showModal({ id:modalId, title:a.msg.title, content:a.msg.content, btn:btn, show:true, width:'50%'});
+			});
+		});
     },
 
     cambiarSeccionActivo: function () {
@@ -235,8 +264,8 @@ var IniciativaTrad = {
                             { targets: 'colNumerica', className: 'text-center' },
                         ],
                         select: { style: 'multi', selector: 'td:first-child' },
-                        buttons: ['excel','pageLength', 'selectAll',
-                            'selectNone'],
+                        // buttons: ['excel','pageLength', 'selectAll',
+                        //     'selectNone'],
                     });
                     Gestion.columnaOrdenDT = 1;
                 }
@@ -251,8 +280,8 @@ var IniciativaTrad = {
                             { targets: 'colNumerica', className: 'text-center' },
                         ],
                         select: { style: 'multi', selector: 'td:first-child' },
-                        buttons: ['excel','pageLength', 'selectAll',
-                            'selectNone'],
+                        // buttons: ['excel','pageLength', 'selectAll',
+                        //     'selectNone'],
                     });
                     Gestion.columnaOrdenDT = 1;
                 }
@@ -267,8 +296,8 @@ var IniciativaTrad = {
                             { targets: 'colNumerica', className: 'text-center' },
                         ],
                         select: { style: 'multi', selector: 'td:first-child' },
-                        buttons: ['excel','pageLength', 'selectAll',
-                            'selectNone'],
+                        // buttons: ['excel','pageLength', 'selectAll',
+                        //     'selectNone'],
                     });
                     Gestion.columnaOrdenDT = 1;
                 }

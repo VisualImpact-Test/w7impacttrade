@@ -142,6 +142,8 @@ class M_rutas extends MY_Model{
 				, v.mantenimiento AS mantenimientoCliente
 				, v.surtido
 				, v.observacion AS observacion
+				, v.tarea
+				, v.evidenciaFotografica
 				{$segmentacion['columnas_bd']}
 
 			FROM trade.data_ruta r
@@ -297,6 +299,8 @@ class M_rutas extends MY_Model{
 	}
 
 	public function detalle_checkproducto($idVisita){
+		$columnas_adicionales = getColumnasAdicionales(['idModulo' => 3, 'shortag' => 'dvpd'])['columnas_adicionales'];
+
 		$sql = "
 			SELECT 
 				 dvpd.idVisitaProductosDet
@@ -314,6 +318,7 @@ class M_rutas extends MY_Model{
 				,mv.nombre AS motivo
 				,vf.idVisitaFoto
 				,vf.fotoUrl AS foto
+				{$columnas_adicionales}
 			FROM trade.data_visitaProductosDet dvpd
 			JOIN trade.data_visitaProductos dvp ON dvpd.idVisitaProductos= dvp.idVisitaProductos
 			JOIN trade.producto p ON p.idProducto = dvpd.idProducto
@@ -328,6 +333,8 @@ class M_rutas extends MY_Model{
 	}
 
 	public function detalle_precio($idVisita){
+		$columnas_adicionales = getColumnasAdicionales(['idModulo' => 10, 'shortag' => 'dvpd'])['columnas_adicionales'];
+
 		$sql = "
 			SELECT 
 				 dvpd.idVisitaPrecios
@@ -338,6 +345,7 @@ class M_rutas extends MY_Model{
 				,dvpd.precio
 				,dvpd.precioRegular
 				,dvpd.precioOferta
+				{$columnas_adicionales}
 			FROM 
 				trade.data_visitaPreciosDet dvpd
 				JOIN trade.data_visitaPrecios dvp ON dvpd.idVisitaPrecios= dvp.idVisitaPrecios
@@ -351,27 +359,35 @@ class M_rutas extends MY_Model{
 	}
 
 	public function detalle_promociones($idVisita){
+		$columnas_adicionales = getColumnasAdicionales(['idModulo' => 7, 'shortag' => 'dvpd'])['columnas_adicionales'];
+		$join_adicional = '';
+		if(!empty($columnas_adicionales)){
+			$join_adicional = 'LEFT JOIN trade.producto pr ON dvpd.producto = pr.idProducto';
+			$columnas_adicionales = str_replace('dvpd.producto', 'pr.nombre AS producto', $columnas_adicionales);
+		}
 		$sql = "
-			SELECT 
+			SELECT
 				 dvpd.idVisitaPromocionesDet
 				, dvpd.idPromocion
 				, tp.idTipoPromocion
 				, tp.nombre AS tipoPromocion
 				, p.nombre AS promocion
-				, dvpd.nombrePromocion  
+				, dvpd.nombrePromocion
 				, dvpd.presencia
 				, dvpd.idVisitaFoto
-				, vf.fotoUrl foto 
-			FROM 
+				, vf.fotoUrl foto
+				{$columnas_adicionales}
+			FROM
 				trade.data_visitaPromocionesDet dvpd
 				LEFT JOIN trade.data_visitaPromociones dvp ON dvpd.idVisitaPromociones= dvp.idVisitaPromociones
 				LEFT JOIN trade.promocion p ON p.idPromocion = dvpd.idPromocion
 				LEFT JOIN trade.tipoPromocion tp ON tp.idTipoPromocion = dvpd.idTipoPromocion OR tp.idTipoPromocion = p.idTipoPromocion
 				LEFT JOIN trade.data_visitaFotos vf ON vf.idVisitaFoto = dvpd.idVisitaFoto
+				{$join_adicional}
 			WHERE
 				dvp.idVisita = {$idVisita}
-				AND nombrePromocion IS NOT NULL
-				AND tp.idTipoPromocion <> 1
+				--AND nombrePromocion IS NOT NULL
+				--AND tp.idTipoPromocion <> 1
 			ORDER BY tipoPromocion, promocion ASC
 		";
 
@@ -853,6 +869,43 @@ class M_rutas extends MY_Model{
 			vd.comentario
 		FROM trade.data_visitaObservacion v
 		JOIN trade.data_visitaObservacionDet vd ON vd.idVisitaObservacion = v.idVisitaObservacion
+		WHERE v.idVisita = {$idVisita}";
+
+		return $this->db->query($sql)->result_array();
+	}
+
+	public function detalle_tarea($idVisita){
+		$sql = "
+		SELECT 
+			v.idVisitaTarea
+			, v.idVisita
+			, vd.presencia
+			, vd.idTarea
+			, t.nombre AS tarea
+			, vd.comentario
+			, vf.fotoUrl
+		FROM trade.data_visitaTarea v
+		JOIN trade.data_visitaTareaDet vd ON vd.idVisitaTarea = v.idVisitaTarea
+		JOIN trade.tarea t ON vd.idTarea = t.idTarea
+		JOIN trade.data_visitaTareaDetFoto vdf ON vd.idVisitaTareaDet = vdf.idVisitaTareaDet
+		LEFT JOIN trade.data_visitaFotos vf ON vdf.idVisitaFoto = vf.idVisitaFoto
+		WHERE v.idVisita = {$idVisita}";
+
+		return $this->db->query($sql)->result_array();
+	}
+
+	public function detalle_evidenciaFotografica($idVisita){
+		$sql = "
+		SELECT 
+			v.idVisitaEvidenciaFotografica
+			, v.idVisita
+			, vd.comentario
+			, vdf.idTipoFotoEvidencia
+			, vf.fotoUrl
+		FROM trade.data_visitaEvidenciaFotografica v
+		JOIN trade.data_visitaEvidenciaFotograficaDet vd ON vd.idVisitaEvidenciaFotografica = v.idVisitaEvidenciaFotografica
+		JOIN trade.data_visitaEvidenciaFotograficaDetFoto vdf ON vd.idVisitaEvidenciaFotograficaDet = vdf.idVisitaEvidenciaFotograficaDet
+		LEFT JOIN trade.data_visitaFotos vf ON vdf.idVisitaFoto = vf.idVisitaFoto
 		WHERE v.idVisita = {$idVisita}";
 
 		return $this->db->query($sql)->result_array();

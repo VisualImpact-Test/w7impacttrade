@@ -796,6 +796,45 @@ var Fn = {
                         });
                     }
                     break;
+				case 'departamentos':
+					//console.log(objectLocal['departamentos']);
+					html+='<option value="" class="label label-success" >Departamentos (Todo)</option>';
+					if ( typeof(objectLocal['departamentos'])==='object' ) {
+						$.each(objectLocal['departamentos'], function(i,v){
+							html+='<option value='+i+'>'+v+'</option>';
+						});
+					}
+					break;
+				case 'provincias':
+					html+='<option value="" class="label label-success" >Provincias (Todo)</option>';
+					if( typeof(objectLocal['provincias'][filter[0]])==='object' ){
+						$.each(objectLocal['provincias'][filter[0]],function(i,v){
+							html+='<option value='+i+'>'+v+'</option>';
+						});
+					}
+					break;
+				case 'distritos':
+					html+='<option value="" class="label label-success" >Distritos (Todo)</option>';
+					if (typeof(objectLocal['distritos'][filter[0]]) !== 'undefined' ) {
+						if( typeof(objectLocal['distritos'][filter[0]][filter[1]])==='object' ){
+							$.each(objectLocal['distritos'][filter[0]][filter[1]],function(i,v){
+								html+='<option value='+i+'>'+v+'</option>';
+							});
+						}
+					}
+					break;
+				case 'encargado':
+					html+='<option value="" class="label label-success" >Encargados (Todo)</option>';
+					if( typeof(objectLocal['encargados'])==='object' ){
+						if( typeof(objectLocal['encargados'][filter[0]])==='object' ){
+							if( typeof(objectLocal['encargados'][filter[0]][filter[1]])==='object' ){
+								$.each(objectLocal['encargados'][filter[0]][filter[1]],function(i,v){
+									html+='<option value='+i+'>'+v+'</option>';
+								});
+							}
+						}
+					}
+					break;
 			}
 		}
 

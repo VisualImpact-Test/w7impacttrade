@@ -112,13 +112,13 @@ class M_Home extends MY_Model{
          v.idVisita
         , CASE WHEN (r.fecha = @hoy) THEN 1 ELSE 0 END hoy
         , r.fecha
-        , CASE WHEN (v.horaIni IS NOT NULL AND v.horaFin IS NOT NULL ) THEN
+        , CASE WHEN (v.horaIni IS NOT NULL AND v.horaFin IS NOT NULL AND v.numFotos >= 1 AND estadoIncidencia <> 1 ) THEN
                 3
             ELSE
                 CASE WHEN (v.horaIni IS NOT NULL ) THEN
                         1
-                ELSE
-                    CASE WHEN (estadoIncidencia IS NOT NULL OR estadoIncidencia = 1) THEN
+            ELSE
+                CASE WHEN (estadoIncidencia IS NOT NULL OR estadoIncidencia = 1) THEN
                         2
                     ELSE
                         0
@@ -186,7 +186,7 @@ class M_Home extends MY_Model{
             , v.idCliente
             , CASE WHEN (r.fecha = @hoy) THEN 1 ELSE 0 END hoy
             , r.fecha
-            , CASE WHEN (v.horaIni IS NOT NULL AND v.horaFin IS NOT NULL ) THEN
+            , CASE WHEN (v.horaIni IS NOT NULL AND v.horaFin IS NOT NULL AND v.numFotos >= 1 AND estadoIncidencia <> 1  ) THEN
                     3
                 ELSE
                     CASE WHEN (v.horaIni IS NOT NULL ) THEN
@@ -206,7 +206,7 @@ class M_Home extends MY_Model{
             r.fecha BETWEEN @inicio_mes AND @hoy
             AND r.estado = 1
             AND v.estado = 1
-            AND r.demo = 0
+           
             $filtros
         ), lista_cliente AS (
         SELECT

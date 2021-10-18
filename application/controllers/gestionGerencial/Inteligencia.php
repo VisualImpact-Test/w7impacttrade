@@ -56,9 +56,6 @@ class Inteligencia extends MY_Controller{
 		$input['plaza_filtro'] = empty($data->{'plaza_filtro'}) ? '' : $data->{'plaza_filtro'};
 		$input['cadena_filtro'] = empty($data->{'cadena_filtro'}) ? '' : $data->{'cadena_filtro'};
 		$input['banner_filtro'] = empty($data->{'banner_filtro'}) ? '' : $data->{'banner_filtro'};
-		
-		
-
 
 		$rs_visitas = $this->model->obtener_visitas($input);
 

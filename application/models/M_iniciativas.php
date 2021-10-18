@@ -2,9 +2,12 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 class M_iniciativas extends MY_Model{
+
+	var $CI;
 	
 	public function __construct(){
 		parent::__construct();
+		$this->CI = &get_instance();
 	}
 	
 	public function query($sql){
@@ -17,7 +20,7 @@ class M_iniciativas extends MY_Model{
 		return $result;
 	}
 
-	public function obtener_iniciativas($input=array()){
+	public function obtener_iniciativas($input = []){
 
 		$filtros = "";
 		$filtros .= !empty($input['cuenta']) ? ' AND r.idCuenta='.$input['cuenta'] : '';
@@ -26,31 +29,40 @@ class M_iniciativas extends MY_Model{
 		$filtros .= !empty($input['canal']) ? ' AND v.idCanal='.$input['canal'] : '';
 		$filtros .= !empty($input['subcanal']) ? ' AND sn.idSubCanal='.$input['subcanal'] : '';
 
-		$filtros .= !empty($input['tipoUsuario_filtro']) ? " AND uh.idTipoUsuario=".$input['tipoUsuario_filtro'] : "";
-		$filtros .= !empty($input['usuario_filtro']) ? " AND uh.idUsuario=".$input['usuario_filtro'] : "";
+		$filtros .= !empty($input['tipoUsuario']) ? " AND uh.idTipoUsuario=".$input['tipoUsuario'] : "";
+		$filtros .= !empty($input['usuario']) ? " AND uh.idUsuario=".$input['usuario'] : "";
 
-		$filtros .= !empty($input['distribuidoraSucursal_filtro']) ? ' AND ds.idDistribuidoraSucursal='.$input['distribuidoraSucursal_filtro'] : '';
-		$filtros .= !empty($input['distribuidora_filtro']) ? ' AND d.idDistribuidora='.$input['distribuidora_filtro'] : '';
-		$filtros .= !empty($input['zona_filtro']) ? ' AND z.idZona='.$input['zona_filtro'] : '';
-		$filtros .= !empty($input['plaza_filtro']) ? ' AND pl.idPlaza='.$input['plaza_filtro'] : '';
-		$filtros .= !empty($input['cadena_filtro']) ? ' AND cad.idCadena='.$input['cadena_filtro'] : '';
-		$filtros .= !empty($input['banner_filtro']) ? ' AND ba.idBanner='.$input['banner_filtro'] : '';
-
-
+		$filtros .= !empty($input['distribuidoraSucursal']) ? ' AND ds.idDistribuidoraSucursal IN ('.$input['distribuidoraSucursal'].')' : '';
+		$filtros .= !empty($input['distribuidora']) ? ' AND d.idDistribuidora='.$input['distribuidora'] : '';
+		$filtros .= !empty($input['zona']) ? ' AND z.idZona='.$input['zona'] : '';
+		$filtros .= !empty($input['plaza']) ? ' AND pl.idPlaza='.$input['plaza'] : '';
+		$filtros .= !empty($input['cadena']) ? ' AND cad.idCadena='.$input['cadena'] : '';
+		$filtros .= !empty($input['banner']) ? ' AND ba.idBanner='.$input['banner'] : '';
 		$filtros .= !empty($input['usuario']) ? ' AND r.idUsuario='.$input['usuario'] : '';
+
+		$filtros .= !empty($input['externo']) ? ' AND id.validacion_analista = 1' : '';
+
+		$idProyecto = $this->sessIdProyecto;
+
 		if(!empty($input['foto'])){
-			if($input['foto']=="si"){
+			if($input['foto'] == "si"){
 				$filtros .=' AND vf.idVisitaFoto IS NOT NULL';
-			}else if($input['foto']=="no"){
+			}else if($input['foto'] == "no"){
 				$filtros .=' AND vf.idVisitaFoto IS NULL';
 			}
 		}
-		$idProyecto = $this->sessIdProyecto;
 		if(!empty($input['validado'])){
-			if($input['validado']=="si"){
-				$filtros .=' AND id.validacion_ejecutivo=1';
-			}else if($input['foto']=="no"){
-				$filtros .=' AND (id.validacion_ejecutivo IS NULL  OR id.validacion_ejecutivo =0 )';
+			if($input['validado'] == "si"){
+				$filtros .=' AND id.validacion_ejecutivo = 1';
+			}else if($input['foto'] == "no"){
+				$filtros .=' AND (id.validacion_ejecutivo IS NULL OR id.validacion_ejecutivo = 0 )';
+			}
+		}
+		if(!empty($input['habilitado'])){
+			if($input['habilitado'] == "si"){
+				$filtros .=' AND id.validacion_analista = 1';
+			}else if($input['habilitado'] == "no"){
+				$filtros .=' AND (id.validacion_analista IS NULL OR id.validacion_analista = 0 )';
 			}
 		}
 
@@ -60,17 +72,16 @@ class M_iniciativas extends MY_Model{
 			$filtro_demo = " AND r.demo = 0";
 		}
 
-
 		$filtros .= !empty($input['elementos']) ? ' AND id.idElementoIniciativa IN ('.$input['elementos'].')' : '';
+		$filtros .= !empty($input['iniciativas']) ? ' AND id.idIniciativa IN ('.$input['iniciativas'].')' : '';
 		$filtros .= !empty($input['idDistribuidoraSucursal']) ? ' AND sct.idDistribuidoraSucursal IN ('.$input['idDistribuidoraSucursal'].')' : '';
 
 		$segmentacion = getSegmentacion(['grupoCanal_filtro'=>$input['grupoCanal']]);
 
 		$sql = "
 			DECLARE
-				  @fecIni DATE = '".$input['fecIni']."'
+				@fecIni DATE = '".$input['fecIni']."'
 				, @fecFin DATE = '".$input['fecFin']."'
-
 			SELECT 
 				  gc.idGrupoCanal
 				, gc.nombre grupoCanal
@@ -96,6 +107,7 @@ class M_iniciativas extends MY_Model{
 				, id.validacion_analista
 				, id.editado
 				, id.idVisitaIniciativaTradDet
+				, ISNULL(id.producto, 0) AS cuentaConProducto
 				, c.codDist
 				, c.codCliente
 				, subca.nombre subCanal
@@ -131,7 +143,7 @@ class M_iniciativas extends MY_Model{
 					ON it.idIniciativa = id.idIniciativa
 				JOIN trade.elementoVisibilidadTrad ei
 					ON ei.idElementoVis=id.idElementoIniciativa
-				JOIN trade.estadoIniciativaTrad eit
+				LEFT JOIN trade.estadoIniciativaTrad eit
 					ON eit.idEstadoIniciativa=id.idEstadoIniciativa
 				LEFT JOIN trade.data_visitaFotos vf
 					ON vf.idVisitaFoto = id.idVisitaFoto
@@ -140,32 +152,34 @@ class M_iniciativas extends MY_Model{
 			WHERE r.fecha BETWEEN @fecIni AND @fecFin
 			{$filtros}
 			{$filtro_demo}
-
 		";
+
 		return $this->query($sql);
 	}
 	
-	public function obtener_iniciativas_det($input=array()){
+	public function obtener_iniciativas_det($params = []){
 		$filtros = "";
+
 		$sql = "
 			SELECT 
-				  eit.idEstadoIniciativa
+				eit.idEstadoIniciativa
 				, eit.nombre estadoIniciativa
 				, ISNULL(id.presencia,0) presencia
 				, ISNULL(id.cantidad,0) cantidad
 				, id.idVisitaIniciativaTradDet
 			FROM 
-				trade.data_visitaIniciativaTrad i
-				JOIN trade.data_visitaIniciativaTradDet id
-					ON id.idVisitaIniciativaTrad = i.idVisitaIniciativaTrad
-				JOIN trade.iniciativaTrad it
-					ON it.idIniciativa = id.idIniciativa
-				JOIN trade.elementoIniciativaTrad ei
-					ON ei.idElementoIniciativa=id.idElementoIniciativa
-				JOIN trade.estadoIniciativaTrad eit
-					ON eit.idEstadoIniciativa=id.idEstadoIniciativa
-			WHERE 
-				 id.idVisitaIniciativaTradDet='".$input['idIniciativaDet']."'
+			trade.data_visitaIniciativaTrad i
+			JOIN trade.data_visitaIniciativaTradDet id
+				ON id.idVisitaIniciativaTrad = i.idVisitaIniciativaTrad
+			JOIN trade.iniciativaTrad it
+				ON it.idIniciativa = id.idIniciativa
+			LEFT JOIN trade.elementoIniciativaTrad ei
+				ON ei.idElementoIniciativa=id.idElementoIniciativa
+			LEFT JOIN trade.estadoIniciativaTrad eit
+				ON eit.idEstadoIniciativa=id.idEstadoIniciativa
+			WHERE it.estado = 1
+			AND id.idVisitaIniciativaTradDet='".$params['idIniciativaDet']."'
+			{$filtros}
 		";
 
 		return $this->query($sql);
@@ -338,6 +352,86 @@ class M_iniciativas extends MY_Model{
 		LEFT JOIN General.dbo.ubigeo ubi ON ubi.cod_ubigeo=ds.cod_ubigeo
 		WHERE ds.estado=1 AND d.estado=1";
 		return $this->db->query($sql)->result_array();
+	}
+
+	public function obtener_elementos_iniciativas($params = [])
+	{
+		$filtros = "";
+		$filtros .= !empty($params['cuenta']) ? (" AND idCuenta =" . $params['cuenta']) : '';
+		// $filtros .= !empty($params['proyecto']) ? (" AND idProyecto =" . $params['proyecto']) : '';
+
+		$sql = "
+			DECLARE @fechaHoy DATE = GETDATE();
+			SELECT
+				idIniciativa
+				, nombre
+				, descripcion
+			FROM trade.iniciativaTrad
+			WHERE estado = 1
+			AND fn.datesBetween(fecIni, fecFin, @fechaHoy, @fechaHoy) = 1
+			{$filtros}
+		";
+		return $this->db->query($sql)->result_array();
+	}
+
+	public function actualizarIniciativa($params = [])
+	{
+		$result = [
+			'status' => false,
+			'id' => '',
+		];
+		
+		$this->db->trans_begin();
+
+		foreach($params AS $key => $row){
+			if(!empty($row['iniciativas'])){
+				$this->db->where('idVisitaIniciativaTradDet',  $row['iniciativas'] );
+				$this->db->update('trade.data_visitaIniciativaTradDet', ['validacion_analista' => $row['tipoHabilitar']]);
+			}
+		}
+
+		$id = $this->db->insert_id();
+		$aSessTrack = [ 'idAccion' => 7, 'tabla' => 'trade.data_visitaIniciativaTradDet', 'id' => $id ];
+
+		if ( $this->db->trans_status() === FALSE ) {
+			$this->db->trans_rollback();
+		} else {
+			$this->db->trans_commit();
+			$result['status'] = true;
+			$result['id'] = $id;
+
+			$this->CI->aSessTrack[] = $aSessTrack;
+		}
+
+		return $result;
+	}
+
+	public function editarIniciativa($params = [])
+	{
+		$result = [
+			'status' => false,
+			'id' => '',
+		];
+		
+		$this->db->trans_begin();
+
+		$this->db->where('idVisitaIniciativaTradDet',  $params['idIniciativaDet'] );
+		$this->db->update('trade.data_visitaIniciativaTradDet', $params['editar']);
+
+		$id = $this->db->insert_id();
+		$aSessTrack = [ 'idAccion' => 7, 'tabla' => 'trade.data_visitaIniciativaTradDet', 'id' => $id ];
+
+		if ( $this->db->trans_status() === FALSE ) {
+			$this->db->trans_rollback();
+		} else {
+			$this->db->trans_commit();
+			$result['status'] = true;
+			$result['id'] = $id;
+
+			$this->CI->aSessTrack[] = $aSessTrack;
+		}
+
+		return $result;
 	}
 
 }

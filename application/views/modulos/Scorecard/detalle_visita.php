@@ -86,10 +86,10 @@
 							<td class="text-<?= (!empty($row[($v['columna'])]) ? $v['align'] : 'left') ?>"><?= (!empty($row[($v['columna'])]) ? $row[($v['columna'])] : '-') ?></td>
 						<? } ?>
 						<td style="text-align:center;"><?=$row['idCliente']?></td>
-						<td style="text-align:center;"><?=$row['codCliente']?></td>
-						<td style="text-align:center;"><?=$row['codDist']?></td>
+						<td style="text-align:center;"><?=($row['codCliente']) ? $row['codCliente'] : '-' ?></td>
+						<td style="text-align:center;"><?=($row['codDist']) ? $row['codDist'] : '-' ?></td>
 						<td style="text-align:left;"><?=$row['razonSocial']?></td>
-						<td style="text-align:left;"><?=$row['direccion']?></td>
+						<td style="text-align:left;"><?=($row['direccion']) ? $row['direccion'] : '-' ?></td>
 						<td style="text-align:left;"><?=!empty($row['hora_ini']) ? $gpsIni . $row['hora_ini'] : '-'?></td>
 						<td style="text-align:left;"><?=!empty($latiIni) ? $latiIni : '-'?></td>
 						<td style="text-align:left;"><?=!empty($longIni) ? $longIni : '-'?></td>

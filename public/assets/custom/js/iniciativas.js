@@ -72,40 +72,43 @@ var Iniciativas = {
 			});
 		});
 		
-		$(document).on('click','.btn-inhabilitar',function(e){
+		$(document).on('click','.btn-inhabilitar, .btn-habilitar',function(e){
 			e.preventDefault();
 
 			var rows = $('#data-table').DataTable().rows({ 'search': 'applied' }).nodes();
 			var datos = {};
 
-			$.each(rows, function(ir,vr){
+			let tipoHabilitar = $(this).data('tipohabilitar');
+
+			$.each(rows, function(ir, vr){
 			   var input = $(vr).find('input');
 
 			   if( typeof(datos[ir]) == 'undefined' ){
-				   datos[ir] = { 'iniciativas': [] };
+				   datos[ir] = { 'iniciativas': '', 'tipoHabilitar': '' };
 			   }
 
 				$.each(input, function(ii, vi){
 					if( $(vi).attr('type') == 'checkbox' ){
 						if( $(vi).is(':checked') ){
-							datos[ir]['iniciativas'].push($(vi).val());
+							datos[ir]['iniciativas'] = $(vi).val();
+							datos[ir]['tipoHabilitar'] = tipoHabilitar;
 						}
 					}
-
 				});
 			});
 
-			var jsonString={ 'data':JSON.stringify( datos ) };
-			var config={'url':Iniciativas.url+'/inhabilitar_iniciativas','data':jsonString}; 
+			var jsonString = { 'data':JSON.stringify( datos ) };
+			var config = {'url':Iniciativas.url+'/inhabilitar_iniciativas','data':jsonString}; 
 			$.when( Fn.ajax(config) ).then(function(a){
-					++modalId;
-					var btn=[];
-					var fn='Fn.showModal({ id:'+modalId+',show:false });$(".btn-consultar").click();';
-					btn[0]={title:'Continuar',fn:fn};
-					Fn.showModal({ id:modalId,show:true,title:'Confirmacion',content:a.data,btn:btn });
-					
-			});			
+				++modalId;
+				var btn = [];
+				var fn = [];
 
+				fn[0] = 'Fn.showModal({ id:'+modalId+',show:false });$(".btn-consultar").click();';
+				btn[0] = { title: 'Continuar', fn: fn[0] };
+
+				Fn.showModal({ id: modalId, show: true, title: a.msg.title, content: a.msg.content, btn: btn });
+			});
 		});
 		
 		$(document).on('click','.btn-validar',function(e){
@@ -134,14 +137,12 @@ var Iniciativas = {
 			var jsonString={ 'data':JSON.stringify( datos ) };
 			var config={'url':Iniciativas.url+'/validar_iniciativas','data':jsonString}; 
 			$.when( Fn.ajax(config) ).then(function(a){
-					++modalId;
-					var btn=[];
-					var fn='Fn.showModal({ id:'+modalId+',show:false });$(".btn-consultar").click();';
-					btn[0]={title:'Continuar',fn:fn};
-					Fn.showModal({ id:modalId,show:true,title:'Confirmacion',content:a.data,btn:btn });
-					
-			});			
-
+				++modalId;
+				var btn=[];
+				var fn='Fn.showModal({ id:'+modalId+',show:false });$(".btn-consultar").click();';
+				btn[0]={title:'Continuar',fn:fn};
+				Fn.showModal({ id:modalId,show:true,title:'Confirmacion',content:a.data,btn:btn });
+			});
 		});
 		
 		$(".btn-pdf").on("click",function(e){
@@ -212,17 +213,22 @@ var Iniciativas = {
 	},
 	
 	Actualizar: function (){
-		var data = Fn.formSerializeObject('editar');
+		var data = Fn.formSerializeObject('editarIniciativas');
 		var jsonString = { 'data': JSON.stringify(data) };
 		var config = { 'url': Iniciativas.url + 'actualizar_iniciativas', 'data': jsonString };
 
 		$.when(Fn.ajax(config)).then(function (a) {
-			$('#resultadoIniciativasEditar').html(a.data);
-		}); 
+			++modalId;
+			let btn = [];
+			let fn = [];
+			fn[0] = 'Fn.showModal({ id:'+modalId+',show:false });';
+			btn[0] = { title:'Continuar', fn:fn[0] };
+			Fn.showModal({ id:modalId, show:true, title:a.msg.title, content:a.msg.content, btn:btn });
+		});
 	},
 	
 	Habilitar_analista: function (){
-		var data = Fn.formSerializeObject('editar');
+		var data = Fn.formSerializeObject('editarIniciativas');
 		var jsonString = { 'data': JSON.stringify(data) };
 		var config = { 'url': Iniciativas.url + 'actualizar_estado_analista', 'data': jsonString };
 

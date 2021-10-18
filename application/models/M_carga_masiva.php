@@ -630,6 +630,8 @@ class M_carga_masiva extends CI_Model{
 				$tablahistorico="trade.cliente_historico_pg";
 			}else if($input['idCuenta']=="13"){
 				$tablahistorico="trade.cliente_historico_visualimpact";
+			}else if($input['idCuenta']=="2"){
+				$tablahistorico="trade.cliente_historico_aje";
 			}else{
 				$tablahistorico="trade.cliente_historico";
 			}
@@ -1299,6 +1301,8 @@ class M_carga_masiva extends CI_Model{
 				$tablahistorico="trade.cliente_historico_pg";
 			}else if($input['idCuenta']=="13"){
 				$tablahistorico="trade.cliente_historico_visualimpact";
+			}else if($input['idCuenta']=="2"){
+				$tablahistorico="trade.cliente_historico_aje";
 			}else{
 				$tablahistorico="trade.cliente_historico";
 			}

@@ -3,14 +3,16 @@
         <thead>
             <tr>
                 <th rowspan="2" class="noVis text-center">#</th>
-                <th class="text-center align-middle" rowspan="2">HABILITAR PDF</th>
+                <th class="text-center" rowspan="2">HABILITAR PDF<br><input type="checkbox" id="chkb-habilitarTodos" name="chkb-habilitarTodos" class="habilitarTodos"></th>
                 <th rowspan="2" class="text-center">FECHA</th>
                 <th rowspan="2" class="text-center">GRUPO CANAL</th>
                 <th rowspan="2" class="text-center">CANAL</th>
                 <th rowspan="2" class="text-center hideCol">SUBCANAL</th>
-                <? foreach ($segmentacion['headers'] as $k => $v) { ?>
-                    <th rowspan="2" class="text-center"><?= strtoupper($v['header']) ?></th>
-                <? } ?>
+                <?
+                if( !empty($segmentacion['headers'])){
+                    foreach ($segmentacion['headers'] as $k => $v) { ?>
+                        <th rowspan="2" class="text-center"><?= strtoupper($v['header']) ?></th>
+                <? } } ?>
                 <th rowspan="2" class="text-center">COD VISUAL</th>
                 <th rowspan="2" class="text-center hideCol">COD <?= $this->sessNomCuentaCorto ?></th>
                 <th rowspan="2" class="text-center hideCol">COD PDV</th>
@@ -54,9 +56,10 @@
                     <td><?= verificarEmpty($visita["grupoCanal"], 3) ?></td>
                     <td><?= verificarEmpty($visita["canal"], 3) ?></td>
                     <td><?= verificarEmpty($visita["subCanal"], 3) ?></td>
-                    <? foreach ($segmentacion['headers'] as $k => $v) { ?>
-                        <td class="text-<?= (!empty($visita[($v['columna'])]) ? $v['align'] : '-') ?>"><?= (!empty($visita[($v['columna'])]) ? $visita[($v['columna'])] : '-') ?></td>
-                    <? } ?>
+                    <? if(!empty($segmentacion['headers'])){
+                        foreach ($segmentacion['headers'] as $k => $v) { ?>
+                            <td class="text-<?= (!empty($visita[($v['columna'])]) ? $v['align'] : '-') ?>"><?= (!empty($visita[($v['columna'])]) ? $visita[($v['columna'])] : '-') ?></td>
+                    <? }} ?>
                     <td class="text-center"><?= verificarEmpty($visita["idCliente"], 3) ?></td>
                     <td class="text-center"><?= verificarEmpty($visita["codCliente"], 3) ?></td>
                     <td class="text-center"><?= verificarEmpty($visita["codDist"], 3) ?></td>

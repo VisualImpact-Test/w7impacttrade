@@ -79,9 +79,6 @@ class Rutas extends MY_Controller{
 		$input['inc_desactivado'] = !empty($data->{'inc_desactivado'})? true : false ;
 		$input['obs'] = !empty($data->{'obs'})? true : false ;
 
-
-
-
 		$rs_visitas = $this->model->obtener_visitas($input);
 
 		$html = '';
@@ -99,7 +96,7 @@ class Rutas extends MY_Controller{
 					$array['visitas'] = $rs_visitas;
 					$segmentacion = getSegmentacion(['grupoCanal_filtro' => $input['grupo_filtro']]);
 					$array['segmentacion'] = $segmentacion;
-					$html .= $this->load->view("modulos/rutas/rutasDetalle", $array, true);
+
 					$new_data = [];
 					$i = 1;
 
@@ -118,13 +115,19 @@ class Rutas extends MY_Controller{
 					$disabledTH['Premiacion'] = 'tdDisabledRutacuenta';
 					$disabledTH['Modulacion'] = 'tdDisabledRutacuenta';
 					$disabledTH['Observacion'] = 'tdDisabledRutacuenta';
+					$disabledTH['Tareas'] = 'tdDisabledRutacuenta';
+					$disabledTH['EvidenciaFotografica'] = 'tdDisabledRutacuenta';
+
 					foreach ($array['permisos_modulos_cuenta'] as $key => $row) {
 						$disabledTH[preg_replace('/\s+/', '', $row['nombre'])] = '';
 					}
+
+					$array['disabledTH'] = $disabledTH;
+					$html .= $this->load->view("modulos/rutas/rutasDetalle", $array, true);
+
 					$permisos_modulos = $array['permisos_modulos'];
 
 					foreach ($rs_visitas as $kr => $row) {
-
 
 						$latiIni = $row['lati_ini'];
 						$longIni = $row['long_ini'];
@@ -157,7 +160,6 @@ class Rutas extends MY_Controller{
 							$condicion_ = 'EF <span class="color-C" ><i class="fa fa-circle" ></i></span>';
 							$condicion_f = 'EF';
 						}
-
 
 						$new_data[$kr] = [
 							//Columnas
@@ -422,7 +424,37 @@ class Rutas extends MY_Controller{
 						}  
 						array_push($new_data[$kr],
 							$mod
-						);  
+						);
+						//--------Tareas
+						$mod = isset($row['tarea']) ? $row['tarea'] : '';
+						if (!empty($mod)) {
+							$mod = '<custom data-clases="tdDisabledRuta text-center"></custom><a href="javascript:;" class="lk-detalle" data-modulo="tarea" data-perfil="' . $row['tipoUsuario'] . '"  data-usuario="' . $row['nombreUsuario'] . '" data-cliente="' . $row['razonSocial'] . '" data-title="TAREA" data-visita="' . $row['idVisita'] . '" >SI <i class="fa fa-file-text"></i></a>';
+						}
+						$disabled = '';
+						if (!isset($permisos_modulos[$row['idTipoUsuario']][18])) {
+							$disabled = 'tdDisabledRuta';
+						}
+						if(empty($mod)){
+							$mod = "<p class='text-center {$disabledTH['Tareas']} {$disabled}'>".'-'."</p>" ;
+						}  
+						array_push($new_data[$kr],
+							$mod
+						);
+						//--------Evidencia Fotografica
+						$mod = isset($row['evidenciaFotografica']) ? $row['evidenciaFotografica'] : '';
+						if (!empty($mod)) {
+							$mod = '<custom data-clases="tdDisabledRuta text-center"></custom><a href="javascript:;" class="lk-detalle" data-modulo="evidenciaFotografica" data-perfil="' . $row['tipoUsuario'] . '"  data-usuario="' . $row['nombreUsuario'] . '" data-cliente="' . $row['razonSocial'] . '" data-title="EVIDENCIA FOTOGRAFICA" data-visita="' . $row['idVisita'] . '" >SI <i class="fa fa-file-text"></i></a>';
+						}
+						$disabled = '';
+						if (!isset($permisos_modulos[$row['idTipoUsuario']][18])) {
+							$disabled = 'tdDisabledRuta';
+						}
+						if(empty($mod)){
+							$mod = "<p class='text-center {$disabledTH['EvidenciaFotografica']} {$disabled}'>".'-'."</p>" ;
+						}  
+						array_push($new_data[$kr],
+							$mod
+						);
 					}
 					$result['data']['data'] = $new_data;
 					$result['data']['configTable'] =  [
@@ -532,7 +564,7 @@ class Rutas extends MY_Controller{
 
 		$array = array();
 		$array['cliente'] = $data->{'cliente'};
-		$array['usuario'] = $data->{'cliente'};
+		$array['usuario'] = $data->{'usuario'};
 		$array['perfil'] = $data->{'perfil'};
 		$array['fotos'] = $this->model->obtener_fotos($idVisita);
 
@@ -635,6 +667,13 @@ class Rutas extends MY_Controller{
 
 			case 'encuestaPremio':
 				$html = $this->detalle_encuestaPremio($idVisita);
+				break;
+
+			case 'tarea':
+				$html = $this->detalle_tarea($idVisita);
+				break;
+			case 'evidenciaFotografica':
+				$html = $this->detalle_evidenciaFotografica($idVisita);
 				break;
 		}
 		
@@ -1110,6 +1149,60 @@ class Rutas extends MY_Controller{
 			$array['observacion']=$rs_det;
 			
 			$html = $this->load->view("modulos/rutas/detalle_observacion",$array, true);
+		} else {
+			$html = getMensajeGestion('noRegistros');
+		}
+
+		return $html;
+	}
+
+	public function detalle_tarea($idVisita){
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visitaTarea' ];
+
+		$rs_det = $this->model->detalle_tarea($idVisita);
+
+		$list_tareas = [];
+
+		foreach($rs_det AS $key => $row){
+			$list_tareas['tareas'][$row['idTarea']]['idVisitaTarea'] = $row['idVisitaTarea'];
+			$list_tareas['tareas'][$row['idTarea']]['idVisita'] = $row['idVisita'];
+			$list_tareas['tareas'][$row['idTarea']]['presencia'] = $row['presencia'];
+			$list_tareas['tareas'][$row['idTarea']]['tarea'] = $row['tarea'];
+			$list_tareas['tareas'][$row['idTarea']]['comentario'] = $row['comentario'];
+			$list_tareas['tareas'][$row['idTarea']]['fotos'][] = $row['fotoUrl'];
+		}
+
+		if(!empty($rs_det)){
+			$array = [];
+			$array['tareas'] = $list_tareas['tareas'];
+			
+			$html = $this->load->view("modulos/rutas/detalle_tarea",$array, true);
+		} else {
+			$html = getMensajeGestion('noRegistros');
+		}
+
+		return $html;
+	}
+
+	public function detalle_evidenciaFotografica($idVisita){
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visitaEvidenciaFotografica' ];
+
+		$rs_det = $this->model->detalle_evidenciaFotografica($idVisita);
+
+		$list_evidencias = [];
+
+		foreach($rs_det AS $key => $row){
+			$list_evidencias['evidencias'][$row['idVisita']]['idVisitaEvidenciaFotografica'] = $row['idVisitaEvidenciaFotografica'];
+			$list_evidencias['evidencias'][$row['idVisita']]['idVisita'] = $row['idVisita'];
+			$list_evidencias['evidencias'][$row['idVisita']]['comentario'] = $row['comentario'];
+			$list_evidencias['evidencias'][$row['idVisita']]['fotos'][$row['idTipoFotoEvidencia']][] = $row['fotoUrl'];
+		}
+
+		if(!empty($rs_det)){
+			$array = [];
+			$array['evidencias'] = $list_evidencias['evidencias'];
+			
+			$html = $this->load->view("modulos/rutas/detalle_evidenciaFotografica",$array, true);
 		} else {
 			$html = getMensajeGestion('noRegistros');
 		}
