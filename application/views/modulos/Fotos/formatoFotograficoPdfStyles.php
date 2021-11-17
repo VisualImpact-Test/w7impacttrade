@@ -19,9 +19,9 @@
     }
 
     img.foto {
-        border: 0.3em solid #0E7BEF;
+        border: 0.3em solid #cccccc;
         margin: 0.5em;
-        width: 20em;
+        /*width: 20em;*/
     }
 
     .item {
@@ -58,7 +58,7 @@
     }
 
     .foto {
-        border: 4px solid #CCC;
+        border: 4px solid #cccccc;
     }
 
     .nombreDatoInfoFoto {

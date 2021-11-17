@@ -15,7 +15,7 @@
 	<link href="assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 	<!-- -->
 	<link rel="icon" href="assets/images/icono.png">
-	<link href="assets/custom/css/sidebar-right.css" rel="stylesheet">
+	<link href="assets/custom/css/sidebar-right.css?v=<?=$this->version;?>" rel="stylesheet">
 	<!-- -->
 	<link href="assets/custom/css/main.css?v=<?=$this->version;?>" rel="stylesheet">
 	<!-- -->

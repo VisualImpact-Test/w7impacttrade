@@ -33,7 +33,9 @@ class Premiaciones extends MY_Controller
 		$config['data']['message'] = 'Premiaciones';
 		$config['view'] = 'modulos/premiaciones/index';
 
-		$config['data']['premiaciones'] = $this->model->obtener_premiaciones()['datos'];
+		$array=array();
+		$array['idCuenta']=$this->session->userdata('idCuenta');
+		$config['data']['premiaciones'] = $this->model->obtener_premiaciones($array)['datos'];
 
 		$this->view($config);
 	}
@@ -46,21 +48,22 @@ class Premiaciones extends MY_Controller
 		$fechas = explode('-', $post['txt-fechas']);
 		$fechaIni = $fechas[0];
 		$fechaFin = $fechas[1];
+
 		$params = array(
 			'fecIni' => $fechaIni, 'fecFin' => $fechaFin, 
 			'idPremiacion' => $post['sel-premiacion'], 
 			'idGrupoCanal' => $post['grupoCanal_filtro'], 
 			'idCanal' => $post['canal_filtro'],
 			
-			'tipoUsuario' => empty($data->{'tipoUsuario_filtro'}) ? '' : $data->{'tipoUsuario_filtro'},
-			'usuario' => empty($data->{'usuario_filtro'}) ? '' : $data->{'usuario_filtro'},
+			'tipoUsuario' => empty($post['tipoUsuario_filtro']) ? '' : $post['tipoUsuario_filtro'],
+			'usuario' => empty($post['usuario_filtro']) ? '' : $post['usuario_filtro'],
 			
-			'distribuidoraSucursal' => empty($data->{'distribuidoraSucursal_filtro'}) ? '' : $data->{'distribuidoraSucursal_filtro'},
-			'distribuidora' => empty($data->{'distribuidora_filtro'}) ? '' : $data->{'distribuidora_filtro'},
-			'zona' => empty($data->{'zona_filtro'}) ? '' : $data->{'zona_filtro'},
-			'plaza' => empty($data->{'plaza_filtro'}) ? '' : $data->{'plaza_filtro'},
-			'cadena' => empty($data->{'cadena_filtro'}) ? '' : $data->{'cadena_filtro'},
-			'banner' => empty($data->{'banner_filtro'}) ? '' : $data->{'banner_filtro'},
+			'distribuidoraSucursal' => empty($post['distribuidoraSucursal_filtro']) ? '' : $post['distribuidoraSucursal_filtro'],
+			'distribuidora' => empty($post['distribuidora_filtro']) ? '' : $post['distribuidora_filtro'],
+			'zona' => empty($post['zona_filtro']) ? '' : $post['zona_filtro'],
+			'plaza' => empty($post['plaza_filtro']) ? '' : $post['plaza_filtro'],
+			'cadena' => empty($post['cadena_filtro']) ? '' : $post['cadena_filtro'],
+			'banner' => empty($post['banner_filtro']) ? '' : $post['banner_filtro'],
 	
 		);
 		$array['premiaciones'] = $this->model->obtener_premiacionesvisita($params);
@@ -196,7 +199,9 @@ class Premiaciones extends MY_Controller
 								}
 							$html .= '</tr>';
 							$html .= '<tr>';
-								//$html .= '<td colspan="2" style="text-align:center;"><img class="foto" src="http://movil.visualimpact.com.pe/fotos/pg/premiaciones/'.$row->foto.'" width="320" height="240" /></td>';
+								if($row['fotoUrl']!=null){
+									$html .= '<td colspan="2" style="text-align:center;"><img class="foto" src="http://movil.visualimpact.com.pe/fotos/impacttrade_android/premiacion/'.$row['fotoUrl'].'" width="320" height="240" /></td>';
+								}
 							$html .= '</tr>';
 						$html .= '</tbody>';
 					$html .= '</table>';
@@ -272,8 +277,9 @@ class Premiaciones extends MY_Controller
 	public function premiaciones_configuracion()
 	{
 		$result = $this->result;
-
-		$data['premiaciones'] = $this->model->obtener_premiaciones()['datos'];
+		$array=array();
+		$array['idCuenta']=$this->session->userdata('idCuenta');
+		$data['premiaciones'] = $this->model->obtener_premiaciones($array)['datos'];
 		$result['data']['html'] = $this->load->view("modulos/premiaciones/form_configuracion", $data, true);
 
 		echo json_encode($result);

@@ -44,6 +44,8 @@ class M_contingenciaAsistencia extends My_Model{
 	}
 
 	public function obtener_usuarios_asistencia($input=array()){
+
+		$sessIdTipoUsuario = $this->idTipoUsuario;
 		$filtros = '';
 			$filtros .= !empty($input['cuenta_filtro']) ? " AND cu.idCuenta=".$input['cuenta_filtro'] : "";
 			$filtros .= !empty($input['proyecto_filtro']) ? " AND py.idProyecto=".$input['proyecto_filtro'] : "";
@@ -52,6 +54,7 @@ class M_contingenciaAsistencia extends My_Model{
 			$filtros .= !empty($input['usuario_dni']) ? " AND u.numDocumento='".$input['usuario_dni']."'" : "";
 			$filtros .= !empty($input['usuario_nombre']) ? " AND u.nombres+' '+u.apePaterno+' '+u.apeMaterno LIKE'%".$input['usuario_nombre']."%'" : "";
 
+			$filtros .= !in_array($sessIdTipoUsuario,[8,13,14,4]) ? " AND tu.idTIpoUsuario NOT IN (8,13,14)" : "" ;
 		$sql="
 			DECLARE @fecha DATE='".$input['fecha']."';
 			WITH lista_horario AS (
@@ -109,7 +112,8 @@ class M_contingenciaAsistencia extends My_Model{
 				LEFT JOIN trade.cuenta cu ON cu.idCuenta = py.idCuenta
 				
 				JOIN trade.usuario_tipo tu ON uh.idTipoUsuario = tu.idTipoUsuario
-				JOIN rrhh.dbo.empleado e ON e.idEmpleado = u.idEmpleado
+				--LEFT JOIN rrhh.dbo.empleado e ON e.idEmpleado = u.idEmpleado AND e.flag IN ('activo')
+				JOIN rrhh.dbo.empleado e ON e.numTipoDocuIdent = u.numDocumento AND e.flag IN ('activo')
 				LEFT JOIN rrhh.dbo.CargoTrabajo ct ON ct.idCargoTrabajo = e.idCargoTrabajo
 				
 				LEFT JOIN lista_horario lh_1 ON lh_1.idEmpleado = e.idEmpleado
@@ -133,7 +137,9 @@ class M_contingenciaAsistencia extends My_Model{
 
 				JOIN trade.aplicacion app ON uh.idAplicacion = app.idAplicacion
 			WHERE
-				1 = 1
+				1 = 1 
+				AND uh.idAplicacion IN (1, 4, 8) 
+				AND u.demo = 0
 				{$filtros}
 			ORDER BY cuenta, proyecto, grupoCanal, canal, departamento, provincia, distrito, nombreUsuario, fecha ASC
 		";

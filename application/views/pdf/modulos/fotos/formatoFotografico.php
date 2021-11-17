@@ -33,8 +33,8 @@
             foreach ($visita["fotos"] as $keyFoto => $foto) {
                 $contador++; ?>
             <div style="text-align:center;">
-                <img class="foto" src="http://movil.visualimpact.com.pe/fotos/impactTrade_android/moduloFotos/<?= $foto["imgRef"] ?>" style="height:310px;width:550px;margin:0px;margin-top:5px;padding:0px;" />
-                <table class="infoFoto" style="width:550px;text-align:left;margin:0 auto;">
+                <img class="foto" src="http://ww7.visualimpact.com.pe/impactTrade/obtener_carpeta_foto/<?=$foto['carpetaFoto']?>/<?= $foto["imgRef"] ?>" style="height:310px;margin:0px;margin-top:5px;padding:0px;" />
+                <!--<table class="infoFoto" style="width:550px;text-align:left;margin:0 auto;">
                     <tr>
                         <td class="nombreDatoInfoFoto">Hora:</td>
                         <td><?= $foto["horaFoto"] ?></td>
@@ -43,7 +43,7 @@
                         <td class="nombreDatoInfoFoto">Tipo Foto:</td>
                         <td><?= $foto["tipoFoto"] ?></td>
                     </tr>
-                </table>
+                </table>-->
             </div>
         <?php } ?>
     </div>

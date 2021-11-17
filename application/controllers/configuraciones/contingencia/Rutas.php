@@ -80,9 +80,10 @@ class Rutas extends MY_Controller{
 		
 		$input = array();
 		$input['fecha'] = $data->{'txt-fechas_simple'};
-		// $input['idTipoUsuario'] = $data->{'tipoFormato'};
+		$input['grupoCanal_filtro'] = $data->{'grupoCanal_filtro'};
 
 		$rs_visitas = $this->model->obtener_rutas_visitas($input);
+		$segmentacion = getSegmentacion(['grupoCanal_filtro' => $input['grupoCanal_filtro']]);
 
 		$html = getMensajeGestion('noRegistros');
 
@@ -103,8 +104,9 @@ class Rutas extends MY_Controller{
 				$array['listaUsuarioModulo'][$row['idUsuario']]['listaModulos'][$row['idModulo']] = $row['idModulo'];
 			}
 
+
 			$new_data = [];
-			$ix=1;$listaUsuarioModulo = $array['listaUsuarioModulo'];
+			$ix=1;$listaUsuarioModulo = $array['listaUsuarioModulo'];$e=0;
 			foreach ($array['listaVisitas'] as $ku => $row) {
 
 				//HORARIOS-
@@ -159,12 +161,39 @@ class Rutas extends MY_Controller{
 					$codUsuario =  !empty($row['codUsuario']) ? $row['codUsuario'] : '';
 					$usuario =  !empty($row['usuario']) ? $row['usuario'] : '';
 
-				$new_data[] = [
+					$condicion = $row['condicion'];
+					$condicion_ = '';
+					$condicion_f = '';
+
+					if ($condicion == 0 || $condicion == 4) {
+						$condicion_ = 'SV <span class="color-F" ><i class="fa fa-circle" ></i></span>';
+						$condicion_f = 'SV';
+					} elseif ($condicion == 1) {
+						$condicion_ = 'NE <span class="color-N" ><i class="fa fa-circle" ></i></span>';
+						$condicion_f = 'NE';
+					} elseif ($condicion == 2) {
+						$condicion_ = 'IN <span class="color-I" ><i class="fa fa-circle" ></i></span>';
+						$condicion_f = 'IN';
+					} elseif ($condicion == 3) {
+						$condicion_ = 'EF <span class="color-C" ><i class="fa fa-circle" ></i></span>';
+						$condicion_f = 'EF';
+					}
+
+				$new_data[$e] = [
 					//Columnas
 					$ix++, 
 					!empty($row['fecha'])?$row['fecha']:'-',
-					!empty($row['proyecto'])?$row['proyecto']:'-',
+					!empty($row['codUsuario'])?$row['codUsuario']:'-',
+					!empty($row['usuario'])?$row['usuario']:'-',
+					!empty($row['grupoCanal'])?$row['grupoCanal']:'-',
 					!empty($row['canal'])?$row['canal']:'-',
+				];
+				foreach ($segmentacion['headers'] as $k => $v) { 
+					array_push($new_data[$e],
+						!empty($row[($v['columna'])]) ? "<p class='text-left'>{$row[($v['columna'])]}</p>" : '-'
+					);
+			   	}
+				array_push($new_data[$e],
 					!empty($row['departamento'])?$row['departamento']:'-',
 					!empty($row['provincia'])?$row['provincia']:'-',
 					!empty($row['distrito'])?$row['distrito']:'-',
@@ -172,8 +201,7 @@ class Rutas extends MY_Controller{
 					!empty($row['codVisual'])?$row['codVisual']:'-',
 					!empty($row['codCliente'])?$row['codCliente']:'-',
 					!empty($row['direccion'])?$row['direccion']:'-',
-					!empty($row['codUsuario'])?$row['codUsuario']:'-',
-					!empty($row['usuario'])?$row['usuario']:'-',
+					"<p class='text-center {$condicion_f}'>{$condicion_}</p>",
 					$textHoraInicio,
 					$textHoraFin,
 					"<button type='button' class='btn border-0 btn-outline-danger saveHorarioVisita' data-visita='{$row['idVisita']}' title='ACTUALIZAR HORARIOS'><i class='fas fa-upload fa-lg'></i></button>",
@@ -197,23 +225,24 @@ class Rutas extends MY_Controller{
 					(isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][25])) ? "<a href='javascript:;' class='visitaModulo opcionModulo btn border-0  {$btnOrdenes} {$bloqueado}' data-title='ORDENES DE TRABAJO' data-modulo='ordenes' data-visita='{$row['idVisita']}' data-lista='{$row['idListOrdenes']}' data-columna='idListOrdenes' data-cliente='{$row['pdv']}' data-width='90%'><i class='fas fa-check fa-lg'></i></a>" : '-',
 					(isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][27])) ? "<a href='javascript:;' class='visitaModulo opcionModulo btn border-0  {$btnVisibilidadAudit} {$bloqueado}' data-title='VISIBILIDAD AUDITORIA OBLIGATORIA' data-modulo='visibilidad_aud_obl' data-visita='{$row['idVisita']}' data-lista='{$row['idListVisibilidadTradObl']}' data-columna='idListVisibilidadTradObl' data-cliente='{$row['pdv']}' data-width='90%'><i class='fas fa-check fa-lg'></i></a>": '-',
 					(isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][27])) ? "<a href='javascript:;' class='visitaModulo opcionModulo btn border-0  {$btnVisibilidadAudit} {$bloqueado}' data-title='VISIBILIDAD AUDITORIA INICIATIVA' data-modulo='visibilidad_aud_ini' data-visita='{$row['idVisita']}' data-lista='{$row['idListIniciativasTrad']}' data-columna='idListIniciativasTrad' data-cliente='{$row['pdv']}' data-width='90%'><i class='fas fa-check fa-lg'></i></a>": '-',
-					(isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][27])) ? "<a href='javascript:;' class='visitaModulo opcionModulo btn border-0  {$btnVisibilidadAudit} {$bloqueado}' data-title='VISIBILIDAD AUDITORIA ADICIONAL' data-modulo='visibilidad_aud_adc' data-visita='{$row['idVisita']}' data-lista='{$row['idListVisibilidadTradAdc']}' data-columna='idListVisibilidadTradAdc' data-cliente='{$row['pdv']}' data-width='90%'><i class='fas fa-check fa-lg'></i></a>": '-',
+					(isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][27])) ? "<a href='javascript:;' class='visitaModulo opcionModulo btn border-0  {$btnVisibilidadAudit} {$bloqueado}' data-title='VISIBILIDAD AUDITORIA ADICIONAL' data-modulo='visibilidad_aud_adc' data-visita='{$row['idVisita']}' data-lista='{$row['idListVisibilidadTradAdc']}' data-columna='idListVisibilidadTradAdc' data-cliente='{$row['pdv']}' data-width='90%'><i class='fas fa-check fa-lg'></i></a>": '-'
 					// "<a href='javascript:;' class='opcionCargarData btn border-0 btn-outline-danger' data-title='CARGAR DATA' data-width='90%' data-codUsuario='{$codUsuario}' data-usuario='{$usuario}'><i class='fas fa-upload fa-lg'></i></a>",
-				
-				];
+				);
+				$e++;
 			}
 
 			$result['data']['configTable'] =  [
-					'data' => $new_data,	
+					'data' => $new_data,
 					'columnDefs' => 
 					[ 
 						0 => ["className"=> 'text-left',"targets" => [2,3,4,5,6,7,10] ],
 						1 => ["className"=> 'text-center',"targets" => '_all' ],
-						2 => ["visible"=> false,"targets" => [4,5,8,9,18,22,23,24,25,26,34] ],
+						// 2 => ["visible"=> false,"targets" => [4,5,8,9,18,22,23,24,25,26,34] ],
 					],
 
-			  ];
-
+			];
+			  
+			$array['segmentacion'] = $segmentacion;
 			switch ( $data->{'tipoFormato'} ) {
 				case 1:
 					$array['idDataTableDetalle'] = 'tb-contingenciaRutasDetalleGtm';
@@ -527,6 +556,8 @@ class Rutas extends MY_Controller{
 
 			$rs_visitaCanal = $this->model->obtener_visita_canal($input);
 			$array['grupoCanal'] = $rs_visitaCanal[0]['idGrupoCanal'];
+			$idGrupoCanal = getGrupoCanalDeVisita($input['idVisita']);
+			$array['columnasAdicionales'] = getColumnasAdicionales(['idModulo' => 3, 'idGrupoCanal' => $idGrupoCanal])['body_adicionales'];
 
 			$html = $this->load->view("modulos/configuraciones/contingencia/rutas/visita_productos",$array, true);
 		} else {

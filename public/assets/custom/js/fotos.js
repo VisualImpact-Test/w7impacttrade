@@ -90,7 +90,7 @@ var Fotos = {
 		});
 	},
 
-	llenarPaginacionFotos: function (fotosClientes, urlfotos = 'http://movil.visualimpact.com.pe/fotos/impactTrade_android/moduloFotos/') {
+	llenarPaginacionFotos: function (fotosClientes, urlfotos = 'http://movil.visualimpact.com.pe/fotos/impactTrade_android/') {
 		var paginacion = $('#paginacionFotos');
 		var contenedorPaginacion = $('#contentPaginacionFotos');
 		var contenido = [];
@@ -119,32 +119,37 @@ var Fotos = {
 									dataHtml+="</div>";
 								dataHtml+="</div>";
 								dataHtml+="<hr>";
+								///
+								dataHtml+="<div class='col-md-12 col-descsripcion-foto' style='margin-bottom: 30px;'>";
+									dataHtml+="<div class='col-md-6'><label><span class='font-weight-bold'>COD VISUAL: </span>"+ cliente.idCliente +"</label><br><label><span class='font-weight-bold'>COD CUENTA: </span>"+ cliente.codCliente +"</label></div>";
+									dataHtml+="<div class='col-md-6'><label><span class='font-weight-bold'>DIRECCIÓN: </span>"+ cliente.direccion +"</label><br><label><span class='font-weight-bold'>UBICACIÓN: </span>"+ cliente.departamento + " - " + cliente.provincia + " - " + cliente.distrito +"</label></div>";
+									// dataHtml+="<div class='col-md-12'><label><span class='font-weight-bold'>Distribuidora: </span>Demo</label><br><label><span class='font-weight-bold'>Sucursal: </span>Demo</label></div>";
+									dataHtml+="<div class='col-md-6'><label><span class='font-weight-bold'>CANAL: </span>"+ cliente.canal +"</label></div>";
+									dataHtml+="<div class='col-md-6'><label><span class='font-weight-bold'>TIPO CLIENTE: </span>"+ cliente.cliente_tipo +"</label></div>";
+								dataHtml+="</div>";
+								///
 								dataHtml+="<div class='row'>";
 									$.each(cliente.visitas, function (indexVisita, visita) {
 										var fotoPreview = visita.fotos[Object.keys(visita.fotos)[0]].imgRef;
+										var carpeta = visita.fotos[Object.keys(visita.fotos)[0]].carpetaFoto;
 										var cantidadFotos = Object.keys(visita.fotos).length;
 										var stringFoto = (cantidadFotos > 1) ? ' fotos' : ' foto';
-										var urlFoto = urlfotos + fotoPreview;
+										var urlFoto = urlfotos+carpeta +'/'+ fotoPreview;
 										var objectFotos = JSON.stringify(visita.fotos);
 
-										dataHtml+="<div class='col-md-4 fotoPorVisita'>";
-											dataHtml+="<div class='main-card card text-center'><img class='card-img' src='" + urlFoto +"' alt='Card image'>";
+										dataHtml+="<div class='col-md-4 fotoPorVisita' style='margin: auto;'>";
+											dataHtml+="<div class='main-card card text-center shadow-none'><img height='320px;' src='" + urlFoto +"' alt='Card image'>";
 												dataHtml+="<div class='card-img-overlay'>";
 													dataHtml+="<a href='#' data-usuario='" + visita.usuario +"' data-tipousuario='"+ visita.tipoUsuario +"' data-fecha='"+ visita.fecha +"' data-objectfotos='" + objectFotos +"' class='btn-verMasFotos btn btn-secondary'>Ver " + cantidadFotos + stringFoto +"</a>";
 												dataHtml+="</div>";
 												dataHtml+="<div class='card-body p-2'>";
-													dataHtml+="<p class='card-text'>Fecha: " + visita.fecha +" | " + visita.tipoUsuario +": " + visita.usuario +"</p>";
+													dataHtml+="<p class='card-text'>Fecha: " + visita.fecha +" </p>";
+													dataHtml+="<p class='card-text'>" + visita.tipoUsuario +": " + visita.usuario +"</p>";
 												dataHtml+="</div>";
 											dataHtml+="</div>";
 										dataHtml+="</div>";
 									});
-									dataHtml+="<div class='col-md-6 col-descsripcion-foto'>";
-										dataHtml+="<div class='col-md-12'><label><span class='font-weight-bold'>COD VISUAL: </span>"+ cliente.idCliente +"</label><br><label><span class='font-weight-bold'>COD CUENTA: </span>"+ cliente.codCliente +"</label></div>";
-										dataHtml+="<div class='col-md-12'><label><span class='font-weight-bold'>DIRECCIÓN: </span>"+ cliente.direccion +"</label><br><label><span class='font-weight-bold'>UBICACIÓN: </span>"+ cliente.departamento + " - " + cliente.provincia + " - " + cliente.distrito +"</label></div>";
-										// dataHtml+="<div class='col-md-12'><label><span class='font-weight-bold'>Distribuidora: </span>Demo</label><br><label><span class='font-weight-bold'>Sucursal: </span>Demo</label></div>";
-										dataHtml+="<div class='col-md-12'><label><span class='font-weight-bold'>CANAL: </span>"+ cliente.canal +"</label></div>";
-										dataHtml+="<div class='col-md-12'><label><span class='font-weight-bold'>TIPO CLIENTE: </span>"+ cliente.cliente_tipo +"</label></div>";
-									dataHtml+="</div>";
+									
 								dataHtml+="</div>";
 							dataHtml+="</div>";
 						dataHtml+="</div>";
@@ -165,7 +170,7 @@ var Fotos = {
 		var data = $.extend({}, data1, data2);
 
 		var jsonString = { 'data': JSON.stringify(data) };
-		var url = Fotos.url + "exportarPdf";
+		var url = Fotos.url + "exportarPdfNewFormato";
 
 		Fn.download(url, jsonString);
 	}

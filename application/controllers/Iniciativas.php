@@ -39,8 +39,11 @@ class Iniciativas extends MY_Controller
 
 		$this->view($config);
 	}
-	
+
 	public function lista_iniciativas(){
+		ini_set('memory_limit','4096M');
+		set_time_limit(0);
+
 		$post = json_decode($this->input->post('data'), true);
 		
 		$fechas = explode('-', $post['txt-fechas']);
@@ -113,7 +116,7 @@ class Iniciativas extends MY_Controller
 		
 		echo json_encode($result);
 	}
-	
+
 	public function editar_iniciativas(){
 		$post = json_decode($this->input->post('data'), true);
 
@@ -155,7 +158,7 @@ class Iniciativas extends MY_Controller
 
 		echo json_encode($result);
 	}
-	
+
 	public function actualizar_estado_analista(){
 		$post = json_decode($this->input->post('data'), true);
 		$idIniciativaDet = $post['idIniciativaDet'];
@@ -175,7 +178,7 @@ class Iniciativas extends MY_Controller
 		
 		echo json_encode($result);
 	}
-	
+
 	public function inhabilitar_iniciativas(){
 		$post = json_decode($this->input->post('data'), true);
 		$result = $this->result;
@@ -192,7 +195,7 @@ class Iniciativas extends MY_Controller
 		
 		echo json_encode($result); 
 	}
-	
+
 	public function validar_iniciativas(){
 		$post = json_decode($this->input->post('data'), true);
 		$total = count($post);
@@ -213,14 +216,16 @@ class Iniciativas extends MY_Controller
 		
 		echo json_encode($result); 
 	}
-	
+
 	public function iniciativas_pdf(){
 		header('Set-Cookie: fileDownload=true; path=/');
 		header('Cache-Control: max-age=60, must-revalidate');
-		//
+
 		$post=json_decode($this->input->post('data'),true);
 		$fecIni = $post['datos']['fecIni'];
 		$fecFin = $post['datos']['fecFin'];
+
+		$nombreArchivo = 'Iniciativas '.$fecIni.'-'.$fecFin.'.pdf';
 		
 		$filtro = "";
 		$total = count($post['datos']);
@@ -251,8 +256,7 @@ class Iniciativas extends MY_Controller
 		}
 
 		$visitasTotal = $this->model->visitas_pdf($filtro,$fecIni,$fecFin);
-		
-		//
+
 		$www=base_url().'public/';
 		$style="
 		<style>
@@ -279,16 +283,15 @@ class Iniciativas extends MY_Controller
 				$header .= '<td class="title" >INICIATIVAS</td>';
 			$header .= '</tr>';
 		$header .= '</table>';
-		//
+
 		require APPPATH . '/vendor/autoload.php';
 		$mpdf = new \Mpdf\Mpdf();
 		$newPage = 0;
-		//
 		
 		if( count($visitasTotal)>400 ){
-			//
+
 			$html='<br/><br/><br/><b>Se encontraron más de 400 registros. Tiene que filtrar mejor la información.</b>';
-			//
+
 			$mpdf->SetHTMLHeader($header);
 			$mpdf->setFooter('{PAGENO}');
 			$mpdf->AddPage();
@@ -297,99 +300,98 @@ class Iniciativas extends MY_Controller
 		} elseif( count($visitasTotal)>0 && count($visitasTotal)<400 ){
 			$html = ''; $num=1; $cant=0;
 			foreach($visitasTotal as $row){ 
-					$presencia = ($row['presencia']=='1')? 'SI' : 'NO';
-					$motivo = !empty($row['estadoIniciativa'])? $row['estadoIniciativa'] : '-';
-					$cantidad = !empty($row['cantidad'])? $row['cantidad'] : '-'; 
-					//
-					$html .= '<br /><br/>';
-					$html .= '<table>';
-						$html .= '<thead>';
-							$html .= '<tr><th colspan="2" style="background-color:#CCC;">INFORMACIÓN VISITA</th></tr>';
-						$html .= '</thead>';
-						$html .= '<tbody>';
+				$presencia = ($row['presencia']=='1')? 'SI' : 'NO';
+				$motivo = !empty($row['estadoIniciativa'])? $row['estadoIniciativa'] : '-';
+				$cantidad = !empty($row['cantidad'])? $row['cantidad'] : '-'; 
+
+				$html .= '<br /><br/>';
+				$html .= '<table>';
+					$html .= '<thead>';
+						$html .= '<tr><th colspan="2" style="background-color:#CCC;">INFORMACIÓN VISITA</th></tr>';
+					$html .= '</thead>';
+					$html .= '<tbody>';
+						$html .= '<tr>';
+							$html .= '<td>FECHA</td>';
+							$html .= '<td style="font-weight:bold;">'.$row['fecha'].'</td>';
+						$html .= '</tr>';
+						$html .= '<tr>';
+							$html .= '<td>HORA</td>';
+							$html .= '<td style="font-weight:bold;">'.$row['hora'].'</td>';
+						$html .= '</tr>';
+						$html .= '<tr>';
+							$html .= '<td>CANAL</td>';
+							$html .= '<td style="font-weight:bold;">'.$row['grupoCanal'].'</td>';
+						$html .= '</tr>';
+						$html .= '<tr>';
+							$html .= '<td>SUBCANAL</td>';
+							$html .= '<td style="font-weight:bold;">'.$row['canal'].'</td>';
+						$html .= '</tr>';
+						$html .= '<tr>';
+							$html .= '<td>POS</td>';
+							$html .= '<td style="font-weight:bold;">'.$row['razonSocial'].'</td>';
+						$html .= '</tr>';
+						$html .= '<tr>';
+							$html .= '<td>INICIATIVA</td>';
+							$html .= '<td style="font-weight:bold;">'.$row['iniciativa'].'</td>';
+						$html .= '</tr>';
+						$html .= '<tr>';
+							$html .= '<td>ELEMENTO</td>';
+							$html .= '<td style="font-weight:bold;">'.$row['elementoIniciativa'].'</td>';
+						$html .= '</tr>';
+						$html .= '<tr>';
+							$html .= '<td>PRESENCIA</td>';
+							$html .= '<td style="font-weight:bold;">'.$presencia.'</td>';
+						$html .= '</tr>';
+						if($row['presencia']=='0'){
 							$html .= '<tr>';
-								$html .= '<td>FECHA</td>';
-								$html .= '<td style="font-weight:bold;">'.$row['fecha'].'</td>';
+								$html .= '<td>MOTIVO</td>';
+								$html .= '<td style="font-weight:bold;">'.$motivo.'</td>';
 							$html .= '</tr>';
-							$html .= '<tr>';
-								$html .= '<td>HORA</td>';
-								$html .= '<td style="font-weight:bold;">'.$row['hora'].'</td>';
-							$html .= '</tr>';
-							$html .= '<tr>';
-								$html .= '<td>CANAL</td>';
-								$html .= '<td style="font-weight:bold;">'.$row['grupoCanal'].'</td>';
-							$html .= '</tr>';
-							$html .= '<tr>';
-								$html .= '<td>SUBCANAL</td>';
-								$html .= '<td style="font-weight:bold;">'.$row['canal'].'</td>';
-							$html .= '</tr>';
-							$html .= '<tr>';
-								$html .= '<td>POS</td>';
-								$html .= '<td style="font-weight:bold;">'.$row['razonSocial'].'</td>';
-							$html .= '</tr>';
-							$html .= '<tr>';
-								$html .= '<td>INICIATIVA</td>';
-								$html .= '<td style="font-weight:bold;">'.$row['iniciativa'].'</td>';
-							$html .= '</tr>';
-							$html .= '<tr>';
-								$html .= '<td>ELEMENTO</td>';
-								$html .= '<td style="font-weight:bold;">'.$row['elementoIniciativa'].'</td>';
-							$html .= '</tr>';
-							$html .= '<tr>';
-								$html .= '<td>PRESENCIA</td>';
-								$html .= '<td style="font-weight:bold;">'.$presencia.'</td>';
-							$html .= '</tr>';
-							if($row['presencia']=='0'){
-								$html .= '<tr>';
-									$html .= '<td>MOTIVO</td>';
-									$html .= '<td style="font-weight:bold;">'.$motivo.'</td>';
-								$html .= '</tr>';
+						}
+						$html .= '<tr>';
+							if(!empty($row['foto'])){
+								// $url = site_url().'ControlFoto/obtener_carpeta_foto/iniciativa/'.$row['foto'];
+								$url = 'https://movil.visualimpact.com.pe/fotos/impactTrade_android/iniciativa/'.$row['foto'];
+								$html .= '<td colspan="2" style="text-align:center;"><img class="foto" src="'.$url.'" width="280" height="200" /></td>';
+							} else {
+								$html .= '<td colspan="2" style="text-align:center;"><img class="foto" src="https://ww7.visualimpact.com.pe/impactTrade/public/assets/images/no_image_600x600.png" width="280" height="200" /></td>';
 							}
-							$html .= '<tr>';
-							    if(!empty($row['foto'])){
-									$html .= '<td colspan="2" style="text-align:center;"><img class="foto" src="http://movil.visualimpact.com.pe/fotos/impactTrade_android/iniciativa/'.$row['foto'].'" width="280" height="200" /></td>';
-								} else {
-									$html .= '<td colspan="2" style="text-align:center;"><img class="foto" src="https://ww7.visualimpact.com.pe/impactTrade/public/assets/images/no_image_600x600.png" width="280" height="200" /></td>';
-								}
-								$html .= '</tr>';
-						$html .= '</tbody>';
-					$html .= '</table>';
-					//
-					if($num%2==0) {
-						$mpdf->SetHTMLHeader($header);
-						$mpdf->setFooter('{PAGENO}');
-						$mpdf->AddPage();
-						$mpdf->WriteHTML($style);
-						$mpdf->WriteHTML($html);
-						//
-						$html = '';
-					} else {
-						//if(count($visitasTotal)==$cant){
-							$mpdf->SetHTMLHeader($header);
-							$mpdf->setFooter('{PAGENO}');
-							$mpdf->AddPage();
-							$mpdf->WriteHTML($style);
-							$mpdf->WriteHTML($html);
-							//
-							$html = '';
-						//}
-					}
-					//
-					$num++;
-			    
+							$html .= '</tr>';
+					$html .= '</tbody>';
+				$html .= '</table>';
+
+				if($num%2==0) {
+					$mpdf->SetHTMLHeader($header);
+					$mpdf->setFooter('{PAGENO}');
+					$mpdf->AddPage();
+					$mpdf->WriteHTML($style);
+					$mpdf->WriteHTML($html);
+
+					$html = '';
+				} else {
+					$mpdf->SetHTMLHeader($header);
+					$mpdf->setFooter('{PAGENO}');
+					$mpdf->AddPage();
+					$mpdf->WriteHTML($style);
+					$mpdf->WriteHTML($html);
+
+					$html = '';
+				}
+
+				$num++;
 			}
 		} else {
-			//
+
 			$html='<br/><br/><br/><b>No se encontraron resultados para la consulta realizada.</b>';
-			//
+
 			$mpdf->SetHTMLHeader($header);
 			$mpdf->setFooter('{PAGENO}');
 			$mpdf->AddPage();
 			$mpdf->WriteHTML($style);
 			$mpdf->WriteHTML($html);
 		}
-		//
-		$mpdf->Output('ppp.pdf','D');
+
+		$mpdf->Output($nombreArchivo,'D');
 	}
 
 	public function obtener_usuarios(){

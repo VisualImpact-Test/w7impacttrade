@@ -212,7 +212,22 @@ class M_basemadre extends My_Model{
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.usuario_historicoCanal' ];
 		return $this->db->query($sql)->result_array();
 	}
-
+	
+	public function obtener_grupo_canal(){ 
+		$sql = "SELECT 
+				idGrupoCanal,nombre 
+			FROM 
+				trade.grupoCanal gc
+			WHERE 
+				gc.estado=1";
+		return $this->db->query($sql)->result_array();
+	}
+	
+	public function obtener_canal(){
+		$sql="SELECT idCanal,idGrupoCanal,nombre FROM trade.canal WHERE estado=1";
+		return $this->db->query($sql)->result_array();
+	}
+	
 	public function obtener_grupocanal_canal($input=array()){
 		$filtros = "";
 			$filtros .= !empty($input['listaCuentas']) ? " AND cc.idCuenta IN (".$input['listaCuentas'].")":"";
@@ -404,8 +419,8 @@ class M_basemadre extends My_Model{
 	public function obtener_verificacion_existente_historico($input=array()){
 		$query= $this->db->select('idCliente')
 				->where( $input )
-				->where( 'fecIni <=', DATE('d/m/yy') )
-				->where( "ISNULL('fecFin','".DATE('d/m/yy')."') >= ", DATE('d/m/yy') )
+				->where( 'fecIni <=', DATE('d/m/Y') )
+				->where( "ISNULL(fecFin,'".DATE('d/m/Y')."') >= ", DATE('d/m/Y') )
 				->get( getClienteHistoricoCuenta() );
 
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => getClienteHistoricoCuenta() ];
@@ -691,6 +706,29 @@ class M_basemadre extends My_Model{
 		return $update;
 	}
 
+	public function update_cliente_historico_proyectos($input=array()){
+		$aSessTrack = [];
+
+		$table = getClienteHistoricoCuenta();
+		$params = $input['arrayParams'];
+		$idClienteHist = $input['idClienteHist'];
+
+		$this->db->trans_begin();
+			$this->db->where_in('idClienteHist', $idClienteHist);
+			$update = $this->db->update($table, $params );
+
+			$aSessTrack = [ 'idAccion' => 7, 'tabla' => $table, 'id' => arrayToString($idClienteHist) ];
+
+				
+		if ( $this->db->trans_status() === FALSE ) {
+			$this->db->trans_rollback();
+		} else {
+			$this->db->trans_commit();
+			$this->aSessTrack[] = $aSessTrack;
+		}
+		return $update;
+	}
+
 	public function update_cliente($input=array()){
 		$aSessTrack = [];
 
@@ -899,8 +937,8 @@ class M_basemadre extends My_Model{
 	public function obtener_verificacion_existente_historico_pg_v1($input=array()){
 		$query= $this->db->select('idClientePg')
 			->where( $input )
-			->where( 'fecIni <=', DATE('d/m/yy') )
-			->where( "ISNULL('fecFin','".DATE('d/m/yy')."') >= ", DATE('d/m/yy') )
+			->where( 'fecIni <=', DATE('d/m/Y') )
+			->where( "ISNULL(fecFin,'".DATE('d/m/Y')."') >= ", DATE('d/m/Y') )
 			->get( 'trade.cliente_pg_historico_v1' );
 
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.cliente_pg_historico_v1' ];
@@ -1378,15 +1416,54 @@ class M_basemadre extends My_Model{
 		return $this->db->query($sql)->result_array();
 	}
 
-	public function obtener_cliente_historico_vigente($input=array()){
-		$query= $this->db->select('idClienteHist')
+	public function obtener_cliente_historico_vigente($input=array(),$inputProyectos=array()){
+		$query= $this->db->select('idClienteHist,convert(varchar,fecIni,103) fecIni')
 				->where( $input )
-				->where( 'fecIni <=', DATE('d/m/yy') )
-				->where( "ISNULL('fecFin','".DATE('d/m/yy')."') >= ", DATE('d/m/yy') )
+				->where( 'fecIni <=', DATE('d/m/Y') )
+				->where( "ISNULL(fecFin,'".DATE('d/m/Y')."') >= ", DATE('d/m/Y') )
+				->where_in('idProyecto', $inputProyectos)
 				->get( getClienteHistoricoCuenta() );
-
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => getClienteHistoricoCuenta() ];
+		
 		return $query->result_array();
+	}
+
+	public function obtener_cliente_historico_por_fecha($input=array(),$inputProyectos=array()){
+		$proyectos= implode(",",$inputProyectos);
+		$fecFin= ( ($input['fecFin']!='' && !empty($input['fecFin']) )? "'".($input['fecFin'])."'" : "null" );
+		
+		$filtros = "";
+		$sql = "
+			DECLARE @fecIni DATE='".($input['fecIni'])."';
+			DECLARE @fecFin DATE=ISNULL(".$fecFin.",@fecIni);
+
+			SELECT idClienteHist,convert(varchar,fecIni,103) fecIni
+			FROM ".getClienteHistoricoCuenta()."
+			WHERE General.dbo.fn_fechaVigente(fecIni,fecFin,@fecIni,@fecFin)=1
+			AND idProyecto IN (".$proyectos.")
+			AND idCliente=".$input['idCliente']."
+		";
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => getClienteHistoricoCuenta() ];
+		return $this->db->query($sql)->result_array();
+	}
+
+	public function obtener_cliente_historico_ultimo($input=array()){
+		$filtros = "";
+		$sql = "
+			DECLARE @fecha DATE= GETDATE();
+			SELECT 
+			TOP 1
+			idClienteHist,idCliente,nombreComercial,razonSocial,
+			idSegNegocio,idSegClienteTradicional,idSegClienteModerno,
+			fecIni,fecFin,idCuenta,idProyecto,idFrecuencia,idZona,idZonaPeligrosa,
+			flagCartera,codCliente,cod_ubigeo,direccion,referencia,latitud,longitud,estado
+			FROM ".getClienteHistoricoCuenta()."
+			WHERE idCliente=".$input['idCliente']."
+			AND idProyecto=".$input['idProyecto']."
+			ORDER BY idClienteHist desc
+		";
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => getClienteHistoricoCuenta() ];
+		return $this->db->query($sql)->result_array();
 	}
 
 	public function obtener_ubigeo($input=array()){
@@ -1464,6 +1541,94 @@ class M_basemadre extends My_Model{
 		$sql="SELECT * FROM trade.cargaClienteProyectoNoProcesados where idCarga= $id";
 		return $this->db->query($sql)->result_array();
 	}
+
+	public function validar_proyecto_auditoria( $input = [] ){
+		$aProyectos = [];
+		if( !empty($input['idProyecto']) ){
+			$sql = "
+				SELECT pya.idProyecto
+				FROM trade.proyecto pya
+				WHERE pya.idProyectoGeneral <> 2
+				AND pya.idProyecto =  {$input['idProyecto']}
+			";
+			$aProyectos = $this->db->query($sql)->result_array();
+		}
+
+		return $aProyectos;
+	}
+
+	public function lista_proyectosAuditoria( $input = [] ){
+		$aProyectos = [];
+		if( !empty($input['idProyecto']) ){
+			$sql = "
+				SELECT pya.idProyecto
+				FROM trade.proyecto pya
+				JOIN trade.proyecto py ON pya.idCuenta = py.idCuenta
+				WHERE pya.idProyectoGeneral = 2
+				AND py.idProyecto = {$input['idProyecto']}
+			";
+
+			$aProyectos = $this->db->query($sql)->result_array();
+		}
+	
+		return $aProyectos;
+	}
+
+	public function actualizar_visitas($input=array()){
+		$clientes= implode(",",$input);
+		$sql = "
+			DECLARE @fecha date=GETDATE();
+			UPDATE trade.data_visita
+			SET estado=estado
+			WHERE idVisita IN (
+			SELECT idVisita FROM trade.data_visita v 
+			JOIN trade.data_ruta r ON r.fecha>=@fecha AND v.idRuta=r.idRuta
+			AND v.idCliente IN (".$clientes.")
+			)
+			;
+		";
+
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'data_visita' ];
+		return $this->db->query($sql)->result_array();
+	}
+
+
+	public function validar_cliente_historico_por_fecha($input=array(),$inputProyectos=array()){
+		$proyectos= implode(",",$inputProyectos);
+		
+		$filtros = "";
+		$sql = "
+			SELECT idClienteHist,convert(varchar,fecIni,103) fecIni
+			FROM ".getClienteHistoricoCuenta()."
+			WHERE  
+			  idProyecto IN (".$proyectos.")
+			AND idCliente=".$input['idCliente']."
+			AND fecFin IS NULL;
+		";
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => getClienteHistoricoCuenta() ];
+		return $this->db->query($sql)->result_array();
+	}
+
+	public function validar_cliente_historico_fechaFin($input=array(),$inputProyectos=array()){
+		$proyectos= implode(",",$inputProyectos);
+		
+		$filtros = "";
+		$sql = "
+			DECLARE @fecha date=GETDATE();
+			DECLARE @fechaFin date='".$input['fechaFin']."';
+			SELECT idClienteHist,convert(varchar,fecIni,103) fecIni,fecFin
+			FROM ".getClienteHistoricoCuenta()."
+			WHERE  
+				idProyecto IN (".$proyectos.")
+			AND idCliente=".$input['idCliente']."
+			and @fecha between fecIni and ISNULL(fecFin,@fecha)
+			AND @fechaFin <fecIni;
+		";
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => getClienteHistoricoCuenta() ];
+		return $this->db->query($sql)->result_array();
+	}
+
+	
 
 }
 ?>

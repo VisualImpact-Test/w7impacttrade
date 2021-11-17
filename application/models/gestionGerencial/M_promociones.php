@@ -974,23 +974,26 @@ class M_promociones extends MY_Model{
 			, p.nombre producto
 			, p.formato
 			, pro.idPromocion
-			, pro.nombre promocion
+			, dbo.DecodeUTF8String(ISNULL(pro.nombre,vpd.nombrePromocion)) promocion
 			, tpro.idTipoPromocion
-			, tpro.nombre tipoPromocion
+			, ISNULL(tpro.nombre,tprod.nombre) tipoPromocion
 			, vf.fotoUrl foto
 			, vpd.precio
+			, vpd.fechaVigenciaFin
+			, vpd.fechaVigenciaInicio
 			{$segmentacion['columnas_bd']}
 		FROM trade.data_ruta r
 		JOIN trade.data_visita v ON v.idRuta=r.idRuta
 		JOIN trade.data_visitaPromociones dvv ON dvv.idVisita=v.idVisita
 		JOIN trade.data_visitaPromocionesDet vpd ON vpd.idVisitaPromociones = dvv.idVisitaPromociones
-		JOIN trade.promocion pro ON pro.idPromocion = vpd.idPromocion
+		LEFT JOIN trade.promocion pro ON pro.idPromocion = vpd.idPromocion
 		JOIN trade.cuenta cu ON cu.idCuenta=r.idCuenta
 		JOIN trade.canal ca ON ca.idCanal=v.idCanal
 		JOIN trade.grupoCanal gc ON gc.idGrupoCanal = ca.idGrupoCanal
 		JOIN {$cliente_historico} ch ON ch.idCliente = v.idCliente AND General.dbo.fn_fechaVigente(ch.fecIni,ch.fecFin,@fecIni,@fecFin)=1 AND ch.idProyecto = {$input['proyecto_filtro']}
 		LEFT JOIN trade.data_visitaFotos vf ON vf.idVisitaFoto = vpd.idVisitaFoto
 		LEFT JOIN trade.tipoPromocion tpro ON tpro.idTipoPromocion = pro.idTipoPromocion
+		LEFT JOIN trade.tipoPromocion tprod ON tprod.idTipoPromocion = vpd.idTipoPromocion
 		LEFT JOIN trade.producto p ON p.idProducto = vpd.producto
 		LEFT JOIN trade.producto_categoria cat ON cat.idCategoria = p.idCategoria
 		LEFT JOIN trade.producto_marca m On m.idMarca = p.idMarca
@@ -1102,20 +1105,21 @@ class M_promociones extends MY_Model{
 			, m.nombre marca
 			, p.formato
 			, tpro.idTipoPromocion
-			, tpro.nombre tipoPromocion
+			, ISNULL(tpro.nombre,tprod.nombre) tipoPromocion
 			, pro.idPromocion
-			, pro.nombre promocion
+			, dbo.DecodeUTF8String(ISNULL(pro.nombre,vpd.nombrePromocion)) promocion
 			, AVG(vpd.precio) OVER ( PARTITION BY cat.idCategoria{$partitionby}, m.idMarca, pro.idPromocion) AS precio_oferta
 		FROM trade.data_ruta r
 		JOIN trade.data_visita v ON v.idRuta=r.idRuta
 		JOIN trade.data_visitaPromociones dvv ON dvv.idVisita=v.idVisita
 		JOIN trade.data_visitaPromocionesDet vpd ON vpd.idVisitaPromociones = dvv.idVisitaPromociones
-		JOIN trade.promocion pro ON pro.idPromocion = vpd.idPromocion
+		LEFT JOIN trade.promocion pro ON pro.idPromocion = vpd.idPromocion
 		JOIN trade.cuenta cu ON cu.idCuenta=r.idCuenta
 		JOIN trade.canal ca ON ca.idCanal=v.idCanal
 		JOIN trade.grupoCanal gc ON gc.idGrupoCanal = ca.idGrupoCanal
 		JOIN {$cliente_historico} ch ON ch.idCliente = v.idCliente AND General.dbo.fn_fechaVigente(ch.fecIni,ch.fecFin,GETDATE(),GETDATE())=1 AND ch.idProyecto = {$input['proyecto_filtro']}
 		LEFT JOIN trade.tipoPromocion tpro ON tpro.idTipoPromocion = pro.idTipoPromocion
+		LEFT JOIN trade.tipoPromocion tprod ON tprod.idTipoPromocion = vpd.idTipoPromocion
 		LEFT JOIN trade.producto p ON p.idProducto = vpd.producto
 		LEFT JOIN trade.producto_categoria cat ON cat.idCategoria = p.idCategoria
 		LEFT JOIN trade.producto_marca m On m.idMarca = p.idMarca
@@ -1210,6 +1214,164 @@ class M_promociones extends MY_Model{
 		";
 
 		return $this->db->query($sql)->result_array();
+	}
+
+	public function obtener_promociones($params = [])
+	{
+		$filtros = "";
+		if(empty($params['proyecto_filtro'])){
+			$filtros.= getPermisos('cuenta');
+		}else{
+			$filtros .= !empty($params['idCuenta']) ? ' AND r.idCuenta='.$params['idCuenta'] : '';
+			$filtros .= !empty($params['proyecto_filtro']) ? ' AND r.idProyecto='.$params['proyecto_filtro'] : '';
+			$filtros .= !empty($params['grupoCanal_filtro']) ? ' AND ca.idGrupoCanal='.$params['grupoCanal_filtro'] : '';
+			$filtros .= !empty($params['canal_filtro']) ? ' AND ca.idCanal='.$params['canal_filtro'] : '';
+
+
+			$filtros .= !empty($params['distribuidora_filtro']) ? ' AND d.idDistribuidora='.$params['distribuidora_filtro'] : '';
+			$filtros .= !empty($params['zona_filtro']) ? ' AND z.idZona='.$params['zona_filtro'] : '';
+			$filtros .= !empty($params['plaza_filtro']) ? ' AND pl.idPlaza='.$params['plaza_filtro'] : '';
+			$filtros .= !empty($params['cadena_filtro']) ? ' AND cad.idCadena='.$params['cadena_filtro'] : '';
+			$filtros .= !empty($params['banner_filtro']) ? ' AND ba.idBanner='.$params['banner_filtro'] : '';
+			
+			$filtros .= !empty($params['clientes']) ? " AND v.idCliente IN({$params['clientes']})" : '';
+			
+
+		}
+
+		$cliente_historico = getClienteHistoricoCuenta();
+		$segmentacion = getSegmentacion($params);
+		
+		$demo = $this->demo;
+		$filtro_demo = '';
+		if(!$demo){
+			$filtro_demo = " AND r.demo = 0";
+		}
+
+		$idProyecto = $this->sessIdProyecto;
+		$columnas = '';
+		if(in_array($segmentacion['grupoCanal'], GC_MODERNOS))
+        {
+            $columnas = '
+            , ch.idCadena
+            , ch.idBanner
+            , ch.banner
+            , ch.cadena
+            ';
+        }
+        if(in_array($segmentacion['grupoCanal'], GC_MAYORISTAS))
+        {
+            $columnas = '
+            , ch.plaza 
+            , ch.idPlaza
+            , ch.zona
+            , ch.idDistribuidoraSucursal
+            ';
+        }
+        if(in_array($segmentacion['grupoCanal'], GC_TRADICIONALES))
+        {
+            $columnas = '
+            , ch.distribuidora
+            , ch.ciudadDistribuidoraSuc
+            , ch.codUbigeoDisitrito
+            , ch.idDistribuidoraSucursal
+            , ch.zona
+            ';
+        }
+
+		$sql = "
+			DECLARE @fecIni date='".$params['fecIni']."',@fecFin date='".$params['fecFin']."';
+			WITH list_visitasProductos AS (
+				SELECT
+					r.idRuta
+					, v.idVisita
+					, r.fecha
+					, r.idProyecto
+					, ca.idGrupoCanal
+					, ca.idCanal
+					, v.idCliente
+					, dvd.idPromocion
+					, dvd.precio
+					, dvd.idTipoPromocion
+					, dvd.producto
+					, dvd.nombrePromocion promocion
+					, tpro.nombre tipoPromocion
+					, r.nombreUsuario usuario
+					, dvd.idVisitaPromocionesDet
+					, vf.fotoUrl 'foto'
+					, mg.carpetaFoto
+					, vf.idVisitaFoto
+				FROM trade.data_ruta r
+				JOIN trade.data_visita v ON v.idRuta=r.idRuta
+				JOIN trade.data_visitaPromociones dvv ON dvv.idVisita=v.idVisita
+				JOIN trade.data_visitaPromocionesDet dvd ON dvd.idVisitaPromociones=dvv.idVisitaPromociones
+				LEFT JOIN trade.tipoPromocion tpro ON tpro.idTipoPromocion = dvd.idTipoPromocion
+				LEFT JOIN trade.canal ca ON ca.idCanal=v.idCanal
+				LEFT JOIN trade.grupoCanal gca ON ca.idGrupoCanal=gca.idGrupoCanal
+				LEFT JOIN trade.data_visitaFotos vf ON vf.idVisitaFoto=dvd.idVisitaFoto
+				LEFT JOIN trade.aplicacion_modulo m ON m.idModulo = vf.idModulo
+				LEFT JOIN trade.aplicacion_modulo_grupo mg ON mg.idModuloGrupo = m.idModuloGrupo
+				WHERE r.estado = 1 AND v.estado = 1 AND r.demo = 0
+				AND r.fecha BETWEEN @fecIni AND @fecFin
+				AND r.idProyecto={$idProyecto}
+				{$filtros}
+				{$filtro_demo} 
+			), lista_clientes AS (
+			SELECT
+				ch.idCliente
+				, ch.idClienteHist
+				, ch.idSegClienteModerno
+				, ch.idSegClienteTradicional
+				, cli.codCliente
+				, cli.nombreComercial
+				, cli.razonSocial
+				, cli.direccion
+				
+				{$segmentacion['columnas_bd']}
+			FROM trade.cliente cli
+			JOIN {$cliente_historico} ch ON cli.idCliente = ch.idCliente
+			{$segmentacion['join']}
+			WHERE ch.idProyecto = {$idProyecto} 
+			AND General.dbo.fn_fechaVigente(ch.fecIni, ch.fecFin, @fecIni, @fecFin) = 1
+			)
+			SELECT
+				v.fecha
+				,gca.nombre AS grupoCanal
+				, ca.nombre AS canal
+				, ch.codCliente
+				, ch.nombreComercial
+				, dbo.DecodeUTF8String(ISNULL(pro.nombre,v.promocion)) promocion
+				, ISNULL(tpro.nombre,v.tipoPromocion) tipoPromocion
+				, ch.idCliente
+				, ch.razonSocial
+				, ch.direccion
+				, v.usuario
+				, v.idVisita
+				, ISNULL(pro.idPromocion,v.idVisitaPromocionesDet) idPromocion
+				, v.foto 
+				, v.carpetaFoto
+				, v.idVisitaFoto
+				{$columnas}
+			FROM list_visitasProductos v
+			LEFT JOIN lista_clientes ch ON v.idCliente = ch.idCliente
+			LEFT JOIN trade.canal ca ON ca.idCanal=v.idCanal
+			LEFT JOIN trade.grupoCanal gca ON ca.idGrupoCanal=gca.idGrupoCanal
+			LEFT JOIN trade.promocion pro ON pro.idPromocion = v.idPromocion
+			LEFT JOIN trade.tipoPromocion tpro ON tpro.idTipoPromocion = pro.idTipoPromocion
+			LEFT JOIN trade.tipoPromocion tprod ON tprod.idTipoPromocion = v.idTipoPromocion
+			LEFT JOIN trade.producto p ON p.idProducto = v.producto
+			LEFT JOIN trade.producto_categoria cat ON cat.idCategoria = p.idCategoria
+			LEFT JOIN trade.producto_marca m On m.idMarca = p.idMarca
+			LEFT JOIN trade.producto_marca_empresa pme ON m.idMarca = pme.idMarca
+		";
+
+		$query = $this->db->query($sql);
+		$result = array();
+		if ( $query ) {
+			$result = $query->result_array();
+		}
+
+		return $result;
 	}
 }
 ?>

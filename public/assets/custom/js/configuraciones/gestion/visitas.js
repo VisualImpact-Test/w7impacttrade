@@ -35,7 +35,7 @@ var Visitas = {
 	contentSeleccionado:"tab-content-0",
 
 	load: function(){
-		$('#usuario').parent().find('span.select2-container').addClass('sl-width-250');
+		// $('#usuario').parent().find('span.select2-container').addClass('sl-width-250');
 		$('#combo_ciudad_whls').hide();
 		$('#combo_plaza').hide();
 		$('#combo_zona').hide();
@@ -43,7 +43,7 @@ var Visitas = {
 		$('#combo_ciudad_hfs').hide();		
 		$('#combo_cadena').hide();		
 		$('#combo_banner').hide();		
-		
+		$("#cod_cliente").hide();	
 
 		//$('#tipoUsuario').change(function(e){
 		$(document).on('change','#tipoUsuario_filtro', function(){
@@ -331,6 +331,50 @@ var Visitas = {
 			});
 		});
 																		 
+		$(document).on('dblclick','.nav-link', function(e){
+			var control = $(this);
+			var value = control.data('value');
+			
+            switch (value) {
+                case 1:
+					$("#tipoGestor").attr("value","1");
+					$("#btn-rutaCambiarEstado").show();
+					$("#btn-rutaNuevo").show();
+					$("#btn-rutaNuevoMasivo").show();
+					$("#btn-rutaDuplicar").show();
+					$("#btn-rutaReprogramar").show();
+
+					$("#btn-visitaCambiarEstado").hide();
+					$("#btn-visitaReprogramar").hide();
+					$("#btn-visitaCargaMasiva").hide();
+					$("#btn-visitaExcluir").hide();
+					$("#btn-visitaExcluirActivar").hide();
+					$("#btn-visitaContingencia").hide();
+					$("#btn-visitaContingenciaDes").hide();					 						
+					Visitas.contentSeleccionado="tab-content-0";
+                    break;
+                case 2:
+					$("#tipoGestor").attr("value","2");
+					$("#btn-rutaCambiarEstado").hide();
+					$("#btn-rutaNuevo").hide();
+					$("#btn-rutaNuevoMasivo").hide();
+					$("#btn-rutaDuplicar").hide();
+					$("#btn-rutaReprogramar").hide();
+		
+					$("#btn-visitaCambiarEstado").show();
+					$("#btn-visitaReprogramar").show();
+					$("#btn-visitaCargaMasiva").show();
+					$("#btn-visitaExcluir").show();
+					$("#btn-visitaExcluirActivar").show();
+					$("#btn-visitaContingencia").show();
+					$("#btn-visitaContingenciaDes").show();					 						
+					Visitas.contentSeleccionado="tab-content-1";
+                    break;
+				default:
+					break;
+			}
+			$('#btn-filtrarRutasVisitas').click();
+		});
 		$(document).on('click','.nav-link', function(e){
 			var control = $(this);
 			var value = control.data('value');
@@ -348,8 +392,12 @@ var Visitas = {
 					$("#btn-visitaReprogramar").hide();
 					$("#btn-visitaCargaMasiva").hide();
 					$("#btn-visitaExcluir").hide();
+					$("#btn-visitaExcluirActivar").hide();
 					$("#btn-visitaContingencia").hide();
-					$("#btn-visitaContingenciaDes").hide();					 						
+					$("#btn-visitaContingenciaDes").hide();	
+					
+					$("#cod_cliente").hide();	
+
 					Visitas.contentSeleccionado="tab-content-0";
                     break;
                 case 2:
@@ -364,14 +412,33 @@ var Visitas = {
 					$("#btn-visitaReprogramar").show();
 					$("#btn-visitaCargaMasiva").show();
 					$("#btn-visitaExcluir").show();
+					$("#btn-visitaExcluirActivar").show();
 					$("#btn-visitaContingencia").show();
-					$("#btn-visitaContingenciaDes").show();					 						
+					$("#btn-visitaContingenciaDes").show();
+					$("#cod_cliente").show();	
+
 					Visitas.contentSeleccionado="tab-content-1";
                     break;
 				default:
 					break;
 			}
-			$('#btn-filtrarRutasVisitas').click();
+
+			// if(Visitas.contentSeleccionado == 'tab-content-1'){
+			// 	var grupoCanal = $("#grupo_filtro").val();
+			// 	if(grupoCanal == ''){
+			// 		grupoCanal = $("#grupo_filtro").prop("selectedIndex", 1).val();
+			// 		$("#grupo_filtro").val(grupoCanal);
+			// 		$("#grupo_filtro").select2("destroy");
+			// 		$("#grupo_filtro").select2();
+			// 	}
+			// }else if(Visitas.contentSeleccionado == 'tab-content-1'){
+			// 	var grupoCanal = $("#grupo_filtro").val();
+			// 	if(grupoCanal != ''){
+			// 		$("#grupo_filtro").val('');
+			// 		$("#grupo_filtro").select2("destroy");
+			// 		$("#grupo_filtro").select2();
+			// 	}
+			// }
 		});
 
 
@@ -385,9 +452,7 @@ var Visitas = {
 				,'url': Visitas.url + control.data('url')
 				,'contentDetalle': Visitas.contentSeleccionado
 			};
-
-			Fn.loadReporte(config);
-
+			Fn.loadReporte_validado(config);
 			Visitas.dataListaRutasActivo = [];
 			Visitas.dataListaRutasInactivo = [];
 			Visitas.dataListaVisitasActivo = [];
@@ -1223,6 +1288,31 @@ var Visitas = {
 				
 			}
         });
+		
+		$(document).on('click','#btn-visitaExcluirActivar', function(e){
+        	e.preventDefault();
+			var gestor = 'visitas';
+
+			if (Visitas.dataListaVisitasActivo.length==0 && Visitas.dataListaVisitasInactivo.length==0) {
+				++modalId;
+				var fn='Fn.showModal({ id:'+modalId+', show:false});';
+				var btn = new Array();
+					btn[0]={title:'Cerrar', fn:fn};
+				var message = Fn.message({ 'type': 2, 'message': 'No se ha reportado ningún cambio' });
+				Fn.showModal({ id:modalId, show:true, title:'Verificar Información', content:message, btn:btn});
+			} else {
+				++modalId;
+				var fn1="Visitas.activar_exluciones(\""+ gestor + "\");	Fn.showModal({ id:modalId, show:false});";
+				var fn2='Fn.showModal({ id:'+modalId+',show:false });';
+				var btn=new Array();
+					btn[0]={title:'Continuar',fn:fn1};
+					btn[1]={title:'Cerrar',fn:fn2};
+				var message = Fn.message({ 'type': 3, 'message': '¿Desea continuar con la edición de los <strong>'+(Visitas.dataListaVisitasActivo.length + Visitas.dataListaVisitasInactivo.length)+'</strong> registros?' });
+				Fn.showModal({ id:modalId,title:'Alerta',content:message,btn:btn,show:true});
+				Visitas.idModal
+				
+			}
+        });
 
 		$(document).ready(function () {
 			$('#btn-filtrarRutasVisitas').click();
@@ -1277,6 +1367,31 @@ var Visitas = {
 			}
 		});
 	},
+	
+	activar_exluciones: function(tipoGestor){
+	
+		var data ={ 'dataVisitasIncluido':Visitas.dataListaVisitasIncluido, 'dataVisitasExcluido': Visitas.dataListaVisitasExcluido, 'idTipoExclusion': $('#idTipoExclusion').val(),'comentarioExclusion' :$('#comentarioExclusion').val() };
+		var jsonString = {'data': JSON.stringify(data)};
+		var configAjax = {'url':Visitas.url+'excluirVisitasActivar', 'data':jsonString };
+
+		$.when( Fn.ajax(configAjax)).then( function(a){
+			++modalId;
+			var fn='Fn.showModal({ id:'+modalId+',show:false });';
+			var btn=new Array();
+				btn[0]={title:'Cerrar',fn:fn};
+			var message = a.msg.content;
+			Fn.showModal({ id:modalId,show:true,title:a.msg.title,content:message,btn:btn});
+			
+			if (a.result==1) {
+				Fn.showModal({ id:Visitas.idModal, show:false});
+				$('#btn-filtrarRutasVisitas').click();
+				Visitas.dataListaVisitasIncluido = [];
+				Visitas.dataListaVisitasExcluido = [];
+			}
+		});
+	},
+	
+	
 	
 	guardarCambiarEstadoMasivo: function(tipoGestor){
 		var data ={ 'tipoGestor': tipoGestor,'dataRutas':Visitas.dataListaRutasActivo, 'dataRutasInactivas':Visitas.dataListaRutasInactivo, 'dataVisitasActivas':Visitas.dataListaVisitasActivo, 'dataVisitasInactivas': Visitas.dataListaVisitasInactivo };

@@ -1500,6 +1500,12 @@ class Carga_masiva extends CI_Controller
 					$arrayBatch=array();
 					$j=0;
 					$filas=0;
+
+					$aProyectos =array();
+					if( !empty($row['auditoria']) ){
+						$aProyectos = $this->model->lista_proyectosAuditoria([ 'idProyecto' => $row['idProyecto'] ]);
+					}
+
 					foreach($data_det as  $row_d){
 						$j=0;
 						//CABECERA
@@ -1512,6 +1518,9 @@ class Carga_masiva extends CI_Controller
 
 						$validar_cliente_header = $this->model->obtener_verificacion_cliente_header($input);
 						if( empty($validar_cliente_header)){
+
+							$input['codCliente'] = $row_d['codCliente'];
+							$input['cod_ubigeo'] = $row_d['cod_ubigeo'];
 
 							$insertCliente = $this->model->insertar_cliente($input);
 							if($insertCliente){
@@ -1540,6 +1549,34 @@ class Carga_masiva extends CI_Controller
 								
 								$j++;
 								$filas++;
+
+								if( count($aProyectos)>0){
+									foreach($aProyectos as $rowProyectos){
+										
+										$arrayBatch[$j]['idCliente'] = $idCliente;
+										$arrayBatch[$j]['nombreComercial'] =$row_d['nombreComercial'];
+										$arrayBatch[$j]['razonSocial'] =$row_d['razonSocial'];
+										$arrayBatch[$j]['idSegNegocio'] =$row_d['idSegNegocio'];
+										$arrayBatch[$j]['idSegClienteTradicional'] =$row_d['idSegClienteTradicional'];
+										$arrayBatch[$j]['idSegClienteModerno'] =$row_d['idSegClienteModerno'];
+										$arrayBatch[$j]['fecIni'] =$row_d['fecIni'];
+										$arrayBatch[$j]['fecFin'] =$row_d['fecFin'];
+										$arrayBatch[$j]['idCuenta'] =$row_d['idCuenta'];
+										$arrayBatch[$j]['idProyecto'] =$rowProyectos['idProyecto'];
+										$arrayBatch[$j]['idFrecuencia'] =$row_d['idFrecuencia'];
+										$arrayBatch[$j]['idZona'] =$row_d['idZona'];
+										$arrayBatch[$j]['idZonaPeligrosa'] =$row_d['idZonaPeligrosa'];
+										$arrayBatch[$j]['flagCartera'] =$row_d['flagCartera'];
+										$arrayBatch[$j]['codCliente'] =$row_d['codCliente'];
+										$arrayBatch[$j]['cod_ubigeo'] =$row_d['cod_ubigeo'];
+										$arrayBatch[$j]['direccion'] =$row_d['direccion'];
+										$arrayBatch[$j]['referencia'] =$row_d['referencia'];
+										$arrayBatch[$j]['latitud'] =$row_d['latitud'];
+										$arrayBatch[$j]['longitud'] =$row_d['longitud'];
+										
+										$j++;
+									}
+								}
 							}
 
 						}else{
@@ -1568,11 +1605,41 @@ class Carga_masiva extends CI_Controller
 							
 							$j++;
 							$filas++;
+
+							if( count($aProyectos)>0){
+								foreach($aProyectos as $rowProyectos){
+									
+									$arrayBatch[$j]['idCliente'] = $idCliente;
+									$arrayBatch[$j]['nombreComercial'] =$row_d['nombreComercial'];
+									$arrayBatch[$j]['razonSocial'] =$row_d['razonSocial'];
+									$arrayBatch[$j]['idSegNegocio'] =$row_d['idSegNegocio'];
+									$arrayBatch[$j]['idSegClienteTradicional'] =$row_d['idSegClienteTradicional'];
+									$arrayBatch[$j]['idSegClienteModerno'] =$row_d['idSegClienteModerno'];
+									$arrayBatch[$j]['fecIni'] =$row_d['fecIni'];
+									$arrayBatch[$j]['fecFin'] =$row_d['fecFin'];
+									$arrayBatch[$j]['idCuenta'] =$row_d['idCuenta'];
+									$arrayBatch[$j]['idProyecto'] =$rowProyectos['idProyecto'];
+									$arrayBatch[$j]['idFrecuencia'] =$row_d['idFrecuencia'];
+									$arrayBatch[$j]['idZona'] =$row_d['idZona'];
+									$arrayBatch[$j]['idZonaPeligrosa'] =$row_d['idZonaPeligrosa'];
+									$arrayBatch[$j]['flagCartera'] =$row_d['flagCartera'];
+									$arrayBatch[$j]['codCliente'] =$row_d['codCliente'];
+									$arrayBatch[$j]['cod_ubigeo'] =$row_d['cod_ubigeo'];
+									$arrayBatch[$j]['direccion'] =$row_d['direccion'];
+									$arrayBatch[$j]['referencia'] =$row_d['referencia'];
+									$arrayBatch[$j]['latitud'] =$row_d['latitud'];
+									$arrayBatch[$j]['longitud'] =$row_d['longitud'];
+									
+									$j++;
+								}
+							}
 						}
 
 					
 
-						if($row['idCuenta']=="3"){
+						if($row['idCuenta']=="2"){
+							$insert = $this->db->insert_batch('trade.cliente_historico_aje', $arrayBatch); 
+						}else if($row['idCuenta']=="3"){
 							$insert = $this->db->insert_batch('trade.cliente_historico_pg', $arrayBatch); 
 						}else if($row['idCuenta']=="13"){
 							$insert = $this->db->insert_batch('trade.cliente_historico_visualimpact', $arrayBatch); 
@@ -1972,7 +2039,9 @@ class Carga_masiva extends CI_Controller
 
 								$tablaHistorico="trade.cliente_historico";
 								if( !empty($row['idCuenta']) ){
-									if($row['idCuenta']=="3"){
+									if($row['idCuenta']=="2"){
+										$tablaHistorico="trade.cliente_historico_aje";
+									}else if($row['idCuenta']=="3"){
 										$tablaHistorico="trade.cliente_historico_pg";
 									}else if($row['idCuenta']=="13"){
 										$tablaHistorico="trade.cliente_historico_visualimpact";
@@ -2110,7 +2179,9 @@ class Carga_masiva extends CI_Controller
 
 					$tablaHistorico="trade.cliente_historico";
 					if( !empty($row['idCuenta']) ){
-						if($row['idCuenta']=="3"){
+						if($row['idCuenta']=="2"){
+							$tablaHistorico="trade.cliente_historico_aje";
+						}else if($row['idCuenta']=="3"){
 							$tablaHistorico="trade.cliente_historico_pg";
 						}else if($row['idCuenta']=="13"){
 							$tablaHistorico="trade.cliente_historico_visualimpact";
@@ -2151,7 +2222,9 @@ class Carga_masiva extends CI_Controller
 
 
 						if( count($arrayBatch)>100){
-							if($row['idCuenta']=="3"){
+							if($row['idCuenta']=="2"){
+								$insert = $this->db->insert_batch('trade.cliente_historico_aje', $arrayBatch); 
+							}else if($row['idCuenta']=="3"){
 								$insert = $this->db->insert_batch('trade.cliente_historico_pg', $arrayBatch); 
 							}else if($row['idCuenta']=="13"){
 								$insert = $this->db->insert_batch('trade.cliente_historico_visualimpact', $arrayBatch); 
@@ -2171,7 +2244,9 @@ class Carga_masiva extends CI_Controller
 					}
 
 					if( count($arrayBatch)>0){
-						if($row['idCuenta']=="3"){
+						if($row['idCuenta']=="2"){
+							$insert = $this->db->insert_batch('trade.cliente_historico_aje', $arrayBatch); 
+						}else if($row['idCuenta']=="3"){
 							$insert = $this->db->insert_batch('trade.cliente_historico_pg', $arrayBatch); 
 						}else if($row['idCuenta']=="13"){
 							$insert = $this->db->insert_batch('trade.cliente_historico_visualimpact', $arrayBatch); 
@@ -2199,6 +2274,49 @@ class Carga_masiva extends CI_Controller
 
 	}
 
+
+	public function procesar_peticiones_actualizar_visitas(){
+		$rs_peticion=$this->model->get_peticiones_actualizar_visitas();
+
+		if($rs_peticion!=null){
+			foreach($rs_peticion as $row){
+
+				$params_=array();
+				$params_['idPeticion']=$row['idPeticion'];
+				$this->model->actualizar_peticion_estado($params_);
+
+				$fecFin=new DateTime($row['fechaFin']);
+
+				$period = new DatePeriod(
+					new DateTime($row['fechaIni']),
+					new DateInterval('P1D'),
+					($fecFin->modify('+1 day'))
+			   	);
+
+				$countFechas=0;
+				$countTotal= iterator_count($period);
+
+				foreach($period as $periodFechas){
+					$fecha=$periodFechas->format('Y-m-d');
+
+
+					$params=array();
+					$params['idProyecto']=$row['idProyecto'];
+					$params['fecha']=$fecha;
+					$this->model->actualizar_visitas($params);
+					$countFechas++;
+
+					$params2=array();
+					$params2['idPeticion']=$row['idPeticion'];
+					$porc=($countFechas/$countTotal)*100;
+					$params2['porcentaje']=$porc;
+					$this->model->actualizar_peticion($params2);
+				}
+
+				
+			}
+		}
+	}
 
 	
 

@@ -52,6 +52,7 @@ class M_premiaciones extends MY_Model{
 				  @fecIni DATE = '".$input['fecIni']."'
 				, @fecFin DATE = '".$input['fecFin']."'
 			SELECT 
+				DISTINCT
 				  gc.idGrupoCanal
 				, gc.nombre grupoCanal
 				, ca.nombre canal
@@ -138,16 +139,19 @@ class M_premiaciones extends MY_Model{
 		}
 	}
 
-	public function obtener_premiaciones(){
+	public function obtener_premiaciones($params){
 		$result = [];
 		$sql = "
-		SELECT
-			idPremiacion
-			, nombre
-			, CONVERT(VARCHAR,fechaInicio,103) AS fecIni
-			, CONVERT(VARCHAR,fechaCaducidad,103) AS fecFin
-		FROM trade.premiacion
-		WHERE fechaCaducidad IS NOT NULL
+			DECLARE @fecha date=getdate();
+			SELECT
+				idPremiacion
+				, nombre
+				, CONVERT(VARCHAR,fechaInicio,103) AS fecIni
+				, CONVERT(VARCHAR,fechaCaducidad,103) AS fecFin
+			FROM trade.premiacion
+			WHERE @fecha between fechaInicio and ISNULL(fechaCaducidad,@fecha)
+			AND idCuenta={$params['idCuenta']};
+			;
 		";
 		$result['datos'] = $this->db->query($sql)->result_array();
 

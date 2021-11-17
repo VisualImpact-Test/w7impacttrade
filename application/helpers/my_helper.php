@@ -1026,21 +1026,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 	}
 
-	function get_porcentaje($total,$cantidad){
-
+	function get_porcentaje($total,$cantidad,$decimales = 2){
 		if($cantidad == 0){
-
 			$percent = 0;
-
 		}else{
-
-			$percent = round(100/($total / $cantidad),2);
-
+			$percent = 100*($cantidad / $total);
 		}
 
-		return number_format($percent,2,'.','');
-
-
+		return number_format($percent,$decimales,'.','');
 	}
 
 	function get_fecha_larga($date){
@@ -1403,14 +1396,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 			$columnas = [];
 			$columnas_bd = '';
 			$tiposegmentacion = '';
+			$orderBy = '';
 			if (in_array($grupoCanal, GC_TRADICIONALES)) {
 				$tiposegmentacion = 'tradicional';
 				$str_permisos = getPermisosUsuario(['segmentacion' => 1]);
+				
 				!empty($str_permisos) ? $filtro_permiso .= " AND sctd.idDistribuidoraSucursal IN ({$str_permisos})": '';
 				$join .= " JOIN trade.segmentacionClienteTradicional sct ON ch.idSegClienteTradicional = sct.idSegClienteTradicional ";
 				$join .= " JOIN trade.segmentacionClienteTradicionalDet sctd ON sct.idSegClienteTradicional = sctd.idSegClienteTradicional {$filtro_permiso} ";
 
-				if ($grupoCanal == 'HFS') {
+				if ($grupoCanal == 'HFS' || $grupoCanal == 'Tradicional') {
 					array_push(
 						$columnas,
 						['header' => 'Distribuidora', 'columna' => 'distribuidora', 'align' => 'left'],
@@ -1418,10 +1413,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 						['header' => 'Zona', 'columna' => 'zona', 'align' => 'left']
 
 					); //Columnas para la vista
+					
 
 					//Columnas para la consulta a base de datos
 					$columnas_bd  .= '
-						,d.nombre AS distribuidora
+						, d.nombre AS distribuidora
 						, ubi1.provincia AS ciudadDistribuidoraSuc
 						, ubi1.cod_ubigeo AS codUbigeoDisitrito
 						, ds.idDistribuidoraSucursal
@@ -1432,6 +1428,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 					$join .= " LEFT JOIN trade.distribuidora d ON d.idDistribuidora = ds.idDistribuidora ";
 					$join .= " LEFT JOIN General.dbo.ubigeo ubi1 ON ubi1.cod_ubigeo=ds.cod_ubigeo";
 					$join .= " LEFT JOIN trade.zona z ON ch.idZona = z.idZona";
+
+					$orderBy = 'd.nombre,ubi1.provincia';
 				};
 
 			}
@@ -1448,8 +1446,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 						['header' => 'Plaza', 'columna' => 'plaza', 'align' => 'left']
 					);
 					$columnas_bd .= '
-						,pl.nombre AS plaza 
-						,pl.idPlaza
+						, pl.nombre AS plaza 
+						, pl.idPlaza
 						, z.nombre AS zona
 						, ds.idDistribuidoraSucursal
 						';
@@ -1457,6 +1455,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 					$join .= " LEFT JOIN trade.plaza pl ON pl.idPlaza = sct.idPlaza";
 					$join .= " LEFT JOIN trade.zona z ON ch.idZona = z.idZona";
 					$join .= " LEFT JOIN trade.distribuidoraSucursal ds ON ds.idDistribuidoraSucursal = sctd.idDistribuidoraSucursal ";
+
+					$orderBy = 'pl.nombre,z.nombre';
 				};
 			}
 
@@ -1475,16 +1475,17 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 					//Columnas para la consulta a base de datos
 					$columnas_bd  .= '
-						,cad.idCadena
-						,ba.idBanner
-						,ba.nombre AS banner
-						,cad.nombre AS cadena
+						, cad.idCadena
+						, ba.idBanner
+						, ba.nombre AS banner
+						, cad.nombre AS cadena
 						';
 
 					// JOINS para la consulta a base de datos
 					$join .= " LEFT JOIN trade.banner ba ON ba.idBanner = scm.idBanner";
 					$join .= " LEFT JOIN trade.cadena cad ON cad.idCadena = ba.idCadena";
 
+					$orderBy = 'cad.nombre,ba.nombre';
 				}
 			}
 		}
@@ -1494,6 +1495,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		$result['columnas_bd'] = !empty($columnas_bd) ? $columnas_bd : '';
 		$result['grupoCanal'] = !empty($grupoCanal) ? $grupoCanal : '';
 		$result['tipoSegmentacion'] = !empty($tiposegmentacion) ? $tiposegmentacion : '';
+		$result['orderBy'] = !empty($orderBy) ? $orderBy : '';
 
 		return $result;
 	}
@@ -1521,7 +1523,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 			$rs = $CI->m_control->getPermisosMayorista($params);
 			$arr = [];
 			foreach ($rs as $k => $v) {
-				$arr[] = $v['idUsuarioHistPlaza'];
+				$arr[] = $v['idPlaza'];
 			}
 			$string = implode(",",$arr);
 		}
@@ -1529,7 +1531,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 			$rs = $CI->m_control->getPermisosModerno($params);
 			$arr = [];
 			foreach ($rs as $k => $v) {
-				$arr[] = $v['idUsuarioHistBanner'];
+				$arr[] = $v['idBanner'];
 			}
 			$string = implode(",",$arr);
 		}
@@ -1573,4 +1575,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		$grupoCanal = $CI->m_control->getGrupoCanalDeVisita($params);
 
 		return $grupoCanal['idGrupoCanal'];
+	}
+	function rutafotoModulo($input = [])
+	{
+		$modulo = !empty($input['modulo']) ? $input['modulo'] : 'fotos';  
+		$foto = !empty($input['foto']) ? $input['foto'] : '';
+		$icono = !empty($input['icono']) ? $input['icono'] : 'fa fa-camera';  
+
+		return ' <a href="javascript:;" style="margin-right:3px;font-size: 15px;" class="lk-show-foto" data-modulo="'.$modulo.'" data-foto="' . $foto . '" ><i class="'.$icono.'" ></i></a> ';
 	}

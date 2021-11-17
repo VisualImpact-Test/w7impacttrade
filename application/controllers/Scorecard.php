@@ -23,6 +23,16 @@ class Scorecard extends MY_Controller{
 			'assets/custom/js/scorecard'
 		);
 
+		for ($i=1; $i <= 3; $i++) { 
+			$permisos = getPermisosUsuario(['segmentacion' => $i]);
+			if(!empty($permisos)){
+				break;
+			}
+		}
+
+		$config['data']['permisos'] = empty($permisos) ? '-- Grupo Canal --' : false;
+		
+
 		$config['data']['icon'] = 'fa fa-chart-line';
 		$config['data']['title'] = 'Scorecard';
 		$config['data']['message'] = 'Scorecard';
@@ -58,6 +68,8 @@ class Scorecard extends MY_Controller{
 		
 		$visitas = $this->model->obtener_visitas($input);
 
+		$segmentacion = getSegmentacion(['grupoCanal_filtro' => $input['idGrupoCanal']]);
+		$array['segmentacion'] = $segmentacion;
 		$this->aSessTrack = $this->model->aSessTrack;
 
 		foreach($canales as $row){
@@ -189,7 +201,7 @@ class Scorecard extends MY_Controller{
 	}	
 
 	public function detalle_cartera(){
-		//$result = $this->result;
+		$result = $this->result;
 		$data = json_decode($this->input->post('data'));
 
 		$input = array();
@@ -233,13 +245,12 @@ class Scorecard extends MY_Controller{
 		}
 
 		$result['data'] = $html;
-
 		echo json_encode($result);
 		
 	}
 	
 	public function detalle_visita(){
-		//$result = $this->result;
+		$result = $this->result;
 		$data = json_decode($this->input->post('data'));
 
 		$input = array();
@@ -286,7 +297,6 @@ class Scorecard extends MY_Controller{
 		}
 
 		$result['data'] = $html;
-
 		echo json_encode($result);
 	}
 	public function permisos_usuarios($tipoSegmentacion = '',$input = []){

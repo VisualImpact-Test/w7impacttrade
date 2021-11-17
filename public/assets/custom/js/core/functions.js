@@ -977,7 +977,7 @@ var Fn = {
 		});
 	},
 
-	loadReporte_validado: function( config = {}){
+	loadReporte_validado: function( config = {} ){
 		var data = Fn.formSerializeObject(config.idFrm);
 		var jsonString = { 'data': JSON.stringify(data) };
 		var configAjax = { 'url': config.url, 'data': jsonString };
@@ -1018,6 +1018,8 @@ var Fn = {
 						$('.filtros_'+a.data.grupoCanal).removeClass('d-none');
 						$('.filtros_'+a.data.grupoCanal).find('select').attr('disabled', false);
 					}
+
+					
 				}
 
 				if( a.result==0 ){
@@ -1038,8 +1040,8 @@ var Fn = {
 		var a = $.Deferred();
 		if ( arreglo.length > 0 ) {
 			var jsonString = {'arreglo':arreglo};
-			var url = 'http://movil.visualimpact.com.pe/api_impactTrade_android.php/c_control_v25/guardarFotoMultiple_v1';
-			// var url = 'http://localhost/movil/api_impactTrade_android.php/c_control_v9/guardarFotoMultiple_v1';
+			// var url = 'http://movil.visualimpact.com.pe/api_impactTrade_android.php/c_control_v25/guardarFotoMultiple_v2';
+			var url = site_url+'index.php/'+ 'controlFoto/enviar_fotos_api';
 			var config={ 'url': url, 'data': jsonString };
 
 			$.when( Fn.ajax2(config)).then( function(res){
@@ -1331,5 +1333,16 @@ var Fn = {
 
 		return a.promise();
 	},
+
+	randomNumber: function(min, max) { 
+		return Math.random() * (max - min) + min;
+	},
+
+	coloresAleatorios: function() {
+		var r = Math.floor(Math.random() * 255);
+		var g = Math.floor(Math.random() * 255);
+		var b = Math.floor(Math.random() * 255);
+		return "rgb(" + r + "," + g + "," + b + ")";
+	}
 
 }

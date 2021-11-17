@@ -370,11 +370,10 @@ class M_encuestas extends My_Model
 			'FecIni' => trim($post['fechaInicio']),
 		];
 		if(!empty($post['fechaFin'])){$insert['fecFin']=$post['fechaFin'];}
-		if(!empty($post['cliente'])){$insert['idCliente']=$post['cliente'];}
+		if(!empty($post['cliente_form'])){$insert['idCliente']=$post['cliente_form'];}
 		if(!empty($post['grupoCanal_form'])){$insert['idGrupoCanal']=$post['grupoCanal_form'];}
 		if(!empty($post['canal_form'])){$insert['idCanal']=$post['canal_form'];}
 		if(!empty($post['tipoUsuario_form'])){$insert['idTipoUsuario']=$post['tipoUsuario_form'];}
-
 
 		$insert = $this->db->insert($this->tablas['lista']['tabla'], $insert);
 		$this->insertId = $this->db->insert_id();
@@ -438,6 +437,7 @@ class M_encuestas extends My_Model
 		if(!empty($post['fechaFin'])){$update['fecFin']=$post['fechaFin'];}
 		if(!empty($post['grupoCanal_form'])){$update['idGrupoCanal']=$post['grupoCanal_form'];}
 		if(!empty($post['canal_form'])){$update['idCanal']=$post['canal_form'];}else{$update['idCanal']=NULL;}
+		if(!empty($post['cliente_form'])){$update['idCliente']=$post['cliente_form'];}else{$update['idCliente']=NULL;}
 		if(!empty($post['tipoUsuario_form'])){$update['idTipoUsuario']=$post['tipoUsuario_form'];}else{$update['idTipoUsuario']=NULL;}
 
 		$where = [

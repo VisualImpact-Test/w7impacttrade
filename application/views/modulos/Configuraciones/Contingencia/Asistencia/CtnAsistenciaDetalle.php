@@ -1,5 +1,5 @@
 		<div class="card-datatable">
-		<table id="tb-contingenciaAsistenciaDetalle" class="table table-striped table-bordered nowrap">
+		<table id="tb-contingenciaAsistenciaDetalle" class="table table-striped table-bordered nowrap w-100">
 			<thead>
 				<tr>
 					<!--th class="text-center align-middle" rowspan="2">#</th-->

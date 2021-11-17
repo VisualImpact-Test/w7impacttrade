@@ -82,7 +82,7 @@ var Scorecard = {
 			var canal = control.data('canal');
 			var flagTotal = control.data('flagTotal');
 			//
-			var data = { 'idSubCanal':idSubCanal,'fecIni':fecIni,'fecFin':fecFin,'tipo':tipo,'str_clientes':str_clientes,'grupoCanal':grupoCanal ,'canal':canal, 'str_visitas': str_visitas, 'flagTotal':flagTotal};
+			var data = { 'idSubCanal':idSubCanal,'fecIni':fecIni,'fecFin':fecFin,'tipo':tipo,'str_clientes':str_clientes,'grupoCanal':grupoCanal ,'canal':canal, 'str_visitas': str_visitas, 'flagTotal':flagTotal,'title':title};
 			var jsonString = { 'data': JSON.stringify(data) };
 			var configAjax = { 'url': Scorecard.url + ruta, 'data': jsonString };
 

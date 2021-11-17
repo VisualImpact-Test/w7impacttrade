@@ -19,41 +19,80 @@
 					}
 					
 					?>
+					
 					<div class="row">
-						<div class="col-md-12 col-sm-12 col-xs-12" >
-							<label>TIPO CLIENTE</label><BR>
-							<div class="position-relative form-check form-check-inline" style="<?= ($formato_trad==true) ? "" : "display:none"  ?>;">
-								<label class="form-check-label">
-									<input type="radio" name="ch-tipo" value="1" class="form-check-input ch-tipo" <?= ($ver_formato_trad==true) ? "checked" : ""  ?>> TRADICIONAL</label>
+						<div class="col-md-12 mb-3">
+							<h5>Ingresar los siguientes datos:</h5>
+						</div>
+						<div class="col-md-8">
+							<div class="row">
+								<label for="" class="col-md-2 text-right">Tipo Cliente:</label>
+								<div class="col-md-7 mb-3">
+									<div class="input-group">
+										<div class="position-relative form-check form-check-inline" style="<?= ($formato_trad==true) ? "" : "display:none"  ?>;">
+											<label class="form-check-label">
+												<input type="radio" name="ch-tipo" value="1" class="form-check-input ch-tipo" <?= ($ver_formato_trad==true) ? "checked" : ""  ?>> TRADICIONAL</label>
+										</div>
+										<div class="position-relative form-check form-check-inline" style="<?= ($formato_moder==true) ? "" : "display:none"  ?>;">
+											<label class="form-check-label">
+												<input type="radio" name="ch-tipo" value="2" class="form-check-input ch-tipo" <?= ($ver_formato_mode==true) ? "checked" : ""  ?>> MODERNO</label>
+										</div>
+									</div>
+								</div>
 							</div>
-							<div class="position-relative form-check form-check-inline" style="<?= ($formato_moder==true) ? "" : "display:none"  ?>;">
-								<label class="form-check-label">
-									<input type="radio" name="ch-tipo" value="2" class="form-check-input ch-tipo" <?= ($ver_formato_mode==true) ? "checked" : ""  ?>> MODERNO</label>
+
+							<div class="row">
+								<label for="fechaLista" class="col-md-2 text-right">Adjuntar Archivo:</label>
+								<div class="col-md-7 mb-3">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" style="width: 40px;">
+												<i class="far fa-file-upload fa-lg"></i>
+											</span>
+										</div>
+										<input type="file" id="archivo" class="form-control" name="archivo" style="padding: 3px;" accept=".csv">
+									</div>
+
+									<a class="btn btn-link btn-sm" id="div_formato_trad" target="_blank" style="<?= ($ver_formato_trad==true) ? "" : "display:none;"  ?>" href="<?=base_url()?>configuraciones/maestros/basemadre/generar_formato_carga_masiva_alternativa_tradicional">
+										<i class="fal fa-file-csv fa-lg"></i> Descargar Formato
+									</a>
+
+									<a class="btn btn-link btn-sm" id="div_formato_moder" target="_blank" style="<?= ($ver_formato_mode==true) ? "" : "display:none"  ?>;" href="<?=base_url()?>configuraciones/maestros/basemadre/generar_formato_carga_masiva_alternativa_moderno">
+										<i class="fal fa-file-csv fa-lg"></i> Descargar Formato
+									</a>
+									
+									<a class="btn btn-link btn-sm" id="div_maestrro" target="_blank" href="<?=base_url()?>configuraciones/maestros/basemadre/generar_maestros" >
+										<i class="fal fa-file-csv fa-lg"></i> Descargar Maestro
+									</a>
+
+								</div>
 							</div>
 						</div>
-					</div>
-					<br>
 
-					<div class="row">
+						<div class="col-md-4">
+							<?
+								if($mostrarCheckAuditoria){
+									?>
+										<div class="form-check mb-3 pl-5">
+											<input type="checkbox" id="chk-cliente-auditoria" class="form-check-input cursor-pointer" name="chk-cliente-auditoria" value="1" style="width:23px; height: 23px; margin-left: -2.25rem;" checked>
+											<label class="form-check-label cursor-pointer pt-2" for="chk-cliente-auditoria">
+												Registrar Clientes para Auditoria
+											</label>
+										</div>
+									<?
+								}
 
+							?>
+							
+
+							<button type="button" class="btn btn-primary btn-block float-right" onclick="Basemadre.cargaMasivaAlternativa();" data-toggle="collapse">
+								<i class="far fa-folder-upload fa-lg"></i> Subir Archivo
+							</button>
+						</div>
 						
-						<div class="col-md-3 col-sm-3 col-xs-3" id="div_formato_trad" style="<?= ($ver_formato_trad==true) ? "" : "display:none"  ?>;">
-							<a href="<?=base_url()?>configuraciones/maestros/basemadre/generar_formato_carga_masiva_alternativa_tradicional" class="btn-outline-primary border-0" target="_blank" style="padding:10px;margin-left:10px;border-radius: 13px;outline: blue;">  Descargar Formato</a>
-						</div>
-
-						<div class="col-md-3 col-sm-3 col-xs-3" id="div_formato_moder" style="<?= ($ver_formato_mode==true) ? "" : "display:none"  ?>;">
-							<a href="<?=base_url()?>configuraciones/maestros/basemadre/generar_formato_carga_masiva_alternativa_moderno" class="btn-outline-primary border-0" target="_blank" style="padding:10px;margin-left:10px;border-radius: 13px;outline: blue;">  Descargar Formato</a>
-						</div>
-
-						<div class="col-md-4 col-sm-4 col-xs-4" >
-							<input id="archivo" type="file" name="archivo" accept=".csv" style="margin-left:10px;">
-						</div>
-						<div class="col-md-2 col-sm-2 col-xs-2" >
-							<button type="button" data-toggle="collapse" class="btn-outline-primary border-0" style="padding:10px;margin-left:10px;border-radius: 13px;outline: blue;" onclick="Basemadre.cargaMasivaAlternativa();">Cargar Data</button>
-						</div>
-
 						
 					</div>
+
 
 					
 

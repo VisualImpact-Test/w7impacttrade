@@ -12,7 +12,7 @@ class M_asistencia extends MY_Model{
 	}
 
 	public function obtener_usuarios_asistencia($input=array()){
-		$filtros = "";
+		$filtros = "";$filtroTipoUsuario = '';
 		$sessIdTipoUsuario = $this->idTipoUsuario;
 		$sessDemo = $this->demo;
 		
@@ -42,6 +42,8 @@ class M_asistencia extends MY_Model{
 		$distribuidoras_usuario = getPermisosUsuario(['segmentacion'=>1]);
 		!empty($distribuidoras_usuario) ? $filtros .= " AND ds.idDistribuidoraSucursal IN({$distribuidoras_usuario})" : '' ;
 
+		$filtros .= !in_array($sessIdTipoUsuario,[8,13,14,4]) ? " AND tu.idTIpoUsuario NOT IN (8,13,14)" : "" ;
+		
 		$sql = "
 			DECLARE @fecha DATE=GETDATE(), @fecIni DATE='".$input['fecIni']."', @fecFin DATE='".$input['fecFin']."';
 			WITH lista_visita_inicio AS (
@@ -186,7 +188,8 @@ class M_asistencia extends MY_Model{
 			LEFT JOIN trade.cuenta cu ON cu.idCuenta = py.idCuenta
 
 			LEFT JOIN trade.usuario_tipo tu ON uh.idTipoUsuario = tu.idTipoUsuario
-			LEFT JOIN rrhh.dbo.empleado e ON e.idEmpleado = u.idEmpleado AND e.flag IN ('activo')
+			--LEFT JOIN rrhh.dbo.empleado e ON e.idEmpleado = u.idEmpleado AND e.flag IN ('activo')
+			JOIN rrhh.dbo.empleado e ON e.numTipoDocuIdent = u.numDocumento AND e.flag IN ('activo')
 			LEFT JOIN rrhh.dbo.CargoTrabajo ct ON ct.idCargoTrabajo = e.idCargoTrabajo
 			
 			

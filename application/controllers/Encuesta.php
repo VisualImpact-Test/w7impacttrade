@@ -40,6 +40,8 @@ class Encuesta extends MY_Controller
 
 	protected function getDataEncuestas($post)
 	{
+		ini_set('memory_limit', '2048M');
+		
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visitaEncuesta' ];
 		$dataParaVista['visitas'] = $visitas = $this->m_encuesta->query_visitaEncuesta($post)->result_array();
 
@@ -992,7 +994,7 @@ class Encuesta extends MY_Controller
 			$params['elementos_det']=$elementos;
 		}
 
-		$visitas = $this->m_encuesta->query_visitaEncuesta($params)->result_array();
+		$visitas = $this->m_encuesta->query_visitaEncuestaPdf($params)->result_array();
 
 
 
@@ -1141,7 +1143,7 @@ class Encuesta extends MY_Controller
 												{
 													foreach($row['fotos'] as $rowFotos){
 														if($rowFotos!=null){
-															$html .= '<img class="foto" src="'.('http://movil.visualimpact.com.pe/fotos/impactTrade_Android/encuestas/'.$rowFotos).'" width="280" height="200" />';
+															$html .= '<img class="foto" src="'.'http://movil.visualimpact.com.pe/fotos/impactTrade_Android/encuestas/'.$rowFotos.'" width="280" height="200" />';
 														}
 													}
 												}

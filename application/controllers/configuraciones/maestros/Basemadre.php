@@ -154,7 +154,7 @@ class Basemadre extends MY_Controller{
 				$input['fecFin'] = ($input['estado']==0 ? NULL : date('Y-m-d') );
 				$fechaFin = date('d/m/Y');
 
-				$rs_updateEstado = $this->model->update_estado_basemadre_pg($input);
+				$rs_updateEstado = $this->model->update_estado_basemadre($input);
 				if ( $rs_updateEstado) {
 					$result['result'] = 1;
 					$html.= $this->htmlResultado;
@@ -206,7 +206,7 @@ class Basemadre extends MY_Controller{
 				$input['fecFin'] = ($input['estado']==0 ? NULL : date('Y-m-d') );
 				$fechaFin = date('d/m/Y');
 
-				$rs_updateEstado = $this->model->update_estado_basemadre_pg($input);
+				$rs_updateEstado = $this->model->update_estado_basemadre($input);
 				if ( $rs_updateEstado) {
 					$result['result'] = 1;
 					$html.= $this->htmlResultado;
@@ -1917,184 +1917,79 @@ class Basemadre extends MY_Controller{
 		echo json_encode($result);
 	}
 
-	public function guardarHistoricoMasivo(){
+	public function darBajaMasivo(){
+		$result = $this->result;
+		$data = json_decode($this->input->post('data'));
+		$htmlWidth='60%';
+		
+		$html='';
+		$input=array();
+		$input['idUsuario'] = $this->idUsuario;
+		$array=array();
+
+		$html .= $this->load->view("modulos/configuraciones/maestros/basemadre/basemadre_bajaPuntoMasivo", $array, true);
+		//Result
+		$result['result']=1;
+		$result['msg']['title'] = 'BAJA MASIVA DE CLIENTES';
+		$result['data']['htmlWidth'] = $htmlWidth;
+		$result['data']['html'] = $html;	
+
+		$this->aSessTrack = $this->model->aSessTrack;
+		echo json_encode($result);
+	}
+
+	public function bajaMasivoFechas(){
 		set_time_limit(0);
 		$result = $this->result;
 		$data = json_decode($this->input->post('data'));
 		$idUsuario = $this->idUsuario;
-		$tipoSegmentacion = $data->{'tipoSegmentacion'};
 		$dataArray = $data->{'dataArray'};
 
 		$html=''; $htmlDuplicados='';
-		$rowInsertedClienteHistorico=0;
 		$rowUpdatedClienteHistorico=0;
 
 		$idCuenta = !empty($this->session->userdata('idCuenta'))? $this->session->userdata('idCuenta') :"";
 		$idProyecto = !empty($this->session->userdata('idProyecto'))? $this->session->userdata('idProyecto') :"";
 
+		$inputProyectos=array();
+		$aProyectos =array();
+		
+		$aProyectos = $this->model->lista_proyectosAuditoria([ 'idProyecto' => $idProyecto ]);
+		foreach($aProyectos as $rowProyectos){
+			$inputProyectos[$rowProyectos['idProyecto']]=$rowProyectos['idProyecto'];
+		}
+		$inputProyectos[$idProyecto]=$idProyecto;
+
+
+		$actualizar=true;
 		if ( !empty($dataArray)) {
 			foreach ($dataArray as $kd => $cliente) {
 
 				$idCliente = (isset($cliente[0]) && !empty($cliente[0])) ? $cliente[0] : NULL;
+				$fechaFin = (isset($cliente[1]) && !empty($cliente[1])) ? $cliente[1] : NULL;
 
-				if( !empty($idCliente) ){
-
-					$nombreComercial = (isset($cliente[1]) && !empty($cliente[1])) ? $cliente[1] : NULL;
-					$razonSocial = (isset($cliente[2]) && !empty($cliente[2])) ? $cliente[2] : NULL;
-					$ruc = (isset($cliente[3]) && !empty($cliente[3])) ? $cliente[3] : NULL;
-					$dni = (isset($cliente[4]) && !empty($cliente[4])) ? $cliente[4] : NULL;
-					$codigoUbigeo = (isset($cliente[8]) && !empty($cliente[8])) ? $cliente[8] : NULL;
-					$direccion = (isset($cliente[9]) && !empty($cliente[9])) ? $cliente[9] : NULL;
-					$referencia = (isset($cliente[10]) && !empty($cliente[10])) ? $cliente[10] : NULL;
-					$latitud = (isset($cliente[11]) && !empty($cliente[11])) ? $cliente[11] : NULL;
-					$longitud = (isset($cliente[12]) && !empty($cliente[12])) ? $cliente[12] : NULL;
-					$zonaPeligrosa = (isset($cliente[13]) && !empty($cliente[13])) ? $cliente[13] : NULL;
-						$idZonaPeligrosa = $this->model->obtener_id_zona_peligrosa($zonaPeligrosa);
-						$idZonaPeligrosa = ( !empty($idZonaPeligrosa) ? $idZonaPeligrosa[0]['idZonaPeligrosa'] : NULL );
-
-					$codigoCliente = (isset($cliente[14]) && !empty($cliente[14])) ? $cliente[14] : NULL;
-					$flagCartera = (isset($cliente[15]) && !empty($cliente[15])) ? ($cliente[15]=='SI' ? 1 : 0) : 0;
-
-					$fechaInicio = (isset($cliente[16]) && !empty($cliente[16])) ? $cliente[16] : date('Y-m-d');
-					$fechaFin = (isset($cliente[17]) && !empty($cliente[17])) ? $cliente[17] : NULL;
-
-					$frecuencia = (isset($cliente[18]) && !empty($cliente[18])) ? $cliente[18] : NULL;
-						$idFrecuencia = $this->model->obtener_id_frecuencia($frecuencia);
-						$idFrecuencia = ( !empty($idFrecuencia) ? $idFrecuencia[0]['idFrecuencia'] : NULL );
-
-					$zona = (isset($cliente[19]) && !empty($cliente[19])) ? $cliente[19] : NULL;
-						$idZona = $this->model->obtener_id_zona($zona);
-						$idZona = ( !empty($idZona) ? $idZona[0]['idZona'] : NULL ) ;
-
-					$grupoCanal = (isset($cliente[20]) && !empty($cliente[20])) ? $cliente[20] : NULL;
-					$canal = (isset($cliente[21]) && !empty($cliente[21])) ? $cliente[21] : NULL;
-					$clienteTipo = (isset($cliente[22]) && !empty($cliente[22])) ? $cliente[22] : NULL;
-
-					//VERIFICAMOS LA SEGMETACIÓN DEL CLIENTE
-					$plaza=NULL; $dataDistribuidoraSucursal=NULL; 
-					$cadena=NULL; $banner=NULL;
-
-					if ( $tipoSegmentacion==1 ) {
-						//SEGMENTACIÓN CLIENTE TRADICIONAL
-						$plaza = (isset($cliente[23]) && !empty($cliente[23])) ? $cliente[23] : NULL;
-						if ( count($cliente) > 25 ) {
-							$dataDistribuidoraSucursal = array();
-							for ($i=24; $i < count($cliente); $i++) { 
-								if ( $cliente[$i] !== null ) array_push($dataDistribuidoraSucursal, $cliente[$i]);
-							}
-						} else {
-							$dataDistribuidoraSucursal = (isset($cliente[24]) && !empty($cliente[24])) ? $cliente[24] : NULL;
-						}
-					} elseif( $tipoSegmentacion==2){
-						//SEGMENTACIÓN CLIENTE MODERNO
-						$cadena = (isset($cliente[23]) && !empty($cliente[23])) ? $cliente[23] : NULL;
-						$banner = (isset($cliente[24]) && !empty($cliente[24])) ? $cliente[24] : NULL;
+				if( !empty($idCliente) && !empty($fechaFin ) ){
+					$inputBusquedaHistorico=array();
+					$inputBusquedaHistorico['idCliente'] = $idCliente;
+					$inputBusquedaHistorico['fechaFin'] = $fechaFin;
+					$rs_verificarCambioValidoHistorico = $this->model->validar_cliente_historico_fechaFin($inputBusquedaHistorico,$inputProyectos);
+					
+					if($rs_verificarCambioValidoHistorico!=null && count($rs_verificarCambioValidoHistorico)>0){
+						$html .= '<div class="alert alert-danger fade show" role="alert"><i class="fas fa-exclamation-triangle"></i> EL CLIENTE <strong>'.$idCliente.'</strong> LA FECHA FIN NO PUEDE SER MENOR A LA FECHA INICIO.</div>';
+						$actualizar=false;
 					}
 
-					/****************SEGMENTACIONES*******************/
-					$idSegNegocio = NULL; $idSegClienteTradicional = NULL; $idSegClienteModerno = NULL;
+				}
+			}
+		}
 
-					/************SEGMETACIÓN NEGOCIO*********************/
-					if ( !empty($canal) ) {
-						$rs_idCanal = $this->model->obtener_id_canal($canal);
-						//$rs_idSubCanal = $this->model->obtener_id_subCanal($subCanal);
-						$rs_idClienteTipo = $this->model->obtener_id_clienteTipo($clienteTipo);
+		
+		if ( !empty($dataArray) && $actualizar==true ) {
+			foreach ($dataArray as $kd => $cliente) {
 
-						$arraySegNegocio=array();
-						$arraySegNegocio['idCanal'] = (!empty($rs_idCanal) ? $rs_idCanal[0]['idCanal']:NULL);
-						$arraySegNegocio['idClienteTipo']= (!empty($rs_idClienteTipo) ? $rs_idClienteTipo[0]['idClienteTipo']:NULL);
-
-						//$rs_segmentacionNegocio = $this->model->obtener_id_segmentacion_negocio($canal);
-						$rs_segmentacionNegocio = $this->model->obtener_segmentacion_negocio($arraySegNegocio);
-						if ( !empty($rs_segmentacionNegocio)) {
-							$idSegNegocio = $rs_segmentacionNegocio[0]['idSegNegocio'];
-						} else {
-							$insertarSegNegocio = $this->model->insertar_segmentacion_negocio($arraySegNegocio);
-							if ($insertarSegNegocio) {
-								$idSegNegocio = $this->db->insert_id();
-							}
-						}
-					}
-					/***********SEGMENTACION CLIENTE MODERNO**************/
-					if ( !empty($banner)) {
-						$rs_segmentacionClienteModeno = $this->model->obtener_id_segmentacion_cliente_moderno($banner);
-						if ( !empty($rs_segmentacionClienteModeno)) {
-							$idSegClienteModerno = $rs_segmentacionClienteModeno[0]['idSegClienteModerno'];
-						}
-					}
-					/**********SEGMENTACION CLIENTE TRADICIONAL*********/
-					$filtroWhere='';
-						if ( !empty($plaza) || !empty($dataDistribuidoraSucursal)) {
-						//PLAZA
-						$filtroWhere.= ( !empty($plaza) ? " AND data3.plaza LIKE '".$plaza."'" : " AND data3.plaza IS NULL" );
-						//DISTRIBUIDORA SUCURSAL
-						if (!empty($dataDistribuidoraSucursal)) {
-							if ( is_array($dataDistribuidoraSucursal)) {
-								$stringDS = implode(",", $dataDistribuidoraSucursal);
-								$filtroWhere.= " AND data3.distribuidoraSucursal LIKE'".$stringDS."'";
-							} else {
-								$filtroWhere.= " AND data3.distribuidoraSucursal LIKE '".$dataDistribuidoraSucursal."'";
-							}
-						} else {
-							$filtroWhere.= " AND data3.distribuidoraSucursal IS NULL";
-						}
-						//
-
-						//BUSCAMOS EL VALOR DEL ID SEGMENTACION CLIENTE TRADICIONAL
-						$rs_segmentacionClienteTradicional = $this->model->obtener_id_segmentacion_cliente_tradicional($filtroWhere);
-						
-						/***VERIFICAMOS EXISTENCIA***/
-						if (!empty($rs_segmentacionClienteTradicional)) {
-							//EXISTE DATA
-							$idSegClienteTradicional = $rs_segmentacionClienteTradicional[0]['idSegClienteTradicional'];
-						} else {
-							//NO EXISTE DATA
-							$idPlaza=NULL;
-							if (!empty($plaza)) {
-								$rs_idPlaza = ( in_array($grupoCanal, ['HFS']) ? $this->model->obtener_id_plaza_todo($plaza) : $this->model->obtener_id_plaza_mayorista($plaza) );
-								$idPlaza = ( !empty($rs_idPlaza) ) ? $rs_idPlaza[0]['idPlaza'] : NULL;
-							}
-							//
-							$arrayCabecera=array();
-							$arrayCabecera['idPlaza']= $idPlaza;
-							$arrayCabecera['idDistribuidoraSucursal']=NULL;
-
-							//INSERTAMOS LA CABECERA DE LA SEGMENTACION CLIENTE TRADICIONAL
-							$insertSegmentacionClienteTradicional = $this->model->insert_segmentacion_cliente_tradicional_v1($arrayCabecera);
-							if ( $insertSegmentacionClienteTradicional) {
-								$idSegClienteTradicional = $this->db->insert_id();
-							} else {
-								$html .= '<div class="alert alert-danger fade show" role="alert"><i class="fas fa-exclamation-triangle"></i> HUBO INCONVENIENTES AL REGISTRAR LA PLAZA.</div>';
-							}
-
-							//DETALLE DE LAS DISTRIBUDORAS SUCURSALES
-							if (!empty($dataDistribuidoraSucursal)) {
-								if (is_array($dataDistribuidoraSucursal)) {
-									foreach ($dataDistribuidoraSucursal as $kdd => $value) {
-										$rs_idDistribuidoraSucursal = $this->model->obtener_id_distribuidora_sucursal($value);
-										$idDistribuidoraSucursal = $rs_idDistribuidoraSucursal[0]['idDistribuidoraSucursal'];
-										//INSERTAMOS EL DETALLE
-										$arrayDetalleDS=array();
-										$arrayDetalleDS['idSegClienteTradicional']=$idSegClienteTradicional;
-										$arrayDetalleDS['idDistribuidoraSucursal']=$idDistribuidoraSucursal;
-										//
-										$insertSegmentacionClienteTradicionalDetalle = $this->model->insert_segmentacion_cliente_tradicional_detalle($arrayDetalleDS);	
-									}
-								} else {
-									$rs_idDistribuidoraSucursal = $this->model->obtener_id_distribuidora_sucursal($dataDistribuidoraSucursal);
-									$idDistribuidoraSucursal = $rs_idDistribuidoraSucursal[0]['idDistribuidoraSucursal'];
-									//INSERTAMOS EL DETALLE
-									$arrayDetalleDS=array();
-									$arrayDetalleDS['idSegClienteTradicional']=$idSegClienteTradicional;
-									$arrayDetalleDS['idDistribuidoraSucursal']=$idDistribuidoraSucursal;
-									//
-									$insertSegmentacionClienteTradicionalDetalle = $this->model->insert_segmentacion_cliente_tradicional_detalle($arrayDetalleDS);	
-								}
-							}				
-						}
-					}
-
-
+				$idCliente = (isset($cliente[0]) && !empty($cliente[0])) ? $cliente[0] : NULL;
+				$fechaFin = (isset($cliente[1]) && !empty($cliente[1])) ? $cliente[1] : NULL;
+				if( !empty($idCliente) && !empty($fechaFin ) ){
 
 					$inputBusqueda=array();
 					$inputBusqueda['idCliente'] = $idCliente;
@@ -2107,51 +2002,836 @@ class Basemadre extends MY_Controller{
 						$inputBusquedaHistorico=array();
 						$inputBusquedaHistorico['idCliente'] = $idCliente;
 						$inputBusquedaHistorico['idCuenta'] = $idCuenta;
-						$inputBusquedaHistorico['idProyecto'] = $idProyecto;
-
-						$rs_verificarExistenciaClienteHistorico = $this->model->obtener_cliente_historico_vigente($inputBusquedaHistorico);
-
+						$rs_verificarExistenciaClienteHistorico = $this->model->obtener_cliente_historico_vigente($inputBusquedaHistorico,$inputProyectos);
+					
+						$inputIdClienteHist=array();
 						if( !empty($rs_verificarExistenciaClienteHistorico) ){
-							if(!empty($rs_verificarExistenciaClienteHistorico[0])){
-
-								$idClienteHist=$rs_verificarExistenciaClienteHistorico[0]["idClienteHist"];
-								//actualizar cliente
-								
-								$inputCliente = array();
-								if(!empty($dni) || !empty($ruc)){
-									if( !empty($dni) ) $inputCliente['dni'] = $dni;
-									if( !empty($ruc) ) $inputCliente['ruc'] = $ruc;
-	
-									$inputWhereCliente = array();
-									$inputWhereCliente['idCliente'] = $idCliente;
-	
-									$arrayUpdateCliente['arrayParams'] = $inputCliente;
-									$arrayUpdateCliente['arrayWhere'] = $inputWhereCliente;
-									$updateCliente = $this->model->update_cliente($arrayUpdateCliente);
+							if( count($rs_verificarExistenciaClienteHistorico)>0){
+								foreach($rs_verificarExistenciaClienteHistorico as $clienteHist){
+									$inputIdClienteHist[$clienteHist['idClienteHist']]=$clienteHist['idClienteHist'];
 								}
-								
-								
-
-
+							}
+						}
+						
+						
+						
+						if( !empty($inputIdClienteHist) ){
+							if( count($inputIdClienteHist)>0){
 								//actualizar historico
-								$inputWhere= array();
-								$inputWhere['idClienteHist']=$idClienteHist;
-
 								$inputHistorico = array();
 								$inputHistorico['idCliente'] = $idCliente;
+								$inputHistorico['fecFin'] = $fechaFin;
 
+								$arrayUpdateClienteHistorico['arrayParams'] = $inputHistorico;
+								$arrayUpdateClienteHistorico['idClienteHist'] = $inputIdClienteHist;
+								//
+								$updateClienteHistorico = $this->model->update_cliente_historico_proyectos($arrayUpdateClienteHistorico);
+								
+								if ($updateClienteHistorico) {
+									$rowUpdatedClienteHistorico++;
+								} else {
+									$html .= '<div class="alert alert-danger fade show" role="alert"><i class="fas fa-exclamation-triangle"></i> NO SE LOGRÓ ACTUALIZAR EL CLIENTE HISTÓRICO DE <strong>'.$razonSocial.' - '.$direccion.'</strong> CORRECTAMENTE.</div>';
+								}
+							}
+						} 
+					}else{
+						$html .= '<div class="alert alert-danger fade show" role="alert"><i class="fas fa-exclamation-triangle"></i> NO SE LOGRÓ REGISTRAR EL CLIENTE HISTÓRICO DE <strong>'.$razonSocial.' - '.$direccion.'</strong> CORRECTAMENTE.</div>';
+					}
+
+				}
+			}
+		}
+
+		if ($rowUpdatedClienteHistorico>0) {
+			$result['result']=1;
+			$this->enviarNotificacionNuevoRegistro($rowUpdatedClienteHistorico);
+			$mensaje=$html;
+			$html.='<div class="alert alert-primary fade show" role="alert"><i class="fas fa-check-circle"></i> SE LOGRÓ ACTUALIZAR <strong>'.$rowUpdatedClienteHistorico.' CLIENTE HISTORICO(S) </strong> CORRECTAMENTE.</div>';
+			$html.=$mensaje;
+		}
+
+		$result['msg']['title'] = 'BAJA MASIVA DE CLIENTES';
+		$result['msg']['content'] = $html;
+
+		$this->aSessTrack = $this->model->aSessTrack;
+		echo json_encode($result);
+	}
+
+
+
+
+	public function nuevoHistoricoMasivo(){
+		$result = $this->result;
+		$data = json_decode($this->input->post('data'));
+
+		$html='';
+		$input=array();
+		$input['idUsuario'] = $this->idUsuario;
+		$input['listaCuentas']=implode(',', $this->permisos['cuenta']);
+		$input['listaProyectos']=implode(',', $this->permisos['proyecto']);
+
+		$array=array();
+		$array['tipoSegmentacion'] = $data->{'tipoSegmentacion'};
+		
+		/*==NO ES NECESARIO VERIFICAR PERMISOS==*/
+		//LISTADO DE LAS REGIONES DEPARTAMENTOS PROVINCIAS DISTRITOS
+		$rs_regiones = $this->model->obtener_listado_regiones();
+		$array['listaRegionesNombre'] = array();
+		$array['listaProvinciasNombre'] = array();
+		$array['listaDistritosNombre'] = array();
+		foreach ($rs_regiones as $klr => $row) {
+			if ( !in_array($row['departamento'], $array['listaRegionesNombre'])) {
+				array_push($array['listaRegionesNombre'],$row['departamento']);
+			}
+			if ( !in_array($row['provincia'], $array['listaProvinciasNombre'])) {
+				array_push($array['listaProvinciasNombre'], $row['provincia']);
+			}
+			if ( !in_array($row['distrito'], $array['listaDistritosNombre'])) {
+				array_push($array['listaDistritosNombre'], $row['distrito']);
+			}
+		}
+
+		$rs_regiones = $this->model->obtener_listado_regiones_concatenado();
+		$array['listaRegionesConcatenado'] = $rs_regiones;
+
+		//LISTADO DE ZONAS PELIGROSAS
+		$rs_zonaPeligrosa = $this->model->obtener_zona_peligrosa();
+		$array['listaZonaPeligrosaNombre'] = array();
+		foreach ($rs_zonaPeligrosa as $klzp => $row) {
+			if ( !in_array($row['descripcion'], $array['listaZonaPeligrosaNombre'])) {
+				array_push($array['listaZonaPeligrosaNombre'], $row['descripcion']);
+			}
+		}
+
+		//LISTADO DE FRECUENCIAS
+		$array['listaFrecuenciaNombre'] = array();
+		$rs_frecuencia = $this->model->obtener_frecuencia();
+		foreach ($rs_frecuencia as $klf => $row) {
+			if ( !in_array($row['frecuencia'], $array['listaFrecuenciaNombre'])) {
+				array_push($array['listaFrecuenciaNombre'], $row['frecuencia']);
+			}
+		}
+
+		/*==ES NECESARIO VERIFICAR PERMISOS==*/
+		//LISTADO DE LA CUENTA-PROYECTO
+		$array['listaCuentaNombre'] = array();
+		$array['listaProyectoNombre'] = array();
+		$rs_cuentaProyecto = $this->model->obtener_cuenta_proyecto($input);
+		foreach ($rs_cuentaProyecto as $klcp => $row) {
+			if ( !in_array($row['cuenta'], $array['listaCuentaNombre'])) {
+				array_push($array['listaCuentaNombre'], $row['cuenta']);
+			}
+			if ( !in_array($row['proyecto'], $array['listaProyectoNombre'])) {
+				array_push($array['listaProyectoNombre'], $row['proyecto']);
+			}
+		}
+		
+		//LISTADO DE CUENTA-PROYECTO-ZONA
+		//VERIFICAMOS SI ES QUE EXISTE PERMISOS DE ZONAS
+		$array['listaZonaNombre'] = array();
+		if ( !empty($this->permisos['zona'])) { $rs_zona = $this->model->obtener_zonas_usuarioHistZona($input); }
+		else { $rs_zona = $this->model->obtener_zonas($input); }
+		//
+		foreach ($rs_zona as $klz => $row) {
+			if ( !in_array($row['zona'], $array['listaZonaNombre'])) {
+				array_push($array['listaZonaNombre'], $row['zona']);
+			}
+		}
+
+		//LISTADO DE CUENTA - GRUPO CANAL - CANAL
+		//VERIFICAMOS SI ES QUE EXISTE PERMISOS DE CANAL
+		$array['listaGrupoCanalNombre'] = array();
+		$array['listaCanalNombre'] = array();
+		$array['listaClienteTipoNombre'] = array();
+		if (!empty($this->permisos['canal'])) { $rs_grupoCanalCanal = $this->model->obtener_grupocanal_canal_usuarioHistCanal($input); } 
+		else { $rs_grupoCanalCanal = $this->model->obtener_grupocanal_canal($input); }
+		//
+		foreach ($rs_grupoCanalCanal as $kgc => $row) {
+			if ( !in_array($row['grupoCanal'], $array['listaGrupoCanalNombre'])) {
+				array_push($array['listaGrupoCanalNombre'], $row['grupoCanal']);
+			}
+			if ( !in_array($row['canal'], $array['listaCanalNombre'])) {
+				array_push($array['listaCanalNombre'], $row['canal']);
+			}
+			if ( !in_array($row['clienteTipo'], $array['listaClienteTipoNombre'])) {
+				array_push($array['listaClienteTipoNombre'], $row['clienteTipo']);
+			}
+		}
+
+		//LISTADO DE CADENA - BANNER
+		//VERIFICAMOS SI ES QUE EXISTE PERMISOS DE CADENA-BANNER
+		$array['listaCadenaNombre'] = array();
+		$array['listaBannerNombre'] = array();
+		if ( !empty($this->permisos['banner']) ) { $rs_cadenaBanner = $this->model->obtener_cadena_banner_usuarioHistBanner(); }
+		else { $rs_cadenaBanner = $this->model->obtener_cadena_banner(); }
+		//
+		foreach ($rs_cadenaBanner as $klcb => $row) {
+			if ( !in_array($row['cadena'], $array['listaCadenaNombre'])) {
+				array_push($array['listaCadenaNombre'], $row['cadena']);
+			}
+			if ( !in_array($row['banner'], $array['listaBannerNombre'])) {
+				array_push($array['listaBannerNombre'], $row['banner']);
+			}
+		}
+
+		//LISTADO DE LAS PLAZAS
+		//VERIFICAMOS QUE EXISTA PERMISOS DE PLAZAS
+		$array['listaPlazaNombre'] = array();
+		if ( !empty($this->permisos['plaza'])) { $rs_plaza = $this->model->obtener_plazas_todos_usuarioHistPlaza($input); }
+		else { $rs_plaza = $this->model->obtener_plazas_todos(); }
+		
+		//
+		foreach ($rs_plaza as $klp => $row) {
+			if ( !in_array($row['plaza'], $array['listaPlazaNombre'])) {
+				array_push($array['listaPlazaNombre'], $row['plaza']);
+			}
+		}
+		$rs_plaza = $this->model->obtener_plazas_mayoristas();
+		foreach ($rs_plaza as $klp => $row) {
+			if ( !in_array($row['plaza'], $array['listaPlazaNombre'])) {
+				array_push($array['listaPlazaNombre'], $row['plaza']);
+			}
+		}
+		
+
+		//LISTADO DE DISTRIBUDIORA SUCURSAL
+		//VERIFICAMOS SI ES QUE EXISTEN PERMISOS DE DISTRIBUDIORA SUCURSAL
+		$array['listaDistribuidoraSucursalNombre'] = array();
+		if (!empty($this->permisos['distribuidoraSucursal'])) {	$rs_distribuidoraSucursal = $this->model->obtener_distribuidora_sucursal_usuarioHistDS($input); } 
+		else { $rs_distribuidoraSucursal = $this->model->obtener_distribuidora_sucursal($input); }
+		//
+		foreach ($rs_distribuidoraSucursal as $klds => $row) {
+			if ( !in_array($row['distribuidoraSucursal'], $array['listaDistribuidoraSucursalNombre'])) {
+				array_push($array['listaDistribuidoraSucursalNombre'], $row['distribuidoraSucursal']);
+			}
+		}
+
+		$html .= $this->load->view("modulos/configuraciones/maestros/basemadre/basemadre_historicoPuntoMasivo", $array, true);
+		//Result
+		$result['result']=1;
+		$result['msg']['title'] = 'REGISTRAR NUEVO PUNTO MASIVO';
+		$result['data']['html'] = $html;	
+
+		$this->aSessTrack = $this->model->aSessTrack;
+		echo json_encode($result);
+	}
+	
+
+	public function guardarHistoricoMasivo(){
+		set_time_limit(0);
+		$result = $this->result;
+		$data = json_decode($this->input->post('data'));
+		$idUsuario = $this->idUsuario;
+		$tipoSegmentacion = $data->{'tipoSegmentacion'};
+		$registrar = $data->{'registrar'};
+		$dataArray = $data->{'dataArray'};
+
+		
+
+		$html=''; $htmlDuplicados='';
+		$rowInsertedClienteHistorico=0;
+		$rowUpdatedClienteHistorico=0;
+
+		$idCuenta = !empty($this->session->userdata('idCuenta'))? $this->session->userdata('idCuenta') :"";
+		$idProyecto = !empty($this->session->userdata('idProyecto'))? $this->session->userdata('idProyecto') :"";
+
+		$inputProyectos=array();
+		$aProyectos =array();
+		
+		$aProyectos = $this->model->lista_proyectosAuditoria([ 'idProyecto' => $idProyecto ]);
+		foreach($aProyectos as $rowProyectos){
+			$inputProyectos[$rowProyectos['idProyecto']]=$rowProyectos['idProyecto'];
+		}
+		$inputProyectos[$idProyecto]=$idProyecto;
+
+		
+
+		$inputClientesActualizar=array();
+
+		$validacion_cliente=true;
+		//actualizar
+		if($registrar=="0"){
+
+			
+			if ( !empty($dataArray)) {
+
+				//validacion cliente
+				foreach ($dataArray as $kd => $cliente) {
+
+					$idCliente = (isset($cliente[0]) && !empty($cliente[0])) ? $cliente[0] : NULL;
+					$inputBusqueda=array();
+					$inputBusqueda['idCliente'] = $idCliente;
+
+					$rs_verificarExistenciaCliente=null;
+					$rs_verificarExistenciaCliente = $this->model->obtener_verificacion_existente($inputBusqueda);
+					if( empty($rs_verificarExistenciaCliente) ){
+						$html .= '<div class="alert alert-danger fade show" role="alert"><i class="fas fa-exclamation-triangle"></i> NO SE ENCONTRO EL CLIENTE CON ID CLIENTE  <strong>'.$idCliente.'</strong> .</div>';
+						$validacion_cliente=false;
+					}
+				}
+
+				//validacion cliente historico existente
+				if($validacion_cliente){
+
+					foreach ($dataArray as $kd => $cliente) {
+						$idCliente = (isset($cliente[0]) && !empty($cliente[0])) ? $cliente[0] : NULL;
+						$fechaInicio = (isset($cliente[16]) && !empty($cliente[16])) ? $cliente[16] : date('Y-m-d');
+						if( strpos($fechaInicio,"-") !== false ){
+							$fechaInicio = date_change_format($fechaInicio);
+						}
+						$fechaFin = (isset($cliente[17]) && !empty($cliente[17])) ? $cliente[17] : NULL;
+
+						$inputBusquedaHistorico=array();
+						$inputBusquedaHistorico['idCliente'] = $idCliente;
+						$inputBusquedaHistorico['idCuenta'] = $idCuenta;
+
+						$inputBusquedaHistorico['fecIni'] = $fechaInicio;
+						$inputBusquedaHistorico['fecFin'] = $fechaFin;
+						$rs_verificarExistenciaClienteHistorico = $this->model->obtener_cliente_historico_por_fecha($inputBusquedaHistorico,$inputProyectos);
+					
+						$inputIdClienteHist=array();
+						if( empty($rs_verificarExistenciaClienteHistorico) ){
+							$html .= '<div class="alert alert-danger fade show" role="alert"><i class="fas fa-exclamation-triangle"></i> NO EXISTE CLIENTE HISTORICO VIGENTE DEL CLIENTE <strong>'.$idCliente.'</strong> .</div>';
+							$validacion_cliente=false;
+						}
+					}
+				}
+
+				//actualizacion de historicos
+				if($validacion_cliente){
+
+					foreach ($dataArray as $kd => $cliente) {
+
+						$idCliente = (isset($cliente[0]) && !empty($cliente[0])) ? $cliente[0] : NULL;
+	
+						if( !empty($idCliente) ){
+							$inputClientesActualizar[$idCliente] = $idCliente;
+	
+							$nombreComercial = (isset($cliente[1]) && !empty($cliente[1])) ? $cliente[1] : NULL;
+							$razonSocial = (isset($cliente[2]) && !empty($cliente[2])) ? $cliente[2] : NULL;
+							$ruc = (isset($cliente[3]) && !empty($cliente[3])) ? $cliente[3] : NULL;
+							$dni = (isset($cliente[4]) && !empty($cliente[4])) ? $cliente[4] : NULL;
+							$codigoUbigeo = (isset($cliente[8]) && !empty($cliente[8])) ? $cliente[8] : NULL;
+							$direccion = (isset($cliente[9]) && !empty($cliente[9])) ? $cliente[9] : NULL;
+							$referencia = (isset($cliente[10]) && !empty($cliente[10])) ? $cliente[10] : NULL;
+							$latitud = (isset($cliente[11]) && !empty($cliente[11])) ? $cliente[11] : NULL;
+							$longitud = (isset($cliente[12]) && !empty($cliente[12])) ? $cliente[12] : NULL;
+							$zonaPeligrosa = (isset($cliente[13]) && !empty($cliente[13])) ? $cliente[13] : NULL;
+								$idZonaPeligrosa = $this->model->obtener_id_zona_peligrosa($zonaPeligrosa);
+								$idZonaPeligrosa = ( !empty($idZonaPeligrosa) ? $idZonaPeligrosa[0]['idZonaPeligrosa'] : NULL );
+	
+							$codigoCliente = (isset($cliente[14]) && !empty($cliente[14])) ? $cliente[14] : NULL;
+							$flagCartera = (isset($cliente[15]) && !empty($cliente[15])) ? ($cliente[15]=='SI' ? 1 : 0) : 1;
+	
+							$fechaInicio = (isset($cliente[16]) && !empty($cliente[16])) ? $cliente[16] : date('Y-m-d');
+							if( strpos($fechaInicio,"-") !== false ){
+								$fechaInicio = date_change_format($fechaInicio);
+							}
+							$fechaFin = (isset($cliente[17]) && !empty($cliente[17])) ? $cliente[17] : NULL;
+	
+							$frecuencia = (isset($cliente[18]) && !empty($cliente[18])) ? $cliente[18] : NULL;
+								$idFrecuencia = $this->model->obtener_id_frecuencia($frecuencia);
+								$idFrecuencia = ( !empty($idFrecuencia) ? $idFrecuencia[0]['idFrecuencia'] : NULL );
+	
+							$zona = (isset($cliente[19]) && !empty($cliente[19])) ? $cliente[19] : NULL;
+								$idZona = $this->model->obtener_id_zona($zona);
+								$idZona = ( !empty($idZona) ? $idZona[0]['idZona'] : NULL ) ;
+	
+							$grupoCanal = (isset($cliente[20]) && !empty($cliente[20])) ? $cliente[20] : NULL;
+							$canal = (isset($cliente[21]) && !empty($cliente[21])) ? $cliente[21] : NULL;
+							$clienteTipo = (isset($cliente[22]) && !empty($cliente[22])) ? $cliente[22] : NULL;
+	
+							//VERIFICAMOS LA SEGMETACIÓN DEL CLIENTE
+							$plaza=NULL; $dataDistribuidoraSucursal=NULL; 
+							$cadena=NULL; $banner=NULL;
+	
+							if ( $tipoSegmentacion==1 ) {
+								//SEGMENTACIÓN CLIENTE TRADICIONAL
+								$plaza = (isset($cliente[23]) && !empty($cliente[23])) ? $cliente[23] : NULL;
+								if ( count($cliente) > 25 ) {
+									$dataDistribuidoraSucursal = array();
+									for ($i=24; $i < count($cliente); $i++) { 
+										if ( $cliente[$i] !== null ) array_push($dataDistribuidoraSucursal, $cliente[$i]);
+									}
+								} else {
+									$dataDistribuidoraSucursal = (isset($cliente[24]) && !empty($cliente[24])) ? $cliente[24] : NULL;
+								}
+							} elseif( $tipoSegmentacion==2){
+								//SEGMENTACIÓN CLIENTE MODERNO
+								$cadena = (isset($cliente[23]) && !empty($cliente[23])) ? $cliente[23] : NULL;
+								$banner = (isset($cliente[24]) && !empty($cliente[24])) ? $cliente[24] : NULL;
+							}
+	
+							/****************SEGMENTACIONES*******************/
+							$idSegNegocio = NULL; $idSegClienteTradicional = NULL; $idSegClienteModerno = NULL;
+	
+							/************SEGMETACIÓN NEGOCIO*********************/
+							if ( !empty($canal) ) {
+								$rs_idCanal = $this->model->obtener_id_canal($canal);
+								//$rs_idSubCanal = $this->model->obtener_id_subCanal($subCanal);
+								$rs_idClienteTipo = $this->model->obtener_id_clienteTipo($clienteTipo);
+	
+								$arraySegNegocio=array();
+								$arraySegNegocio['idCanal'] = (!empty($rs_idCanal) ? $rs_idCanal[0]['idCanal']:NULL);
+								$arraySegNegocio['idClienteTipo']= (!empty($rs_idClienteTipo) ? $rs_idClienteTipo[0]['idClienteTipo']:NULL);
+	
+								//$rs_segmentacionNegocio = $this->model->obtener_id_segmentacion_negocio($canal);
+								$rs_segmentacionNegocio = $this->model->obtener_segmentacion_negocio($arraySegNegocio);
+								if ( !empty($rs_segmentacionNegocio)) {
+									$idSegNegocio = $rs_segmentacionNegocio[0]['idSegNegocio'];
+								} else {
+									$insertarSegNegocio = $this->model->insertar_segmentacion_negocio($arraySegNegocio);
+									if ($insertarSegNegocio) {
+										$idSegNegocio = $this->db->insert_id();
+									}
+								}
+							}
+							/***********SEGMENTACION CLIENTE MODERNO**************/
+							if ( !empty($banner)) {
+								$rs_segmentacionClienteModeno = $this->model->obtener_id_segmentacion_cliente_moderno($banner);
+								if ( !empty($rs_segmentacionClienteModeno)) {
+									$idSegClienteModerno = $rs_segmentacionClienteModeno[0]['idSegClienteModerno'];
+								}
+							}
+							/**********SEGMENTACION CLIENTE TRADICIONAL*********/
+							$filtroWhere='';
+								if ( !empty($plaza) || !empty($dataDistribuidoraSucursal)) {
+								//PLAZA
+								$filtroWhere.= ( !empty($plaza) ? " AND data3.plaza LIKE '".$plaza."'" : " AND data3.plaza IS NULL" );
+								//DISTRIBUIDORA SUCURSAL
+								if (!empty($dataDistribuidoraSucursal)) {
+									if ( is_array($dataDistribuidoraSucursal)) {
+										$stringDS = implode(",", $dataDistribuidoraSucursal);
+										$filtroWhere.= " AND data3.distribuidoraSucursal LIKE'".$stringDS."'";
+									} else {
+										$filtroWhere.= " AND data3.distribuidoraSucursal LIKE '".$dataDistribuidoraSucursal."'";
+									}
+								} else {
+									$filtroWhere.= " AND data3.distribuidoraSucursal IS NULL";
+								}
+								//
+	
+								//BUSCAMOS EL VALOR DEL ID SEGMENTACION CLIENTE TRADICIONAL
+								$rs_segmentacionClienteTradicional = $this->model->obtener_id_segmentacion_cliente_tradicional($filtroWhere);
+								
+								/***VERIFICAMOS EXISTENCIA***/
+								if (!empty($rs_segmentacionClienteTradicional)) {
+									//EXISTE DATA
+									$idSegClienteTradicional = $rs_segmentacionClienteTradicional[0]['idSegClienteTradicional'];
+								} else {
+									//NO EXISTE DATA
+									$idPlaza=NULL;
+									if (!empty($plaza)) {
+										$rs_idPlaza = ( in_array($grupoCanal, ['HFS']) ? $this->model->obtener_id_plaza_todo($plaza) : $this->model->obtener_id_plaza_mayorista($plaza) );
+										$idPlaza = ( !empty($rs_idPlaza) ) ? $rs_idPlaza[0]['idPlaza'] : NULL;
+									}
+									//
+									$arrayCabecera=array();
+									$arrayCabecera['idPlaza']= $idPlaza;
+									$arrayCabecera['idDistribuidoraSucursal']=NULL;
+	
+									//INSERTAMOS LA CABECERA DE LA SEGMENTACION CLIENTE TRADICIONAL
+									$insertSegmentacionClienteTradicional = $this->model->insert_segmentacion_cliente_tradicional_v1($arrayCabecera);
+									if ( $insertSegmentacionClienteTradicional) {
+										$idSegClienteTradicional = $this->db->insert_id();
+									} else {
+										$html .= '<div class="alert alert-danger fade show" role="alert"><i class="fas fa-exclamation-triangle"></i> HUBO INCONVENIENTES AL REGISTRAR LA PLAZA.</div>';
+									}
+	
+									//DETALLE DE LAS DISTRIBUDORAS SUCURSALES
+									if (!empty($dataDistribuidoraSucursal)) {
+										if (is_array($dataDistribuidoraSucursal)) {
+											foreach ($dataDistribuidoraSucursal as $kdd => $value) {
+												$rs_idDistribuidoraSucursal = $this->model->obtener_id_distribuidora_sucursal($value);
+												$idDistribuidoraSucursal = $rs_idDistribuidoraSucursal[0]['idDistribuidoraSucursal'];
+												//INSERTAMOS EL DETALLE
+												$arrayDetalleDS=array();
+												$arrayDetalleDS['idSegClienteTradicional']=$idSegClienteTradicional;
+												$arrayDetalleDS['idDistribuidoraSucursal']=$idDistribuidoraSucursal;
+												//
+												$insertSegmentacionClienteTradicionalDetalle = $this->model->insert_segmentacion_cliente_tradicional_detalle($arrayDetalleDS);	
+											}
+										} else {
+											$rs_idDistribuidoraSucursal = $this->model->obtener_id_distribuidora_sucursal($dataDistribuidoraSucursal);
+											$idDistribuidoraSucursal = $rs_idDistribuidoraSucursal[0]['idDistribuidoraSucursal'];
+											//INSERTAMOS EL DETALLE
+											$arrayDetalleDS=array();
+											$arrayDetalleDS['idSegClienteTradicional']=$idSegClienteTradicional;
+											$arrayDetalleDS['idDistribuidoraSucursal']=$idDistribuidoraSucursal;
+											//
+											$insertSegmentacionClienteTradicionalDetalle = $this->model->insert_segmentacion_cliente_tradicional_detalle($arrayDetalleDS);	
+										}
+									}				
+								}
+							}
+	
+
+
+							$inputBusquedaHistorico=array();
+							$inputBusquedaHistorico['idCliente'] = $idCliente;
+							$inputBusquedaHistorico['idCuenta'] = $idCuenta;
+							//$inputBusquedaHistorico['idProyecto'] = $idProyecto;
+
+							$inputBusquedaHistorico['fecIni'] = $fechaInicio;
+							$inputBusquedaHistorico['fecFin'] = $fechaFin;
+							$rs_verificarExistenciaClienteHistorico = $this->model->obtener_cliente_historico_por_fecha($inputBusquedaHistorico,$inputProyectos);
+						
+							$inputIdClienteHist=array();
+							if( !empty($rs_verificarExistenciaClienteHistorico) ){
+								if( count($rs_verificarExistenciaClienteHistorico)>0){
+									foreach($rs_verificarExistenciaClienteHistorico as $clienteHist){
+										$inputIdClienteHist[$clienteHist['idClienteHist']]=$clienteHist['idClienteHist'];
+									}
+								}
+							}
+							
+							if( !empty($inputIdClienteHist) ){
+								if( count($inputIdClienteHist)>0){
+
+									//actualizar cliente
+									$inputCliente = array();
+									if(!empty($dni) || !empty($ruc)){
+										if( !empty($dni) ) $inputCliente['dni'] = $dni;
+										if( !empty($ruc) ) $inputCliente['ruc'] = $ruc;
+		
+										$inputWhereCliente = array();
+										$inputWhereCliente['idCliente'] = $idCliente;
+		
+										$arrayUpdateCliente['arrayParams'] = $inputCliente;
+										$arrayUpdateCliente['arrayWhere'] = $inputWhereCliente;
+										$updateCliente = $this->model->update_cliente($arrayUpdateCliente);
+									}
+
+
+									//actualizar historico
+									$inputHistorico = array();
+									$inputHistorico['idCliente'] = $idCliente;
+
+									if( !empty($nombreComercial) ) $inputHistorico['nombreComercial'] = $nombreComercial;
+									if( !empty($razonSocial) ) $inputHistorico['razonSocial'] = $razonSocial;
+									
+									if( !empty($idSegNegocio) ) $inputHistorico['idSegNegocio'] = $idSegNegocio;
+									if( !empty($idSegClienteTradicional) ) $inputHistorico['idSegClienteTradicional'] = $idSegClienteTradicional;
+									if( !empty($idSegClienteModerno) ) $inputHistorico['idSegClienteModerno'] = $idSegClienteModerno;
+									//if( !empty($fechaInicio) ) $inputHistorico['fecIni'] = $fechaInicio;
+									//if( !empty($fechaFin) ) $inputHistorico['fecFin'] = $fechaFin;
+
+									// $inputHistorico['idCuenta'] = $idCuenta;
+									// $inputHistorico['idProyecto'] = $idProyecto;
+
+									if( !empty($idFrecuencia) ) $inputHistorico['idFrecuencia'] = $idFrecuencia;
+									if( !empty($idZona) ) $inputHistorico['idZona'] = $idZona;
+									if( !empty($idZonaPeligrosa) ) $inputHistorico['idZonaPeligrosa'] = $idZonaPeligrosa;
+									if( !empty($flagCartera) ) $inputHistorico['flagCartera'] = $flagCartera;
+									if( !empty($codigoCliente) ) $inputHistorico['codCliente'] = $codigoCliente;
+									if( !empty($codigoUbigeo) ) $inputHistorico['cod_ubigeo'] = $codigoUbigeo;
+									if( !empty($direccion) ) $inputHistorico['direccion'] = $direccion;
+									if( !empty($referencia) ) $inputHistorico['referencia'] = $referencia;
+									if( !empty($latitud) ) $inputHistorico['latitud'] = $latitud;
+									if( !empty($longitud) ) $inputHistorico['longitud'] = $longitud;
+
+
+									
+									$arrayUpdateClienteHistorico['arrayParams'] = $inputHistorico;
+									$arrayUpdateClienteHistorico['idClienteHist'] = $inputIdClienteHist;
+									//
+									$updateClienteHistorico = $this->model->update_cliente_historico_proyectos($arrayUpdateClienteHistorico);
+									
+									if ($updateClienteHistorico) {
+										$rowUpdatedClienteHistorico++;
+									} else {
+										$html .= '<div class="alert alert-danger fade show" role="alert"><i class="fas fa-exclamation-triangle"></i> NO SE LOGRÓ ACTUALIZAR EL CLIENTE HISTÓRICO DE <strong>'.$razonSocial.' - '.$direccion.'</strong> CORRECTAMENTE.</div>';
+									}
+								}
+							}
+						}
+					}
+
+				}
+
+				//actualizar visitas
+				if( count($inputClientesActualizar)>0){
+					$this->model->actualizar_visitas($inputClientesActualizar);
+				}
+			}
+
+		}
+
+		//registrar
+		if($registrar=="1"){
+			if ( !empty($dataArray)) {
+
+				//validacion cliente
+				foreach ($dataArray as $kd => $cliente) {
+
+					$idCliente = (isset($cliente[0]) && !empty($cliente[0])) ? $cliente[0] : NULL;
+					$fechaInicio = (isset($cliente[16]) && !empty($cliente[16])) ? $cliente[16] : date('Y-m-d');
+							
+					$inputBusqueda=array();
+					$inputBusqueda['idCliente'] = $idCliente;
+
+					$rs_verificarExistenciaCliente=null;
+					$rs_verificarExistenciaCliente = $this->model->obtener_verificacion_existente($inputBusqueda);
+					if( empty($rs_verificarExistenciaCliente) ){
+						$html .= '<div class="alert alert-danger fade show" role="alert"><i class="fas fa-exclamation-triangle"></i> NO SE ENCONTRO EL CLIENTE CON ID CLIENTE  <strong>'.$idCliente.'</strong> .</div>';
+						$validacion_cliente=false;
+					}
+					if( empty($fechaInicio)){
+						$html .= '<div class="alert alert-danger fade show" role="alert"><i class="fas fa-exclamation-triangle"></i> NO SE ENCONTRO LA FECHA INICIO PARA EL ID CLIENTE  <strong>'.$idCliente.'</strong> .</div>';
+						$validacion_cliente=false;
+					}
+				}
+
+
+				if($validacion_cliente){
+					foreach ($dataArray as $kd => $cliente) {
+
+						$idCliente = (isset($cliente[0]) && !empty($cliente[0])) ? $cliente[0] : NULL;
+	
+						if( !empty($idCliente) ){
+							$inputClientesActualizar[$idCliente] = $idCliente;
+	
+							$nombreComercial = (isset($cliente[1]) && !empty($cliente[1])) ? $cliente[1] : NULL;
+							$razonSocial = (isset($cliente[2]) && !empty($cliente[2])) ? $cliente[2] : NULL;
+							$ruc = (isset($cliente[3]) && !empty($cliente[3])) ? $cliente[3] : NULL;
+							$dni = (isset($cliente[4]) && !empty($cliente[4])) ? $cliente[4] : NULL;
+							$codigoUbigeo = (isset($cliente[8]) && !empty($cliente[8])) ? $cliente[8] : NULL;
+							$direccion = (isset($cliente[9]) && !empty($cliente[9])) ? $cliente[9] : NULL;
+							$referencia = (isset($cliente[10]) && !empty($cliente[10])) ? $cliente[10] : NULL;
+							$latitud = (isset($cliente[11]) && !empty($cliente[11])) ? $cliente[11] : NULL;
+							$longitud = (isset($cliente[12]) && !empty($cliente[12])) ? $cliente[12] : NULL;
+							$zonaPeligrosa = (isset($cliente[13]) && !empty($cliente[13])) ? $cliente[13] : NULL;
+								$idZonaPeligrosa = $this->model->obtener_id_zona_peligrosa($zonaPeligrosa);
+								$idZonaPeligrosa = ( !empty($idZonaPeligrosa) ? $idZonaPeligrosa[0]['idZonaPeligrosa'] : NULL );
+	
+							$codigoCliente = (isset($cliente[14]) && !empty($cliente[14])) ? $cliente[14] : NULL;
+							$flagCartera = (isset($cliente[15]) && !empty($cliente[15])) ? ($cliente[15]=='SI' ? 1 : 0) : 1;
+	
+							$fechaInicio = (isset($cliente[16]) && !empty($cliente[16])) ? $cliente[16] : date('Y-m-d');
+							if( strpos($fechaInicio,"-") !== false ){
+								$fechaInicio = date_change_format($fechaInicio);
+							}
+							$fechaFin = (isset($cliente[17]) && !empty($cliente[17])) ? $cliente[17] : NULL;
+	
+							$frecuencia = (isset($cliente[18]) && !empty($cliente[18])) ? $cliente[18] : NULL;
+								$idFrecuencia = $this->model->obtener_id_frecuencia($frecuencia);
+								$idFrecuencia = ( !empty($idFrecuencia) ? $idFrecuencia[0]['idFrecuencia'] : NULL );
+	
+							$zona = (isset($cliente[19]) && !empty($cliente[19])) ? $cliente[19] : NULL;
+								$idZona = $this->model->obtener_id_zona($zona);
+								$idZona = ( !empty($idZona) ? $idZona[0]['idZona'] : NULL ) ;
+	
+							$grupoCanal = (isset($cliente[20]) && !empty($cliente[20])) ? $cliente[20] : NULL;
+							$canal = (isset($cliente[21]) && !empty($cliente[21])) ? $cliente[21] : NULL;
+							$clienteTipo = (isset($cliente[22]) && !empty($cliente[22])) ? $cliente[22] : NULL;
+	
+							//VERIFICAMOS LA SEGMETACIÓN DEL CLIENTE
+							$plaza=NULL; $dataDistribuidoraSucursal=NULL; 
+							$cadena=NULL; $banner=NULL;
+	
+							if ( $tipoSegmentacion==1 ) {
+								//SEGMENTACIÓN CLIENTE TRADICIONAL
+								$plaza = (isset($cliente[23]) && !empty($cliente[23])) ? $cliente[23] : NULL;
+								if ( count($cliente) > 25 ) {
+									$dataDistribuidoraSucursal = array();
+									for ($i=24; $i < count($cliente); $i++) { 
+										if ( $cliente[$i] !== null ) array_push($dataDistribuidoraSucursal, $cliente[$i]);
+									}
+								} else {
+									$dataDistribuidoraSucursal = (isset($cliente[24]) && !empty($cliente[24])) ? $cliente[24] : NULL;
+								}
+							} elseif( $tipoSegmentacion==2){
+								//SEGMENTACIÓN CLIENTE MODERNO
+								$cadena = (isset($cliente[23]) && !empty($cliente[23])) ? $cliente[23] : NULL;
+								$banner = (isset($cliente[24]) && !empty($cliente[24])) ? $cliente[24] : NULL;
+							}
+	
+							/****************SEGMENTACIONES*******************/
+							$idSegNegocio = NULL; $idSegClienteTradicional = NULL; $idSegClienteModerno = NULL;
+	
+							/************SEGMETACIÓN NEGOCIO*********************/
+							if ( !empty($canal) ) {
+								$rs_idCanal = $this->model->obtener_id_canal($canal);
+								//$rs_idSubCanal = $this->model->obtener_id_subCanal($subCanal);
+								$rs_idClienteTipo = $this->model->obtener_id_clienteTipo($clienteTipo);
+	
+								$arraySegNegocio=array();
+								$arraySegNegocio['idCanal'] = (!empty($rs_idCanal) ? $rs_idCanal[0]['idCanal']:NULL);
+								$arraySegNegocio['idClienteTipo']= (!empty($rs_idClienteTipo) ? $rs_idClienteTipo[0]['idClienteTipo']:NULL);
+	
+								//$rs_segmentacionNegocio = $this->model->obtener_id_segmentacion_negocio($canal);
+								$rs_segmentacionNegocio = $this->model->obtener_segmentacion_negocio($arraySegNegocio);
+								if ( !empty($rs_segmentacionNegocio)) {
+									$idSegNegocio = $rs_segmentacionNegocio[0]['idSegNegocio'];
+								} else {
+									$insertarSegNegocio = $this->model->insertar_segmentacion_negocio($arraySegNegocio);
+									if ($insertarSegNegocio) {
+										$idSegNegocio = $this->db->insert_id();
+									}
+								}
+							}
+							/***********SEGMENTACION CLIENTE MODERNO**************/
+							if ( !empty($banner)) {
+								$rs_segmentacionClienteModeno = $this->model->obtener_id_segmentacion_cliente_moderno($banner);
+								if ( !empty($rs_segmentacionClienteModeno)) {
+									$idSegClienteModerno = $rs_segmentacionClienteModeno[0]['idSegClienteModerno'];
+								}
+							}
+							/**********SEGMENTACION CLIENTE TRADICIONAL*********/
+							$filtroWhere='';
+								if ( !empty($plaza) || !empty($dataDistribuidoraSucursal)) {
+								//PLAZA
+								$filtroWhere.= ( !empty($plaza) ? " AND data3.plaza LIKE '".$plaza."'" : " AND data3.plaza IS NULL" );
+								//DISTRIBUIDORA SUCURSAL
+								if (!empty($dataDistribuidoraSucursal)) {
+									if ( is_array($dataDistribuidoraSucursal)) {
+										$stringDS = implode(",", $dataDistribuidoraSucursal);
+										$filtroWhere.= " AND data3.distribuidoraSucursal LIKE'".$stringDS."'";
+									} else {
+										$filtroWhere.= " AND data3.distribuidoraSucursal LIKE '".$dataDistribuidoraSucursal."'";
+									}
+								} else {
+									$filtroWhere.= " AND data3.distribuidoraSucursal IS NULL";
+								}
+								//
+	
+								//BUSCAMOS EL VALOR DEL ID SEGMENTACION CLIENTE TRADICIONAL
+								$rs_segmentacionClienteTradicional = $this->model->obtener_id_segmentacion_cliente_tradicional($filtroWhere);
+								
+								/***VERIFICAMOS EXISTENCIA***/
+								if (!empty($rs_segmentacionClienteTradicional)) {
+									//EXISTE DATA
+									$idSegClienteTradicional = $rs_segmentacionClienteTradicional[0]['idSegClienteTradicional'];
+								} else {
+									//NO EXISTE DATA
+									$idPlaza=NULL;
+									if (!empty($plaza)) {
+										$rs_idPlaza = ( in_array($grupoCanal, ['HFS']) ? $this->model->obtener_id_plaza_todo($plaza) : $this->model->obtener_id_plaza_mayorista($plaza) );
+										$idPlaza = ( !empty($rs_idPlaza) ) ? $rs_idPlaza[0]['idPlaza'] : NULL;
+									}
+									//
+									$arrayCabecera=array();
+									$arrayCabecera['idPlaza']= $idPlaza;
+									$arrayCabecera['idDistribuidoraSucursal']=NULL;
+	
+									//INSERTAMOS LA CABECERA DE LA SEGMENTACION CLIENTE TRADICIONAL
+									$insertSegmentacionClienteTradicional = $this->model->insert_segmentacion_cliente_tradicional_v1($arrayCabecera);
+									if ( $insertSegmentacionClienteTradicional) {
+										$idSegClienteTradicional = $this->db->insert_id();
+									} else {
+										$html .= '<div class="alert alert-danger fade show" role="alert"><i class="fas fa-exclamation-triangle"></i> HUBO INCONVENIENTES AL REGISTRAR LA PLAZA.</div>';
+									}
+	
+									//DETALLE DE LAS DISTRIBUDORAS SUCURSALES
+									if (!empty($dataDistribuidoraSucursal)) {
+										if (is_array($dataDistribuidoraSucursal)) {
+											foreach ($dataDistribuidoraSucursal as $kdd => $value) {
+												$rs_idDistribuidoraSucursal = $this->model->obtener_id_distribuidora_sucursal($value);
+												$idDistribuidoraSucursal = $rs_idDistribuidoraSucursal[0]['idDistribuidoraSucursal'];
+												//INSERTAMOS EL DETALLE
+												$arrayDetalleDS=array();
+												$arrayDetalleDS['idSegClienteTradicional']=$idSegClienteTradicional;
+												$arrayDetalleDS['idDistribuidoraSucursal']=$idDistribuidoraSucursal;
+												//
+												$insertSegmentacionClienteTradicionalDetalle = $this->model->insert_segmentacion_cliente_tradicional_detalle($arrayDetalleDS);	
+											}
+										} else {
+											$rs_idDistribuidoraSucursal = $this->model->obtener_id_distribuidora_sucursal($dataDistribuidoraSucursal);
+											$idDistribuidoraSucursal = $rs_idDistribuidoraSucursal[0]['idDistribuidoraSucursal'];
+											//INSERTAMOS EL DETALLE
+											$arrayDetalleDS=array();
+											$arrayDetalleDS['idSegClienteTradicional']=$idSegClienteTradicional;
+											$arrayDetalleDS['idDistribuidoraSucursal']=$idDistribuidoraSucursal;
+											//
+											$insertSegmentacionClienteTradicionalDetalle = $this->model->insert_segmentacion_cliente_tradicional_detalle($arrayDetalleDS);	
+										}
+									}				
+								}
+							}
+	
+						
+	
+							$inputBusquedaHistorico=array();
+							$inputBusquedaHistorico['idCliente'] = $idCliente;
+							$inputBusquedaHistorico['idCuenta'] = $idCuenta;
+							$inputBusquedaHistorico['fecIni'] = $fechaInicio;
+							$inputBusquedaHistorico['fecFin'] = $fechaFin;
+							$rs_verificarExistenciaClienteHistorico = $this->model->obtener_cliente_historico_por_fecha($inputBusquedaHistorico,$inputProyectos);
+						
+							
+							$inputIdClienteHistFinalizar=array();
+							if( !empty($rs_verificarExistenciaClienteHistorico) ){
+								if( count($rs_verificarExistenciaClienteHistorico)>0){
+									foreach($rs_verificarExistenciaClienteHistorico as $clienteHist){
+											$inputIdClienteHistFinalizar[$clienteHist['idClienteHist']]=$clienteHist['idClienteHist'];
+									}
+
+									if( count($inputIdClienteHistFinalizar)>0){
+										$inputHistoricoFinalizar=array();
+
+										if( strpos($fechaInicio,"/") !== false ){
+											$fecha = explode('/', $fechaInicio);
+											$fechaInicio = $fecha[0] . '-' . $fecha[1] . '-' . $fecha[2];
+										}
+
+										$fechaFinFinalizar= date('d/m/Y', strtotime($fechaInicio."-1 day"));
+										
+										$inputHistoricoFinalizar['fecFin']=$fechaFinFinalizar;
+										$arrayUpdateClienteHistorico['arrayParams'] = $inputHistoricoFinalizar;
+										$arrayUpdateClienteHistorico['idClienteHist'] = $inputIdClienteHistFinalizar;
+										$updateClienteHistorico = $this->model->update_cliente_historico_proyectos($arrayUpdateClienteHistorico);
+									}
+								}
+							}
+
+									
+
+								
+							//nuevo historico
+							foreach($inputProyectos as $proyectoRegistrar){
+
+								//finalizar historicos
+								$inputUltimoHistorico=array();
+								$inputUltimoHistorico['idCliente'] = $idCliente;
+								$inputUltimoHistorico['idProyecto'] = $proyectoRegistrar;
+								$rs_ultimoHistorico = $this->model->obtener_cliente_historico_ultimo($inputUltimoHistorico);
+								$inputHistorico = array();
+								if(!empty($rs_ultimoHistorico)){
+									if( count($rs_ultimoHistorico)>0){
+										$inputHistorico['nombreComercial']=$rs_ultimoHistorico[0]['nombreComercial'];
+										$inputHistorico['razonSocial']=$rs_ultimoHistorico[0]['razonSocial'];
+										$inputHistorico['idSegNegocio']=$rs_ultimoHistorico[0]['idSegNegocio'];
+										$inputHistorico['idSegClienteTradicional']=$rs_ultimoHistorico[0]['idSegClienteTradicional'];
+										$inputHistorico['idSegClienteModerno']=$rs_ultimoHistorico[0]['idSegClienteModerno'];
+										$inputHistorico['idFrecuencia']=$rs_ultimoHistorico[0]['idFrecuencia'];
+										$inputHistorico['idZona']=$rs_ultimoHistorico[0]['idZona'];
+										$inputHistorico['idZonaPeligrosa']=$rs_ultimoHistorico[0]['idZonaPeligrosa'];
+										$inputHistorico['flagCartera']=$rs_ultimoHistorico[0]['flagCartera'];
+										$inputHistorico['codCliente']=$rs_ultimoHistorico[0]['codCliente'];
+										$inputHistorico['cod_ubigeo']=$rs_ultimoHistorico[0]['cod_ubigeo'];
+										$inputHistorico['direccion']=$rs_ultimoHistorico[0]['direccion'];
+										$inputHistorico['referencia']=$rs_ultimoHistorico[0]['referencia'];
+										$inputHistorico['latitud']=$rs_ultimoHistorico[0]['latitud'];
+										$inputHistorico['longitud']=$rs_ultimoHistorico[0]['longitud'];
+									}
+								}
+
+								
+								$inputHistorico['idCliente'] = $idCliente;
+				
 								if( !empty($nombreComercial) ) $inputHistorico['nombreComercial'] = $nombreComercial;
 								if( !empty($razonSocial) ) $inputHistorico['razonSocial'] = $razonSocial;
-								
+								//if( !empty($dni) ) $inputHistorico['dni'] = $dni;
+								//if( !empty($ruc) ) $inputHistorico['ruc'] = $ruc;
 								if( !empty($idSegNegocio) ) $inputHistorico['idSegNegocio'] = $idSegNegocio;
 								if( !empty($idSegClienteTradicional) ) $inputHistorico['idSegClienteTradicional'] = $idSegClienteTradicional;
 								if( !empty($idSegClienteModerno) ) $inputHistorico['idSegClienteModerno'] = $idSegClienteModerno;
-								if( !empty($fechaInicio) ) $inputHistorico['fecIni'] = $fechaInicio;
+								$inputHistorico['fecIni'] = $fechaInicio;
 								if( !empty($fechaFin) ) $inputHistorico['fecFin'] = $fechaFin;
-
-								// $inputHistorico['idCuenta'] = $idCuenta;
-								// $inputHistorico['idProyecto'] = $idProyecto;
-
+				
+								$inputHistorico['idCuenta'] = $idCuenta;
+								$inputHistorico['idProyecto'] = $proyectoRegistrar;
+				
 								if( !empty($idFrecuencia) ) $inputHistorico['idFrecuencia'] = $idFrecuencia;
 								if( !empty($idZona) ) $inputHistorico['idZona'] = $idZona;
 								if( !empty($idZonaPeligrosa) ) $inputHistorico['idZonaPeligrosa'] = $idZonaPeligrosa;
@@ -2162,77 +2842,50 @@ class Basemadre extends MY_Controller{
 								if( !empty($referencia) ) $inputHistorico['referencia'] = $referencia;
 								if( !empty($latitud) ) $inputHistorico['latitud'] = $latitud;
 								if( !empty($longitud) ) $inputHistorico['longitud'] = $longitud;
-
-
-								$arrayUpdateClienteHistorico['arrayParams'] = $inputHistorico;
-								$arrayUpdateClienteHistorico['arrayWhere'] = $inputWhere;
-								//
-								$updateClienteHistorico = $this->model->update_cliente_historico($arrayUpdateClienteHistorico);
+				
+								$insertClienteHistorico = $this->model->insertar_cliente_historico($inputHistorico);
 								
-								if ($updateClienteHistorico) {
-									$rowUpdatedClienteHistorico++;
+								if ($insertClienteHistorico) {
+									$rowInsertedClienteHistorico++;
 								} else {
-									$html .= '<div class="alert alert-danger fade show" role="alert"><i class="fas fa-exclamation-triangle"></i> NO SE LOGRÓ ACTUALIZAR EL CLIENTE HISTÓRICO DE <strong>'.$razonSocial.' - '.$direccion.'</strong> CORRECTAMENTE.</div>';
+									$html .= '<div class="alert alert-danger fade show" role="alert"><i class="fas fa-exclamation-triangle"></i> NO SE LOGRÓ REGISTRAR EL CLIENTE HISTÓRICO DE <strong>'.$razonSocial.' - '.$direccion.'</strong> CORRECTAMENTE.</div>';
 								}
 							}
-						}else{
-							//nuevo historico
 
-							$html .= '<div class="alert alert-warning fade show" role="alert"><i class="fas fa-check-circle"></i> EL CLIENTE <strong>'.$nombreComercial.'</strong> YA SE ENCUENTRA REGISTRADO.</div>';
-
-							$inputHistorico = array();
-							$inputHistorico['idCliente'] = $idCliente;
-
-							if( !empty($nombreComercial) ) $inputHistorico['nombreComercial'] = $nombreComercial;
-							if( !empty($razonSocial) ) $inputHistorico['razonSocial'] = $razonSocial;
-							//if( !empty($dni) ) $inputHistorico['dni'] = $dni;
-							//if( !empty($ruc) ) $inputHistorico['ruc'] = $ruc;
-							if( !empty($idSegNegocio) ) $inputHistorico['idSegNegocio'] = $idSegNegocio;
-							if( !empty($idSegClienteTradicional) ) $inputHistorico['idSegClienteTradicional'] = $idSegClienteTradicional;
-							if( !empty($idSegClienteModerno) ) $inputHistorico['idSegClienteModerno'] = $idSegClienteModerno;
-							$inputHistorico['fecIni'] = $fechaInicio;
-							if( !empty($fechaFin) ) $inputHistorico['fecFin'] = $fechaFin;
-
-							$inputHistorico['idCuenta'] = $idCuenta;
-							$inputHistorico['idProyecto'] = $idProyecto;
-
-							if( !empty($idFrecuencia) ) $inputHistorico['idFrecuencia'] = $idFrecuencia;
-							if( !empty($idZona) ) $inputHistorico['idZona'] = $idZona;
-							if( !empty($idZonaPeligrosa) ) $inputHistorico['idZonaPeligrosa'] = $idZonaPeligrosa;
-							if( !empty($flagCartera) ) $inputHistorico['flagCartera'] = $flagCartera;
-							if( !empty($codigoCliente) ) $inputHistorico['codCliente'] = $codigoCliente;
-							if( !empty($codigoUbigeo) ) $inputHistorico['cod_ubigeo'] = $codigoUbigeo;
-							if( !empty($direccion) ) $inputHistorico['direccion'] = $direccion;
-							if( !empty($referencia) ) $inputHistorico['referencia'] = $referencia;
-							if( !empty($latitud) ) $inputHistorico['latitud'] = $latitud;
-							if( !empty($longitud) ) $inputHistorico['longitud'] = $longitud;
-
-							$insertClienteHistorico = $this->model->insertar_cliente_historico($inputHistorico);
-							
-							if ($insertClienteHistorico) {
-								$rowInsertedClienteHistorico++;
-							} else {
-								$html .= '<div class="alert alert-danger fade show" role="alert"><i class="fas fa-exclamation-triangle"></i> NO SE LOGRÓ REGISTRAR EL CLIENTE HISTÓRICO DE <strong>'.$razonSocial.' - '.$direccion.'</strong> CORRECTAMENTE.</div>';
-							}
-
+								
+	
 						}
-					}else{
-						$html .= '<div class="alert alert-danger fade show" role="alert"><i class="fas fa-exclamation-triangle"></i> NO SE LOGRÓ REGISTRAR EL CLIENTE HISTÓRICO DE <strong>'.$razonSocial.' - '.$direccion.'</strong> CORRECTAMENTE.</div>';
 					}
 
 				}
+				
+
+				if( count($inputClientesActualizar)>0){
+					$this->model->actualizar_visitas($inputClientesActualizar);
+				}
 			}
+
+
+			
 		}
 
-		if ($rowUpdatedClienteHistorico>0 || $rowInsertedClienteHistorico>0) {
+
+		
+
+		if ($validacion_cliente==false) {
+			$result['result']=0;
+		}
+		else if ($rowUpdatedClienteHistorico>0 || $rowInsertedClienteHistorico>0) {
 			$result['result']=1;
-			$this->enviarNotificacionNuevoRegistro($rowInsertedClienteHistorico);
+			//$this->enviarNotificacionNuevoRegistro($rowInsertedClienteHistorico);
 			$mensaje=$html;
 
 			$html='<div class="alert alert-primary fade show" role="alert"><i class="fas fa-check-circle"></i> SE LOGRÓ REGISTRAR <strong>'.$rowInsertedClienteHistorico.' CLIENTE HISTORICO(S) </strong> CORRECTAMENTE.</div>';
 			$html.='<div class="alert alert-primary fade show" role="alert"><i class="fas fa-check-circle"></i> SE LOGRÓ ACTUALIZAR <strong>'.$rowUpdatedClienteHistorico.' CLIENTE HISTORICO(S) </strong> CORRECTAMENTE.</div>';
 			$html.=$mensaje;
 
+		}else{
+			$html='<div class="alert alert-primary fade show" role="alert"><i class="fas fa-check-circle"></i> NO SE HA REALIZADO CAMBIOS.</div>';
 		}
 
 		$result['msg']['title'] = 'REGISTRAR PUNTO DE VENTA MASIVO';
@@ -2712,6 +3365,16 @@ class Basemadre extends MY_Controller{
 			$array['flagClienteTradicional'] = $rs_segmentacion[0]['flagClienteTradicional'];
 			$array['flagClienteModerno'] = $rs_segmentacion[0]['flagClienteModerno'];
 		}
+
+		$idProyecto=$this->session->userdata('idProyecto');
+		$validarProyectoAuditoria=$this->model->validar_proyecto_auditoria(array('idProyecto'=>$idProyecto));
+		$mostrarCheckAuditoria=false;
+		if($validarProyectoAuditoria!=null){
+			if( count($validarProyectoAuditoria)>0){
+				$mostrarCheckAuditoria=true;
+			}
+		}
+		$array['mostrarCheckAuditoria']= $mostrarCheckAuditoria;
 		
 		$html='';
 		$htmlWidth='80%';
@@ -3086,6 +3749,7 @@ class Basemadre extends MY_Controller{
 		$archivo = $_FILES['file']['name'];
 
 		$tipo = $_POST['tipo'];
+		$auditoria = $_POST['auditoria'];
 
 
 		$datetime = date('dmYHis');
@@ -3142,7 +3806,7 @@ class Basemadre extends MY_Controller{
 		}
 		$total = $sum;
 
-		$idProyecto=($this->session->userdata('idProyecto')=='13')? '3': $this->session->userdata('idProyecto') ;
+		$idProyecto= $this->session->userdata('idProyecto') ;
 		$idCuenta=$this->session->userdata('idCuenta');
 		$carga = array();
 		$carga = array(
@@ -3151,6 +3815,7 @@ class Basemadre extends MY_Controller{
 			'idCuenta' => $idCuenta,
 			'idProyecto' => $idProyecto,
 			'tipo' => $tipo,
+			'auditoria' => $auditoria
 		);
 
 		$this->db->insert('impactTrade_bd.trade.cargaCliente',$carga);
@@ -3654,7 +4319,73 @@ class Basemadre extends MY_Controller{
 		////
 	}
 
+	public function generar_maestros(){
+		////
+		$rs_grupoCanal = $this->model->obtener_grupo_canal();
+		$rs_canal = $this->model->obtener_canal();
+		
+		error_reporting(E_ALL);
+		ini_set('display_errors', TRUE);
+		ini_set('display_startup_errors', TRUE);
+		ini_set('memory_limit', '1024M');
+		set_time_limit(0);
+		
+		/** Include PHPExcel */
+		require_once '../phpExcel/Classes/PHPExcel.php';
 
+		$objPHPExcel = new PHPExcel();
+
+		$sheet = $objPHPExcel->getActiveSheet();
+
+			//Start adding next sheets
+		$i=0;
+		
+		if(count($rs_grupoCanal)>0){
+			 $objWorkSheet = $objPHPExcel->createSheet($i);
+			 $objWorkSheet->setCellValue('A1', 'ID GRUPOCANAL');
+			 $objWorkSheet->setCellValue('B1', 'NOMBRE');
+			 $m=2;
+			 foreach($rs_grupoCanal as $row){
+				  $objWorkSheet->setCellValue('A'.$m, $row['idGrupoCanal']);
+				  $objWorkSheet->setCellValue('B'.$m, $row['nombre']);
+				  $m++;
+			 }
+			 $objWorkSheet->setTitle("GrupoCanal");
+		}
+		
+		$objPHPExcel->setActiveSheetIndex($i);
+		$i++;
+		
+		if(count($rs_canal)>0){
+			 $objWorkSheet = $objPHPExcel->createSheet($i);
+			 $objWorkSheet->setCellValue('A1', 'ID CANAL');
+			 $objWorkSheet->setCellValue('B1', 'ID GRUPOCANAL');
+			 $objWorkSheet->setCellValue('C1', 'NOMBRE');
+			 $m=2;
+			 foreach($rs_canal as $row){
+				  $objWorkSheet->setCellValue('A'.$m, $row['idCanal']);
+				  $objWorkSheet->setCellValue('B'.$m, $row['idGrupoCanal']);
+				  $objWorkSheet->setCellValue('C'.$m, $row['nombre']);
+				  $m++;
+			 }
+			 $objWorkSheet->setTitle("Canal");
+		}
+		
+		$objPHPExcel->setActiveSheetIndex($i);
+		$i++;
+
+		header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+		header('Content-Disposition: attachment;filename="maestro_carga.xlsx"');
+		header('Set-Cookie: fileDownload=true; path=/');
+		header('Cache-Control: max-age=60, must-revalidate');
+		header ('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
+		header ('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT'); // always modified
+		header ('Cache-Control: cache, must-revalidate'); // HTTP/1.1
+		header ('Pragma: public'); // HTTP/1.0
+		$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+		$objWriter->save('php://output');	
+		////
+	}
 
 }
 ?>

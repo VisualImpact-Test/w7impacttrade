@@ -1,3 +1,13 @@
+<style>
+	.customBoxShadow {
+		box-shadow: 0 0.46875rem 0rem rgb(4 9 20 / 3%), 0 0.9375rem 1.40625rem rgb(4 9 20 / 3%), 0 0.25rem 20rem rgb(4 9 20 / 5%), 0 0.125rem 0.1875rem rgb(4 9 20 / 3%) !important;
+
+	}
+
+	.d-grid {
+		display: grid !important;
+	}
+</style>
 <div class="row mt-4">
 	<div class="col-lg-4 d-flex justify-content-center align-items-center">
 		<h3 class="card-title mb-3">
@@ -37,6 +47,9 @@
 			<div class="customizer-content-button">
 				<button type="button" class="btn btn-outline-trade-visual border-0" data-url="filtrar" id="btn-filtrarVisibilidad" title="Filtrar">
 					<i class="fa fa-search"></i> <span class="txt_filtro"></span>
+				</button>
+				<button type="button" class="btn btn-outline-trade-visual border-0 chk_quiebres" data-url="filtrar" id="btn-quiebres-pdf" title="Exportar PDF">
+					<i class="fa fa-file-pdf"></i> <span class="txt_filtro"></span>
 				</button>
 			</div>
 			<hr>
@@ -86,9 +99,39 @@
 							</select>
 						</div>
 						<div class="filtros_secundarios">
-							<div class="mb-2 mr-sm-2 position-relative form-group chk_quiebres">
-								<div class="position-relative form-check form-check-inline">
+							<div class="mb-2 mr-sm-2 position-relative form-group chk_quiebres" style="display: none;">
+								<!-- <div class="position-relative form-check form-check-inline">
 									<label class="form-check-label"><input type="checkbox" name="ch-quiebre" value="1" class="form-check-input"> Quiebre</label>
+								</div> -->
+								<label for="ch-quiebre-inactivo"> Quiebres: </label> <br>
+								<div class="btn-group btn-group-toggle w-50 " data-toggle="buttons">
+									<label class="btn btn-outline-secondary custom_tooltip">
+										<span class="tooltiptextButton">Sin Quiebre</span>
+										<input type="checkbox" name="ch-quiebre-inactivo" id="ch-quiebre-inactivo" autocomplete="off"> NO </i>
+									</label>
+									<label class="btn btn-outline-secondary  custom_tooltip">
+										<span class="tooltiptextButton">Con Quiebre</span>
+										<input type="checkbox" name="ch-quiebre-activo" id="ch-quiebre-activo" autocomplete="off" checked="checked"> SI </i>
+									</label>
+								</div>
+							</div>
+							<div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip chk_quiebres" style="display: none;">
+								<label for="motivo"> Motivo: </label> <br>
+								<select class="form-control ui my_select2Full" id="motivo" name="motivo" multiple>
+									<?=htmlSelectOptionArray2(['query' => $motivos, 'id' => 'idMotivo', 'value' => 'nombre', 'title' => '-- Seleccione --'])?>
+								</select>
+							</div>
+							<div class="mb-2 mr-sm-2 position-relative form-group chk_fifo" style="display: none;">
+								<label for="ch-quiebre-inactivo"> Fifo: </label> <br>
+								<div class="btn-group btn-group-toggle w-50 " data-toggle="buttons">
+									<label class="btn btn-outline-secondary custom_tooltip">
+										<span class="tooltiptextButton">Mostrar productos vencidos</span>
+										<input type="checkbox" name="chk-fifo-vencido" id="chk-fifo-vencido" autocomplete="off"> Vencidos </i>
+									</label>
+									<label class="btn btn-outline-secondary  custom_tooltip">
+										<span class="tooltiptextButton">Mostrar productos por vencer</span>
+										<input type="checkbox" name="chk-fifo-porVencer" id="chk-fifo-porVencer" autocomplete="off" checked="checked"> Por Vencer </i>
+									</label>
 								</div>
 							</div>
 							<div class="filtros_generados">
@@ -129,10 +172,157 @@
 
 					</div>
 				</div>
+				<div id="dv-leyenda">
+					<hr>
+					<h5 class="mt-1 text-bold-500"><i class="far fa-info-circle"></i> Leyenda</h5>
+					<div class="form-group">
+						<div class="custom-control custom-checkbox mb-1">
+							<input type="checkbox" class="custom-control-input " data-tipo="product-propio" id="ck-propios" name="ck-propios" checked="checked">
+							<label class="custom-control-label" for="ck-propios"><span class="color-C"><i class="fa fa-circle"></i></span> Articulos Propios </label>
+						</div>
+						<div class="custom-control custom-checkbox mb-1">
+							<input type="checkbox" class="custom-control-input " data-tipo="product-competencia" id="ck-competencia" name="ck-competencia">
+							<label class="custom-control-label" for="ck-competencia"><span class="color-N"><i class="fa fa-circle"></i></span> Articulos de la Competencia </label>
+						</div>
+					</div>
+				</div>
 			</div>
 		</form>
 	</div>
 </div>
+
+<?if($this->sessIdProyecto == "14"):?>
+<div class="customizer customizerGraphics border-left-blue-grey border-left-lighten-4 d-none d-xl-block ">
+	<a href="javascript:;" class="customizer-close"><i class="fal fa-times"></i></a>
+	<a href="javascript:;" class="customizer-toggle box-shadow-3 bg-trade-visual-grad-left-gray text-white" style="top:150px;">
+		<i class="fal fa-analytics fa-lg "></i>
+	</a>
+	<div class="customizer-content p-2 ps-container ps-theme-dark" data-ps-id="aca1f25c-4ed9-a04b-d154-95a5d6494748" style="zoom: 65%;">
+		<div class="card-header" style="margin-bottom: 14px;">
+			<h3>Resumen Check Productos</h3>
+			<div class="mb-2 mr-sm-2 position-relative form-group px-2">
+				<div class="field">
+					<div class="ui my_calendar">
+						<div class="ui input left icon" style="width:100%">
+							<i class="calendar icon"></i>
+							<input type="text" name="txt-fechas-resumen" id="txt-fechas-resumen" placeholder="Date" value="<?= date("d/m/Y") ?>" class="form-control">
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="mb-2 mr-sm-2 position-relative form-group  dv-tipoReporte-resumen">
+				<select name="cb-tipoReporte-resumen" id="cb-tipoReporte-resumen" class="w-100">
+					<option value="2">
+						<h5 class="card-title">
+							<i class="fas fa-store-alt fa-lg"></i> ACUMULADO
+						</h5>
+					</option>
+					<option value="1">
+						<h5 class="card-title">
+							<i class="fas fa-store-alt fa-lg"></i> DIARIO
+						</h5>
+					</option>
+				</select>
+			</div>
+			<div class="mb-2 mr-sm-2 position-relative form-group ">
+				<button type="button" class="btn btn-outline-trade-visual border-0" data-url="filtrar" id="btn-filtrar-resumen" title="Filtrar">
+					<i class="fa fa-search"></i>
+				</button>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-lg-9 col-md-12 d-flex">
+				<div class="main-card mb-3 card main-cobertura col-md-12 px-0">
+					<div class="card-group">
+						<div class="card">
+							<div class="text-center card-header d-grid bg-trade-visual-grad-right text-white" style="height: 30px !important;padding:0px !important">
+								<h5 class="card-title">
+									<i class="fas fa-cog fa-lg"></i> OPCIONES
+								</h5>
+							</div>
+							<div class="text-center card-footer botonesTable" style="display: inherit;">
+
+							</div>
+						</div>
+						<div class="card customBoxShadow ">
+							<div class="text-center card-header d-grid bg-trade-visual-grad-center text-white" style="height: 30px !important;padding:0px !important">
+								<h5 class="card-title">
+									<i class="fas fa-store-alt fa-lg"></i> TIENDAS VISITADAS
+								</h5>
+							</div>
+							<div class="text-center card-footer txt-tiendasVisitadas">
+								<h5 class="card-title">
+									0
+								</h5>
+							</div>
+						</div>
+						<div class="card customBoxShadow dv-tipoReporte ">
+							<div class="text-center card-header d-grid bg-trade-visual-grad-left text-white" style="height: 30px !important;padding:0px !important">
+								<h5 class="card-title">
+									<i class="far fa-filter"></i> TIPO REPORTE
+								</h5>
+							</div>
+							<div class="text-center card-footer">
+								<select name="cb-tipoResumen" id="cb-tipoResumen">
+									<option value="presencia">
+										<h5 class="card-title">
+											<i class="fas fa-store-alt fa-lg"></i> PRESENCIA
+										</h5>
+									</option>
+									<option value="quiebres">
+										<h5 class="card-title">
+											<i class="fas fa-store-alt fa-lg"></i> QUIEBRES
+										</h5>
+									</option>
+								</select>
+							</div>
+						</div>
+					</div>
+					<div class="card-body centrarContenidoDiv vista-resumen-detallado" style="width: 100%;padding:0px !important">
+						<i class="fas fa-spinner-third fa-spin icon-load"></i>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-3 col-md-12 d-flex">
+				<div class="main-card mb-3 card main-efectividad col-md-12 px-0">
+					<div class="card-header bg-trade-visual-grad-left text-white" style="width: 100%;height:30px !important">
+						<h5 class="card-title">
+							<i class="fas fa-tasks fa-lg"></i> TOP 5 CADENAS CON PRESENCIA<sup><?= $this->sessNomCuentaCorto ?></sup>
+						</h5>
+					</div>
+					<div class="card-body centrarContenidoDiv top-cadenas-presencia" style="width: 100%;">
+						<i class="fas fa-spinner-third fa-spin icon-load"></i>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-6 col-md-12 d-flex">
+				<div class="main-card mb-3 card main-cobertura col-md-12 px-0">
+					<div class="card-header bg-trade-visual-grad-right text-white" style="width: 100%;height:30px !important">
+						<h5 class="card-title">
+							<i class="fas fa-store-alt fa-lg"></i> TOP 10 PRODUCTOS CON PRESENCIA
+						</h5>
+					</div>
+					<div class="card-body centrarContenidoDiv top-productos-mas-presencia" style="width: 100%;">
+						<i class="fas fa-spinner-third fa-spin icon-load"></i>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-6 col-md-12 d-flex">
+				<div class="main-card mb-3 card main-efectividad col-md-12 px-0">
+					<div class="card-header bg-trade-visual-grad-left text-white" style="width: 100%;height:30px !important">
+						<h5 class="card-title">
+							<i class="fas fa-tasks fa-lg"></i> TOP 10 PRODUCTOS CON QUIEBRE
+						</h5>
+					</div>
+					<div class="card-body centrarContenidoDiv top-productos-menos-presencia" style="width: 100%;">
+						<i class="fas fa-spinner-third fa-spin icon-load"></i>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<?endif;?>
 
 <div class="main-card mb-3 card ">
 	<div class="card-body p-0">
@@ -145,3 +335,9 @@
 		</div>
 	</div>
 </div>
+
+<script type="text/javascript" src="assets/libs/anychart/anychart-base.min.js"></script>
+<script type="text/javascript" src="assets/libs/anychart/anychart-ui.min.js"></script>
+<script type="text/javascript" src="assets/libs/anychart/anychart-map.min.js"></script>
+<script type="text/javascript" src="assets/libs/anychart/countries/peru.js"></script>
+<script type="text/javascript" src="https://cdn.anychart.com/js/latest/anychart-bundle.min.js"></script>

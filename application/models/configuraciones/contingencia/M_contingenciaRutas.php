@@ -59,7 +59,7 @@ class M_contingenciaRutas extends My_Model{
 		$filtros .= !empty($input['idProyecto']) ? " AND r.idProyecto=".$input['idProyecto'] : "";
 		$filtros .= !empty($input['idCanal']) ? " AND v.idCanal=".$input['idCanal'] : "";
 		$filtros .= !empty($input['idTipoUsuario']) ? " AND r.idTipoUsuario=".$input['idTipoUsuario'] : "";
-		$filtros .= " AND v.horaFin is null";
+		// $filtros .= " AND v.horaFin is null";
 
 		// DATOS DEMO
 		if( $sessIdTipoUsuario != 4 ){
@@ -67,9 +67,12 @@ class M_contingenciaRutas extends My_Model{
 			else $filtros .=  " AND (r.demo = 0 OR r.idUsuario = {$this->idUsuario})";
 		}
 
+		$segmentacion = getSegmentacion(['grupoCanal_filtro' => $input['grupoCanal_filtro']]);
+
 		$sql="
 			DECLARE @fecha DATE='".$input['fecha']."';
-			SELECT
+			WITH lista_visitas AS (
+				SELECT
 				CONVERT(VARCHAR,r.fecha,103) AS fecha
 				, r.idUsuario
 				, r.idUsuario AS codUsuario
@@ -79,10 +82,24 @@ class M_contingenciaRutas extends My_Model{
 				, u.idEmpleado AS codEmpleado
 				, r.idProyecto
 				, p.nombre AS proyecto
-
+				, CASE WHEN (v.horaIni IS NOT NULL AND v.horaFin IS NOT NULL  AND ISNULL(estadoIncidencia,0) <> 1 ) THEN  --Efectiva
+						CASE 
+							WHEN r.fecha BETWEEN '01/10/2021' AND '15/10/2021' THEN 3 --Efectiva
+							ELSE 
+								CASE 
+								WHEN v.numFotos >=1 THEN 3 --Efectiva
+								ELSE 1 --No efectiva
+								END
+						END 
+					   WHEN (v.estadoIncidencia = 1 ) THEN 2 --INCIDENCIA
+					   WHEN (v.horaIni IS NULL AND v.horaFin IS NULL AND ISNULL(v.numFotos,0) = 0  AND estadoIncidencia IS NULL ) THEN 
+					   		CASE WHEN r.fecha <= GETDATE() THEN 4 -- NO EFECTIVA
+							ELSE 0 -- No Visitado 
+							END
+					   ELSE	1 --No Efectiva
+					END condicion
 				, v.idVisita
 				, v.idCliente
-				, v.idCliente AS codCliente
 				, v.razonSocial AS pdv
 				, v.nombreComercial
 				, v.codCliente, v.direccion
@@ -122,17 +139,26 @@ class M_contingenciaRutas extends My_Model{
 				, v.idListIniciativasTrad
 				, v.idListVisibilidadTradObl
 				, v.idListVisibilidadTradAdc
-			FROM trade.data_ruta r
+				, '0' tablaTemporal
+				, v.flagContingencia
+				{$segmentacion['columnas_bd']}
+			FROM trade.data_ruta r WITH(NOLOCK)
 				JOIN trade.data_visita v ON v.idRuta=r.idRuta
+				LEFT JOIN ".getClienteHistoricoCuenta()." ch ON ch.idCliente = v.idCliente 
+				AND General.dbo.fn_fechaVigente(ch.fecIni,ch.fecFin,r.fecha,r.fecha)=1 AND ch.idProyecto = {$input['idProyecto']}
 				LEFT JOIN trade.usuario u ON u.idUsuario=r.idUsuario
 				LEFT JOIN General.dbo.ubigeo ub ON ub.cod_ubigeo=v.cod_ubigeo
 				LEFT JOIN trade.data_visitaIncidencia vi ON vi.idVisita=v.idVisita
 				LEFT JOIN trade.proyecto p ON p.idProyecto=r.idProyecto
+				{$segmentacion['join']}
 			WHERE r.fecha=@fecha
 				AND r.estado=1
 				AND v.estado=1
 				{$filtros}
-			ORDER BY r.fecha, r.idUsuario ASC
+		)SELECT * FROM lista_visitas
+		WHERE condicion IN(1,4) 
+		AND flagContingencia = 1
+		ORDER BY fecha, idUsuario ASC
 		";
 
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visita' ];
@@ -207,8 +233,24 @@ class M_contingenciaRutas extends My_Model{
 		if ( $this->db->trans_status()===FALSE ) {
 			$this->db->trans_rollback();
 		} else {
-			$this->db->trans_commit();
-			$this->aSessTrack[] = $aSessTrack;
+
+			$rs = $this->get_cantidad_fotos_visita($input)->row_array();
+			$update = [
+				'numFotos' => !empty($rs['fotos']) ? $rs['fotos'] : 0, 
+			];
+			$where = [
+				'idVisita' => $input['idVisita'],
+			];
+
+			$this->db->update('trade.data_visita',$update,$where);
+
+			if ( $this->db->trans_status()===FALSE ) {
+				$this->db->trans_rollback();
+
+			}else{
+				$this->db->trans_commit();
+				$this->aSessTrack[] = $aSessTrack;
+			}
 		}
 		return $insert;
 	}
@@ -4105,6 +4147,22 @@ class M_contingenciaRutas extends My_Model{
 
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.list_visibilidadTrad' ];
 		return $this->db->query($sql)->result_array();
+	}
+
+	public function get_cantidad_fotos_visita($input)
+	{
+		$filtros = '';
+
+		!empty($input['idVisita']) ? $filtros .= " AND vf.idVisita = {$input['idVisita']}" : '';
+		$sql = "
+		SELECT 
+		COUNT(vf.idVisitaFoto) fotos
+		FROM trade.data_visitaFotos vf
+		JOIN trade.aplicacion_modulo m ON m.idModulo = vf.idModulo
+		WHERE m.idModuloGrupo = 9  {$filtros}
+		";
+
+		return $this->db->query($sql);
 	}
 
 }

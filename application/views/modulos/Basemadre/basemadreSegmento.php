@@ -10,17 +10,20 @@
 
 <?
 $new_segmento = array();
-foreach($segmento as $ix =>  $row){
-	$new_segmento[$ix][0] =  !empty($row[0])? $row[0] : 'No Segmentado';
-	$new_segmento[$ix][1] =  isset($row[1])? $row[1] : null;
-	$new_segmento[$ix][2] =  isset($row[2])? $row[2] : null;
-	$new_segmento[$ix][3] =  isset($row[3])? moneda($row[3]) : null;
-	$new_segmento[$ix][4] =  isset($row[4])? moneda($row[4]) : null;
-	$por = isset($row[3])? ((round($total_venta,2) > 0)? round((round($row[3],2)/round($total_venta,2)) *100, 2).'%' : '-') : '-';  
-	$new_segmento[$ix][5] = $por;
-	$por = isset($row[4])? ((round($total_venta,2) > 0)? round((round($row[4],2)/round($total_venta,2)) *100, 2).'%' : '-') : '-';  
-	$new_segmento[$ix][6] = $por;
-}?>
+if(!empty($segmento)){
+	foreach($segmento as $ix =>  $row){
+		$new_segmento[$ix][0] =  !empty($row[0])? $row[0] : 'No Segmentado';
+		$new_segmento[$ix][1] =  isset($row[1])? $row[1] : null;
+		$new_segmento[$ix][2] =  isset($row[2])? $row[2] : null;
+		$new_segmento[$ix][3] =  isset($row[3])? moneda($row[3]) : null;
+		$new_segmento[$ix][4] =  isset($row[4])? moneda($row[4]) : null;
+		$por = isset($row[3])? ((round($total_venta,2) > 0)? round((round($row[3],2)/round($total_venta,2)) *100, 2).'%' : '-') : '-';  
+		$new_segmento[$ix][5] = $por;
+		$por = isset($row[4])? ((round($total_venta,2) > 0)? round((round($row[4],2)/round($total_venta,2)) *100, 2).'%' : '-') : '-';  
+		$new_segmento[$ix][6] = $por;
+	}
+}
+?>
 <script>
 anychart.onDocumentReady(function () {
 	var array = [];

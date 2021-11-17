@@ -6,6 +6,7 @@ class Login extends MY_Controller {
 	public function __construct(){
 		parent::__construct();
 		$this->load->model('M_Login','model');
+		$this->load->model('M_control','m_control');
 	}
 	
 	public function index()
@@ -114,6 +115,7 @@ class Login extends MY_Controller {
 						$usuario['menu'] = $menu;
 						$usuario['permisos'] = $aPermisos;
 
+						
 						if( count($aPermisos['cuenta']) > 1 ){
 							$usuario['idCuenta'] = '';
 							$usuario['idProyecto'] = '';
@@ -123,6 +125,11 @@ class Login extends MY_Controller {
 						}
 
 						$this->session->set_userdata($usuario);
+
+						$proyectosDeusuario = $this->m_control->get_cuenta([])[0]['proyectos'];
+						if($proyectosDeusuario > 1){
+							$result['status'] = 2;
+						}
 					}
 
 					$qp = $this->model->navbar_permiso($usuario['idUsuario'])->result_array();

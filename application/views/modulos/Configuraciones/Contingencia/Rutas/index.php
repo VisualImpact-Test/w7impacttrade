@@ -10,7 +10,7 @@
 			<div class="card-body p-0">
 				<ul class="nav nav-tabs nav-justified">
 					<li class="nav-item btnReporte">
-						<a data-toggle="tab" href="#contentGtm" class="active nav-link" data-value="1">GTM</a>
+						<a data-toggle="tab" href="#contentGtm" class="active nav-link" data-value="1">Visitas</a>
 					</li>
 					<!-- <li class="nav-item btnReporte">
 						<a data-toggle="tab" href="#contentSupervisor" class="nav-link" data-value="2">Supervisor</a>
@@ -59,7 +59,7 @@
 							<?= getFiltros(['proyecto' => ['label' => 'Proyecto', 'name' => 'proyecto_filtro', 'id' => 'proyecto_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]) ?>
 						</div>
 						<div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia">
-							<?= getFiltros(['grupoCanal' => ['label' => 'Grupo Canal', 'name' => 'grupoCanal_filtro', 'id' => 'grupoCanal_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]) ?>
+							<?= getFiltros(['grupoCanal' => ['label' => false, 'name' => 'grupoCanal_filtro', 'id' => 'grupoCanal_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]) ?>
 						</div>
 						<div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia">
 							<?= getFiltros(['canal' => ['label' => 'Canal', 'name' => 'canal_filtro', 'id' => 'canal_filtro', 'data' => false, 'select2' => 'ui my_select2Full', 'html' => '']]) ?>

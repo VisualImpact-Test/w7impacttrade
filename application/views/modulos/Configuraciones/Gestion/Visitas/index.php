@@ -63,11 +63,14 @@
 				<button id="btn-visitaExcluir" class="btn btn-outline-trade-visual border-0" title="Excluir Visita" style="display:none;">
 					<i class="fas fa-exclamation-circle"></i>
 				</button>
+				<button id="btn-visitaExcluirActivar" class="btn btn-outline-trade-visual border-0" title="Desactivar Exclusion" style="display:none;">
+					<i class="fas fa-check-circle"></i>
+				</button>
 				
-				<button id="btn-visitaContingencia" class="btn btn-outline-primary border-0" title="HABILITAR CONTINGENCIA VISITA" style="display:none;"><i class="fas fa-user-clock"></i></button>
-				<button id="btn-visitaContingenciaDes" class="btn btn-outline-primary border-0" title="DESHABILITAR CONTINGENCIA VISITA" style="display:none;"><i class="fas fa-user-times"></i></button>
-				<button id="btn-cargaMasivaRutas" class="btn btn-outline-primary border-0" title="Carga masiva visitas excel" style=""><i class="fas fa-plus-square"></i></button>
-				<button id="btn-cargaMasivaExclusiones" class="btn btn-outline-primary border-0" title="Carga masiva exclusiones excel" style=""><i class="fas fa-plus-square"></i></button>
+				<button id="btn-visitaContingencia" class="btn btn-outline-trade-visual border-0" title="HABILITAR CONTINGENCIA VISITA" style="display:none;"><i class="fas fa-user-clock"></i></button>
+				<button id="btn-visitaContingenciaDes" class="btn btn-outline-trade-visual border-0" title="DESHABILITAR CONTINGENCIA VISITA" style="display:none;"><i class="fas fa-user-times"></i></button>
+				<button id="btn-cargaMasivaRutas" class="btn btn-outline-trade-visual border-0" title="Carga masiva visitas excel" style=""><i class="fas fa-plus-square"></i></button>
+				<button id="btn-cargaMasivaExclusiones" class="btn btn-outline-trade-visual border-0" title="Carga masiva exclusiones excel" style=""><i class="fas fa-plus-square"></i></button>
 			</div>
 			<div class="customizer-content-filter">
 				<h5 class="mt-1 mb-1 text-bold-500"><i class="fal fa-table"></i> Filtros</h5>
@@ -102,62 +105,12 @@
 						</div>
 
 						<div class="mb-2 mr-sm-2  position-relative form-group " id="combo_grupocanal">
-							<?= getFiltros(['grupoCanal' => ['label' => 'Grupo Canal', 'name' => 'grupo_filtro', 'id' => 'grupo_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '','selected'=>'4' ]]) ?>
+							<?= getFiltros(['grupoCanal' => ['label' => 'Grupo Canal', 'name' => 'grupo_filtro', 'id' => 'grupo_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '' ]]) ?>
 						</div>
 						<div class="mb-2 mr-sm-2  position-relative form-group "  id="combo_canal">
 							<?=getFiltros(['canal' => ['label' => 'Canal', 'name' => 'canal_filtro', 'id' => 'canal_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]) ?>
 						</div>
-						<div class="mb-2 mr-sm-2  position-relative form-group " id="combo_zona">
-							<select id="zona" name="zona" class="form-control form-control-sm my_select2Full sl-width-150">
-								<option value="">-- Zona --</option>
-								<? foreach ($zona as $key => $user): ?>
-									<option value="<?=$user['idZona']?>"><?=$user['nombre']?></option>
-								<? endforeach ?>
-							</select>
-						</div>
-						
-						<div class="mb-2 mr-sm-2  position-relative form-group " id="combo_distribuidora">
-							<select id="distribuidora" name="distribuidora" class="form-control form-control-sm my_select2Full sl-width-150">
-								<option value="">-- Distribuidora --</option>
-							</select>
-						</div>
-						<div class="mb-2 mr-sm-2  position-relative form-group " id="combo_ciudad_hfs">
-							<select id="ciudad_hfs" name="ciudad_hfs" class="form-control form-control-sm my_select2Full sl-width-150">
-								<option value="">-- Sucursal --</option>
-							</select>
-						</div>
-						<!--FIN HFS-->
-						<!--WHLS-->
-						<div class="mb-2 mr-sm-2  position-relative form-group " id="combo_ciudad_whls">
-							<select id="ciudad_whls" name="ciudad_whls" class="form-control form-control-sm my_select2Full sl-width-150">
-								<option value="">-- Ciudad --</option>
-								<? foreach ($ciudad as $key => $user): ?>
-									<option value="<?=$user['cod_departamento']?>"><?=$user['departamento']?></option>
-								<? endforeach ?>
-							</select>
-						</div>
-						<div class="mb-2 mr-sm-2  position-relative form-group " id="combo_plaza">
-							<select id="plaza" name="plaza" class="form-control form-control-sm my_select2Full sl-width-150">
-								<option value="">-- Plaza --</option>
-							</select>
-						</div>
-						<!--FIN WHLS-->		
-						<!--MODERNO-->
-						<div class="mb-2 mr-sm-2  position-relative form-group " id="combo_cadena">
-							<select id="cadena" name="cadena" class="form-control form-control-sm my_select2Full sl-width-150">
-								<option value="">-- Cadena --</option>
-								<? foreach ($cadena as $key => $user): ?>
-									<option value="<?=$user['idCadena']?>"><?=$user['nombre']?></option>
-								<? endforeach ?>
-							</select>
-						</div>
-						<div class="mb-2 mr-sm-2  position-relative form-group " id="combo_banner">
-							<select id="banner" name="banner" class="form-control form-control-sm my_select2Full sl-width-150">
-								<option value="">-- Banner --</option>
-							</select>
-						</div>
-						<!--FIN MODERNO-->		
-						
+
 						<div class="mb-2 mr-sm-2 position-relative form-group">
 							<select id="usuario" name="usuario" class="ui my_select2Full" style="width:100%" title="Usuario">																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																	  
 								<option value="">-- Usuario --</option>
@@ -166,6 +119,44 @@
 								<? endforeach ?>
 							</select>
 						</div>
+						<div class="filtros_secundarios">
+							
+							<div class="filtros_generados">
+								<h5 class="mt-1 mb-1 text-bold-500"><i class="fal fa-table"></i> Filtros Generados</h5>
+								<div class="filtros_gc filtros_HFS d-none">
+									<div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip">
+										<span class="tooltiptext">Distribuidora</span>
+										<?= getFiltros(['distribuidora' => ['label' => 'Distribuidora', 'name' => 'distribuidora_filtro', 'id' => 'distribuidora_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]); ?>
+									</div>
+									<div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip">
+										<span class="tooltiptext">Sucursal</span>
+										<?= getFiltros(['distribuidoraSucursal' => ['label' => 'Sucursal', 'name' => 'distribuidoraSucursal_filtro', 'id' => 'distribuidoraSucursal_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]); ?>
+									</div>
+									<div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip">
+										<span class="tooltiptext">Zona</span>
+										<?= getFiltros(['zona' => ['label' => 'Zona', 'name' => 'zona_filtro', 'id' => 'zona_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]); ?>
+									</div>
+								</div>
+								<div class="filtros_gc filtros_WHLS d-none">
+
+									<div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip">
+										<span class="tooltiptext">Plaza</span>
+										<?= getFiltros(['plaza' => ['label' => 'Plaza', 'name' => 'plaza_filtro', 'id' => 'plaza_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]); ?>
+									</div>
+								</div>
+								<div class="filtros_gc filtros_HSM filtros_Moderno d-none">
+									<div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip">
+										<span class="tooltiptext">Cadena</span>
+										<?= getFiltros(['cadena' => ['label' => 'Cadena', 'name' => 'cadena_filtro', 'id' => 'cadena_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]); ?>
+									</div>
+									<div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip">
+										<span class="tooltiptext">Banner</span>
+										<?= getFiltros(['banner' => ['label' => 'Banner', 'name' => 'banner_filtro', 'id' => 'banner_filtro', 'data' => false, 'select2' => 'ui my_select2Full', 'html' => '']]); ?>
+									</div>
+								</div>
+							</div>
+						</div>
+
 						
 						<div class="mb-2 mr-sm-2 position-relative form-group">
 							<input id="cod_usuario" name="cod_usuario" class="form-control" style="width:100%" title="CODIGO USUARIO" placeholder="CODIGO USUARIO"> 

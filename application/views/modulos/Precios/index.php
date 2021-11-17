@@ -164,6 +164,19 @@
                                     <? } ?>
                                 </select>
                             </div>
+                            <div class="mb-2 mr-sm-2 position-relative form-group chk_quiebres">
+								<label for="ch-precio-inactivo"> Precios: </label> <br>
+								<div class="btn-group btn-group-toggle w-50" data-toggle="buttons" >
+									<label class="btn btn-outline-secondary custom_tooltip"> 
+										<span class="tooltiptextButton">Sin Precio</span>
+										<input type="checkbox" name="ch-precio-inactivo" id="ch-precio-inactivo" autocomplete="off" > NO </i>
+									</label>
+									<label class="btn btn-outline-secondary  custom_tooltip">
+										<span class="tooltiptextButton">Con Precio</span>
+										<input type="checkbox"  name="ch-precio-activo" id="ch-precio-activo" autocomplete="off" checked="checked"> SI </i>
+									</label>
+								</div>
+							</div>
                         </div>
                         
                         <div class="seccioncontentVariabilidadPrecios secciones">

@@ -7,17 +7,18 @@
                 <th class="text-center align-middle">GRUPO CANAL</th>
                 <th class="text-center align-middle">CANAL</th>
                 <th class="text-center align-middle hideCol">SUBCANAL</th>
-                <?$nroHeaders = 9;?>
+                <?$nroHeaders = 12;?>
                 <? foreach ($segmentacion['headers'] as $k => $v) { ?>
                     <? $nroHeaders++;?>
                     <th class="text-center align-middle"><?= strtoupper($v['header']) ?></th>
                 <? } ?>
                 <th class="text-center align-middle">COD VISUAL</th>
-                <th class="text-center align-middle hideCol">COD <?=$this->sessNomCuentaCorto?></th>>
+                <th class="text-center align-middle hideCol">COD <?=$this->sessNomCuentaCorto?></th>
                 <th class="text-center align-middle">PDV</th>
                 <th class="text-center align-middle">PRODUCTO</th>
-                <th class="text-center align-middle">QUIEBRE</th>
+                <th class="text-center align-middle">FOTO</th>
                 <th class="text-center align-middle">MOTIVO</th>
+                <th class="text-center align-middle">QUIEBRE</th>
             </tr>
         </thead>
         <tbody>
@@ -44,8 +45,15 @@
                     <td class="text-center"><?= (!empty($row['codCliente']) ? $row['codCliente'] : '-') ?></td>
                     <td class="text-left"><?= (!empty($row['razonSocial']) ? $row['razonSocial'] : '-') ?></td>
                     <td class="text-left"><?= (!empty($row['producto']) ? $row['producto'] : '-') ?></td>
+                    <?
+                    $imgFoto = '';
+                        if(!empty($row['foto'])){
+                            $imgFoto = rutafotoModulo(['modulo'=>$row['carpetaFoto'], 'foto' => $row['foto'],'icono'=> 'fal fa-image-polaroid fa-lg btn-outline-secondary btn border-0']);
+                        }
+                    ?>
+                    <td class="text-center"><?=!empty($imgFoto) ? $imgFoto : '-' ?></td>
+                    <td class="text-left"><?= (!empty($row['motivo']) ? $row['motivo'] : '-') ?></td>
                     <td class="text-center"><?= $quiebre ?></td>
-                    <td class="text-center"><?= (!empty($row['motivo']) ? $row['motivo'] : '-') ?></td>
                 </tr>
             <? } ?>
         </tbody>

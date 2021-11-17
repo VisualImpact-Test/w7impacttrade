@@ -24,6 +24,8 @@
 				<th class="text-center align-middle" >TIPO PROMOCIÓN</th>
 				<th class="text-center align-middle" >PROMOCIÓN</th>
 				<th class="text-center align-middle" >FOTO</th>
+				<th class="text-center align-middle" >FECHA INICIO</th>
+				<th class="text-center align-middle" >FECHA FIN</th>
 
 			</tr>
 
@@ -50,22 +52,22 @@
 					<td class="text-center"><?= (!empty($row['distrito']) ? $row['distrito'] : '-') ?></td>
 					<td class="text-center"><?= (!empty($row['idCliente']) ? $row['idCliente'] : '-') ?></td>
 					<td class="text-center"><?= (!empty($row['codCliente']) ? $row['codCliente'] : '-') ?></td>
-					<td class="text-center"><?= (!empty($row['razonSocial']) ? $row['razonSocial'] : '-') ?></td>
-					<td class="text-center"><?= (!empty($row['categoria']) ? $row['categoria'] : '-') ?></td>
-					<td class="text-center"><?= (!empty($row['marca']) ? $row['marca'] : '-') ?></td>
+					<td class="text-left"><?= (!empty($row['razonSocial']) ? $row['razonSocial'] : '-') ?></td>
+					<td class="text-left"><?= (!empty($row['categoria']) ? $row['categoria'] : '-') ?></td>
+					<td class="text-left"><?= (!empty($row['marca']) ? $row['marca'] : '-') ?></td>
 					<td class="text-center"><?= (!empty($row['formato']) ? $row['formato'] : '-') ?></td>
 					<td class="text-right "><?= (!empty($row['precio']) ? moneda($row['precio']) : '-') ?></td>
 					<td class="text-center"><?= (!empty($row['tipoPromocion']) ? $row['tipoPromocion'] : '-') ?></td>
-					<td class="text-left"><?= (!empty($row['promocion']) ? $row['promocion'] : '-') ?></td>
+					<td class="text-left"><?= (!empty($row['promocion']) ? ($row['promocion']) : '-') ?></td>
 
 					<?
-					$fotoImg = (isset($row['foto']) && !empty($row['foto'])) ? foto_controlador('promociones/' . $row['foto']) : '';
-					if (!empty($fotoImg)) {
-						$fotoImg = '<a href="javascript:;" class="lk-foto-1" data-content="img-fotoprincipal-' . $row['idVisita'] . '-' . $row['idPromocion'] . '">
-													<img class="fotoMiniatura foto" name="img-fotoprincipal-' . $row['idVisita'] . '-' . $row['idPromocion'] . '" id="img-fotoprincipal-' . $row['idVisita'] . '-' . $row['idPromocion'] . '" src="' . $fotoImg . '" alt=""></a>';
+					if (!empty($row['foto'])) {
+						$fotoImg = rutafotoModulo(['modulo'=>'promociones','foto'=>$row['foto'],'icono'=>'fal fa-image-polaroid fa-lg btn-outline-secondary btn border-0']);
 					}
 					?>
-					<td> <?= (!empty($fotoImg) ? $fotoImg : '-'); ?> </td>
+					<td class="text-center"> <?= (!empty($fotoImg) ? $fotoImg : '-'); ?> </td>
+					<td class="text-left"><?= (!empty($row['fechaVigenciaInicio']) ? date_change_format($row['fechaVigenciaInicio']) : '-') ?></td>
+					<td class="text-left"><?= (!empty($row['fechaVigenciaFin']) ? date_change_format($row['fechaVigenciaFin']) : '-') ?></td>
 
 
 				</tr>

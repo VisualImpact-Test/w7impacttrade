@@ -174,7 +174,10 @@ var _aSelectGrupoCanal = {
 		4: [ 'zona', 'distribuidora', 'distribuidoraSucursal' ],
 		5: [ 'plaza' ],
 		2: [ 'cadena', 'banner' ],
+		8: [ 'cadena', 'banner' ],
 	};
+
+var intervalPeticionActualizacion=null;
 
 var View={
 	idModal: 0,
@@ -204,9 +207,7 @@ var View={
 				control.attr('data-show', 'true');
 				control.html('<i class="fa fa-columns"></i>');
 			}
-			setTimeout(function(){
-				$.fn.dataTable.tables( { visible: true, api: true } ).columns.adjust();
-            }, 500);
+		
 		});
 		$(document).on('keypress paste', '.txt-only-number', function(e){
 
@@ -250,7 +251,7 @@ var View={
 		$(document).on('DOMNodeInserted', '.my_select2Full', function(){
 			$(this).select2({
 				width: '100%',
-				dir: "rtl",
+				// dir: "rtl",
 			});
 		});
 		$(document).on('DOMNodeInserted', '.ui.my_dropdown', function(){
@@ -267,7 +268,7 @@ var View={
 
 		$('.my_select2Full').select2({
 			width: '100%',
-			dir: "rtl",
+			// dir: "rtl",
 		});
 
 		$(document).on('show.bs.modal','.modal',function(e){
@@ -410,7 +411,194 @@ var View={
 
 					View.idModal = modalId;
 			});
+		});
 
+		$(document).on('click', '#a-actualizarVisitas', function(){
+			$.when( Fn.ajax({ url: 'control/get_peticion_actualizar_visitas' }) ).then(function(a){
+				if( a.result == 2 ) return false;
+				var data=a.data.peticionActualizarVisita;
+
+				var fechaUltimo=null;
+				var actualizado=false;
+				var porcentaje=0;
+				if(data!=null){
+					fechaUltimo=data['fechaActualizacion'];
+					actualizado=(data['actualizado']=="1")? true : false;
+					porcentaje= ( (data['porcentaje']!=null)? data['porcentaje'] :0 );
+				}
+
+				var html = '';
+					html += '<form id="frm-actualizarvisitas" class="py-3 px-4">';
+						html += '<div class="row">';
+
+							html += '<div class="col-md-12">';
+								html += '<div class="form-group row">';
+
+									html += '<div class="col-md-12">';
+										html += '<div class="form-group row">';
+											html += '<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 mb-2">';
+											html += '<label for="fecIniActualizarVisita"><strong>FECHA INICIO:</strong></label>';
+												html += '<input id="fecIniActualizarVisita" type="text" class="form-control txt-fecha" value="'+Global.fechaActual()+'">';
+											html += '</div>';
+
+											html += '<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 mb-2">';
+											html += '<label for="fecFinActualizarVisita"><strong>FECHA FIN:</strong></label>';
+												html += '<input id="fecFinActualizarVisita" type="text" class="form-control txt-fecha" value="'+Global.fechaActual()+'">';
+											html += '</div>';
+										html += '</div>';
+									html += '</div>';
+
+
+									html += '<div id="divMensajeActualizandoVisitasUltimo"  class="col-md-12" style="padding:5px;'+ ((!actualizado) ? "display:none;" : "")+'" >';
+											html += 'Ultima actualizacion el '+( (fechaUltimo!=null)? fechaUltimo :' - ' );
+									html += '</div>';
+
+									html += '<div class="col-md-12">';
+										html += '<meter id="barraprogreso_actualizacion_visita" min="0" max="100" low="0" high="0" optimum="100" value="'+porcentaje+'" style="font-size:20px;width:100%;">';
+									html += '</div>';
+
+									html += '<div class="col-md-12">';
+										html+='<div id="divMensajeActualizandoVisitas" class="text-center" style="'+ ((actualizado || ( fechaUltimo==null)) ? "display:none;" : "")+'">Actualizando<img src="assets/images/load.gif" /></div>';
+									html += '</div>';
+									
+								html += '</div>';
+								html += '<div class="form-group row">';
+								html += '</div>';
+							html += '</div>';
+						html += '</div>';
+					html += '</form>';
+
+					++modalId;
+					var btn = [{ title: 'Actualizar', id: 'btn-actualizarvisitas-confirm', class: 'btn-trade-visual' },{ title: 'Cerrar', fn: 'Fn.showModal({ id: ' + modalId + ', show: false });' }];
+					
+
+					Fn.showModal({
+						id: modalId,
+						show: true,
+						title: 'Actualizar Visitas',
+						frm: html,
+						btn: btn
+					});
+
+					if(!actualizado){
+						$("btn-actualizarvisitas-confirm").hide();
+					}
+
+					View.idModal = modalId;
+
+					singleDatePickerModal.autoUpdateInput = false;
+					$('.txt-fecha').daterangepicker(singleDatePickerModal, function(chosen_date) {
+						$(this.element[0]).val(chosen_date.format('DD/MM/YYYY'));
+					});
+
+					if(intervalPeticionActualizacion!=null){
+						clearInterval(intervalPeticionActualizacion);
+					}			
+
+					function validar_estado_peticion_actualizacion_visita() {
+						$.ajax({
+							type: "POST",
+							dataType: 'JSON',
+							url: site_url+'control/get_peticion_actualizar_visitas/',
+							
+							success: function(data) {
+								if(data.result){
+									var res = data.data.peticionActualizarVisita;
+									if(res!=null){
+										var porc=res['porcentaje'];
+										var actualizado=res['actualizado'];
+	
+										$('#barraprogreso_actualizacion_visita').attr('value',porc);
+	
+										if(actualizado){
+											$("#btn-actualizarvisitas-confirm").show();
+											$("#divMensajeActualizandoVisitas").hide();
+											$("#divMensajeActualizandoVisitasUltimo").show();
+											$("#divMensajeActualizandoVisitasUltimo").html('Ultima actualizacion el '+res['fechaActualizacion']);
+											
+										}else{
+											$("#btn-actualizarvisitas-confirm").hide();
+											$("#divMensajeActualizandoVisitas").show();
+											$("#divMensajeActualizandoVisitasUltimo").hide();
+										}
+									}else{
+										$("#btn-actualizarvisitas-confirm").show();
+										$("#divMensajeActualizandoVisitas").hide();
+										$("#divMensajeActualizandoVisitasUltimo").show();
+										$("#divMensajeActualizandoVisitasUltimo").html('Ultima actualizacion el -');
+										
+									}
+									
+								}
+							}
+						});
+					}
+					
+					intervalPeticionActualizacion=setInterval(validar_estado_peticion_actualizacion_visita, 10000);
+			});
+			
+			
+		});
+
+
+		$(document).on('click', '#btn-actualizarvisitas-confirm', function(){
+			$("#btn-actualizarvisitas-confirm").hide();
+			var fecIni = $("#fecIniActualizarVisita").val();
+			var fecFin = $("#fecFinActualizarVisita").val();
+
+			if(fecIni!=null && fecFin!=null){
+				var data = { data: JSON.stringify({ fecIni: fecIni, fecFin: fecFin }) };
+				$.when( Fn.ajax({ url: 'control/guardar_peticion_actualizar_visitas', data: data }) ).then(function(a){
+					if( a.result == 2 ) return false;
+
+
+						$.ajax({
+							type: "POST",
+							dataType: 'JSON',
+							url: site_url+'control/get_peticion_actualizar_visitas/',
+							
+							success: function(data) {
+								if(data.result){
+									var res = data.data.peticionActualizarVisita;
+									if(res!=null){
+										var porc=res['porcentaje'];
+										var actualizado=res['actualizado'];
+
+										$('#barraprogreso_actualizacion_visita').attr('value',porc);
+
+										if(actualizado){
+											$("#btn-actualizarvisitas-confirm").show();
+											$("#divMensajeActualizandoVisitas").hide();
+											$("#divMensajeActualizandoVisitasUltimo").show();
+											$("#divMensajeActualizandoVisitasUltimo").html('Ultima actualizacion el '+res['fechaActualizacion']);
+											
+										}else{
+											$("#btn-actualizarvisitas-confirm").hide();
+											$("#divMensajeActualizandoVisitas").show();
+											$("#divMensajeActualizandoVisitasUltimo").hide();
+										}
+									}else{
+										$("#btn-actualizarvisitas-confirm").show();
+										$("#divMensajeActualizandoVisitas").hide();
+										$("#divMensajeActualizandoVisitasUltimo").show();
+										$("#divMensajeActualizandoVisitasUltimo").html('Ultima actualizacion el -');
+										
+									}
+									
+								}
+							}
+						});
+
+						$.ajax({
+							type: "POST",
+							url: site_url+'public/bat/bat_peticion_actualizar_visitas.php',
+							success: function(data) {
+								console.log('listo');
+							}
+						});
+				});
+			}
+		
 		});
 
 		$(document).on('change', '.rd-cambiarcuenta-cuenta', function(){
@@ -1170,6 +1358,7 @@ var View={
 		});
 
 		$("#usuario_filtro").select2({
+			width: '100%',
 			ajax: {
 				url: site_url + 'control/'+ "json_usuarios/",
 				dataType: 'json',
@@ -1195,6 +1384,7 @@ var View={
 			minimumInputLength: 3,
 		});
 		$("#pdv_filtro").select2({
+			width: '100%',
 			ajax: {
 				url: site_url + 'control/'+ "json_pdv/",
 				dataType: 'json',
@@ -1261,7 +1451,7 @@ var View={
 					if( $('.flt_' + v).length > 0 ){
 						$('.flt_' + v).show();
 					}
-
+					
 					var idx = $.inArray(v, aSelectAll);
 					if( idx > -1 ){
 						aSelectAll.splice(idx, 1);

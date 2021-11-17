@@ -1,12 +1,13 @@
 var Iniciativas = {
-
+	
 	idFormFiltros: 'formFiltroIniciativas',
 	url: 'Iniciativas/',
 	idDivContent: 'contentIniciativas',
 	idTableDetalle : 'tb-Iniciativas',
-
+	
 	load: function () {
 		$(document).ready(function (e) {
+			$('.btn-consultar').click();
 			$('.flt_grupoCanal').change();
         });
 
@@ -130,7 +131,6 @@ var Iniciativas = {
 							datos[ir]['iniciativas'].push($(vi).val());
 						}
 					}
-
 				});
 			});
 
@@ -145,9 +145,11 @@ var Iniciativas = {
 			});
 		});
 		
-		$(".btn-pdf").on("click",function(e){
+		$(".btn-pdf").on("click", function(e){
 			e.preventDefault();
-			//
+
+			Fn.showLoading(true);
+
 			var rows = $('#data-table').DataTable().rows({ 'search': 'applied' }).nodes();
 			var datos = {};
 
@@ -164,7 +166,6 @@ var Iniciativas = {
 							datos[ir]['iniciativas'].push($(vi).val());
 						}
 					}
-
 				});
 			}); 
 			
@@ -175,14 +176,10 @@ var Iniciativas = {
 			datos['fecFin'] = fechas[1];
 			var data = { 'data': JSON.stringify({ datos }) };
 			var url = Iniciativas.url+'iniciativas_pdf';
-			Fn.download(url,data);
-			
+			$.when( Fn.download(url,data) ).then(function(){
+				Fn.showLoading(false);
+			});
 		});
-
-		$(document).ready(function () {
-			$('.btn-consultar').click();
-		});
-
 
 		$(document).on("change", "#tipoUsuario", function (e) {
 
@@ -195,9 +192,6 @@ var Iniciativas = {
             $.when(Fn.ajax(config)).then(function (a) {
                 
                 if (a.result == 1){
-
-					console.log(a.data.usuarios);
-
 					var html="<option >--Usuario--</option>";
 					if( a.data.usuarios!=null){
 						for (var [key, value] of Object.entries(a.data.usuarios)) {
@@ -205,11 +199,30 @@ var Iniciativas = {
 						}
 					}
 					$("#usuario").html(html);
- 
 				}
             });
-
         });
+
+		$(document).on('click','.checkAll',function(e){
+			e.preventDefault();
+
+			var rows = $('#data-table').DataTable().rows({ 'search': 'applied' }).nodes();
+			var datos = {};
+
+			$.each(rows, function(ir,vr){
+			   	var input = $(vr).find('input');
+
+				if( typeof(datos[ir]) == 'undefined' ){
+					datos[ir] = { 'iniciativas': [] };
+				}
+
+				$.each(input, function(ii, vi){
+					if( $(vi).attr('type') == 'checkbox' ){
+						$(vi).click();
+					}
+				});
+			});
+		});
 	},
 	
 	Actualizar: function (){

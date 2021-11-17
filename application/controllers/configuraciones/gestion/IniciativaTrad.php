@@ -70,7 +70,8 @@ class Iniciativatrad extends MY_Controller
 			'assets/libs/datatables/buttons.bootstrap4.min',
 			'assets/libs/dataTables-1.10.20/datatables',
 			'assets/libs/handsontable@7.4.2/dist/handsontable.full.min',
-			'assets/libs/handsontable@7.4.2/dist/pikaday/pikaday'
+			'assets/libs/handsontable@7.4.2/dist/pikaday/pikaday',
+			'assets/custom/css/configuraciones/gestion/iniciativaTrad'
 		];
 		$config['js']['script'] = [
 			'assets/libs/datatables/datatables',
@@ -1681,7 +1682,6 @@ class Iniciativatrad extends MY_Controller
 		echo json_encode($result);
 	}
 
-
 	public function generar_formato_carga_masiva_alternativa(){
 		////
 		error_reporting(E_ALL);
@@ -1817,7 +1817,6 @@ class Iniciativatrad extends MY_Controller
 		////
 	}
 
-
 	public function estado_carga(){
 		$resultados=$this->model->obtener_estado_carga();
 		$data_carga = array();
@@ -1839,7 +1838,6 @@ class Iniciativatrad extends MY_Controller
 		echo json_encode($result);
 		
 	}
-
 
 	public function carga_masiva_alternativa(){
 
@@ -1995,7 +1993,6 @@ class Iniciativatrad extends MY_Controller
 
 	}
 
-
 	public function generar_formato_errores($id){
 		////
 		$rs_rutas = $this->model->obtener_iniciativas_no_procesado($id);
@@ -2053,15 +2050,17 @@ class Iniciativatrad extends MY_Controller
 		$post = json_decode($this->input->post('data'), true);
 		$result = $this->result;
 
-		$fechas = explode('-', $post['txt-fechas']);
-
-		$post = [
-			'fecIni' => $fechas[0],
-			'fecFin' => $fechas[1]
-		];
-
 		$post['cuenta'] = $this->sessIdCuenta;
 		$post['proyecto'] = $this->sessIdProyecto;
+		$post['idListIniciativaTrad'] = '(';
+		
+		foreach($post['ids'] AS $key => $value){
+			if(count($post['ids']) != $key+1){
+				$post['idListIniciativaTrad'] .= $value.',';
+			}else{
+				$post['idListIniciativaTrad'] .= $value.')';
+			}
+		}
 
 		$result['result'] = $this->model->actualizarListasVigentes($post)['status'];
 
@@ -2072,6 +2071,55 @@ class Iniciativatrad extends MY_Controller
 			$result['msg']['title'] = 'Hecho!';
 			$result['msg']['content'] = getMensajeGestion('actualizacionExitosa');
 		}
+
+		echo json_encode($result);
+	}
+
+	public function formActualizarListasVigentes()
+	{
+		$post = json_decode($this->input->post('data'), true);
+		$result = $this->result;
+
+		$fechas = explode('-', $post['txt-fechas']);
+
+		$params = [
+			'fecIni' => $fechas[0]
+			, 'fecFin' => $fechas[1]
+		];
+
+		$params['cuenta'] = $this->sessIdCuenta;
+		$params['proyecto'] = $this->sessIdProyecto;
+
+		$params['grupoCanal'] = $post['grupoCanal'];
+		$params['canal']  = $post['canal'];
+
+		$params['distribuidora'] = empty($post['distribuidora_filtro']) ? '' : $post['distribuidora_filtro'];
+		$params['zona'] = empty($post['zona_filtro']) ? '' : $post['zona_filtro'];
+		$params['plaza'] = empty($post['plaza_filtro']) ? '' : $post['plaza_filtro'];
+		$params['cadena'] = empty($post['cadena_filtro']) ? '' : $post['cadena_filtro'];
+		$params['banner'] = empty($post['banner_filtro']) ? '' : $post['banner_filtro'];
+
+		$distribuidoraSucursal="";
+		if( !empty($post['distribuidoraSucursal_filtro'])){
+			if( is_array($post['distribuidoraSucursal_filtro'])){
+				$distribuidoraSucursal = implode(",",$post['distribuidoraSucursal_filtro']);
+			}else{
+				$distribuidoraSucursal = $post['distribuidoraSucursal_filtro'];
+			}
+		}
+		$params['distribuidoraSucursal'] = $distribuidoraSucursal;
+
+		$idListas= $this->model->getidListas($params)->result_array();
+		$arr = [] ;
+		foreach($idListas as $k => $v){
+			array_push($arr,$v['idListIniciativaTrad']);
+		}
+		$result['data']['ids'] = $arr ;
+
+		$html= $this->load->view("modulos/configuraciones/gestion/iniciativaTrad/formActualizarVigencia", [], true);
+
+		$result['msg']['title'] = 'Formulario de Vigencia';
+		$result['data']['html'] = $html;
 
 		echo json_encode($result);
 	}

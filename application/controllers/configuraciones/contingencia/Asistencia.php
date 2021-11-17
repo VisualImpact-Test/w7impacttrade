@@ -98,6 +98,7 @@ class Asistencia extends MY_Controller{
 				$array['listaUsuarios'][$row['idUsuario']]['tipoAsistencias'][$row['idTipoAsistencia']]['flagContingencia'] = $row['flagContingencia'];
 				$array['listaUsuarios'][$row['idUsuario']]['tipoAsistencias'][$row['idTipoAsistencia']]['idOcurrencia'] = $row['idOcurrencia'];
 				$array['listaUsuarios'][$row['idUsuario']]['tipoAsistencias'][$row['idTipoAsistencia']]['ocurrencia'] = $row['ocurrencia'];
+				
 			}
 
 			$html .= $this->load->view("modulos/configuraciones/contingencia/asistencia/CtnAsistenciaDetalle", $array, true);

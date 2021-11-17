@@ -224,7 +224,7 @@ class M_iniciativas extends MY_Model{
 				, CONVERT(varchar,i.hora,108) hora
 				, it.idIniciativa
 				, it.nombre iniciativa
-				, ei.idElementoIniciativa
+				, ei.idElementoVis AS idElementoIniciativa
 				, ei.nombre elementoIniciativa
 				, eit.idEstadoIniciativa
 				, eit.nombre estadoIniciativa
@@ -267,16 +267,15 @@ class M_iniciativas extends MY_Model{
 					ON ubp.cod_ubigeo = pl.cod_ubigeo
 				LEFT JOIN trade.iniciativaTrad it
 					ON it.idIniciativa = id.idIniciativa
-				LEFT JOIN trade.elementoIniciativaTrad ei
-					ON ei.idElementoIniciativa=id.idElementoIniciativa
-				JOIN trade.estadoIniciativaTrad eit
+				LEFT JOIN trade.elementoVisibilidadTrad ei
+					ON ei.idElementoVis=id.idElementoIniciativa
+				LEFT JOIN trade.estadoIniciativaTrad eit
 					ON eit.idEstadoIniciativa=id.idEstadoIniciativa
 				LEFT JOIN trade.data_visitaFotos vf
 					ON vf.idVisitaFoto = id.idVisitaFoto
 			WHERE 
 				1=1
 				$filtro
-
 		";
 
 		return $this->query($sql);

@@ -52,13 +52,16 @@ var Login={
 
 								if(b.status == 3){
 									fn[1] = 'Login.enviarCorreo("'+b.correo+'");';
-	
 									btn[1] = { title:'Enviar Correo', fn:fn[1] };
 								}
 							}
 
-							btn[0] = { title:'Continuar', fn:fn[0] };
-							Fn.showModal({ id:modalId,show:true,title:b.msg.title,content:b.msg.content,btn:btn });
+							if(b.status == 2){
+								Login.modalCuentaProyecto();
+							}else{
+								btn[0] = { title:'Continuar', fn:fn[0] };
+								Fn.showModal({ id:modalId,show:true,title:b.msg.title,content:b.msg.content,btn:btn });
+							}
 						}
 					});
 				}
@@ -135,6 +138,78 @@ var Login={
 			Fn.showModal({ id:idModal,show:true,title:b.msg.title,content:b.msg.content,btn:btn,width:'800px' });
 
 			return false;
+		});
+	},
+	modalCuentaProyecto: function(){
+		$.when( Fn.ajax({ url: 'control/get_cuenta' }) ).then(function(a){
+			if( a.result == 2 ) return false;
+
+			var html = '';
+				html += '<form id="frm-cambiarcuenta" class="py-3 px-4">';
+					html += '<div class="row">';
+						html += '<div class="col-md-8 offset-md-2">';
+							html += '<div class="form-group row">';
+								html += '<label class="col-md-3 col-form-label pt-0 text-left">Cuenta:</label>';
+								html += '<div class="col-md-9">';
+									$.each(a.data.cuenta, function(icuenta, vcuenta){
+										var checked = '';
+										if( a.data.cuenta.length == 1 ||
+											vcuenta['id'] == a.data.idCuenta ) checked = 'checked';
+
+										html += '<div class="form-check mb-1">';
+											html += '<input type="radio" id="idCuenta' + vcuenta['id'] + '" class="form-check-input rd-cambiarcuenta-cuenta" name="idCuenta" value="' + vcuenta['id'] + '" ' + checked + ' />';
+											html += '<label class="form-check-label cursor-pointer" for="idCuenta' + vcuenta['id'] + '">';
+												html += vcuenta['nombre'];
+											html += '</label>';
+										html += '</div>';
+									});
+								html += '</div>';
+							html += '</div>';
+							html += '<div class="form-group row">';
+								html += '<label class="col-md-3 col-form-label pt-0 text-left">Proyecto:</label>';
+								html += '<div id="dv-cambiarcuenta-proyecto" class="col-md-9">';
+									if( typeof(a.data.proyecto) != 'undefined' ){
+										$.each(a.data.proyecto, function(iproyecto, vproyecto){
+											var checked = '';
+											if( vproyecto['id'] == a.data.idProyecto ) checked = 'checked';
+
+											html += '<div class="form-check mb-1">';
+												html += '<input class="form-check-input" type="radio" name="idProyecto" id="idProyecto-' + vproyecto['id'] + '" value="' + vproyecto['id'] + '" ' + checked + ' />';
+												html += '<label class="form-check-label cursor-pointer" for="idProyecto-' + vproyecto['id'] + '">';
+													html += vproyecto['nombre'];
+												html += '</label>';
+											html += '</div>';
+										});
+									}
+									else{
+										html += '<small class="text-muted">* Selecciona una Cuenta</small>';
+									}
+								html += '</div>';
+							html += '</div>';
+						html += '</div>';
+					html += '</div>';
+				html += '</form>';
+
+				++modalId;
+				var btn = [{ title: 'Cambiar', id: 'btn-cambiarcuenta-confirm', class: 'btn-trade-visual' }];
+				if(
+					a.data.idCuenta != null &&
+					a.data.idProyecto != null &&
+					String(a.data.idCuenta).length > 0 &&
+					String(a.data.idProyecto).length > 0
+				){
+					btn.unshift({ title: 'Cerrar', fn: 'Fn.showModal({ id: ' + modalId + ', show: false });' });
+				}
+
+				Fn.showModal({
+					id: modalId,
+					show: true,
+					title: 'Cambio de Cuenta / Proyecto',
+					frm: html,
+					btn: btn
+				});
+
+				View.idModal = modalId;
 		});
 	}
 

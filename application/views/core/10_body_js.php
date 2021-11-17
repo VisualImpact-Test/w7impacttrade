@@ -21,18 +21,19 @@
 		<script type="text/javascript" src="assets/libs/slick/slick.js?v=<?=$this->version;?>"></script>
 		<script type="text/javascript" src="assets/libs/notify/bootstrap-notify.js?v=<?=$this->version;?>"></script>
 		<script type="text/javascript" src="assets/libs/customizer.min.js?v=<?=$this->version;?>"></script>
-	
-
+		
+		<script src="assets/libs/datatables/datatables.min.js"></script>
+		<script src="assets/libs/tableTools/TableTools.js"></script>
 		<!-- <script src="assets/libs/dataTables-1.10.25/dataTables-1.10.25/js/jquery.dataTables.min.js"></script>
 		<script src="assets/libs/dataTables-1.10.25/AutoFill-2.3.7/js/autoFill.bootstrap4.js"></script>
 		<script src="assets/libs/dataTables-1.10.25/JSZip-2.5.0/jszip.js"></script>
 		<script src="assets/libs/dataTables-1.10.25/FixedColumns-3.3.3/js/dataTables.fixedColumns.min.js"></script>
 		<script src="assets/libs/dataTables-1.10.25/Buttons-1.7.1/js/dataTables.buttons.min.js"></script>
-		<script src="assets/libs/dataTables-1.10.25/Buttons-1.7.1/js/buttons.colVis.min.js"></script>
-		<script src="assets/libs/dataTables-1.10.25/Buttons-1.7.1/js/buttons.html5.min.js"></script> -->
+		<script src="assets/libs/dataTables-1.10.25/Buttons-1.7.1/js/buttons.colVis.min.js"></script> -->
 		<!-- <script src="assets/libs/datatables-1.10.25/datatables.min.js"></script> -->
-		<script src="assets/libs/datatables/datatables.min.js"></script>
-
+		
+		<script src="https://nightly.datatables.net/js/dataTables.bootstrap4.min.js"></script>
+		<script src="assets/libs/dataTables-1.10.25/Buttons-1.7.1/js/buttons.html5.js?v=<?=$this->version;?>"></script>
 		<script src="assets/libs/sheetJs/xlsx.full.min.js"></script>
 		<script src="assets/libs/fileSaver/FileSaver.min.js"></script>
 	

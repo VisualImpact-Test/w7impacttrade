@@ -34,6 +34,7 @@
 				<button type="button" class="btn btn-outline-trade-visual border-0" data-url="filtrar" id="btn-filtrarAuditoria" title="Filtrar">
 					<i class="fa fa-search"></i><span class="txt_filtro"></span>
 				</button>
+				<button id="exportar_excel" class="btn btn-outline-trade-visual border-0" title="Descargar Excel"> <i class="fas fa-file-excel"></i> </button>
 			</div>
 			<hr>
 			<div class="customizer-content-filter">
@@ -159,6 +160,7 @@
 							<p class="mb-0"><i class="fas fa-square text-obligatorio"></i> Elemento Obligatorio</p>
 							<p class="mb-0"><i class="fas fa-square text-iniciativa"></i> Iniciativa</p>
 							<p class="mb-0"><i class="fas fa-square text-adicional"></i> Elemento Adicional</p>
+							<p class="mb-0"><i class="fas fa-square" style="background:green;"></i> Elemento Modulado</p>
 						</div>
 					</div>
 				</div>

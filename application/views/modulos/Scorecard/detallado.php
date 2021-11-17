@@ -108,10 +108,10 @@
 								$carteraExcl = isset($carteraExclusion[$row_c][$row_s]) ? $carteraExclusion[$row_c][$row_s] : '0';
 								$carteraCobe = isset($carteraCobertura[$row_c][$row_s]) ? $carteraCobertura[$row_c][$row_s] : '0';
 
-								$mensual = $carteraPlan - ($carteraExcl + $carteraCobe);
+								$mensual =  $carteraPlan - ($carteraExcl + $carteraCobe) ;
 								$carteraHabil = $carteraPlan - ($carteraExcl + $mensual);
 
-								$porcentaje = ($carteraHabil > 0) ? ROUND($carteraCobe / $carteraHabil, 2) : 0;
+								$porcentaje = ($carteraHabil > 0) ? ROUND($carteraCobe / $carteraHabil * 100, 2) : 0;
 
 								$total_cartera_planeada = $total_cartera_planeada + $carteraPlan;
 								$total_cartera_mensual = $total_cartera_mensual + $mensual;
@@ -121,7 +121,7 @@
 								?>
 
 								<td class="cartera2"><?= $carteraPlan ?></td> <!-- AQUI ESTOY -->
-								<td class="cartera2"><?= $mensual ?></td>
+								<td class="cartera2"><?= ($mensual >= 0) ? $mensual : '0' ?></td>
 								<td class="cartera2">
 									<?= ($carteraExcl > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_cartera" data-title="Exclusiones" data-subcanal="' . $row_s . '" data-canal="' . $row_c . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-grupo-canal="'.$row.'" data-tipo="EXCLUSION" >' . $carteraExcl . '</a>' : 0 ?>
 								</td>
@@ -197,10 +197,10 @@
 								$carteraExcl = isset($carteraExclusion[$row_c][$row_s]) ? $carteraExclusion[$row_c][$row_s] : '0';
 								$carteraCobe = isset($carteraCobertura[$row_c][$row_s]) ? $carteraCobertura[$row_c][$row_s] : '0';
 
-								$mensual = $carteraPlan - ($carteraExcl + $carteraCobe);
+								$mensual =  $carteraPlan - ($carteraExcl + $carteraCobe) ;
 								$carteraHabil = $carteraPlan - ($carteraExcl + $mensual);
 
-								$porcentaje = ($carteraHabil > 0) ? ROUND($carteraCobe / $carteraHabil, 2) : 0;
+								$porcentaje = ($carteraHabil > 0) ? ROUND($carteraCobe / $carteraHabil * 100, 2) : 0;
 
 								$total_cartera_planeada = $total_cartera_planeada + $carteraPlan;
 								$total_cartera_mensual = $total_cartera_mensual + $mensual;
@@ -210,7 +210,7 @@
 								?>
 
 								<td class="cartera2"><?= $carteraPlan ?></td>
-								<td class="cartera2"><?= $mensual ?></td>
+								<td class="cartera2"><?= ($mensual >= 0) ? $mensual : '0' ?></td>
 								<td class="cartera2">
 									<?= ($carteraExcl > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_cartera" data-title="Exclusiones" data-subcanal="' . $row_s . '" data-canal="' . $row_c . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-grupo-canal="'.$row.'" data-tipo="EXCLUSION">' . $carteraExcl . '</a>' : 0 ?>
 								</td>
@@ -285,10 +285,10 @@
 								$carteraExcl = isset($carteraExclusion[$row_c][$row_s]) ? $carteraExclusion[$row_c][$row_s] : '0';
 								$carteraCobe = isset($carteraCobertura[$row_c][$row_s]) ? $carteraCobertura[$row_c][$row_s] : '0';
 
-								$mensual = $carteraPlan - ($carteraExcl + $carteraCobe);
+								$mensual =  $carteraPlan - ($carteraExcl + $carteraCobe) ;
 								$carteraHabil = $carteraPlan - ($carteraExcl + $mensual);
 
-								$porcentaje = ($carteraHabil > 0) ? ROUND($carteraCobe / $carteraHabil, 2) : 0;
+								$porcentaje = ($carteraHabil > 0) ? ROUND($carteraCobe / $carteraHabil * 100, 2) : 0;
 
 								$total_cartera_planeada = $total_cartera_planeada + $carteraPlan;
 								$total_cartera_mensual = $total_cartera_mensual + $mensual;
@@ -298,7 +298,7 @@
 								?>
 
 								<td class="cartera2"><?= $carteraPlan ?></td>
-								<td class="cartera2"><?= $mensual ?></td>
+								<td class="cartera2"><?= ($mensual >= 0) ? $mensual : '0' ?></td>
 								<td class="cartera2">
 									<?= ($carteraExcl > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_cartera" data-title="Exclusiones" data-subcanal="' . $row_s . '" data-canal="' . $row_c . '" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-grupo-canal="'.$row.'" data-tipo="EXCLUSION">' . $carteraExcl . '</a>' : 0 ?>
 								</td>
@@ -369,11 +369,11 @@
 				<td style="text-align:center;"><?= ($carteraTotalObjetivo > 0) ? ROUND($carteraTotal / $carteraTotalObjetivo * 100, 2) . '%' : '0%' ?></td>
 
 				<td class="cartera2"><?= $total_cartera_planeada ?></td>
-				<td class="cartera2"><?= $total_cartera_mensual ?></td>
+				<td class="cartera2"><?= ($total_cartera_mensual >= 0) ? $total_cartera_mensual : '0' ?></td>
 				<td class="cartera2"><?= $total_cartera_exclusion ?></td>
 				<td class="cartera2"><?= $total_cartera_habil ?></td>
 				<td class="cartera2">
-					<?= ($carteraCobe > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_cartera" data-title="Exclusiones" data-subcanal="" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-grupo-canal="'.$row.'" data-flag-total = "1" data-cod-clientes="'.implode(",",$vcliente_efectiva['total']).'" data-tipo="EFECTIVA">' . $total_cartera_cobertura . '</a>' : 0 ?>
+					<?= ($total_cartera_cobertura > 0) ? '<a href="javascript:;" class="lk-detalle" data-ruta="detalle_cartera" data-title="Exclusiones" data-subcanal="" data-fecini="' . $fecIni . '" data-fecfin ="' . $fecFin . '" data-grupo-canal="'.$row.'" data-flag-total = "1" data-cod-clientes="'.implode(",",$vcliente_efectiva['total']).'" data-tipo="EFECTIVA">' . $total_cartera_cobertura . '</a>' : 0 ?>
 					<? //=$total_cartera_cobertura
 					?>
 				</td>

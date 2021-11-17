@@ -46,7 +46,43 @@ class ControlFoto extends MY_Controller{
         }
         echo $url;
         // readfile($url);
+    }
+
+    public function enviar_fotos_api(){
+        $data_result = array();
+
+        $arreglo = json_encode($_POST['arreglo']) ;
+
+        // $url = "http://movil.visualimpact.com.pe/api_impactTrade_android.php/c_control_v25/guardarFotoMultiple_v2/";
+        $url = "http://visualimpact.test/movil/api_impactTrade_android.php/c_control_v25/guardarFotoMultiple_v2/";
+
+        $curl = curl_init($url);
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_POST, true);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+
+        $headers = array();
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+
+        $data['arreglo'] = $arreglo;
+
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+
+        //for debug only!
+        // curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+        // curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+
+        $resp = curl_exec($curl);
+        curl_close($curl);
+
+        $data_result=json_decode($resp,true);
         
-    
+
+        return $this->printJson($data_result);
+    }
+    function printJson( $array ) {
+        ini_set('display_errors', 0);
+        header('Content-type: application/json');
+        exit(@json_encode($array));
     }
 }

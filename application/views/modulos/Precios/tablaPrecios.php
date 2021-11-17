@@ -33,42 +33,6 @@
             </tr>
         </thead>
         <tbody>
-            <?
-            $contador = 0;
-            foreach ($visitasPrecios as $key => $visitaPrecio) {
-                $contador++;
-            ?>
-                <tr>
-                    <td class="text-center"><?= $contador ?></td>
-                    <td class="text-left"><?= verificarEmpty($visitaPrecio["grupoCanal"], 3) ?></td>
-                    <td class="text-left"><?= verificarEmpty($visitaPrecio["canal"], 3) ?></td>
-                    <td class="text-left"><?= verificarEmpty($visitaPrecio["subCanal"], 3) ?></td>
-
-                    <? foreach ($segmentacion['headers'] as $k => $v) { ?>
-                        <td class="text-<?= (!empty($visitaPrecio[($v['columna'])]) ? $v['align'] : '-') ?>"><?= (!empty($visitaPrecio[($v['columna'])]) ? $visitaPrecio[($v['columna'])] : '-') ?></td>
-                    <? } ?>
-
-                    <td class="text-center"><?= verificarEmpty($visitaPrecio['idCliente'], 3) ?></td>
-                    <td class="text-center"><?= verificarEmpty($visitaPrecio['codCliente'], 3) ?></td>
-                    <td class="text-center"><?= verificarEmpty($visitaPrecio['codDist'], 3) ?></td>
-                    <td class="text-left"><?= verificarEmpty($visitaPrecio['razonSocial'], 3) ?></td>
-                    <td class="text-left"><?= verificarEmpty($visitaPrecio['tipoCliente'], 3) ?></td>
-
-                    <td class="text-center"><?= verificarEmpty($visitaPrecio["idUsuario"], 3) ?></td>
-                    <td class="text-center"><?= verificarEmpty($visitaPrecio["tipoUsuario"], 3) ?></td>
-                    <td class="text-left"><?= verificarEmpty($visitaPrecio["nombreUsuario"], 3) ?></td>
-
-                    <td class="text-left"><?= verificarEmpty($visitaPrecio["departamento"], 3) ?></td>
-                    <td class="text-left"><?= verificarEmpty($visitaPrecio["provincia"], 3) ?></td>
-                    <td class="text-left"><?= verificarEmpty($visitaPrecio["distrito"], 3) ?></td>
-
-                    <td class="text-left"><?= verificarEmpty($visitaPrecio["categoria"], 3) ?></td>
-                    <td class="text-left"><?= verificarEmpty($visitaPrecio["marca"], 3) ?></td>
-                    <td class="text-center"><?= verificarEmpty($visitaPrecio["idProducto"], 3) ?></td>
-                    <td class="text-left"><?= verificarEmpty($visitaPrecio["producto"], 3) ?></td>
-                    <td class="text-right"><?= verificarEmpty($visitaPrecio["precio"], 3) ?></td>
-                </tr>
-            <? } ?>
         </tbody>
     </table>
 </div>

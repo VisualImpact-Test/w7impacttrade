@@ -90,9 +90,12 @@ class Rutas extends MY_Controller{
 				case 1:
 					$rs_permisos_modulos = $this->model->obtener_permisos_modulos($input);
 					$array['permisos_modulos_cuenta'] = $this->model->obtener_permisos_modulos_cuenta($input);
+					
 					foreach($rs_permisos_modulos as $row){
 						$array['permisos_modulos'][$row['idTipoUsuario']][$row['idModuloGrupo']] = $row;
 					}
+					
+
 					$array['visitas'] = $rs_visitas;
 					$segmentacion = getSegmentacion(['grupoCanal_filtro' => $input['grupo_filtro']]);
 					$array['segmentacion'] = $segmentacion;
@@ -113,22 +116,27 @@ class Rutas extends MY_Controller{
 					$disabledTH['OrdenTrabajo'] = 'tdDisabledRutacuenta';
 					$disabledTH['VisibilidadAuditoria'] = 'tdDisabledRutacuenta';
 					$disabledTH['Premiacion'] = 'tdDisabledRutacuenta';
-					$disabledTH['Modulacion'] = 'tdDisabledRutacuenta';
+					$disabledTH['Surtido'] = 'tdDisabledRutacuenta';
 					$disabledTH['Observacion'] = 'tdDisabledRutacuenta';
 					$disabledTH['Tareas'] = 'tdDisabledRutacuenta';
 					$disabledTH['EvidenciaFotografica'] = 'tdDisabledRutacuenta';
+					$disabledTH['OrdenAuditoria'] = 'tdDisabledRutacuenta';
+					$disabledTH['Modulacion'] = 'tdDisabledRutacuenta';
 
+					
 					foreach ($array['permisos_modulos_cuenta'] as $key => $row) {
 						$disabledTH[preg_replace('/\s+/', '', $row['nombre'])] = '';
 					}
 
 					$array['disabledTH'] = $disabledTH;
-					$html .= $this->load->view("modulos/rutas/rutasDetalle", $array, true);
+
 
 					$permisos_modulos = $array['permisos_modulos'];
 
-					foreach ($rs_visitas as $kr => $row) {
+					$arrayTipoUsuarioData=array();
 
+					foreach ($rs_visitas as $kr => $row) {
+						$arrayTipoUsuarioData[$row['idTipoUsuario']]=$row['idTipoUsuario'];
 						$latiIni = $row['lati_ini'];
 						$longIni = $row['long_ini'];
 						$latitud = $row['latitud'];
@@ -198,264 +206,363 @@ class Rutas extends MY_Controller{
 						"<p class='text-center {$condicion_f}'>{$condicion_}</p>"
 						);
 						//--------Encuesta
-						$encuesta = $row['encuesta'];
-						if (!empty($encuesta)) {
-							$encuesta = '<custom data-clases="tdDisabledRuta text-center"></custom><a href="javascript:;" class="lk-detalle" data-modulo="encuesta" data-perfil="' . $row['tipoUsuario'] . '"  data-usuario="' . $row['nombreUsuario'] . '" data-cliente="' . $row['razonSocial'] . '" data-title="ENCUESTAS" data-visita="' . $row['idVisita'] . '" >SI <i class="fa fa-file-text"></i></a>';
-						}
-						$disabled = '';
-						if (!isset($permisos_modulos[$row['idTipoUsuario']][1])) {
-							$disabled = 'tdDisabledRuta';
-						} 
+							$encuesta = $row['encuesta'];
+							if (!empty($encuesta)) {
+								$encuesta = '<custom data-clases=" text-center"></custom><a href="javascript:;" class="lk-detalle" data-modulo="encuesta" data-perfil="' . $row['tipoUsuario'] . '"  data-usuario="' . $row['nombreUsuario'] . '" data-cliente="' . $row['razonSocial'] . '" data-title="ENCUESTAS" data-visita="' . $row['idVisita'] . '" >SI <i class="fa fa-file-text"></i></a>';
+							}
+							$disabled = '';
+							if (!isset($permisos_modulos[$row['idTipoUsuario']][1])) {
+								$disabled = 'tdDisabledRuta';
+							} 
+							
+							if(empty($encuesta)){
+								$encuesta = "<p class='text-center {$disabledTH['Encuestas']} {$disabled}'>".'-'."</p>" ;
+							}
+							array_push($new_data[$kr],
+								$encuesta  
+							);
 						
-						if(empty($encuesta)){
-							$encuesta = "<p class='text-center {$disabledTH['Encuestas']} {$disabled}'>".'-'."</p>" ;
-						}
-						array_push($new_data[$kr],
-							$encuesta  
-						);
 						//--------Check Producto
-						$echeck_Producto = $row['productos'];
-						if (!empty($echeck_Producto)) {
-							$echeck_Producto = '<custom data-clases="tdDisabledRuta text-center"></custom><a href="javascript:;" class="lk-detalle" data-modulo="check_Producto" data-title="CHECK PRODUCTOS" data-perfil="' . $row['tipoUsuario'] . '"  data-usuario="' . $row['nombreUsuario'] . '" data-cliente="' . $row['razonSocial'] . '"  data-visita="' . $row['idVisita'] . '" >SI <i class="fa fa-file-text"></i></a>';
-						}
-						$disabled = '';
-						if (!isset($permisos_modulos[$row['idTipoUsuario']][3])) {
-							$disabled = 'tdDisabledRuta';
-						}
-						if(empty($echeck_Producto)){
-							$echeck_Producto = "<p class='text-center {$disabledTH['CheckProducto']} {$disabled}'>".'-'."</p>" ;
-						} 
-						array_push($new_data[$kr],
-							$echeck_Producto
-						);
+							$echeck_Producto = $row['productos'];
+							if (!empty($echeck_Producto)) {
+								$echeck_Producto = '<custom data-clases=" text-center"></custom><a href="javascript:;" class="lk-detalle" data-modulo="check_Producto" data-title="CHECK PRODUCTOS" data-perfil="' . $row['tipoUsuario'] . '"  data-usuario="' . $row['nombreUsuario'] . '" data-cliente="' . $row['razonSocial'] . '"  data-visita="' . $row['idVisita'] . '" >SI <i class="fa fa-file-text"></i></a>';
+							}
+							$disabled = '';
+							if (!isset($permisos_modulos[$row['idTipoUsuario']][3])) {
+								$disabled = 'tdDisabledRuta';
+							}
+							if(empty($echeck_Producto)){
+								$echeck_Producto = "<p class='text-center {$disabledTH['CheckProducto']} {$disabled}'>".'-'."</p>" ;
+							} 
+							array_push($new_data[$kr],
+								$echeck_Producto
+							);
+
+
 						//--------Precios
-						$mod = $row['precios'];
-						if (!empty($mod)) {
-							$mod = '<custom data-clases="tdDisabledRuta text-center"></custom><a href="javascript:;" class="lk-detalle" data-modulo="precios"  data-title="PRECIOS" data-perfil="' . $row['tipoUsuario'] . '"  data-usuario="' . $row['nombreUsuario'] . '" data-cliente="' . $row['razonSocial'] . '"  data-visita="' . $row['idVisita'] . '" >SI <i class="fa fa-file-text"></i></a>';
-						}
-						$disabled = '';
-						if (!isset($permisos_modulos[$row['idTipoUsuario']][10])) {
-							$disabled = 'tdDisabledRuta';
-						}
-						if(empty($mod)){
-							$mod = "<p class='text-center {$disabledTH['Precios']} {$disabled}'>".'-'."</p>" ;
-						}  
-						array_push($new_data[$kr],
-							$mod
-						);
+							$mod = $row['precios'];
+							if (!empty($mod)) {
+								$mod = '<custom data-clases=" text-center"></custom><a href="javascript:;" class="lk-detalle" data-modulo="precios"  data-title="PRECIOS" data-perfil="' . $row['tipoUsuario'] . '"  data-usuario="' . $row['nombreUsuario'] . '" data-cliente="' . $row['razonSocial'] . '"  data-visita="' . $row['idVisita'] . '" >SI <i class="fa fa-file-text"></i></a>';
+							}
+							$disabled = '';
+							if (!isset($permisos_modulos[$row['idTipoUsuario']][10])) {
+								$disabled = 'tdDisabledRuta';
+							}
+							if(empty($mod)){
+								$mod = "<p class='text-center {$disabledTH['Precios']} {$disabled}'>".'-'."</p>" ;
+							}  
+							array_push($new_data[$kr],
+								$mod
+							);
+
+
 						//--------Promociones
-						$mod = $row['promociones'];
-						if (!empty($mod)) {
-							$mod = '<custom data-clases="tdDisabledRuta text-center"></custom><a href="javascript:;" class="lk-detalle" data-modulo="promociones"  data-title="PROMOCIONES" data-perfil="' . $row['tipoUsuario'] . '"  data-usuario="' . $row['nombreUsuario'] . '" data-cliente="' . $row['razonSocial'] . '"  data-visita="' . $row['idVisita'] . '" >SI <i class="fa fa-file-text"></i></a>';
-						}
-						$disabled = '';
-						if (!isset($permisos_modulos[$row['idTipoUsuario']][7])) {
-							$disabled = 'tdDisabledRuta';
-						}
-						if(empty($mod)){
-							$mod = "<p class='text-center {$disabledTH['Promociones']} {$disabled}'>".'-'."</p>" ;
-						}  
-						array_push($new_data[$kr],
-							$mod
-						); 
+							$mod = $row['promociones'];
+							if (!empty($mod)) {
+								$mod = '<custom data-clases=" text-center"></custom><a href="javascript:;" class="lk-detalle" data-modulo="promociones"  data-title="PROMOCIONES" data-perfil="' . $row['tipoUsuario'] . '"  data-usuario="' . $row['nombreUsuario'] . '" data-cliente="' . $row['razonSocial'] . '"  data-visita="' . $row['idVisita'] . '" >SI <i class="fa fa-file-text"></i></a>';
+							}
+							$disabled = '';
+							if (!isset($permisos_modulos[$row['idTipoUsuario']][7])) {
+								$disabled = 'tdDisabledRuta';
+							}
+							if(empty($mod)){
+								$mod = "<p class='text-center {$disabledTH['Promociones']} {$disabled}'>".'-'."</p>" ;
+							}  
+							array_push($new_data[$kr],
+								$mod
+							); 
+
+
 						//--------Fotos
-						$fotos = $row['fotos'];
-						if (!empty($fotos)) {
-							$fotos = '<custom data-clases="tdDisabledRuta text-center"></custom><a href="javascript:;" class="lk-ruta-foto text-center" data-visita="' . $row['idVisita'] . '" data-perfil="' . $row['tipoUsuario'] . '"  data-usuario="' . $row['nombreUsuario'] . '" data-cliente="' . $row['razonSocial'] . '" >' . $fotos . ' <i class="fa fa-camera"></i></a>';
-						}
-						$disabled = '';
-						if (!isset($permisos_modulos[$row['idTipoUsuario']][9])) {
-							$disabled = 'tdDisabledRuta';
-						}
-						if(empty($fotos)){
-							$fotos = "<p class='text-center {$disabledTH['Fotos']} {$disabled}'>".'-'."</p>" ;
-						}  
-						array_push($new_data[$kr],
-							$fotos
-						);  
+							$fotos = $row['fotos'];
+							$fotosTotales=$row['fotosOtrosModulos'];
+							
+							if (!empty($fotos) || !empty($fotosTotales) ) {
+								if(empty($fotos)){
+									$fotos="0";
+								}
+								if(empty($fotosTotales)){
+									$fotosTotales="0";
+								}
+								$fotos = '<custom data-clases=" text-center"></custom><a href="javascript:;" class="lk-ruta-foto text-center" data-visita="' . $row['idVisita'] . '" data-perfil="' . $row['tipoUsuario'] . '"  data-usuario="' . $row['nombreUsuario'] . '" data-cliente="' . $row['razonSocial'] . '" ><i class="fa fa-camera"></i> ' . $fotos . ' | '. $fotosTotales .' </a>';
+							}
+							$disabled = '';
+							if (!isset($permisos_modulos[$row['idTipoUsuario']][9])) {
+								$disabled = 'tdDisabledRuta';
+							}
+							if(empty($fotos) && empty($fotosTotales)){
+								$fotos = "<p class='text-center {$disabledTH['Fotos']} {$disabled}'>".'-'."</p>" ;
+							}  
+							array_push($new_data[$kr],
+								$fotos
+							);  
 						// NEW FORMATOS
 
+
+
 						//--------Inventanrio
-						$mod = isset($row['inventario']) ? $row['inventario'] : '';
-						if (!empty($mod)) {
-							$mod = '<custom data-clases="tdDisabledRuta text-center"></custom><a href="javascript:;" class="lk-detalle" data-modulo="inventario" data-perfil="' . $row['tipoUsuario'] . '"  data-usuario="' . $row['nombreUsuario'] . '" data-cliente="' . $row['razonSocial'] . '" data-title="INVENTARIO" data-visita="' . $row['idVisita'] . '" >SI <i class="fa fa-file-text"></i></a>';
-						}
-						$disabled = '';
-						if (!isset($permisos_modulos[$row['idTipoUsuario']][11])) {
-							$disabled = 'tdDisabledRuta';
-						}
-						if(empty($mod)){
-							$mod = "<p class='text-center {$disabledTH['Inventario']} {$disabled}'>".'-'."</p>" ;
-						}  
-						array_push($new_data[$kr],
-							$mod
-						);  
+							$mod = isset($row['inventario']) ? $row['inventario'] : '';
+							if (!empty($mod)) {
+								$mod = '<custom data-clases=" text-center"></custom><a href="javascript:;" class="lk-detalle" data-modulo="inventario" data-perfil="' . $row['tipoUsuario'] . '"  data-usuario="' . $row['nombreUsuario'] . '" data-cliente="' . $row['razonSocial'] . '" data-title="INVENTARIO" data-visita="' . $row['idVisita'] . '" >SI <i class="fa fa-file-text"></i></a>';
+							}
+							$disabled = '';
+							if (!isset($permisos_modulos[$row['idTipoUsuario']][11])) {
+								$disabled = 'tdDisabledRuta';
+							}
+							if(empty($mod)){
+								$mod = "<p class='text-center {$disabledTH['Inventario']} {$disabled}'>".'-'."</p>" ;
+							}  
+							array_push($new_data[$kr],
+								$mod
+							);  
+
+
 						//--------Visibilidad
-						$mod = isset($row['visibilidad']) ? $row['visibilidad'] : '';
-						if (!empty($mod)) {
-							$mod = '<custom data-clases="tdDisabledRuta text-center"></custom><a href="javascript:;" class="lk-detalle" data-modulo="visibilidad" data-perfil="' . $row['tipoUsuario'] . '"  data-usuario="' . $row['nombreUsuario'] . '" data-cliente="' . $row['razonSocial'] . '" data-title="VISIBILIDAD" data-visita="' . $row['idVisita'] . '" >SI <i class="fa fa-file-text"></i></a>';
-						}
-						$disabled = '';
-						if (!isset($permisos_modulos[$row['idTipoUsuario']][5])) {
-							$disabled = 'tdDisabledRuta';
-						}
-						if(empty($mod)){
-							$mod = "<p class='text-center {$disabledTH['Visibilidad']} {$disabled}'>".'-'."</p>" ;
-						}  
-						array_push($new_data[$kr],
-							$mod
-						);  
+							$mod = isset($row['visibilidad']) ? $row['visibilidad'] : '';
+							if (!empty($mod)) {
+								$mod = '<custom data-clases=" text-center"></custom><a href="javascript:;" class="lk-detalle" data-modulo="visibilidad" data-perfil="' . $row['tipoUsuario'] . '"  data-usuario="' . $row['nombreUsuario'] . '" data-cliente="' . $row['razonSocial'] . '" data-title="VISIBILIDAD" data-visita="' . $row['idVisita'] . '" >SI <i class="fa fa-file-text"></i></a>';
+							}
+							$disabled = '';
+							if (!isset($permisos_modulos[$row['idTipoUsuario']][5])) {
+								$disabled = 'tdDisabledRuta';
+							}
+							if(empty($mod)){
+								$mod = "<p class='text-center {$disabledTH['Visibilidad']} {$disabled}'>".'-'."</p>" ;
+							}  
+							array_push($new_data[$kr],
+								$mod
+							);  
+
+
+
 						//--------Mantenimiento Cliente
-						$mod = isset($row['mantenimientoCliente']) ? $row['mantenimientoCliente'] : '';
-						if (!empty($mod)) {
-							$mod = '<custom data-clases="tdDisabledRuta text-center"></custom><a href="javascript:;" class="lk-detalle" data-modulo="mantenimientoCliente" data-perfil="' . $row['tipoUsuario'] . '"  data-usuario="' . $row['nombreUsuario'] . '" data-cliente="' . $row['razonSocial'] . '" data-title="MANTENIMIENTO CLIENTE" data-visita="' . $row['idVisita'] . '" >SI <i class="fa fa-file-text"></i></a>';
-						}
-						$disabled = '';
-						if (!isset($permisos_modulos[$row['idTipoUsuario']][14])) {
-							$disabled = 'tdDisabledRuta';
-						} 
-						if(empty($mod)){
-							$mod = "<p class='text-center {$disabledTH['MantenimientoCliente']} {$disabled}'>".'-'."</p>" ;
-						}  
-						array_push($new_data[$kr],
-							$mod
-						);  
+							$mod = isset($row['mantenimientoCliente']) ? $row['mantenimientoCliente'] : '';
+							if (!empty($mod)) {
+								$mod = '<custom data-clases=" text-center"></custom><a href="javascript:;" class="lk-detalle" data-modulo="mantenimientoCliente" data-perfil="' . $row['tipoUsuario'] . '"  data-usuario="' . $row['nombreUsuario'] . '" data-cliente="' . $row['razonSocial'] . '" data-title="MANTENIMIENTO CLIENTE" data-visita="' . $row['idVisita'] . '" >SI <i class="fa fa-file-text"></i></a>';
+							}
+							$disabled = '';
+							if (!isset($permisos_modulos[$row['idTipoUsuario']][14])) {
+								$disabled = 'tdDisabledRuta';
+							} 
+							if(empty($mod)){
+								$mod = "<p class='text-center {$disabledTH['MantenimientoCliente']} {$disabled}'>".'-'."</p>" ;
+							}  
+							array_push($new_data[$kr],
+								$mod
+							);  
+
+
+
 						//--------Iniciativas
-						$mod = isset($row['iniciativas']) ? $row['iniciativas'] : '';
-						if (!empty($mod)) {
-							$mod = '<custom data-clases="tdDisabledRuta text-center"></custom><a href="javascript:;" class="lk-detalle" data-modulo="iniciativas" data-perfil="' . $row['tipoUsuario'] . '"  data-usuario="' . $row['nombreUsuario'] . '" data-cliente="' . $row['razonSocial'] . '" data-title="INICIATIVAS" data-visita="' . $row['idVisita'] . '" >SI <i class="fa fa-file-text"></i></a>';
-						}
-						$disabled = '';
-						if (!isset($permisos_modulos[$row['idTipoUsuario']][12])) {
-							$disabled = 'tdDisabledRuta';
-						}
-						if(empty($mod)){
-							$mod = "<p class='text-center {$disabledTH['Iniciativas']} {$disabled}'>".'-'."</p>" ;
-						}  
-						array_push($new_data[$kr],
-							$mod
-						);  
+							$mod = isset($row['iniciativas']) ? $row['iniciativas'] : '';
+							if (!empty($mod)) {
+								$mod = '<custom data-clases=" text-center"></custom><a href="javascript:;" class="lk-detalle" data-modulo="iniciativas" data-perfil="' . $row['tipoUsuario'] . '"  data-usuario="' . $row['nombreUsuario'] . '" data-cliente="' . $row['razonSocial'] . '" data-title="INICIATIVAS" data-visita="' . $row['idVisita'] . '" >SI <i class="fa fa-file-text"></i></a>';
+							}
+							$disabled = '';
+							if (!isset($permisos_modulos[$row['idTipoUsuario']][12])) {
+								$disabled = 'tdDisabledRuta';
+							}
+							if(empty($mod)){
+								$mod = "<p class='text-center {$disabledTH['Iniciativas']} {$disabled}'>".'-'."</p>" ;
+							}  
+							array_push($new_data[$kr],
+								$mod
+							);  
+
+
 						//--------inteligenciaCompetitiva
-						$mod = isset($row['inteligenciaCompetitiva']) ? $row['inteligenciaCompetitiva'] : '';
-						if (!empty($mod)) {
-							$mod = '<custom data-clases="tdDisabledRuta text-center"></custom><a href="javascript:;" class="lk-detalle" data-modulo="inteligenciaCompetitiva" data-perfil="' . $row['tipoUsuario'] . '"  data-usuario="' . $row['nombreUsuario'] . '" data-cliente="' . $row['razonSocial'] . '" data-title="INTELIGENCIA COMPETITIVA" data-visita="' . $row['idVisita'] . '" >SI <i class="fa fa-file-text"></i></a>';
-						}
-						$disabled = '';
-						if (!isset($permisos_modulos[$row['idTipoUsuario']][13])) {
-							$disabled = 'tdDisabledRuta';
-						}
-						if(empty($mod)){
-							$mod = "<p class='text-center {$disabledTH['InteligenciaCompetitiva']} {$disabled}'>".'-'."</p>" ;
-						}  
-						array_push($new_data[$kr],
-							$mod
-						);  
+							$mod = isset($row['inteligenciaCompetitiva']) ? $row['inteligenciaCompetitiva'] : '';
+							if (!empty($mod)) {
+								$mod = '<custom data-clases=" text-center"></custom><a href="javascript:;" class="lk-detalle" data-modulo="inteligenciaCompetitiva" data-perfil="' . $row['tipoUsuario'] . '"  data-usuario="' . $row['nombreUsuario'] . '" data-cliente="' . $row['razonSocial'] . '" data-title="INTELIGENCIA COMPETITIVA" data-visita="' . $row['idVisita'] . '" >SI <i class="fa fa-file-text"></i></a>';
+							}
+							$disabled = '';
+							if (!isset($permisos_modulos[$row['idTipoUsuario']][13])) {
+								$disabled = 'tdDisabledRuta';
+							}
+							if(empty($mod)){
+								$mod = "<p class='text-center {$disabledTH['InteligenciaCompetitiva']} {$disabled}'>".'-'."</p>" ;
+							}  
+							array_push($new_data[$kr],
+								$mod
+							);  
+
+
 						//--------Orden Trabajo
-						$mod = isset($row['ordenTrabajo']) ? $row['ordenTrabajo'] : '';
-						if (!empty($mod)) {
-							$mod = '<custom data-clases="tdDisabledRuta text-center"></custom><a href="javascript:;" class="lk-detalle" data-modulo="ordenTrabajo" data-perfil="' . $row['tipoUsuario'] . '"  data-usuario="' . $row['nombreUsuario'] . '" data-cliente="' . $row['razonSocial'] . '" data-title="ORDEN TRABAJO" data-visita="' . $row['idVisita'] . '" >SI <i class="fa fa-file-text"></i></a>';
-						}
-						$disabled = '';
-						if (!isset($permisos_modulos[$row['idTipoUsuario']][15])) {
-							$disabled = 'tdDisabledRuta';
-						}
-						if(empty($mod)){
-							$mod = "<p class='text-center {$disabledTH['OrdenTrabajo']} {$disabled}'>".'-'."</p>" ;
-						}  
-						array_push($new_data[$kr],
-							$mod
-						); 
+							$mod = isset($row['ordenTrabajo']) ? $row['ordenTrabajo'] : '';
+							if (!empty($mod)) {
+								$mod = '<custom data-clases=" text-center"></custom><a href="javascript:;" class="lk-detalle" data-modulo="ordenTrabajo" data-perfil="' . $row['tipoUsuario'] . '"  data-usuario="' . $row['nombreUsuario'] . '" data-cliente="' . $row['razonSocial'] . '" data-title="ORDEN TRABAJO" data-visita="' . $row['idVisita'] . '" >SI <i class="fa fa-file-text"></i></a>';
+							}
+							$disabled = '';
+							if (!isset($permisos_modulos[$row['idTipoUsuario']][22])) {
+								$disabled = 'tdDisabledRuta';
+							}
+							if(empty($mod)){
+								$mod = "<p class='text-center {$disabledTH['OrdenTrabajo']} {$disabled}'>".'-'."</p>" ;
+							}  
+							array_push($new_data[$kr],
+								$mod
+							); 
+
+
+
 						//--------Visibilidad Auditoria
-						$mod = isset($row['visibilidadAuditoria']) ? $row['visibilidadAuditoria'] : '';
-						if (!empty($mod)) {
-							$mod = '<custom data-clases="tdDisabledRuta text-center"></custom><a href="javascript:;" class="lk-detalle" data-modulo="visibilidadAuditoria" data-perfil="' . $row['tipoUsuario'] . '"  data-usuario="' . $row['nombreUsuario'] . '" data-cliente="' . $row['razonSocial'] . '" data-title="VISIBILIDAD AUDITORÍA" data-visita="' . $row['idVisita'] . '" >SI <i class="fa fa-file-text"></i></a>';
-						}
-						$disabled = '';
-						if (!isset($permisos_modulos[$row['idTipoUsuario']][17])) {
-							$disabled = 'tdDisabledRuta';
-						}
-						if(empty($mod)){
-							$mod = "<p class='text-center {$disabledTH['VisibilidadAuditoria']} {$disabled}'>".'-'."</p>" ;
-						}  
-						array_push($new_data[$kr],
-							$mod
-						);  
+							$mod = isset($row['visibilidadAuditoria']) ? $row['visibilidadAuditoria'] : '';
+							if (!empty($mod)) {
+								$mod = '<custom data-clases=" text-center"></custom><a href="javascript:;" class="lk-detalle" data-modulo="visibilidadAuditoria" data-perfil="' . $row['tipoUsuario'] . '"  data-usuario="' . $row['nombreUsuario'] . '" data-cliente="' . $row['razonSocial'] . '" data-title="VISIBILIDAD AUDITORÍA" data-visita="' . $row['idVisita'] . '" >SI <i class="fa fa-file-text"></i></a>';
+							}
+							$disabled = '';
+							if (!isset($permisos_modulos[$row['idTipoUsuario']][17])) {
+								$disabled = 'tdDisabledRuta';
+							}
+							if(empty($mod)){
+								$mod = "<p class='text-center {$disabledTH['VisibilidadAuditoria']} {$disabled}'>".'-'."</p>" ;
+							}  
+							array_push($new_data[$kr],
+								$mod
+							);  
+
+
+
 						//--------Premio
-						$mod = isset($row['premio']) ? $row['premio'] : '';
-						if (!empty($mod)) {
-							$mod = '<custom data-clases="tdDisabledRuta text-center"></custom><a href="javascript:;" class="lk-detalle" data-modulo="premiacion" data-perfil="' . $row['tipoUsuario'] . '"  data-usuario="' . $row['nombreUsuario'] . '" data-cliente="' . $row['razonSocial'] . '" data-title="ENCUESTA PREMIO" data-visita="' . $row['idVisita'] . '" >SI <i class="fa fa-file-text"></i></a>';
-						}
-						$disabled = '';
-						if (!isset($permisos_modulos[$row['idTipoUsuario']][24])) {
-							$disabled = 'tdDisabledRuta';
-						}
-						if(empty($mod)){
-							$mod = "<p class='text-center {$disabledTH['Premiacion']} {$disabled}'>".'-'."</p>" ;
-						}  
-						array_push($new_data[$kr],
-							$mod
-						);  
+							$mod = isset($row['premio']) ? $row['premio'] : '';
+							if (!empty($mod)) {
+								$mod = '<custom data-clases=" text-center"></custom><a href="javascript:;" class="lk-detalle" data-modulo="premiacion" data-perfil="' . $row['tipoUsuario'] . '"  data-usuario="' . $row['nombreUsuario'] . '" data-cliente="' . $row['razonSocial'] . '" data-title="PREMIACION" data-visita="' . $row['idVisita'] . '" >SI <i class="fa fa-file-text"></i></a>';
+							}
+							$disabled = '';
+							if (!isset($permisos_modulos[$row['idTipoUsuario']][24])) {
+								$disabled = 'tdDisabledRuta';
+							}
+							if(empty($mod)){
+								$mod = "<p class='text-center {$disabledTH['Premiacion']} {$disabled}'>".'-'."</p>" ;
+							}  
+							array_push($new_data[$kr],
+								$mod
+							);
+
+
+
 						//--------Surtido
-						$mod = isset($row['surtido']) ? $row['surtido'] : '';
-						if (!empty($mod)) {
-							$mod = '<custom data-clases="tdDisabledRuta text-center"></custom><a href="javascript:;" class="lk-detalle" data-modulo="surtido" data-perfil="' . $row['tipoUsuario'] . '"  data-usuario="' . $row['nombreUsuario'] . '" data-cliente="' . $row['razonSocial'] . '" data-title="SURTIDO" data-visita="' . $row['idVisita'] . '" >SI <i class="fa fa-file-text"></i></a>';
-						}
-						$disabled = '';
-						if (!isset($permisos_modulos[$row['idTipoUsuario']][23])) {
-							$disabled = 'tdDisabledRuta';
-						}
-						if(empty($mod)){
-							$mod = "<p class='text-center {$disabledTH['Modulacion']} {$disabled}'>".'-'."</p>" ;
-						}  
-						array_push($new_data[$kr],
-							$mod
-						);  
+							$mod = isset($row['surtido']) ? $row['surtido'] : '';
+							if (!empty($mod)) {
+								$mod = '<custom data-clases=" text-center"></custom><a href="javascript:;" class="lk-detalle" data-modulo="surtido" data-perfil="' . $row['tipoUsuario'] . '"  data-usuario="' . $row['nombreUsuario'] . '" data-cliente="' . $row['razonSocial'] . '" data-title="SURTIDO" data-visita="' . $row['idVisita'] . '" >SI <i class="fa fa-file-text"></i></a>';
+							}
+							$disabled = '';
+							if (!isset($permisos_modulos[$row['idTipoUsuario']][23])) {
+								$disabled = 'tdDisabledRuta';
+							}
+							if(empty($mod)){
+								$mod = "<p class='text-center {$disabledTH['Surtido']} {$disabled}'>".'-'."</p>" ;
+							}  
+							array_push($new_data[$kr],
+								$mod
+							);  
+
+
+
 						//--------Observacion
-						$mod = isset($row['observacion']) ? $row['observacion'] : '';
-						if (!empty($mod)) {
-							$mod = '<custom data-clases="tdDisabledRuta text-center"></custom><a href="javascript:;" class="lk-detalle" data-modulo="observacion" data-perfil="' . $row['tipoUsuario'] . '"  data-usuario="' . $row['nombreUsuario'] . '" data-cliente="' . $row['razonSocial'] . '" data-title="OBSERVACION" data-visita="' . $row['idVisita'] . '" >SI <i class="fa fa-file-text"></i></a>';
-						}
-						$disabled = '';
-						if (!isset($permisos_modulos[$row['idTipoUsuario']][18])) {
-							$disabled = 'tdDisabledRuta';
-						}
-						if(empty($mod)){
-							$mod = "<p class='text-center {$disabledTH['Observacion']} {$disabled}'>".'-'."</p>" ;
-						}  
-						array_push($new_data[$kr],
-							$mod
-						);
+							$mod = isset($row['observacion']) ? $row['observacion'] : '';
+							if (!empty($mod)) {
+								$mod = '<custom data-clases=" text-center"></custom><a href="javascript:;" class="lk-detalle" data-modulo="observacion" data-perfil="' . $row['tipoUsuario'] . '"  data-usuario="' . $row['nombreUsuario'] . '" data-cliente="' . $row['razonSocial'] . '" data-title="OBSERVACION" data-visita="' . $row['idVisita'] . '" >SI <i class="fa fa-file-text"></i></a>';
+							}
+							$disabled = '';
+							if (!isset($permisos_modulos[$row['idTipoUsuario']][20])) {
+								$disabled = 'tdDisabledRuta';
+							}
+							if(empty($mod)){
+								$mod = "<p class='text-center {$disabledTH['Observacion']} {$disabled}'>".'-'."</p>" ;
+							}  
+							array_push($new_data[$kr],
+								$mod
+							);
+
+						
 						//--------Tareas
-						$mod = isset($row['tarea']) ? $row['tarea'] : '';
-						if (!empty($mod)) {
-							$mod = '<custom data-clases="tdDisabledRuta text-center"></custom><a href="javascript:;" class="lk-detalle" data-modulo="tarea" data-perfil="' . $row['tipoUsuario'] . '"  data-usuario="' . $row['nombreUsuario'] . '" data-cliente="' . $row['razonSocial'] . '" data-title="TAREA" data-visita="' . $row['idVisita'] . '" >SI <i class="fa fa-file-text"></i></a>';
-						}
-						$disabled = '';
-						if (!isset($permisos_modulos[$row['idTipoUsuario']][18])) {
-							$disabled = 'tdDisabledRuta';
-						}
-						if(empty($mod)){
-							$mod = "<p class='text-center {$disabledTH['Tareas']} {$disabled}'>".'-'."</p>" ;
-						}  
-						array_push($new_data[$kr],
-							$mod
-						);
+							$mod = isset($row['tarea']) ? $row['tarea'] : '';
+							if (!empty($mod)) {
+								$mod = '<custom data-clases=" text-center"></custom><a href="javascript:;" class="lk-detalle" data-modulo="tarea" data-perfil="' . $row['tipoUsuario'] . '"  data-usuario="' . $row['nombreUsuario'] . '" data-cliente="' . $row['razonSocial'] . '" data-title="TAREA" data-visita="' . $row['idVisita'] . '" >SI <i class="fa fa-file-text"></i></a>';
+							}
+							$disabled = '';
+							if (!isset($permisos_modulos[$row['idTipoUsuario']][25])) {
+								$disabled = 'tdDisabledRuta';
+							}
+							if(empty($mod)){
+								$mod = "<p class='text-center {$disabledTH['Tareas']} {$disabled}'>".'-'."</p>" ;
+							}  
+							array_push($new_data[$kr],
+								$mod
+							);
+
+						
 						//--------Evidencia Fotografica
-						$mod = isset($row['evidenciaFotografica']) ? $row['evidenciaFotografica'] : '';
-						if (!empty($mod)) {
-							$mod = '<custom data-clases="tdDisabledRuta text-center"></custom><a href="javascript:;" class="lk-detalle" data-modulo="evidenciaFotografica" data-perfil="' . $row['tipoUsuario'] . '"  data-usuario="' . $row['nombreUsuario'] . '" data-cliente="' . $row['razonSocial'] . '" data-title="EVIDENCIA FOTOGRAFICA" data-visita="' . $row['idVisita'] . '" >SI <i class="fa fa-file-text"></i></a>';
-						}
-						$disabled = '';
-						if (!isset($permisos_modulos[$row['idTipoUsuario']][18])) {
-							$disabled = 'tdDisabledRuta';
-						}
-						if(empty($mod)){
-							$mod = "<p class='text-center {$disabledTH['EvidenciaFotografica']} {$disabled}'>".'-'."</p>" ;
-						}  
-						array_push($new_data[$kr],
-							$mod
-						);
+							$mod = isset($row['evidenciaFotografica']) ? $row['evidenciaFotografica'] : '';
+							if (!empty($mod)) {
+								$mod = '<custom data-clases=" text-center"></custom><a href="javascript:;" class="lk-detalle" data-modulo="evidenciaFotografica" data-perfil="' . $row['tipoUsuario'] . '"  data-usuario="' . $row['nombreUsuario'] . '" data-cliente="' . $row['razonSocial'] . '" data-title="EVIDENCIA FOTOGRAFICA" data-visita="' . $row['idVisita'] . '" >SI <i class="fa fa-file-text"></i></a>';
+							}
+							$disabled = '';
+							if (!isset($permisos_modulos[$row['idTipoUsuario']][26])) {
+								$disabled = 'tdDisabledRuta';
+							}
+							if(empty($mod)){
+								$mod = "<p class='text-center {$disabledTH['EvidenciaFotografica']} {$disabled}'>".'-'."</p>" ;
+							}  
+							array_push($new_data[$kr],
+								$mod
+							);
+
+
+						//--------Orden Auditoria
+							$mod = isset($row['ordenAuditoria']) ? $row['ordenAuditoria'] : '';
+							if (!empty($mod)) {
+								$mod = '<custom data-clases=" text-center"></custom><a href="javascript:;" class="lk-detalle" data-modulo="ordenAuditoria" data-perfil="' . $row['tipoUsuario'] . '"  data-usuario="' . $row['nombreUsuario'] . '" data-cliente="' . $row['razonSocial'] . '" data-title="ORDEN AUDITORIA" data-visita="' . $row['idVisita'] . '" >SI <i class="fa fa-file-text"></i></a>';
+							}
+							$disabled = '';
+							if (!isset($permisos_modulos[$row['idTipoUsuario']][15])) {
+								$disabled = 'tdDisabledRuta';
+							}
+							if(empty($mod)){
+								$mod = "<p class='text-center {$disabledTH['OrdenAuditoria']} {$disabled}'>".'-'."</p>" ;
+							}  
+							array_push($new_data[$kr],
+								$mod
+							); 
+
+
+						//--------Modulacion
+							$mod = isset($row['modulacion']) ? $row['modulacion'] : '';
+							if (!empty($mod)) {
+								$mod = '<custom data-clases=" text-center"></custom><a href="javascript:;" class="lk-detalle" data-modulo="modulacion" data-perfil="' . $row['tipoUsuario'] . '"  data-usuario="' . $row['nombreUsuario'] . '" data-cliente="' . $row['razonSocial'] . '" data-title="MODULACION" data-visita="' . $row['idVisita'] . '" >SI <i class="fa fa-file-text"></i></a>';
+							}
+							$disabled = '';
+							if (!isset($permisos_modulos[$row['idTipoUsuario']][16])) {
+								$disabled = 'tdDisabledRuta';
+							}
+							if(empty($mod)){
+								$mod = "<p class='text-center {$disabledTH['Modulacion']} {$disabled}'>".'-'."</p>" ;
+							}  
+							array_push($new_data[$kr],
+								$mod
+							); 
+
 					}
+					
+					//columnas segun la tipoUsuario a mostrar
+					$arrayColumnasVisibles=array();
+					if($array['permisos_modulos']!=null){
+						foreach($arrayTipoUsuarioData as $rowTipoUsuario){
+
+							if(!empty($array['permisos_modulos'][$rowTipoUsuario])  && $array['permisos_modulos'][$rowTipoUsuario]!=null){
+								if(count($array['permisos_modulos'][$rowTipoUsuario])>0){
+									foreach($array['permisos_modulos'][$rowTipoUsuario] as $rowModulo){
+										$arrayColumnasVisibles[$rowModulo['idModuloGrupo']]=$rowModulo['idModuloGrupo'];
+									}
+								}
+							}
+						}
+					}
+					$array['arrayColumnasVisibles'] = $arrayColumnasVisibles;
+
+					$html .= $this->load->view("modulos/rutas/rutasDetalle", $array, true);
+
 					$result['data']['data'] = $new_data;
 					$result['data']['configTable'] =  [
 						'data' => $new_data, 
@@ -566,6 +673,7 @@ class Rutas extends MY_Controller{
 		$array['cliente'] = $data->{'cliente'};
 		$array['usuario'] = $data->{'usuario'};
 		$array['perfil'] = $data->{'perfil'};
+		$array['moduloFotos'] = $this->model->obtener_moduloFotos($idVisita);
 		$array['fotos'] = $this->model->obtener_fotos($idVisita);
 
 		//Result
@@ -675,6 +783,14 @@ class Rutas extends MY_Controller{
 			case 'evidenciaFotografica':
 				$html = $this->detalle_evidenciaFotografica($idVisita);
 				break;
+
+			case 'ordenAuditoria':
+				$html = $this->detalle_orden($idVisita);
+				break;
+
+			case 'modulacion':
+				$html = $this->detalle_modulacion($idVisita);
+				break;
 		}
 		
 		//Result
@@ -748,8 +864,30 @@ class Rutas extends MY_Controller{
 		$rs_det = $this->model->detalle_checkproducto($idVisita, $idGrupoCanal);
 		if(!empty($rs_det)){
 			$array=array();
-			$array['checkproducto']=$rs_det;
+			
 			$array['columnasAdicionales'] = getColumnasAdicionales(['idModulo' => 3, 'idGrupoCanal' => $idGrupoCanal]);
+			
+			if($array['columnasAdicionales']!=null){
+				if (strpos($array['columnasAdicionales']['columnas_adicionales'], 'fechaVencido') !== false) {
+					$array['columnasAdicionales']['columnas_adicionales']=$array['columnasAdicionales']['columnas_adicionales'].",cantidadVencida";
+					$array['columnasAdicionales']['headers_adicionales'].='<th class="text-center align-middle">CANTIDAD VENCIDA</th>';
+					array_push($array['columnasAdicionales']['body_adicionales'], "cantidadVencida");
+				}
+				
+			}
+
+			$arrayCheckproducto=array();
+			$arrayCheckproductoComp=array();
+			foreach($rs_det as $row){
+				if($row['flagCompetencia']==1){
+					array_push($arrayCheckproductoComp,$row);
+				}else{
+					array_push($arrayCheckproducto,$row);
+				}
+			}
+			
+			$array['checkproducto']=$arrayCheckproducto;
+			$array['checkproductoComp']=$arrayCheckproductoComp;
 			$html = $this->load->view("modulos/rutas/detalle_checkproducto",$array,true);
 		} else {
 			$html = getMensajeGestion('noRegistros');
@@ -784,6 +922,17 @@ class Rutas extends MY_Controller{
 			$array=array();
 			$array['promociones']=$rs_det;
 			$array['columnasAdicionales'] = getColumnasAdicionales(['idModulo' => 7, 'idGrupoCanal' => $idGrupoCanal]);
+
+			if($array['columnasAdicionales']!=null){
+				if (strpos($array['columnasAdicionales']['columnas_adicionales'], 'fechaVigencia') !== false) {
+					$array['columnasAdicionales']['columnas_adicionales']=str_replace("fechaVigencia", "fechaVigenciaInicio", $array['columnasAdicionales']['columnas_adicionales']);
+					$array['columnasAdicionales']['columnas_adicionales']=$array['columnasAdicionales']['columnas_adicionales'].",fechaVigenciaFin";
+					$array['columnasAdicionales']['headers_adicionales']=str_replace("FECHA VIGENCIA", "FECHA VIGENCIA INICIO", $array['columnasAdicionales']['headers_adicionales']);
+
+					$array['columnasAdicionales']['headers_adicionales'].='<th class="text-center align-middle">FECHA VIGENCIA FIN</th>';
+				}
+			}
+
 			$html = $this->load->view("modulos/rutas/detalle_promociones",$array,true);
 		} else {
 			$html = getMensajeGestion('noRegistros');
@@ -1211,6 +1360,46 @@ class Rutas extends MY_Controller{
 			$html = $this->load->view("modulos/rutas/detalle_evidenciaFotografica",$array, true);
 		} else {
 			$html = getMensajeGestion('noRegistros');
+		}
+
+		return $html;
+	}
+
+	public function detalle_orden($idVisita){
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visitaOrden' ];
+
+		$query = $this->model->detalle_orden($idVisita);
+		if( !empty($query) ){
+			$data = [ 'ordenAuditoria' => $query ];
+			$html = $this->load->view("modulos/rutas/detalle_orden", $data, true);
+		} else {
+			$html = $this->htmlNoResultado;
+		}
+
+		return $html;
+	}
+
+	public function detalle_modulacion($idVisita){
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visitaModulacion' ];
+
+		$query = $this->model->detalle_modulacion($idVisita);
+
+		$flagCorrecto=null;
+		foreach($query AS $key => $row){
+			$flagCorrecto=$row['flagCorrecto'];
+		}
+		$modulacion=array();
+		foreach($query AS $key => $row){
+			if($row['idElementoVis']!=null){
+				array_push($modulacion,$row);
+			}
+		}
+
+		if( !empty($query) ){
+			$data = [ 'modulacion' => $modulacion,'flagCorrecto' => $flagCorrecto];
+			$html = $this->load->view("modulos/rutas/detalle_modulacion", $data, true);
+		} else {
+			$html = $this->htmlNoResultado;
 		}
 
 		return $html;

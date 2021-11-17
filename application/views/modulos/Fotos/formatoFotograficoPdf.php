@@ -43,7 +43,7 @@
                 <tr>
                 <?php } ?>
                 <td>
-                    <img class="foto" src="http://movil.visualimpact.com.pe/fotos/impactTrade_android/moduloFotos/<?= $foto["imgRef"] ?>" />
+                    <img class="foto" src="http://movil.visualimpact.com.pe/fotos/impactTrade_android/<?= $foto["carpetaFoto"] ?>/<?= $foto["imgRef"] ?>" />
                     <table class="infoFoto">
                         <tr>
                             <td class="nombreDatoInfoFoto">Hora:</td>

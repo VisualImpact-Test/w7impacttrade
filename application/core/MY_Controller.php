@@ -40,7 +40,7 @@ class MY_Controller extends CI_Controller{
 
 	public function __construct(){
 		parent::__construct();
-		$this->version = '8.3.3';
+		$this->version = '8.5.6';
 
 		$this->sessId = $this->session->userdata('sessionId');
 		$this->namespace = $this->router->fetch_class();
@@ -52,6 +52,7 @@ class MY_Controller extends CI_Controller{
 		$this->sessIdCuenta = $this->session->userdata('idCuenta');
 		$this->sessNomCuenta = $this->session->userdata('cuenta');
 		$this->sessNomCuentaCorto = $this->session->userdata('abreviacionCuenta');
+		$this->sessBDCuenta = $this->session->userdata('sessBDCuenta');
 		$this->sessIdProyecto = $this->session->userdata('idProyecto');
 		$this->sessNomProyecto = $this->session->userdata('proyecto');
 		$this->permisos = $this->session->userdata('permisos');
@@ -75,6 +76,7 @@ class MY_Controller extends CI_Controller{
 					$result['msg']['title']="Sesión";
 					$result['msg']['content']="Su sesi&oacute;n ha caducado. Identifiquese nuevamente <a href='".base_url()."'>aqu&iacute;</a>";
 					$result['url']='';
+					$result['session']=false;
 					echo json_encode($result);
 					exit;
 				}

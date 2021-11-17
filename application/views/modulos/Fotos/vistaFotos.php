@@ -1,3 +1,8 @@
+<style>
+.card {
+    display: block !important;
+}
+</style>
 <div class="col">
     <div id="paginacionFotos" class="float-right">
     </div>

@@ -4,6 +4,9 @@
 			<i class="<?= $icon ?>"></i>
 			<?= $title ?>
 		</h3>
+		<span>
+			<?=$this->idUsuarioHist . ' - ' . $this->idTipoUsuario?>
+		</span>
 	</div>
 	<div class="col-lg-10 d-flex">
 		<div class="card w-100 mb-3 p-0">

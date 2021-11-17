@@ -33,7 +33,12 @@
 						<?=($row['foto']!=0)?'<img src="'.$fotoUrl.'" style="width:96px;border: 2px solid #CCC;" />':'-';?></a>
 
 						<? foreach($columnasAdicionales['body_adicionales'] AS $k => $r) {?>
-							<td class="text-center"><?=verificarEmpty($row[$r], 3)?></td>
+							<? if($r == 'fechaVigencia') { ?>
+								<td class="text-center"><?=date_change_format($row["fechaVigenciaInicio"])?></td>
+								<td class="text-center"><?=date_change_format($row["fechaVigenciaFin"])?></td>
+							<? }else { ?>
+								<td class="text-center"><?=verificarEmpty($row[$r], 3)?></td>
+							<? }?>
 						<? } ?>
 					</td>
 				</tr>

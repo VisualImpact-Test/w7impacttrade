@@ -41,6 +41,7 @@ class M_Login extends MY_Model{
 				, cu.nombre cuenta
 				, cu.urlLogo logoCuenta
 				, cu.urlCSS cssCuenta
+				, cu.baseDatos AS sessBDCuenta
 				, ca.idCanal
 				, ca.idGrupoCanal
 				, b.idBanner
@@ -98,6 +99,7 @@ class M_Login extends MY_Model{
 					ORDER BY num
 				) AS unidad
 				, flag_anuncio_visto
+				, CASE WHEN (pav.idPermisoActualizar IS NOT NULL) THEN 1 ELSE 0 END actualizarVisitas
 			FROM
 				trade.usuario u
 				JOIN trade.usuario_historico uh ON uh.idUsuario = u.idUsuario
@@ -120,6 +122,7 @@ class M_Login extends MY_Model{
 				LEFT JOIN trade.usuario_historicoDistribuidoraSucursal uhdd ON uhdd.idUsuarioHist = uh.idUsuarioHist AND uhdd.estado = 1
 				LEFT JOIN trade.distribuidoraSucursal ds ON ds.idDistribuidoraSucursal = uhdd.idDistribuidoraSucursal AND ds.estado = 1
 				LEFT JOIN rrhh.dbo.Empleado e ON u.numDocumento = e.numTipoDocuIdent 
+				LEFT JOIN trade.permisoActualizarVisitas pav ON pav.idProyecto=py.idProyecto and pav.idTipoUsuario=uh.idTipoUsuario
 			WHERE
 				u.usuario = @usuario
 				AND u.claveEncriptada = HASHBYTES('SHA1', @clave)
@@ -128,7 +131,6 @@ class M_Login extends MY_Model{
 				$filtros
 			;
 		";
-
 		return $this->db->query($sql,$value);
 	}
 	

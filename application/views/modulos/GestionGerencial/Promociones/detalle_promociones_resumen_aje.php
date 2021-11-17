@@ -28,7 +28,7 @@
 					<td class="text-left"><?= (!empty($row['marca']) ? $row['marca'] : '-') ?></td>
 					<td class="text-center"><?= (!empty($row['formato']) ? $row['formato'] : '-') ?></td>
 					<td class="text-left"><?= (!empty($row['tipoPromocion']) ? $row['tipoPromocion'] : '-') ?></td>
-					<td class="text-left"><?= (!empty($row['promocion']) ? $row['promocion'] : '-') ?></td>
+					<td class="text-left"><?= (!empty($row['promocion']) ? ($row['promocion']) : '-') ?></td>
 					<td class="text-center "><?= (!empty($row['precio_oferta']) ? moneda($row['precio_oferta']) : '-') ?></td>
 
 				</tr>

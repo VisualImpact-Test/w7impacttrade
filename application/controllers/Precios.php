@@ -73,6 +73,7 @@ class Precios extends MY_Controller
 
 	public function getVisitasPrecios()
 	{
+		ini_set('memory_limit', '2048M');
 		$result = $this->result;
 		$result['msg']['title'] = 'Precios';
 		$post = json_decode($this->input->post('data'), true);
@@ -80,7 +81,6 @@ class Precios extends MY_Controller
 
 		$visitasPrecios = $this->m_precios->getVisitasPrecios($post)->result_array();
 		$this->aSessTrack = $this->m_precios->aSessTrack;
-
 		$result['result'] = 1;
 		if (count($visitasPrecios) < 1) {
 			$result['data']['html'] = getMensajeGestion("noRegistros");
@@ -89,11 +89,56 @@ class Precios extends MY_Controller
 			$dataParaVista['visitasPrecios'] = $visitasPrecios;
 			$segmentacion = getSegmentacion($post);
 			$dataParaVista['segmentacion'] = $segmentacion;
+			
+			$iterador = 0;
+			$nroFila = 1;
+			$new_data = [];
+
+			foreach($visitasPrecios AS $key => $row){
+				$new_data[$iterador] = [
+					//Columnas
+					$nroFila++,
+					verificarEmpty($row["grupoCanal"], 3),
+					verificarEmpty($row["canal"], 3),
+					verificarEmpty($row["subCanal"], 3),
+				];
+
+				foreach ($segmentacion['headers'] as $k => $v) {
+					array_push($new_data[$iterador],
+						!empty($row[($v['columna'])]) ? "<p class='text-left'>{$row[($v['columna'])]}</p>" : '-'
+					);
+				}
+				array_push($new_data[$iterador],
+					//Columnas
+					verificarEmpty($row['idCliente'], 3),
+					verificarEmpty($row['codCliente'], 3),
+					verificarEmpty($row['codDist'], 3),
+					verificarEmpty($row['razonSocial'], 3),
+					verificarEmpty($row['tipoCliente'], 3),
+
+					verificarEmpty($row["idUsuario"], 3),
+					verificarEmpty($row["tipoUsuario"], 3),
+					verificarEmpty($row["nombreUsuario"], 3),
+
+					verificarEmpty($row["departamento"], 3),
+					verificarEmpty($row["provincia"], 3),
+					verificarEmpty($row["distrito"], 3),
+
+					verificarEmpty($row["categoria"], 3),
+					verificarEmpty($row["marca"], 3),
+					verificarEmpty($row["idProducto"], 3),
+					verificarEmpty($row["producto"], 3),
+					verificarEmpty($row["precio"], 3)
+				);
+				$iterador++;
+			};
+			
 			$html = $this->load->view("modulos/Precios/tablaPrecios", $dataParaVista, true);
 
 			$result['data']['views']['contentPrecios']['datatable'] = 'tablaVisitasPrecios';
 			$result['data']['views']['contentPrecios']['html'] = $html;
 			$result['data']['configTable'] =  [
+				'data' => $new_data,
 				'columnDefs' =>
 				[
 					0 =>
@@ -313,7 +358,7 @@ class Precios extends MY_Controller
 				0 =>
 				[
 					"visible" => false,
-					"targets" => [2,3,4]
+					"targets" => []
 				]
 			],
 			// 'dom' => '<"ui icon input"f>tip',
@@ -385,7 +430,7 @@ class Precios extends MY_Controller
 			$array['semanas'] =  $semanas;
 			foreach ($rs_precios as $k => $v) {
 				$precios['cadenas'][$v['idCadena']][$v['idProducto']] = $v;
-				$precios['semana'][$v['semana']][$v['idProducto']]['promedio'] = $v['promedio_semana'];
+				$precios['semana'][$v['semana']][$v['idCadena']][$v['idProducto']]['promedio'] = $v['promedio_semana'];
 			}
 			$array['precios'] = $precios;
 			$html = $this->load->view("modulos/Precios/tablaDetalladoPreciosVariabilidad",$array,true);

@@ -7,15 +7,15 @@
                 <th class="text-center">OPCIONES</th>
                 <th class="text-center hideCol">PROYECTO</th>
                 <th class="text-center">GRUPO CANAL</th>
-                <th class="text-center">CANAL</th>
+                <th class="text-center hideCol">CANAL</th>
                 <? foreach ($segmentacion['headers'] as $k => $v) { ?>
                     <th class="text-center align-middle"><?= strtoupper($v['header']) ?></th>
                 <? } ?>
-                <th class="text-center">COD PDV</th>
+                <th class="text-center">COD VISUAL</th>
                 <th class="text-center">PDV</th>
                 <th class="text-center">FECHA INICIO</th>
                 <th class="text-center">FECHA FECHA FIN</th>
-                <th class="text-center">FECHA MODIFICACIÓN</th>
+                <th class="text-center hideCol">FECHA MODIFICACIÓN</th>
                 <th class="text-center">ESTADO</th>
             </tr>
         </thead>
@@ -40,7 +40,7 @@
                     <? foreach ($segmentacion['headers'] as $k => $v) { ?>
                         <td class="text-left"><?= (!empty($value[($v['columna'])]) ? $value[($v['columna'])] : '-') ?></td>
                     <? } ?>
-                    <td><?= !empty($value['codCliente']) ? $value['codCliente'] : '-' ?></td>
+                    <td><?= !empty($value['idCliente']) ? $value['idCliente'] : '-' ?></td>
                     <td><?= !empty($value['razonSocial']) ? $value['razonSocial'] : "-" ?></td>
                     <td data-order="<?= strtotime($value['fecIni']) ?>"><?= !empty($value['fecIni']) ? date_change_format($value['fecIni'])  : '-' ?></td>
                     <td data-order="<?= strtotime($value['fecFin']) ?>"><?= !empty($value['fecFin']) ? date_change_format($value['fecFin'])  : '-' ?></td>

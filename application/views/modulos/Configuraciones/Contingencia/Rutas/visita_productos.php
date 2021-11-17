@@ -44,11 +44,11 @@
 										<th class="text-center align-middle">MARCA</th>
 										<th class="text-center align-middle">PRODUCTO</th>
 										<th class="text-center align-middle">PRESENCIA</th>
-										<th class="text-center align-middle <?= $canalModerno ?>">QUIEBRE</th>
-										<th class="text-center align-middle <?= $canalTradicional ?> <?= $canalModerno ?>">STOCK</th>
-										<th class="text-center align-middle <?= $canalTradicional ?>">UNIDAD MEDIDA</th>
-										<th class="text-center align-middle <?= $canalTradicional ?>">PRECIO</th>
-										<th class="text-center align-middle <?= $canalTradicional ?>">MOTIVO</th>
+										<th class="text-center align-middle ">UNIDAD MEDIDA</th>
+										<th class="text-center align-middle ">MOTIVO</th>
+										<th class="text-center align-middle <?=(!in_array('quiebre',$columnasAdicionales)) ? 'hide': '' ?>">QUIEBRE</th>
+										<th class="text-center align-middle <?=(!in_array('stock',$columnasAdicionales)) ? 'hide': '' ?>">STOCK</th>
+										<th class="text-center align-middle <?=(!in_array('precio',$columnasAdicionales)) ? 'hide': '' ?>">PRECIO</th>
 										<th class="text-center align-middle">FOTO</th>
 									</tr>
 								</thead>
@@ -74,18 +74,7 @@
 															<label class="custom-control-label" for="presencia-<?= $klc ?>-<?= $klct ?>-<?= $klm ?>-<?= $klp ?>"></label>
 														</div>
 													</td>
-													<td class="text-center <?= $canalModerno ?>">
-														<div class="custom-checkbox custom-control">
-															<? $checkedQuiebre = (isset($listaVisitas[$klc][$klp]['quiebre']) && !empty($listaVisitas[$klc][$klp]['quiebre'])) ? 'checked' : ''; ?>
-															<input <?= $checkedQuiebre; ?> class="custom-control-input" type="checkbox" id="quiebre-<?= $klc ?>-<?= $klct ?>-<?= $klm ?>-<?= $klp ?>" name="quiebre-<?= $klc ?>-<?= $klct ?>-<?= $klm ?>-<?= $klp ?>" value="1">
-															<label class="custom-control-label" for="quiebre-<?= $klc ?>-<?= $klct ?>-<?= $klm ?>-<?= $klp ?>"></label>
-														</div>
-													</td>
-													<td class="text-center <?= $canalTradicional ?> <?= $canalModerno ?>">
-														<? $stockVisita = (isset($listaVisitas[$klc][$klp]['stock']) && !empty($listaVisitas[$klc][$klp]['stock'])) ? $listaVisitas[$klc][$klp]['stock'] : ''; ?>
-														<input type="text" class="form-control form-control-sm ipWidth" placeholder="Stock" id="stock-<?= $klc ?>-<?= $klct ?>-<?= $klm ?>-<?= $klp ?>" name="stock-<?= $klc ?>-<?= $klct ?>-<?= $klm ?>-<?= $klp ?>" value="<?= $stockVisita; ?>">
-													</td>
-													<td class="text-center <?= $canalTradicional ?>">
+													<td class="text-center ">
 														<? $unidadMedidaVisita = (isset($listaVisitas[$klc][$klp]['idUnidadMedida']) && !empty($listaVisitas[$klc][$klp]['idUnidadMedida'])) ? $listaVisitas[$klc][$klp]['idUnidadMedida'] : ''; ?>
 														<select class="form-control form-control-sm slWidth" name="unidadMedida-<?= $klc ?>-<?= $klct ?>-<?= $klm ?>-<?= $klp ?>" id="unidadMedida-<?= $klc ?>-<?= $klct ?>-<?= $klm ?>-<?= $klp ?>">
 															<option value="">Unidad de Medida</option>
@@ -95,11 +84,7 @@
 															<? endforeach ?>
 														</select>
 													</td>
-													<td class="text-center <?= $canalTradicional ?>">
-														<? $precioVisita = (isset($listaVisitas[$klc][$klp]['precio']) && !empty($listaVisitas[$klc][$klp]['precio'])) ? $listaVisitas[$klc][$klp]['precio'] : ''; ?>
-														<input class="form-control form-control-sm ipWidth" type="text" placeholder="Precio" id="precio-<?= $klc ?>-<?= $klct ?>-<?= $klm ?>-<?= $klp ?>" name="precio-<?= $klc ?>-<?= $klct ?>-<?= $klm ?>-<?= $klp ?>" value="<?= $precioVisita; ?>">
-													</td>
-													<td class="text-center <?= $canalTradicional ?>">
+													<td class="text-center ">
 														<? $motivoVisita = (isset($listaVisitas[$klc][$klp]['idMotivo']) && !empty($listaVisitas[$klc][$klp]['idMotivo'])) ? $listaVisitas[$klc][$klp]['idMotivo'] : ''; ?>
 														<select class="form-control form-control-sm slWidth" id="motivo-<?= $klc ?>-<?= $klct ?>-<?= $klm ?>-<?= $klp ?>" name="motivo-<?= $klc ?>-<?= $klct ?>-<?= $klm ?>-<?= $klp ?>">
 															<option value="">Motivo</option>
@@ -109,6 +94,23 @@
 															<? endforeach ?>
 														</select>
 													</td>
+													<td class="text-center <?=(!in_array('quiebre',$columnasAdicionales)) ? 'hide': '' ?>">
+														<div class="custom-checkbox custom-control">
+															<? $checkedQuiebre = (isset($listaVisitas[$klc][$klp]['quiebre']) && !empty($listaVisitas[$klc][$klp]['quiebre'])) ? 'checked' : ''; ?>
+															<input <?= $checkedQuiebre; ?> class="custom-control-input" type="checkbox" id="quiebre-<?= $klc ?>-<?= $klct ?>-<?= $klm ?>-<?= $klp ?>" name="quiebre-<?= $klc ?>-<?= $klct ?>-<?= $klm ?>-<?= $klp ?>" value="1">
+															<label class="custom-control-label" for="quiebre-<?= $klc ?>-<?= $klct ?>-<?= $klm ?>-<?= $klp ?>"></label>
+														</div>
+													</td>
+													<td class="text-center <?=(!in_array('stock',$columnasAdicionales)) ? 'hide': '' ?>">
+														<? $stockVisita = (isset($listaVisitas[$klc][$klp]['stock']) && !empty($listaVisitas[$klc][$klp]['stock'])) ? $listaVisitas[$klc][$klp]['stock'] : ''; ?>
+														<input type="text" class="form-control form-control-sm ipWidth" placeholder="Stock" id="stock-<?= $klc ?>-<?= $klct ?>-<?= $klm ?>-<?= $klp ?>" name="stock-<?= $klc ?>-<?= $klct ?>-<?= $klm ?>-<?= $klp ?>" value="<?= $stockVisita; ?>">
+													</td>
+	
+													<td class="text-center <?=(!in_array('precio',$columnasAdicionales)) ? 'hide': '' ?>">
+														<? $precioVisita = (isset($listaVisitas[$klc][$klp]['precio']) && !empty($listaVisitas[$klc][$klp]['precio'])) ? $listaVisitas[$klc][$klp]['precio'] : ''; ?>
+														<input class="form-control form-control-sm ipWidth" type="text" placeholder="Precio" id="precio-<?= $klc ?>-<?= $klct ?>-<?= $klm ?>-<?= $klp ?>" name="precio-<?= $klc ?>-<?= $klct ?>-<?= $klm ?>-<?= $klp ?>" value="<?= $precioVisita; ?>">
+													</td>
+
 													<td class="text-center">
 														<div id="foto-<?= $klc ?>-<?= $klct ?>-<?= $klm ?>-<?= $klp ?>" class="divContentImg" style="display:inline-flex;">
 															<? $fotoImg = (isset($listaVisitas[$klc][$klp]['idVisitaFoto']) && !empty($listaVisitas[$klc][$klp]['idVisitaFoto'])) ? $this->fotos_url . 'checklist/' . $listaVisitas[$klc][$klp]['foto'] : ''; ?>

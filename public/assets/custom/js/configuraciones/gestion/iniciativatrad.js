@@ -7,7 +7,7 @@ var IniciativaTrad = {
     idModal:null,
     idModalMotivos:null,
     index:null,
-    
+    idsLista: [],    
     customDataTable: function () {
         
     },
@@ -17,14 +17,17 @@ var IniciativaTrad = {
         $(document).ready(function (e) {
             IniciativaTrad.eventos();
             Gestion.urlActivo = 'configuraciones/gestion/IniciativaTrad/';
-            $(".card-body > ul > li > a[class*='active']").dblclick();
+            $(".card-body > ul > li > a[class*='active']").click();
+            $('.btn-Consultar').click();
+            $(".flt_grupoCanal").change();
+            
         });
 
-        $(".card-body > ul > li > a").dblclick(function (e) {
+        $(".card-body > ul > li > a").click(function (e) {
             e.preventDefault();
 
             var indiceSeccion=$(this).data('value');
-            console.log(indiceSeccion);
+
             IniciativaTrad.tabSeleccionado = IniciativaTrad.secciones[indiceSeccion];
 
             if(IniciativaTrad.secciones[indiceSeccion] == 'Motivo'){
@@ -59,7 +62,9 @@ var IniciativaTrad = {
             Gestion.funcionRegistrarActivo = 'registrar' + IniciativaTrad.tabSeleccionado
             Gestion.funcionActualizarActivo = 'actualizar' + IniciativaTrad.tabSeleccionado
             Gestion.funcionGuardarCargaMasivaActivo = 'guardarCargaMasiva' + IniciativaTrad.tabSeleccionado
+        });
 
+        $(".card-body > ul > li > a").dblclick(function (e) {
             $('.btn-Consultar').click();
         });
 
@@ -75,6 +80,7 @@ var IniciativaTrad = {
             $('.canal_sl').html('<select id="canal" name="canal" class="form-control form-control-sm my_select2 canal_cliente canal_sl">'+html+'</select>')
         });
 
+    
 
         $(document).on("click", ".btn-seleccionarMotivos", function (e) {
             e.preventDefault();
@@ -215,24 +221,85 @@ var IniciativaTrad = {
         $(document).on('click','#btn-finListasVigentes', function(e){
 			e.preventDefault();
 
-			++modalId;
-            let fn = [];
-            let btn = [];
-            let msgConfirm = "¿Está seguro(a) de actualizar las listas vigentes? Esto actualizará todos las listas que se encuentren vigentes en el rango de fecha seleccionado."
-            let titleConfirm = "Alerta!";
+			let data = Fn.formSerializeObject(Gestion.idFormSeccionActivo);
+			let jsonString = {data: JSON.stringify(data)};
+			let configAjax = {url: Gestion.urlActivo + 'formActualizarListasVigentes', data:jsonString };
 
-            fn[0] = 'Fn.showModal({ id:'+modalId+',show:false });';
-            fn[1] = 'Fn.showModal({ id:'+modalId+',show:false });';
-            btn[0] = {title:'Cerrar', fn:fn[0],};
-            btn[1] = {title:'Aceptar', fn:fn[1], class:'btn-trade-visual border-0 btn-btnConfirmActualizarListas'};
+            $.when(Fn.ajax(configAjax)).then( function(a){
+                ++modalId;
+                let fn = [];
+                let btn = [];
 
-            Fn.showModal({ id:modalId, title:titleConfirm, content:msgConfirm, btn:btn, show:true, width:'50%'});
+                fn[0] = 'Fn.showModal({ id:'+modalId+',show:false });$(".modal-backdrop").remove();';
+                fn[1] = '';
+                btn[0] = {title:'Cerrar', fn:fn[0]};
+                btn[1] = {title:'Aceptar', fn:fn[1], class:'btn-trade-visual border-0 btn-btnConfirmActualizarListas'};
+                IniciativaTrad.idsLista =  a.data.ids;
+                Fn.showModal({ id:modalId, title:a.msg.title, content:a.data.html, btn:btn, show:true, width:'50%'});
+            });
+
 		});
 
         $(document).on('click','.btn-btnConfirmActualizarListas', function(e){
 			e.preventDefault();
+            var ids = [];
+			if (typeof Gestion.$dataTable[Gestion.idContentActivo] !== 'undefined') {
+				$.map(Gestion.$dataTable[Gestion.idContentActivo].rows('.selected').nodes(), function (item) {
+					ids.push($(item).data("id"));
+				});
+			}
 
-			let data = { 'txt-fechas': $('#txt-fechas').val() };
+            var tipoActualizacion  = $("input[name=chk_tipoActualizar]:checked").val();
+            if(ids.length > 0 || tipoActualizacion == 2){
+
+                ++modalId;
+                let fn = [];
+                let btn = [];
+                let msgConfirm = '';
+                if(tipoActualizacion == 1)  msgConfirm = "¿Está seguro(a) de actualizar las listas vigentes? Esto actualizará las listas <b>seleccionadas</b>.";
+                if(tipoActualizacion == 2)  msgConfirm = "¿Está seguro(a) de actualizar las listas vigentes? Esto actualizará todas las listas <b>filtradas</b>.";
+                let titleConfirm = "Alerta!";
+    
+                fn[0] = 'Fn.showModal({ id:'+modalId+',show:false });';
+                fn[1] = 'Fn.showModal({ id:'+modalId+',show:false });';
+                btn[0] = {title:'Cerrar', fn:fn[0],};
+                btn[1] = {title:'Aceptar', fn:fn[1], class:'btn-trade-visual border-0 btn-btnActualizarListas'};
+    
+                Fn.showModal({ id:modalId, title:titleConfirm, content:msgConfirm, btn:btn, show:true, width:'50%'});
+
+            }else{
+                ++modalId;
+                let fn = [];
+                let btn = [];
+                let msg = 'Por favor seleccione como minimo un elemento de la tabla';
+
+                fn[0] = 'Fn.showModal({ id:'+modalId+',show:false });';
+                btn[0] = {title:'Cerrar', fn:fn[0]};
+
+                Fn.showModal({ id:modalId, title:'Alerta!', content:msg, btn:btn, show:true, width:'50%'});
+            }
+
+
+		});
+
+        $(document).on('click','.btn-btnActualizarListas', function(e){
+			e.preventDefault();
+
+            let ids = [];
+
+			if (typeof Gestion.$dataTable[Gestion.idContentActivo] !== 'undefined') {
+				$.map(Gestion.$dataTable[Gestion.idContentActivo].rows('.selected').nodes(), function (item) {
+					ids.push($(item).data("id"));
+				});
+			}
+            let tipoActualizar = $("input[name=chk_tipoActualizar]:checked").val();
+
+            if(tipoActualizar == 2){
+                ids = IniciativaTrad.idsLista;
+            }
+
+            let fecFinVigencia = $('#li-fecha-fin-vigencia').val();
+			let data = { 'fecFinVigencia': fecFinVigencia, 'ids': ids };
 			let jsonString = {data: JSON.stringify(data)};
 			let configAjax = {url: Gestion.urlActivo + 'actualizarListasVigentes', data:jsonString };
 
@@ -241,10 +308,11 @@ var IniciativaTrad = {
 				let fn = [];
 				let btn = [];
 
-                fn[0] = 'Fn.showModal({ id:'+modalId+',show:false });$(".btn-Consultar").click();';
+                // fn[0] = 'Fn.showModal({ id:'+modalId+',show:false });$(".btn-Consultar").click();';
+                fn[0] = 'Fn.closeModals( '+modalId+');$(".btn-Consultar").click();';
                 btn[0] = {title:'Cerrar', fn:fn[0]};
 
-				Fn.showModal({ id:modalId, title:a.msg.title, content:a.msg.content, btn:btn, show:true, width:'50%'});
+				Fn.showModal({ id:modalId, title:a.msg.title, content:a.msg.content, btn:btn, show:true, width:'30%'});
 			});
 		});
     },
@@ -295,11 +363,32 @@ var IniciativaTrad = {
                             { targets: [-1, -2, -3], className: 'text-center' },
                             { targets: 'colNumerica', className: 'text-center' },
                         ],
-                        select: { style: 'multi', selector: 'td:first-child' },
+                        select: { style: 'os', selector: 'td:first-child' },
+                        order: [
+                            [1, 'asc']
+                        ]
                         // buttons: ['excel','pageLength', 'selectAll',
                         //     'selectNone'],
                     });
                     Gestion.columnaOrdenDT = 1;
+                    // Gestion.$dataTable[Gestion.idContentActivo].on("click", "th.select-checkbox", function() {
+                    //     if ($("th.select-checkbox").hasClass("selected")) {
+                    //         Gestion.$dataTable[Gestion.idContentActivo].rows().deselect();
+                    //         $("th.select-checkbox").removeClass("selected");
+                    //     } else {
+                    //         Gestion.$dataTable[Gestion.idContentActivo].rows().select();
+                    //         $("th.select-checkbox").addClass("selected");
+                    //     }
+                    // }).on("select deselect", function() {
+                    //     ("Some selection or deselection going on")
+                    //     if (Gestion.$dataTable[Gestion.idContentActivo].rows({
+                    //             selected: true
+                    //         }).count() !== Gestion.$dataTable[Gestion.idContentActivo].rows().count()) {
+                    //         $("th.select-checkbox").removeClass("selected");
+                    //     } else {
+                    //         $("th.select-checkbox").addClass("selected");
+                    //     }
+                    // });
                 }
                 break;
         }

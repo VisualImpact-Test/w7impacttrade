@@ -483,7 +483,8 @@ class M_carga_masiva extends CI_Model{
 				c.idCuenta,
 				c.idProyecto,
 				c.tipo,
-				c.procesado
+				c.procesado,
+				c.auditoria
 			FROM 
 				trade.cargaCliente c
 			WHERE 
@@ -505,7 +506,8 @@ class M_carga_masiva extends CI_Model{
 				c.finRegistro,
 				c.tipo,
 				c.idCuenta,
-				c.idProyecto
+				c.idProyecto,
+				c.auditoria
 			FROM 
 				trade.cargaCliente c
 			WHERE 
@@ -1694,6 +1696,63 @@ class M_carga_masiva extends CI_Model{
 
 		return $this->db->query($sql)->result_array();
 	}
+
+	public function get_peticiones_actualizar_visitas(){
+		$sql = "
+			DECLARE @fecha date=getdate();
+			SELECT  idPeticion,idUsuario,idProyecto,fechaIni,fechaFin,hora,estado,porcentaje,
+				CONVERT(varchar,fechaActualizacion,103) fechaActualizacion,
+				CASE WHEN (fechaActualizacion IS NOT NULL) THEN 1 ELSE 0 END actualizado
+			FROM 
+				trade.peticionActualizarVisitas
+			WHERE estado=1 and fechaActualizacion is null
+			ORDER BY fechaIni DESC;";
+		return $this->db->query($sql)->result_array();
+	}
+
+	public function actualizar_peticion_estado($post)
+	{
+
+		$sql = "
+			DECLARE @fecha date=GETDATE();
+			UPDATE trade.peticionActualizarVisitas
+				SET estado=0
+			WHERE 
+				idPeticion={$post['idPeticion']}
+			;";
+		return $this->db->query($sql);
+	}
+
+	public function actualizar_visitas($post)
+	{
+		$sql = "
+			WITH list_visitas AS (
+				SELECT v.idVisita  
+				FROM trade.data_ruta r 
+				JOIN trade.data_visita v ON v.idRuta=r.idRuta
+				WHERE r.idProyecto={$post['idProyecto']} and r.fecha='{$post['fecha']}'
+			)
+			UPDATE trade.data_visita
+			SET estado=estado
+			where idVisita IN (
+				SELECT  idVisita FROM list_visitas
+			);";
+		return $this->db->query($sql)->result_array();
+	}
+
+	public function actualizar_peticion($post)
+	{
+		$sql = "
+			DECLARE @fecha date=GETDATE();
+			UPDATE trade.peticionActualizarVisitas
+				SET estado=0,fechaActualizacion=GETDATE(),hora=GETDATE(),porcentaje={$post['porcentaje']}
+			WHERE 
+				idPeticion={$post['idPeticion']}
+			;";
+		return $this->db->query($sql);
+	}
+
+
 
 }
 

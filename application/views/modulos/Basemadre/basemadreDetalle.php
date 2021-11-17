@@ -23,10 +23,19 @@
 				<th class="text-center">DNI</th>
 				<th class="text-center">FRECUENCIA</th>
 				<th class="text-center">EN CARTERA</th>
-				<th class="text-center">MONTO VENTA</th>
-				<th class="text-center">% PARTI. UNIVERSO</th>
-				<th class="text-center">% PARTI. CANAL</th>
-				<th class="text-center">% PARTI. DEPART.</th>
+
+				<?
+				$idCuenta=$this->session->userdata('idCuenta');
+				if($idCuenta!="2"){
+					?>
+					<th class="text-center">MONTO VENTA</th>
+					<th class="text-center">% PARTI. UNIVERSO</th>
+					<th class="text-center">% PARTI. CANAL</th>
+					<th class="text-center">% PARTI. DEPART.</th>
+					<?
+				}
+				?>
+
 				<th class="text-center">PROGRAMADO</th>
 				<th class="text-center">ÚLTIMO CONTACTO</th>
 			</tr>

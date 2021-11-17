@@ -165,7 +165,7 @@ class M_scorecard extends MY_Model{
 		$subfiltros .= !empty($input['idCanal']) ? 'AND ca.idCanal =' . $input['idCanal'] : '';
 		$subfiltros .= !empty($input['idProyecto']) ? 'AND r.idProyecto =' . $input['idProyecto'] : '';
 		//$subfiltros .= !empty($input['idCuenta']) ? 'AND cu.idCuenta =' . $input['idCuenta'] : '';
-
+		$segmentacion = getSegmentacion(['grupoCanal_filtro' => $input['idGrupoCanal']]);
 		$sql = "
 			DECLARE @fecIni date='".$fecIni."',@fecFin date='".$fecFin."';
 			SELECT 
@@ -181,8 +181,6 @@ class M_scorecard extends MY_Model{
 					, 'SUPERVISOR' supervisor
 					, gc.idGrupoCanal
 					, gc.nombre grupoCanal
-					, CASE WHEN gc.idGrupoCanal=4 THEN d.nombre ELSE p.nombre END 'DISTRIBUIDORA-PLAZA'
-					, CASE WHEN gc.idGrupoCanal=4 THEN ubd.departamento ELSE ubp.departamento END 'CIUDAD'
 					, ca.idCanal
 					, ca.nombre canal
 					--, sca.idSubCanal
@@ -200,7 +198,16 @@ class M_scorecard extends MY_Model{
 					, v.estado
 					, r.fecha
 					, CASE 
-						WHEN v.horaIni IS NOT NULL AND v.horaFin IS NOT NULL AND v.numFotos >= 1 AND ISNULL(estadoIncidencia,0) <> 1 AND v.idTipoExclusion IS NULL THEN 'EFECTIVA'  
+						WHEN v.horaIni IS NOT NULL AND v.horaFin IS NOT NULL AND ISNULL(estadoIncidencia,0) <> 1 AND v.idTipoExclusion IS NULL THEN 
+						CASE 
+							WHEN r.fecha BETWEEN '01/10/2021' AND '15/10/2021' THEN 'EFECTIVA' 
+							ELSE 
+								CASE 
+								WHEN v.numFotos >=1 THEN 'EFECTIVA'
+								WHEN v.idCliente IN(21599, 21665) THEN 'EFECTIVA'
+								ELSE 'NO EFECTIVA'
+								END
+						END 
 						WHEN v.estadoIncidencia = 1 AND v.idTipoExclusion IS NULL THEN 'INCIDENCIA'
 						WHEN v.idTipoExclusion IS NOT NULL THEN 'EXCLUSION'
 						ELSE 'NO EFECTIVA'
@@ -208,15 +215,16 @@ class M_scorecard extends MY_Model{
 					, v.idFrecuencia
 					, ROW_NUMBER() OVER (PARTITION BY v.idCliente ORDER BY v.razonSocial) cant_cliente
 
+					{$segmentacion['columnas_bd']}
+
 				FROM
 					trade.data_ruta r WITH(NOLOCK)
 					JOIN trade.data_visita v
 						ON v.idRuta = r.idRuta
 						AND r.fecha BETWEEN @fecIni AND @fecFin
 						AND r.idTIpoUsuario IN(1)
-					
 					JOIN ".getClienteHistoricoCuenta()." ch ON ch.idCliente = v.idCliente 
-						AND General.dbo.fn_fechaVigente(ch.fecIni,ch.fecFin,@fecIni,@fecFin)=1 AND ch.idProyecto = {$sessIdProyecto} 
+						AND General.dbo.fn_fechaVigente(ch.fecIni,ch.fecFin,r.fecha,r.fecha)=1 AND ch.idProyecto = r.idProyecto
 					JOIN trade.proyecto py ON py.idProyecto = r.idProyecto
 					JOIN trade.cuenta cu ON cu.idCuenta = py.idCuenta
 					JOIN trade.segmentacionNegocio sn ON sn.idSegNegocio = ch.idSegNegocio AND sn.estado = 1 
@@ -224,20 +232,15 @@ class M_scorecard extends MY_Model{
 					--LEFT JOIN trade.subCanal sca ON sca.idSubCanal = sn.idSubCanal AND sca.estado = 1
 					JOIN trade.cliente_tipo sca ON sca.idClienteTipo = sn.idClienteTipo AND sca.estado = 1
 					JOIN trade.grupoCanal gc ON gc.idGrupoCanal = ca.idGrupoCanal 
+					{$segmentacion['join']}
 					
-					LEFT JOIN trade.segmentacionClienteTradicional scm ON scm.idSegClienteTradicional = ch.idSegClienteTradicional
-					LEFT JOIN General.dbo.ubigeo ub ON ub.cod_ubigeo = v.cod_ubigeo
-					LEFT JOIN trade.distribuidoraSucursal ds ON ds.idDistribuidoraSucursal = scm.idDistribuidoraSucursal
-					LEFT JOIN trade.distribuidora d ON d.idDistribuidora = ds.idDistribuidora AND d.estado=1
-					LEFT JOIN General.dbo.ubigeo ubd ON ubd.cod_ubigeo = ds.cod_ubigeo
-					LEFT JOIN trade.plaza p ON p.idPlaza = scm.idPlaza
-					LEFT JOIN General.dbo.ubigeo ubp ON ubp.cod_ubigeo = p.cod_ubigeo
 				WHERE
 					1=1
 					AND r.demo = 0
 					AND v.estado = 1
 					AND r.estado = 1
 					{$subfiltros}
+					
 			)a
 			WHERE
 				1=1
@@ -285,7 +288,6 @@ class M_scorecard extends MY_Model{
 			LEFT JOIN General.dbo.ubigeo ubi1 ON ubi1.cod_ubigeo=ds.cod_ubigeo
 			LEFT JOIN trade.zona z ON ch.idZona = z.idZona
 			LEFT JOIN trade.plaza pl ON pl.idPlaza = sct.idPlaza
-
 			";
 			$segmentacion['columnas_bd'] = "  
 			, d.nombre AS distribuidora
@@ -327,8 +329,8 @@ class M_scorecard extends MY_Model{
 					, r.idUsuario
 					, r.idTipoUsuario
 					, r.tipoUsuario
-					--, vi.nombreIncidencia incidencia_nombre
-					--, CONVERT(VARCHAR(8), vi.hora) incidencia_hora
+					, (SELECT TOP 1 nombreIncidencia FROM trade.data_visitaIncidencia WHERE idVisita = v.idVisita ORDER BY idVisitaIncidencia DESC) incidencia_nombre
+					, (SELECT TOP 1 CONVERT(VARCHAR(8), hora) FROM trade.data_visitaIncidencia WHERE idVisita = v.idVisita ORDER BY idVisitaIncidencia DESC) incidencia_hora
 					, ISNULL(v.latIni,0) lati_ini
 					, ISNULL(v.lonIni,0) long_ini
 					, ISNULL(v.latFin,0) lati_fin
@@ -346,7 +348,7 @@ class M_scorecard extends MY_Model{
 						AND r.idTIpoUsuario IN(1)
 					JOIN trade.cliente c ON c.idCliente = v.idCliente
 					JOIN ".getClienteHistoricoCuenta()." ch ON ch.idCliente = v.idCliente 
-						AND General.dbo.fn_fechaVigente(ch.fecIni,ch.fecFin,@fecIni,@fecFin)=1 AND ch.idProyecto = {$sessIdProyecto} 
+						AND General.dbo.fn_fechaVigente(ch.fecIni,ch.fecFin,r.fecha,r.fecha)=1 AND ch.idProyecto = {$sessIdProyecto} 
 					JOIN trade.proyecto py ON py.idProyecto = r.idProyecto
 					JOIN trade.cuenta cu ON cu.idCuenta = py.idCuenta
 					JOIN trade.segmentacionNegocio sn ON sn.idSegNegocio = ch.idSegNegocio AND sn.estado = 1 

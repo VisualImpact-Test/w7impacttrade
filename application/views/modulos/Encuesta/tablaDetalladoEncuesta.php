@@ -87,7 +87,7 @@
                         <?
                         if ($encuesta["foto"] == 1) {
                             if (isset($visitaFoto[$visita['idVisita']][$keyEncuesta])) {
-                                $foto = '<a href="javascript:;" class="lk-show-foto a-fa" data-imgReg="' . $visitaFoto[$visita['idVisita']][$keyEncuesta] . '"><i class="fa fa-camera" ></i></a>';
+                                $foto = '<a href="javascript:;" class="lk-show-foto a-fa" data-foto="' . $visitaFoto[$visita['idVisita']][$keyEncuesta] . '" data-modulo="encuestas" data-comentario="" ><i class="fa fa-camera" ></i></a>';
                             } else {
                                 $foto = "-";
                             }

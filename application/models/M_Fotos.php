@@ -11,8 +11,11 @@ class M_Fotos extends MY_Model
 	public function getTipoFotos()
 	{
 		$filtro = '';
-			$filtro .= getPermisos('cuenta');
-			$filtro .= getPermisos('proyecto');
+		$idCuenta = $this->sessIdCuenta;
+		$idProyecto = $this->sessIdProyecto;
+			
+		$filtro .= ' AND py.idProyecto='.$idProyecto;
+		$filtro .= ' AND cu.idCuenta='.$idCuenta;
 
 		$sql = "
 		select 
@@ -26,13 +29,14 @@ class M_Fotos extends MY_Model
 				ON py.idCuenta = cu.idCuenta
 		WHERE 
 			1=1
+			AND ft.estado=1
 			{$filtro}
 		";
 
 		return $this->db->query($sql);
 	}
 
-	public function getFotos($input){
+	public function getFotos($input,$visitas){
 		$fechas = getFechasDRP($input['txt-fechas']);
 
 		$filtros = '';
@@ -50,6 +54,7 @@ class M_Fotos extends MY_Model
 			$filtros .= !empty($input['canal_filtro']) ? " AND ca.idCanal=".$input['canal_filtro'] : "";
 
 			$filtros .= !empty($input['codCliente']) ? " AND ch.codCliente='".$input['codCliente']."'" : "";
+			$filtros .= !empty($input['codVisual']) ? " AND v.idCliente='".$input['codVisual']."'" : "";
 
 			$filtros .= !empty($input['tipoUsuario_filtro']) ? " AND uh.idTipoUsuario=".$input['tipoUsuario_filtro'] : "";
 			$filtros .= !empty($input['usuario_filtro']) ? " AND uh.idUsuario=".$input['usuario_filtro'] : "";
@@ -63,12 +68,15 @@ class M_Fotos extends MY_Model
 			$filtros .= !empty($input['plaza_filtro']) ? ' AND ds.idPlaza='.$input['plaza_filtro'] : '';
 			$filtros .= !empty($input['cadena_filtro']) ? ' AND cad.idCadena='.$input['cadena_filtro'] : '';
 			$filtros .= !empty($input['banner_filtro']) ? ' AND b.idBanner='.$input['banner_filtro'] : '';
+			
+			$visitas_filtro = !empty($visitas)?$visitas:'';
 
 			$segmentacion = getSegmentacion($input);
 
 		$sql="
-			DECLARE @fecIni date='".$fechas[0]."',@fecFin date='".$fechas[1]."';
-			SELECT v.idVisita, 
+			DECLARE @fecIni DATE='".$fechas[0]."',@fecFin DATE='".$fechas[1]."';
+			SELECT DISTINCT  
+				v.idVisita, 
 				ubi01.departamento, 
 				ubi01.provincia, 
 				ubi01.distrito, 
@@ -80,57 +88,84 @@ class M_Fotos extends MY_Model
 				r.idUsuario, 
 				r.nombreUsuario usuario, 
 				v.canal, 
+				gc.nombre grupoCanal,
 				UPPER(r.tipoUsuario) tipoUsuario, 
 				vf.idVisitaFoto, 
-				tf.nombre tipoFoto, 
+				ISNULL(tf.nombre,m.nombre) tipoFoto, 
 				vf.fotoUrl imgRef, 
 				CONVERT(VARCHAR(8), vf.hora) horaFoto, 
 				CONVERT(VARCHAR(8), v.horaIni) horaVisita,
 				ct.idClienteTipo,
-				ct.nombre AS cliente_tipo
-				
-			FROM trade.data_ruta r
-				JOIN trade.data_visita v ON r.idRuta = v.idRuta
-				JOIN trade.data_visitaFotos vf ON vf.idVisita = v.idVisita
-				JOIN trade.data_visitaModuloFotos mf ON mf.idVisitaFoto = vf.idVisitaFoto
-				JOIN trade.aplicacion_modulo m ON m.idModulo = vf.idModulo
-				JOIN trade.foto_tipo tf ON tf.idTipoFoto = mf.idTipoFoto
-				JOIN trade.cliente c ON v.idCliente = c.idCliente
-				
-				JOIN trade.canal ca ON ca.idCanal = v.idCanal
-				LEFT JOIN trade.grupoCanal gc ON ca.idGrupoCanal = gc.idGrupoCanal
-				JOIN trade.usuario u ON u.idUsuario = r.idUsuario
-				JOIN trade.usuario_historico uh ON uh.idUsuario = U.idUsuario
-					AND General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,@fecIni,@fecFin)=1
-					AND uh.idProyecto=r.idProyecto
-
-				JOIN trade.usuario_tipo ut ON ut.idTipoUsuario = uh.idTipoUsuario
-				JOIN trade.proyecto py ON py.idProyecto = uh.idProyecto
-				JOIN trade.cuenta cu ON cu.idCuenta = py.idCuenta
-				LEFT JOIN trade.banner bn ON bn.idBanner = v.idBanner
-				LEFT JOIN trade.encargado_usuario sub ON sub.idUsuario = r.idUsuario
-				LEFT JOIN trade.encargado enc ON enc.idEncargado = sub.idEncargado
-				JOIN ".getClienteHistoricoCuenta()." ch ON ch.idCliente = c.idCliente
-													AND r.fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin, r.fecha)
-													AND ch.flagCartera = 1
-				LEFT JOIN trade.segmentacionNegocio sn ON sn.idSegNegocio = ch.idSegNegocio
-				LEFT JOIN trade.cliente_tipo ct ON ct.idClienteTipo = sn.idClienteTipo
-				JOIN General.dbo.ubigeo ubi01 ON ch.cod_ubigeo = ubi01.cod_ubigeo
-				{$segmentacion['join']}
-
-
+				ISNULL(ct.nombre,'-') AS cliente_tipo,
+				mg.carpetaFoto,
+				m.nombre modulo
+				{$segmentacion['columnas_bd']}
+			FROM 
+			trade.data_ruta r
+			JOIN trade.data_visita v 
+				ON r.idRuta = v.idRuta 
+				AND v.numFotos>0 
+				AND r.demo = 0
+				AND r.fecha BETWEEN @fecIni AND @fecFin
+				AND v.estado=1
+			JOIN trade.data_visitaFotos vf 
+				ON vf.idVisita = v.idVisita
+			LEFT JOIN trade.data_visitaModuloFotos mf 
+				ON mf.idVisitaFoto = vf.idVisitaFoto
+			JOIN trade.aplicacion_modulo m 
+				ON m.idModulo = vf.idModulo
+			JOIN trade.aplicacion_modulo_grupo mg 
+				ON mg.idModuloGrupo = m.idModuloGrupo
+			LEFT JOIN trade.foto_tipo tf 
+				ON tf.idTipoFoto = mf.idTipoFoto			
+			JOIN trade.canal ca 
+				ON ca.idCanal = v.idCanal
+			LEFT JOIN trade.grupoCanal gc 
+				ON ca.idGrupoCanal = gc.idGrupoCanal
+			/* JOIN trade.usuario u 
+				ON u.idUsuario = r.idUsuario
+			JOIN trade.usuario_historico uh 
+				ON uh.idUsuario = U.idUsuario
+				AND General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,@fecIni,@fecFin)=1
+				AND uh.idProyecto=r.idProyecto */
+			JOIN trade.usuario_tipo ut 
+				ON ut.idTipoUsuario = r.idTipoUsuario
+			JOIN trade.proyecto py 
+				ON py.idProyecto = r.idProyecto
+			JOIN trade.cuenta cu 
+				ON cu.idCuenta = r.idCuenta
+			LEFT JOIN trade.banner bn 
+				ON bn.idBanner = v.idBanner
+			LEFT JOIN trade.encargado_usuario sub 
+				ON sub.idUsuario = r.idUsuario
+			LEFT JOIN trade.encargado enc 
+				ON enc.idEncargado = sub.idEncargado
+			JOIN ".getClienteHistoricoCuenta()." ch 
+				ON ch.idCliente = v.idCliente
+				AND r.fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin, r.fecha)
+				AND ch.flagCartera = 1
+			LEFT JOIN trade.segmentacionNegocio sn 
+				ON sn.idSegNegocio = ch.idSegNegocio
+			LEFT JOIN trade.cliente_tipo ct 
+				ON ct.idClienteTipo = sn.idClienteTipo
+			JOIN General.dbo.ubigeo ubi01 
+				ON ch.cod_ubigeo = ubi01.cod_ubigeo
+			{$segmentacion['join']}
+			
 			WHERE r.fecha BETWEEN @fecIni AND @fecFin
 				AND r.demo = 0
 				AND v.estado = 1
 				{$filtros}
+				{$visitas_filtro}
 			ORDER BY canal, 
 					departamento, 
 					provincia, 
 					distrito, 
 					razonSocial, 
 					fecha, 
-					tipoFoto ASC;
+					tipoFoto DESC;
 		";
+
 		return $this->db->query($sql);
 	}
 
@@ -154,5 +189,292 @@ class M_Fotos extends MY_Model
 		";
 
 		return $this->db->query($sql);
+	}
+
+	public function getLogo(){
+		$idCuenta = $this->sessIdCuenta;
+		
+		$sql="SELECT urlLogo FROM trade.cuenta WHERE idCuenta=$idCuenta";
+		return $this->db->query($sql);
+	}
+	
+	public function getVisitas($input){
+		$fechas = getFechasDRP($input['txt-fechas']);
+
+		$filtros = '';
+
+			$input['idCuenta'] = $this->sessIdCuenta;
+			$input['idProyecto'] = $this->sessIdProyecto;
+
+			if(!empty($input['tipoFoto']) ) $filtros .= " AND mf.idTipoFoto = ".$input['tipoFoto'];
+
+
+			$filtros .= !empty($input['idCuenta']) ? ' AND cu.idCuenta = '.$input['idCuenta'] : '';
+			$filtros .= !empty($input['idProyecto']) ? ' AND py.idProyecto = '.$input['idProyecto'] : '';
+			$filtros .= !empty($input['grupoCanal_filtro']) ? " AND gc.idGrupoCanal=".$input['grupoCanal_filtro'] : "";
+			$filtros .= !empty($input['canal_filtro']) ? " AND ca.idCanal=".$input['canal_filtro'] : "";
+
+			$filtros .= !empty($input['codCliente']) ? " AND ch.codCliente='".$input['codCliente']."'" : "";
+			$filtros .= !empty($input['codVisual']) ? " AND v.idCliente='".$input['codVisual']."'" : "";
+
+			$filtros .= !empty($input['tipoUsuario_filtro']) ? " AND r.idTipoUsuario=".$input['tipoUsuario_filtro'] : "";
+			$filtros .= !empty($input['usuario_filtro']) ? " AND r.idUsuario=".$input['usuario_filtro'] : "";
+
+			$filtros .= !empty($input['tipoFoto']) ? " AND tf.idTipoFoto=".$input['tipoFoto'] : "";
+			$filtros .= !empty($input['idClienteTipo']) ? " AND sn.idClienteTipo=".$input['idClienteTipo'] : "";
+
+			$filtros .= !empty($input['distribuidoraSucursal_filtro']) ? ' AND ds.idDistribuidoraSucursal='.$input['distribuidoraSucursal_filtro'] : '';
+			$filtros .= !empty($input['distribuidora_filtro']) ? ' AND d.idDistribuidora='.$input['distribuidora_filtro'] : '';
+			$filtros .= !empty($input['zona_filtro']) ? ' AND z.idZona='.$input['zona_filtro'] : '';
+			$filtros .= !empty($input['plaza_filtro']) ? ' AND ds.idPlaza='.$input['plaza_filtro'] : '';
+			$filtros .= !empty($input['cadena_filtro']) ? ' AND cad.idCadena='.$input['cadena_filtro'] : '';
+			$filtros .= !empty($input['banner_filtro']) ? ' AND bn.idBanner='.$input['banner_filtro'] : '';
+			$top = !empty($input['top']) ? ' TOP '.$input['top'] : '';
+
+			$segmentacion = getSegmentacion($input);
+
+		$sql="
+			DECLARE @fecIni date='".$fechas[0]."',@fecFin date='".$fechas[1]."';
+			SELECT DISTINCT $top
+				v.idVisita
+			FROM 
+			trade.data_ruta r
+			JOIN trade.data_visita v 
+				ON r.idRuta = v.idRuta 
+				AND v.numFotos>0 
+				AND r.demo = 0
+				AND r.fecha BETWEEN @fecIni AND @fecFin
+				AND v.estado=1
+			JOIN trade.data_visitaFotos vf 
+				ON vf.idVisita = v.idVisita
+			LEFT JOIN trade.data_visitaModuloFotos mf 
+				ON mf.idVisitaFoto = vf.idVisitaFoto
+			JOIN trade.aplicacion_modulo m 
+				ON m.idModulo = vf.idModulo
+			JOIN trade.aplicacion_modulo_grupo mg 
+				ON mg.idModuloGrupo = m.idModuloGrupo
+			LEFT JOIN trade.foto_tipo tf 
+				ON tf.idTipoFoto = mf.idTipoFoto			
+			JOIN trade.canal ca 
+				ON ca.idCanal = v.idCanal
+			LEFT JOIN trade.grupoCanal gc 
+				ON ca.idGrupoCanal = gc.idGrupoCanal
+			/* JOIN trade.usuario u 
+				ON u.idUsuario = r.idUsuario
+			JOIN trade.usuario_historico uh 
+				ON uh.idUsuario = U.idUsuario
+				AND General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,@fecIni,@fecFin)=1
+				AND uh.idProyecto=r.idProyecto */
+			JOIN trade.usuario_tipo ut 
+				ON ut.idTipoUsuario = r.idTipoUsuario
+			JOIN trade.proyecto py 
+				ON py.idProyecto = r.idProyecto
+			JOIN trade.cuenta cu 
+				ON cu.idCuenta = r.idCuenta
+			LEFT JOIN trade.banner bn 
+				ON bn.idBanner = v.idBanner
+			LEFT JOIN trade.encargado_usuario sub 
+				ON sub.idUsuario = r.idUsuario
+			LEFT JOIN trade.encargado enc 
+				ON enc.idEncargado = sub.idEncargado
+			JOIN ".getClienteHistoricoCuenta()." ch 
+				ON ch.idCliente = v.idCliente
+				AND r.fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin, r.fecha)
+				AND ch.flagCartera = 1
+			LEFT JOIN trade.segmentacionNegocio sn 
+				ON sn.idSegNegocio = ch.idSegNegocio
+			LEFT JOIN trade.cliente_tipo ct 
+				ON ct.idClienteTipo = sn.idClienteTipo
+			JOIN General.dbo.ubigeo ubi01 
+				ON ch.cod_ubigeo = ubi01.cod_ubigeo
+			{$segmentacion['join']}
+			
+			WHERE r.fecha BETWEEN @fecIni AND @fecFin
+				AND r.demo = 0
+				AND v.estado = 1
+				{$filtros}
+		";
+		return $this->db->query($sql);
+	}
+
+	public function getFotosNew($input,$visitas)
+	{
+		$fechas = getFechasDRP($input['txt-fechas']);
+		$filtros = '';
+		$filtros_cliente = '';
+			$input['idCuenta'] = $this->sessIdCuenta;
+			$input['idProyecto'] = $this->sessIdProyecto;
+
+			if(!empty($input['tipoFoto']) ) $filtros .= " AND mf.idTipoFoto = ".$input['tipoFoto'];
+
+			$filtros .= !empty($input['idProyecto']) ? ' AND r.idProyecto = '.$input['idProyecto'] : '';
+			$filtros .= !empty($input['grupoCanal_filtro']) ? " AND gca.idGrupoCanal=".$input['grupoCanal_filtro'] : "";
+			$filtros .= !empty($input['canal_filtro']) ? " AND ca.idCanal=".$input['canal_filtro'] : "";
+
+			$filtros .= !empty($input['codVisual']) ? " AND v.idCliente='".$input['codVisual']."'" : "";
+			
+			$filtros .= !empty($input['tipoUsuario_filtro']) ? " AND r.idTipoUsuario=".$input['tipoUsuario_filtro'] : "";
+			$filtros .= !empty($input['usuario_filtro']) ? " AND r.idUsuario=".$input['usuario_filtro'] : "";
+			
+			$filtros .= !empty($input['tipoFoto']) ? " AND tf.idTipoFoto=".$input['tipoFoto'] : "";
+
+			$filtros_cliente .= !empty($input['codCliente']) ? " AND ch.codCliente='".$input['codCliente']."'" : "";
+			$filtros_cliente .= !empty($input['idClienteTipo']) ? " AND sn.idClienteTipo=".$input['idClienteTipo'] : "";
+
+			$filtros_cliente .= !empty($input['distribuidoraSucursal_filtro']) ? ' AND ds.idDistribuidoraSucursal='.$input['distribuidoraSucursal_filtro'] : '';
+			$filtros_cliente .= !empty($input['distribuidora_filtro']) ? ' AND d.idDistribuidora='.$input['distribuidora_filtro'] : '';
+			$filtros_cliente .= !empty($input['zona_filtro']) ? ' AND z.idZona='.$input['zona_filtro'] : '';
+			$filtros_cliente .= !empty($input['plaza_filtro']) ? ' AND pl.idPlaza='.$input['plaza_filtro'] : '';
+			$filtros_cliente .= !empty($input['cadena_filtro']) ? ' AND cad.idCadena='.$input['cadena_filtro'] : '';
+			$filtros_cliente .= !empty($input['banner_filtro']) ? ' AND ba.idBanner='.$input['banner_filtro'] : '';
+			
+			$visitas_filtro = !empty($visitas)?$visitas:'';
+
+			$segmentacion = getSegmentacion($input);
+			$cliente_historico = getClienteHistoricoCuenta();
+
+		$demo = $this->demo;
+		$filtro_demo = '';
+		if(!$demo){
+			$filtro_demo = " AND r.demo = 0";
+		}
+
+		$idProyecto = $this->sessIdProyecto;
+		$columnas = '';
+		if(in_array($segmentacion['grupoCanal'], GC_MODERNOS))
+        {
+            $columnas = '
+            , ch.idCadena
+            , ch.idBanner
+            , ch.banner
+            , ch.cadena
+            ';
+        }
+        if(in_array($segmentacion['grupoCanal'], GC_MAYORISTAS))
+        {
+            $columnas = '
+            , ch.plaza 
+            , ch.idPlaza
+            , ch.zona
+            , ch.idDistribuidoraSucursal
+            ';
+        }
+        if(in_array($segmentacion['grupoCanal'], GC_TRADICIONALES))
+        {
+            $columnas = '
+            , ch.distribuidora
+            , ch.ciudadDistribuidoraSuc
+            , ch.codUbigeoDisitrito
+            , ch.idDistribuidoraSucursal
+            , ch.zona
+            ';
+        }
+
+		$sql = "
+			DECLARE @fecIni DATE='".$fechas[0]."',@fecFin DATE='".$fechas[1]."';
+			WITH list_visitasFotos AS (
+				SELECT
+					r.idRuta
+					, r.fecha
+					, r.idProyecto
+					, ca.idGrupoCanal
+					, ca.idCanal
+					, v.idCliente
+					, vf.idVisitaFoto
+					,ISNULL(tf.nombre,m.nombre) tipoFoto
+					,vf.fotoUrl imgRef
+					,CONVERT(VARCHAR(8), vf.hora) horaFoto
+					,CONVERT(VARCHAR(8), v.horaIni) horaVisita
+					,v.idVisita
+					,r.idUsuario
+					,r.nombreUsuario usuario
+					,r.tipoUsuario
+					,mg.carpetaFoto
+					,m.nombre modulo
+				FROM trade.data_ruta r
+				JOIN trade.data_visita v ON v.idRuta=r.idRuta
+				JOIN trade.data_visitaFotos vf ON vf.idVisita = v.idVisita
+				JOIN trade.aplicacion_modulo m 	ON m.idModulo = vf.idModulo
+				JOIN trade.aplicacion_modulo_grupo mg ON mg.idModuloGrupo = m.idModuloGrupo
+				   LEFT JOIN trade.data_visitaModuloFotos mf ON mf.idVisitaFoto = vf.idVisitaFoto
+				LEFT JOIN trade.canal ca ON ca.idCanal=v.idCanal
+				LEFT JOIN trade.grupoCanal gca ON ca.idGrupoCanal=gca.idGrupoCanal
+				LEFT JOIN trade.foto_tipo tf ON tf.idTipoFoto = mf.idTipoFoto
+				WHERE r.estado = 1 AND v.estado = 1 AND r.demo = 0
+				AND r.fecha BETWEEN @fecIni AND @fecFin
+				AND r.idProyecto={$idProyecto}
+				{$filtros}
+				{$filtro_demo} 
+				{$visitas_filtro}
+			), lista_clientes AS (
+			SELECT
+				ch.idCliente
+				, ch.idSegClienteModerno
+				, ch.idSegClienteTradicional
+				, ch.codCliente
+				, cli.nombreComercial
+				, cli.razonSocial
+				, cli.direccion
+				,ct.idClienteTipo
+				,ISNULL(ct.nombre,'-') AS cliente_tipo
+				,ubi01.departamento
+				,ubi01.provincia
+				,ubi01.distrito
+				{$segmentacion['columnas_bd']}
+			FROM trade.cliente cli
+			JOIN {$cliente_historico} ch ON cli.idCliente = ch.idCliente
+			JOIN General.dbo.ubigeo ubi01 ON ch.cod_ubigeo = ubi01.cod_ubigeo
+			LEFT JOIN trade.segmentacionNegocio sn ON sn.idSegNegocio = ch.idSegNegocio
+			LEFT JOIN trade.cliente_tipo ct ON ct.idClienteTipo = sn.idClienteTipo
+			{$segmentacion['join']}
+			WHERE ch.idProyecto = {$idProyecto} 
+			{$filtros_cliente}
+			AND General.dbo.fn_fechaVigente(ch.fecIni, ch.fecFin, @fecIni, @fecFin) = 1
+			)
+			SELECT DISTINCT
+				v.idVisita
+				,ch.departamento
+				,ch.provincia
+				,ch.distrito
+				,v.idCliente
+				,ch.codCliente
+				,ch.razonSocial
+				,ch.direccion
+				,v.fecha
+				,v.idUsuario
+				,v.usuario
+				,ca.nombre canal
+				,gca.nombre grupoCanal
+				,UPPER(v.tipoUsuario) tipoUsuario 
+				,v.idVisitaFoto
+				,v.tipoFoto
+				,v.imgRef
+				,v.horaFoto
+				,v.horaVisita
+				,ch.idClienteTipo
+				,ch.cliente_tipo
+				,v.carpetaFoto
+				,v.modulo
+				{$columnas}
+			FROM list_visitasFotos v
+			JOIN lista_clientes ch ON v.idCliente = ch.idCliente
+			LEFT JOIN trade.canal ca ON ca.idCanal=v.idCanal
+			LEFT JOIN trade.grupoCanal gca ON ca.idGrupoCanal=gca.idGrupoCanal
+			ORDER BY canal, 
+						departamento, 
+						provincia, 
+						distrito, 
+						razonSocial, 
+						fecha, 
+						tipoFoto DESC;
+		";
+
+		$query = $this->db->query($sql);
+		$result = array();
+		if ( $query ) {
+			$result = $query;
+		}
+
+		return $result;
 	}
 }

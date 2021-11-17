@@ -2,7 +2,7 @@ var Auditoria = {
 
 	frmAuditoria: 'frm-auditoria',
 	contentDetalle: '#idContentAuditoria',
-	idTableDetalle: 'tb-auditoria',
+	idTableDetalle: 'tb-auditoria',  
 	url: 'auditoria/',
 	reporte: 'visibilidad/',
 
@@ -12,7 +12,19 @@ var Auditoria = {
 			$('#btn-filtrarAuditoria').click();
 			$(".flt_grupoCanal").change();
 		});
-
+		
+		$(document).on("click",".tabVerFotos",function(){
+			var control = $(this);
+			var id=control.data("value");
+			if(id==1){
+				$("#idModuloFotos").show();
+				$("#idOtrosModulos").hide();
+			}else{
+				$("#idModuloFotos").hide();
+				$("#idOtrosModulos").show();
+			}
+		});
+		
 		$(document).on('click', '#btn-filtrarAuditoria', function (e) {
 			e.preventDefault();
 			Auditoria.reporte = $('.btnReporte a.active').attr('url');
@@ -31,6 +43,28 @@ var Auditoria = {
 				$("#data-table_filter").find("input[type=search]").attr("placeholder", "ingrese un texto");
 			});
 		});
+		
+		
+		$(document).on('click', '#exportar_excel', function (e) {
+			e.preventDefault();
+			Auditoria.reporte = 'descargar_excel';
+			Auditoria.contentDetalle = $('.btnReporte a.active').attr('href');
+
+			var data = Fn.formSerializeObject(Auditoria.frmAuditoria);
+			var ruta = Auditoria.reporte;
+			var jsonString = { 'data': JSON.stringify(data) };
+			var config = { 'url': Auditoria.url + ruta, 'data': jsonString };
+			var url =  Auditoria.url + ruta;
+
+			$.when(Fn.download(url,data)).then(function (a) {
+				/* $(Auditoria.contentDetalle).html(a.data.html);
+				if (a.result == 1) {
+					$('#' + a.data.table).DataTable(a.data.configTable);
+				}
+				$("#data-table_filter").find("input[type=search]").attr("placeholder", "ingrese un texto"); */
+			});
+		});
+		
 		
 		$(document).on('dblclick', '.card-body > ul > li > a', function (e) {
 			$('#btn-filtrarAuditoria').click();

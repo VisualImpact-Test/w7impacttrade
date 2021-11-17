@@ -117,7 +117,7 @@ class M_basemadre extends MY_Model{
 				$filtros .= !empty($input['cadena_filtro']) ? ' AND cd.idCadena='.$input['cadena_filtro'] : '';
 				$filtros .= !empty($input['banner_filtro']) ? ' AND b.idBanner='.$input['banner_filtro'] : '';
 			}
-		
+
 		if($input['idProyecto']==14){
 			$tabla_historico= 'trade.cliente_historico_aje';
 		}else{
@@ -133,7 +133,7 @@ class M_basemadre extends MY_Model{
 			, c.codCliente
 			, c.codDist codPdv
 			, c.direccion, c.ruc, c.dni
-			, c.nombreComercial, ch.idFrecuencia frecuencia
+			, c.nombreComercial, ch.idFrecuencia , fe.nombre as frecuencia
 			, ub.departamento, ub.provincia, ub.distrito, LTRIM(RTRIM(ub.cod_departamento)) AS cod_departamento
 			, gc.idGrupoCanal, gc.nombre grupoCanal
 			, ca.idCanal, ca.nombre canal
@@ -169,13 +169,13 @@ class M_basemadre extends MY_Model{
 			LEFT JOIN trade.cliente_tipo ctp ON sn.idClienteTipo = ctp.idClienteTipo
 			LEFT JOIN General.dbo.ubigeo ub ON ub.cod_ubigeo = c.cod_ubigeo
 			LEFT JOIN master.anychartmaps_ubigeo map ON map.cod_departamento = ub.cod_departamento 
+			LEFT JOIN trade.frecuencia fe ON fe.idFrecuencia=ch.idFrecuencia
 			{$segmentacion['join']}
 		WHERE
 			c.estado = 1 
 			{$filtros}
 		ORDER BY canal, departamento, provincia, distrito, razonSocial ASC
 		";
-
 		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.cliente' ];
 		return $this->db->query($sql)->result_array();
 	}
@@ -211,6 +211,9 @@ class M_basemadre extends MY_Model{
 		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_ruta' ];
 		return $this->db->query($sql)->result_array();
 	}
+
+	
+
 }
 
 ?>

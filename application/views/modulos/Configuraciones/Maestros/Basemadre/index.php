@@ -73,6 +73,11 @@
 				<button id="btn-cargaMasivaAlternativaClienteProyecto" class="btn btn-outline-trade-visual border-0" title="Carga Masiva Cliente Proyecto">
 					<i class="fas fa-file-import"></i>
 				</button>
+
+				<button id="btn-bajaPuntoMasivo" class="btn btn-outline-trade-visual border-0" title="Baja Masiva Cliente">
+					<i class="fas fa-ban"></i>
+				</button>
+
 			</div>
 			<hr>
 			<div class="customizer-content-filter">

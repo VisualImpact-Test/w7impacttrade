@@ -247,5 +247,42 @@ class Control extends MY_Controller{
 		echo json_encode($result);
 	}
 
+
+	public function guardar_peticion_actualizar_visitas(){
+		$result = $this->result;
+			$input = json_decode($this->input->post('data'), true);
+			
+
+			$params=array();
+			$params['fechaIni']=$input['fecIni'];
+			$params['fechaFin']=$input['fecFin'];
+			$params['idProyecto'] = $this->sessIdProyecto;
+			$params['idUsuario'] =$this->session->userdata('idUsuario');
+
+			$this->m_control->registrar_peticion_actualizar_visitas($params);
+
+			$result['result'] = 1;
+
+		echo json_encode($result);
+	}
+
+	public function get_peticion_actualizar_visitas(){
+		$result = $this->result;
+
+		$input=array();
+		$input['idProyecto'] = $this->sessIdProyecto;
+		$rs_peticion=$this->m_control->get_peticion_actualizar_visitas($input);
+		$ultima_pet=null;
+		if($rs_peticion!=null){
+			if($rs_peticion[0]!=null){
+				$ultima_pet=$rs_peticion[0];
+			}
+		}
+		$result['result'] = 1;
+		$result['data']['peticionActualizarVisita'] = $ultima_pet;
+		echo json_encode($result);
+	}
+
+	
 }
 ?>

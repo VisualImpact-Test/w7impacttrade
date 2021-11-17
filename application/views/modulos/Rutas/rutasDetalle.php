@@ -37,26 +37,29 @@
 				<th rowspan="2" class="text-center">TIEMPO (MIN)</th>
 				<th rowspan="2" class="text-center">INCIDENCIA</th>
 				<th rowspan="2" class="text-center colCondicion">CONDICIÓN</th>
-				<th colspan="17" class="text-center">MÓDULOS</th>
+				<th colspan="19" class="text-center">MÓDULOS</th>
 			</tr>
 			<tr class="text-black">
-				<th class="text-center thEncuesta <?= !empty($disabledTH['Encuestas'])?$disabledTH['Encuestas']." hideCol noVis " : '' ?>">ENCUESTA</th>
-				<th class="text-center thProductos <?= !empty($disabledTH['CheckProducto'])? $disabledTH['CheckProducto']. " hideCol noVis": '' ?>">CHECK<br>PRODUCTOS</th>
-				<th class="text-center thPrecios <?= !empty($disabledTH['Precios'])? $disabledTH['Precios']." hideCol noVis ": '' ?>">PRECIOS</th>
-				<th class="text-center thPromociones <?= !empty($disabledTH['Promociones'])? $disabledTH['Promociones']." hideCol noVis": '' ?>">PROMOCIONES</th>
-				<th class="text-center thFotos <?= !empty($disabledTH['Fotos'])? $disabledTH['Fotos']." hideCol noVis" : '' ?>">FOTOS</th>
-				<th class="text-center thInventario  <?= !empty($disabledTH['Inventario'])? $disabledTH['Inventario']." hideCol noVis ": '' ?>">INVENTARIO</th>
-				<th class="text-center thVisibilidad <?= !empty($disabledTH['Visibilidad'])? $disabledTH['Visibilidad']. " hideCol noVis ": '' ?>">VISIBILIDAD</th>
-				<th class="text-center thMantenimientoCliente  <?= !empty($disabledTH['MantenimientoCliente'])? $disabledTH['MantenimientoCliente']." hideCol noVis" : ''?>">MANTENIMIENTO<br>CLIENTE</th>
-				<th class="text-center thIniciativas <?= !empty($disabledTH['Iniciativas'])? $disabledTH['Iniciativas']. " hideCol noVis": '' ?>  ">INICIATIVAS</th>
-				<th class="text-center thInteligenciaCompetitiva <?= !empty($disabledTH['InteligenciaCompetitiva'])? $disabledTH['InteligenciaCompetitiva']." hideCol noVis": '' ?>  ">INTELIGENCIA<br>COMPETITIVA</th>
-				<th class="text-center thOrdenTrabajo <?= !empty($disabledTH['OrdenTrabajo'])? $disabledTH['OrdenTrabajo']." hideCol noVis": '' ?>  ">ORDEN DE<br>TRABAJO</th>
-				<th class="text-center thVisibilidadAuditoria <?= !empty($disabledTH['VisibilidadAuditoria'])? $disabledTH['VisibilidadAuditoria']." hideCol noVis ": '' ?>  ">VISIBILIDAD<br>AUDITORIA</th>
-				<th class="text-center thPremiacion <?= !empty($disabledTH['Premiacion']) ? $disabledTH['Premiacion']." hideCol noVis" : ''  ?>  ">PREMIACIÓN</th>
-				<th class="text-center thSurtido <?= !empty($disabledTH['Modulacion'])? $disabledTH['Modulacion']." hideCol noVis" : '' ?>  ">SURTIDO</th>
-				<th class="text-center thObservacion <?= !empty($disabledTH['Observacion'])?  $disabledTH['Observacion']." hideCol noVis" : '' ?>  ">OBSERVACION</th>
-				<th class="text-center thTareas <?= !empty($disabledTH['Tareas'])?  $disabledTH['Tareas']." hideCol noVis" : '' ?>  ">TAREAS</th>
-				<th class="text-center thEvidenciaFotografica <?= !empty($disabledTH['EvidenciaFotografica'])?  $disabledTH['EvidenciaFotografica']." hideCol noVis" : '' ?>  ">EVIDENCIA FOTOGRAFICA</th>
+				<th class="text-center thEncuesta <?= !empty($disabledTH['Encuestas'])?$disabledTH['Encuestas']."   " : '' ?>   <?= (!in_array( 1,$arrayColumnasVisibles,true ))? "hideCol excel-borrar noVis": "" ?>">ENCUESTA</th>
+				<th class="text-center thProductos <?= !empty($disabledTH['CheckProducto'])? $disabledTH['CheckProducto']. "  ": '' ?><?= (!in_array( 3,$arrayColumnasVisibles,true ))? "hideCol excel-borrar noVis": "" ?> ">CHECK<br>PRODUCTOS</th> 
+				<th class="text-center thPrecios <?= !empty($disabledTH['Precios'])? $disabledTH['Precios']."   ": '' ?><?= (!in_array( 10,$arrayColumnasVisibles,true ))? "hideCol excel-borrar noVis": "" ?> ">PRECIOS</th> 
+				<th class="text-center thPromociones <?= !empty($disabledTH['Promociones'])? $disabledTH['Promociones']."  ": '' ?><?= (!in_array( 7,$arrayColumnasVisibles,true ))? "hideCol excel-borrar noVis": "" ?> ">PROMOCIONES</th> 
+				<th class="text-center thFotos <?= !empty($disabledTH['Fotos'])? $disabledTH['Fotos']."  " : '' ?><?= (!in_array( 9,$arrayColumnasVisibles,true ))? "hideCol excel-borrar noVis": "" ?> ">FOTOS</th> 
+				<th class="text-center thInventario  <?= !empty($disabledTH['Inventario'])? $disabledTH['Inventario']."   ": '' ?><?= (!in_array( 11,$arrayColumnasVisibles,true ))? "hideCol excel-borrar noVis": "" ?> ">INVENTARIO</th> 
+				<th class="text-center thVisibilidad <?= !empty($disabledTH['Visibilidad'])? $disabledTH['Visibilidad']. "   ": '' ?><?= (!in_array( 5,$arrayColumnasVisibles,true ))? "hideCol excel-borrar noVis": "" ?> ">VISIBILIDAD</th> 
+				<th class="text-center thMantenimientoCliente  <?= !empty($disabledTH['MantenimientoCliente'])? $disabledTH['MantenimientoCliente']."  " : ''?><?= (!in_array( 14,$arrayColumnasVisibles,true ))? "hideCol excel-borrar noVis": "" ?> ">MANTENIMIENTO<br>CLIENTE</th> 
+				<th class="text-center thIniciativas <?= !empty($disabledTH['Iniciativas'])? $disabledTH['Iniciativas']. "  ": '' ?>  <?= (!in_array( 12,$arrayColumnasVisibles,true ))? "hideCol excel-borrar noVis": "" ?> ">INICIATIVAS</th> 
+				<th class="text-center thInteligenciaCompetitiva <?= !empty($disabledTH['InteligenciaCompetitiva'])? $disabledTH['InteligenciaCompetitiva']."  ": '' ?>  <?= (!in_array( 13,$arrayColumnasVisibles,true ))? "hideCol excel-borrar noVis": "" ?> ">INTELIGENCIA<br>COMPETITIVA</th> 
+				<th class="text-center thOrdenTrabajo <?= !empty($disabledTH['OrdenTrabajo'])? $disabledTH['OrdenTrabajo']."  ": '' ?>  <?= (!in_array( 22,$arrayColumnasVisibles,true ))? "hideCol excel-borrar noVis": "" ?> ">ORDEN DE<br>TRABAJO</th> 
+				<th class="text-center thVisibilidadAuditoria <?= !empty($disabledTH['VisibilidadAuditoria'])? $disabledTH['VisibilidadAuditoria']."   ": '' ?>  <?= (!in_array( 17,$arrayColumnasVisibles,true ))? "hideCol excel-borrar noVis": "" ?> ">VISIBILIDAD<br>AUDITORIA</th> 
+				<th class="text-center thPremiacion <?= !empty($disabledTH['Premiacion']) ? $disabledTH['Premiacion']."  " : ''  ?>  <?= (!in_array( 24,$arrayColumnasVisibles,true ))? "hideCol excel-borrar noVis": "" ?> ">PREMIACIÓN</th> 
+				<th class="text-center thSurtido <?= !empty($disabledTH['Modulacion'])? $disabledTH['Modulacion']."  " : '' ?>  <?= (!in_array( 23,$arrayColumnasVisibles,true ))? "hideCol excel-borrar noVis": "" ?> ">SURTIDO</th> 
+				<th class="text-center thObservacion <?= !empty($disabledTH['Observacion'])?  $disabledTH['Observacion']."  " : '' ?>  <?= (!in_array( 20,$arrayColumnasVisibles,true ))? "hideCol excel-borrar noVis": "" ?> ">OBSERVACION</th> 
+				<th class="text-center thTareas <?= !empty($disabledTH['Tareas'])?  $disabledTH['Tareas']."  " : '' ?>  <?= (!in_array( 25,$arrayColumnasVisibles,true ))? "hideCol excel-borrar noVis": "" ?> ">TAREAS</th> 
+				<th class="text-center thEvidenciaFotografica <?= !empty($disabledTH['EvidenciaFotografica'])?  $disabledTH['EvidenciaFotografica']."  " : '' ?>  <?= (!in_array( 26,$arrayColumnasVisibles,true ))? "hideCol excel-borrar noVis": "" ?> ">EVIDENCIA FOTOGRAFICA</th> 
+				<th class="text-center thOrdenAuditoria <?= !empty($disabledTH['OrdenAuditoria'])?  $disabledTH['OrdenAuditoria']."  " : '' ?>  <?= (!in_array( 15,$arrayColumnasVisibles,true ))? "hideCol excel-borrar noVis": "" ?> ">ORDEN AUDITORIA</th> 
+				<th class="text-center thModulacion <?= !empty($disabledTH['Modulacion'])?  $disabledTH['Modulacion']."  " : '' ?>  <?= (!in_array( 16,$arrayColumnasVisibles,true ))? "hideCol excel-borrar noVis": "" ?> ">MODULACION</th> 
+
 			</tr>
 		</thead>
 		<tbody>

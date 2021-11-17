@@ -54,6 +54,17 @@ class M_rutas extends MY_Model{
 				@fecIni date='{$input['fecIni']}',
 				@fecFin date='{$input['fecFin']}';
 
+			WITH list_fotos_no_modulacion as (
+				SELECT DISTINCT v.idVisita, 
+				COUNT(vf.idVisitaFoto) OVER (PARTITION BY v.idVisita) as contFotos 
+				FROM trade.data_ruta r
+				JOIN trade.data_visita v ON r.idRuta = v.idRuta
+				JOIN trade.data_visitaFotos vf ON vf.idVisita=v.idVisita
+				JOIN trade.aplicacion_modulo m ON vf.idModulo = m.idModulo
+				JOIN trade.aplicacion_modulo_grupo mg ON mg.idModuloGrupo=m.idModuloGrupo
+				WHERE  mg.idModuloGrupo<>9 
+				and r.fecha between @fecIni and isnull(@fecFin,r.fecha)
+			)
 			SELECT DISTINCT
 				CONVERT(VARCHAR(10),r.fecha,103) fecha
 				, r.idUsuario cod_usuario
@@ -64,10 +75,19 @@ class M_rutas extends MY_Model{
 				, CONVERT(VARCHAR(8), v.horaFin) hora_fin
 				, DATEDIFF(MINUTE,v.horaIni,v.horaFin) minutos
 				, vi.nombreIncidencia indicencia_nombre
-				, CASE WHEN (v.horaIni IS NOT NULL AND v.horaFin IS NOT NULL AND v.numFotos >= 1 AND ISNULL(estadoIncidencia,0) <> 1 ) THEN 3 --Efectiva
-					   WHEN (v.estadoIncidencia = 1 ) THEN 2 --INCIDENCIA
-					   WHEN (v.horaIni IS NULL AND v.horaFin IS NULL AND ISNULL(v.numFotos,0) = 0  AND estadoIncidencia IS NULL ) THEN 0 -- No Visitado
-					   ELSE	1 --No Efectiva
+				, CASE 
+					WHEN (v.horaIni IS NOT NULL AND v.horaFin IS NOT NULL  AND ISNULL(estadoIncidencia,0) <> 1 ) THEN 
+					CASE 
+						WHEN r.fecha BETWEEN '01/10/2021' AND '15/10/2021' THEN 3 --Efectiva
+						ELSE 
+							CASE 
+							WHEN v.numFotos >=1 THEN 3 --Efectiva
+							ELSE 1 --No efectiva
+							END
+					END 
+					WHEN (v.estadoIncidencia = 1 ) THEN 2 --INCIDENCIA
+					WHEN (v.horaIni IS NULL AND v.horaFin IS NULL AND ISNULL(v.numFotos,0) = 0  AND estadoIncidencia IS NULL ) THEN 0 -- No Visitado
+					ELSE 1 --No Efectiva
 					END condicion
 				, v.idVisita
 				, v.idCanal
@@ -129,6 +149,8 @@ class M_rutas extends MY_Model{
 				, v.iniciativa AS iniciativas
 				, v.inteligencia AS inteligenciaCompetitiva
 				, v.ordenes AS ordenTrabajo
+				, v.ordenAuditoria
+				, v.modulacion
 				, v.visibilidad_aud AS visibilidadAuditoria
 				, v.premio
 				, v.mantenimiento AS mantenimientoCliente
@@ -136,10 +158,12 @@ class M_rutas extends MY_Model{
 				, v.observacion AS observacion
 				, v.tarea
 				, v.evidenciaFotografica
+				, lfn.contFotos fotosOtrosModulos
+
 				{$segmentacion['columnas_bd']}
 
 			FROM trade.data_ruta r
-			JOIN trade.data_visita v ON r.idRuta = v.idRuta
+			JOIN trade.data_visita v ON r.idRuta = v.idRuta AND r.demo = 0
 			LEFT JOIN General.dbo.ubigeo ub ON v.cod_ubigeo = ub.cod_ubigeo
 			LEFT JOIN trade.data_asistencia a ON a.idUsuario = r.idUsuario AND r.fecha = a.fecha AND a.idTipoAsistencia = 1
 			LEFT JOIN trade.data_visitaIncidencia vi ON vi.idVisita = v.idVisita
@@ -164,12 +188,13 @@ class M_rutas extends MY_Model{
 			LEFT JOIN trade.usuario u_e ON u_e.idUsuario = e.idUsuario
 			LEFT JOIN rrhh.dbo.empleado em ON em.numTipoDocuIdent = u_e.numDocumento
 			JOIN trade.cuenta cu ON cu.idCuenta = r.idCuenta
+			LEFT JOIN list_fotos_no_modulacion lfn ON lfn.idVisita=v.idVisita
 
 			{$segmentacion['join']}
 
 			LEFT JOIN master.anychartmaps_ubigeo map ON map.cod_departamento = ub.cod_departamento 
 			WHERE r.fecha BETWEEN @fecIni AND @fecFin AND v.estado = 1 AND r.estado = 1
-			AND v.idTipoExclusion IS NULL{$filtros}
+			AND v.idTipoExclusion IS NULL{$filtros} 
 			ORDER BY fecha , ciudad, canal, tipoUsuario, encargado, nombreUsuario  ASC
 		";
 
@@ -193,7 +218,6 @@ class M_rutas extends MY_Model{
 			JOIN trade.aplicacion a ON a.idAplicacion = mo.idAplicacion
 			JOIN trade.proyecto p ON p.idCuenta = a.idCuenta
 			WHERE m.estado = 1 {$filtros}";
-
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -213,21 +237,34 @@ class M_rutas extends MY_Model{
 			JOIN trade.aplicacion a ON a.idAplicacion = mo.idAplicacion
 			JOIN trade.proyecto p ON p.idCuenta = a.idCuenta
 			WHERE mo.estado = 1 {$filtros}";
-
 		return $this->db->query($sql)->result_array();
 	}
 
 	public function obtener_fotos($idVisita){
 		$sql = "
-			SELECT 
+			SELECT distinct 
 				UPPER(m.nombre) AS modulo
 				, CONVERT(VARCHAR(8),vf.hora) AS hora
 				, vf.fotoUrl AS foto
+				, mg.carpetaFoto
 			FROM trade.data_visitaFotos vf
-			JOIN trade.aplicacion_modulo m ON vf.idModulo = m.idModulo
-			WHERE idVisita = {$idVisita}
+			LEFT JOIN trade.aplicacion_modulo m ON vf.idModulo = m.idModulo
+			LEFT JOIN trade.aplicacion_modulo_grupo mg ON mg.idModuloGrupo=m.idModuloGrupo
+			WHERE vf.idVisita={$idVisita} AND mg.idModuloGrupo<>9 
 		";
+		return $this->db->query($sql)->result_array();
+	}
 
+	public function obtener_moduloFotos($idVisita){
+		$sql = "
+			SELECT distinct 
+				dvm.nombreTipoFoto
+				, CONVERT(VARCHAR(8),vf.hora) AS hora
+				, vf.fotoUrl AS foto 
+			FROM trade.data_visitaModuloFotos dvm 
+			JOIN trade.data_visitaFotos vf ON vf.idVisitaFoto=dvm.idVisitaFoto
+			WHERE vf.idVisita={$idVisita} 
+		";
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -292,6 +329,12 @@ class M_rutas extends MY_Model{
 
 	public function detalle_checkproducto($idVisita, $idGrupoCanal = ''){
 		$columnas_adicionales = getColumnasAdicionales(['idModulo' => 3, 'shortag' => 'dvpd', 'idGrupoCanal' => $idGrupoCanal])['columnas_adicionales'];
+		
+		if($columnas_adicionales!=null){
+			if (strpos($columnas_adicionales, 'fechaVencido') !== false) {
+				$columnas_adicionales=$columnas_adicionales.",dvpd.cantidadVencida";
+			}
+		}
 
 		$sql = "
 			SELECT 
@@ -310,6 +353,7 @@ class M_rutas extends MY_Model{
 				,mv.nombre AS motivo
 				,vf.idVisitaFoto
 				,vf.fotoUrl AS foto
+				,p.flagCompetencia
 				{$columnas_adicionales}
 			FROM trade.data_visitaProductosDet dvpd
 			JOIN trade.data_visitaProductos dvp ON dvpd.idVisitaProductos= dvp.idVisitaProductos
@@ -319,7 +363,7 @@ class M_rutas extends MY_Model{
 			LEFT JOIN trade.motivo mv ON dvpd.idMotivo = mv.idMotivo
 			WHERE dvp.idVisita = {$idVisita}
 			ORDER BY producto ASC
-		";
+		";	
 
 		return $this->db->query($sql)->result_array();
 	}
@@ -352,11 +396,21 @@ class M_rutas extends MY_Model{
 
 	public function detalle_promociones($idVisita, $idGrupoCanal = ''){
 		$columnas_adicionales = getColumnasAdicionales(['idModulo' => 7, 'shortag' => 'dvpd', 'idGrupoCanal' => $idGrupoCanal])['columnas_adicionales'];
+
+	
 		$join_adicional = '';
 		if(!empty($columnas_adicionales)){
 			$join_adicional = 'LEFT JOIN trade.producto pr ON dvpd.producto = pr.idProducto';
 			$columnas_adicionales = str_replace('dvpd.producto', 'pr.nombre AS producto', $columnas_adicionales);
 		}
+
+		if($columnas_adicionales!=null){
+			if (strpos($columnas_adicionales, 'fechaVigencia') !== false) {
+				$columnas_adicionales=str_replace("fechaVigencia", "fechaVigenciaInicio", $columnas_adicionales);
+				$columnas_adicionales=$columnas_adicionales.",dvpd.fechaVigenciaFin";
+			}
+		}
+
 		$sql = "
 			SELECT
 				 dvpd.idVisitaPromocionesDet
@@ -900,6 +954,52 @@ class M_rutas extends MY_Model{
 		LEFT JOIN trade.data_visitaFotos vf ON vdf.idVisitaFoto = vf.idVisitaFoto
 		WHERE v.idVisita = {$idVisita}";
 
+		return $this->db->query($sql)->result_array();
+	}
+
+	public function detalle_orden($idVisita){
+		$sql = "
+			SELECT  
+				dvo.idVisita
+				,dvo.idOrden
+				,o.nombre orden
+				,dvo.descripcion
+				,dvo.flagOtro 
+				,dvf.fotoUrl as foto
+			from trade.data_visitaOrden dvo
+			LEFT JOIN trade.orden o ON o.idOrden=dvo.idOrden
+			JOIN trade.orden_estado oe ON oe.idOrdenEstado=dvo.idOrdenEstado
+			LEFT JOIN trade.data_visitaFotos dvf ON dvf.idVisitaFoto=dvo.idVisitaFoto
+			where dvo.idVisita= {$idVisita}";
+
+		return $this->db->query($sql)->result_array();
+	}
+
+	public function detalle_modulacion($idVisita){
+		$sql = "
+			SELECT
+				dvm.idVisita,
+				dvm.flagCorrecto,
+				dvd.idElementoVis,
+				ev.nombre elemento,
+				dvd.flagCorrecto as flagCorrectoDet
+			FROM trade.data_visitaModulacion dvm
+			LEFT JOIN trade.data_visitaModulacionDet dvd ON dvd.idVisitaModulacion=dvm.idVisitaModulacion
+			LEFT JOIN trade.elementoVisibilidadTrad ev ON ev.idElementoVis=dvd.idElementoVis
+			where dvm.idVisita = {$idVisita}";
+
+		return $this->db->query($sql)->result_array();
+	}
+
+	public function obtener_cantidadFotos($idVisita){
+		$sql = "
+
+			SELECT distinct count(1)  as contFotos 
+			FROM trade.data_visitaFotos vf
+			JOIN trade.aplicacion_modulo m ON vf.idModulo = m.idModulo
+			JOIN trade.aplicacion_modulo_grupo mg ON mg.idModuloGrupo=m.idModuloGrupo
+			WHERE vf.idVisita={$idVisita} AND mg.idModuloGrupo<>9 
+		";
 		return $this->db->query($sql)->result_array();
 	}
 

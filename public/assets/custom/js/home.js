@@ -1,12 +1,8 @@
 var Home={
 	url: "home/",
+	carteraHoy: '',
+	usuariosFaltas: [],
 	load: function(){
-
-		// var flag_anuncio_visto = localStorage.getItem('flag_anuncio_visto');
-        // if(flag_anuncio_visto == 0){
-           
-        // }
-
 		$(document).on('click', '.lk-show-gps1', function(){
 			var control =  $(this);
 			var latitud = control.data('latitud');
@@ -32,19 +28,87 @@ var Home={
 				Fn.showModal({ id:modalId,show:true,title:a.msg.title,content:a.data,btn:btn, width:"90%" });
 			});
 		});
+		$(document).on('change', '.sl_filtros', function(){
+
+			$('.vista-efectividad').addClass('centrarContenidoDiv');
+			$('.vista-cobertura').addClass('centrarContenidoDiv');
+			$('.vista-cobertura').html('<i class="fas fa-spinner-third fa-spin icon-load"></i>');
+			$('.vista-efectividad').html('<i class="fas fa-spinner-third fa-spin icon-load"></i>');
+
+			$.when(
+				Home.mostrar_cartera()
+			).then(function(){
+				Home.mostrar_efectividad();
+			});
+		});
 
 		$(document).ready(function(){
-
 			$('.main-cobertura').css('align-items','center');
 			$('.main-efectividad').css('align-items','center');
 			$('.main-fotos').css('align-items','center');
 
-			$.when(Home.mostrar_cartera(),Home.mostrar_efectividad()).then(function(){
+			$.when(
+				$.when(
+					Home.mostrar_cartera(),
+					Home.mostrar_efectividad(),
+					Home.generarGraficosAsistencia(),
+					Home.generarGraficosEfectividadGtm()
+				).then(function(){
+					Home.generarGraficosGtm();
+				})
+			).then(function(){
 				$('#btn-anuncios').click();
 			});
-			// Home.mostrar_cartera();
-			// Home.mostrar_efectividad();
+
+			singleDatePickerModal.autoUpdateInput = false;
+			$('.txt-fecha').daterangepicker(singleDatePickerModal, function(chosen_date) {
+				$(this.element[0]).val(chosen_date.format('DD/MM/YYYY'));
+				$('.vista-efectividad').addClass('centrarContenidoDiv');
+				$('.vista-cobertura').addClass('centrarContenidoDiv');
+				$('.vista-efectividadGtm').addClass('centrarContenidoDiv');
+				$('.vista-asistencia').addClass('centrarContenidoDiv');
+				$('.vista-cobertura').html('<i class="fas fa-spinner-third fa-spin icon-load"></i>');
+				$('.vista-efectividad').html('<i class="fas fa-spinner-third fa-spin icon-load"></i>');
+				$('.vista-totales').html('<i class="fas fa-spinner-third fa-spin icon-load"></i>');
+				$('.vista-efectividadGtm').html('<i class="fas fa-spinner-third fa-spin icon-load"></i>');
+				$('.vista-asistencia').html('<i class="fas fa-spinner-third fa-spin icon-load"></i>');
+				$.when(
+					Home.mostrar_cartera(),
+					Home.mostrar_efectividad(),
+					Home.generarGraficosEfectividadGtm(),
+					Home.generarGraficosAsistencia()
+				).then(function(){
+					Home.generarGraficosGtm();
+				});
+			});
 		});
+
+		$(document).on('click', 'input[name=tipoEfectividadGtm]', function(e){
+			$.when(
+				$('.vista-efectividadGtm').addClass('centrarContenidoDiv'),
+				$('.vista-efectividadGtm').html('<i class="fas fa-spinner-third fa-spin icon-load"></i>')
+			).then(function(){
+				Home.generarGraficosEfectividadGtm();
+			});
+		})
+
+		$(document).on('click', '.verFaltas', function(e){
+			var ad = $.Deferred();
+			let usuariosFalta = Home.usuariosFaltas;
+			var data = {usuariosFalta: usuariosFalta};
+			var jsonString = { 'data': JSON.stringify(data) };
+			var config = { 'url': Home.url + 'get_faltasAsistencia', 'data': jsonString };
+
+			$.when(Fn.ajax(config)).then(function (a) {
+				++modalId;
+				var fn = 'Fn.showModal({ id:' + modalId + ',show:false });';
+				var btn = new Array();
+				btn[0] = { title: 'Aceptar', fn: fn };
+				Fn.showModal({ id: modalId, show: true, title: 'USUARIOS CON FALTA', content: a.data.html, btn: btn, width: '30%' });
+			});
+
+			return ad.resolve(true);
+		})
 
 		if(localStorage.getItem('modalCuentaProyecto') == 0){
 			$('#a-cambiarcuenta').click();
@@ -54,13 +118,26 @@ var Home={
 	mostrar_cartera:function(){
 
 		var ad = $.Deferred();
-		var data = {};
+		var data = { 
+			fecha: $('.fechaHome').val(),
+			grupoCanal: $('#grupo_filtro').val(),
+			canal: $('#canal_filtro').val(),
+
+			distribuidora_filtro: $("#distribuidora_filtro").val(),
+			distribuidoraSucursal_filtro: $("#distribuidoraSucursal_filtro").val(),
+			
+			plaza_filtro: $("#plaza_filtro").val(),
+
+			cadena_filtro: $("#cadena_filtro").val(),
+			banner_filtro: $("#banner_filtro").val(),
+		};
 		var jsonString = { 'data': JSON.stringify(data) };
 		var config = { 'url': Home.url + 'get_cobertura', 'data': jsonString };
 
 		$.when(Fn.ajaxNoLoad(config)).then(function(a){
 			$('.vista-cobertura').html(a.data.html);
 			$('.vista-cobertura').removeClass('centrarContenidoDiv');
+			Home.carteraHoy = a.data.carteraHoy;
 
 			ad.resolve(true);
 		});
@@ -71,7 +148,19 @@ var Home={
 	mostrar_efectividad:function(){
 
 		var ad = $.Deferred();
-		var data = {};
+		var data = { 
+			fecha: $('.fechaHome').val(),
+			grupoCanal: $('#grupo_filtro').val(),
+			canal: $('#canal_filtro').val(),
+
+			distribuidora_filtro: $("#distribuidora_filtro").val(),
+			distribuidoraSucursal_filtro: $("#distribuidoraSucursal_filtro").val(),
+
+			plaza_filtro: $("#plaza_filtro").val(),
+
+			cadena_filtro: $("#cadena_filtro").val(),
+			banner_filtro: $("#banner_filtro").val(),
+		};
 		var jsonString = { 'data': JSON.stringify(data) };
 		var config = { 'url': Home.url + 'get_efectividad', 'data': jsonString };
 
@@ -104,8 +193,149 @@ var Home={
 
 		});
 		return ad.promise();
-	}
+	},
 
+	generarGraficosAsistencia: function () {
+		let ad = $.Deferred();
+		let data = { 
+			fecha: $('.fechaHome').val(),
+		};
+		let jsonString = { 'data': JSON.stringify(data) };
+		let config = { 'url': Home.url + 'get_asistencia', 'data': jsonString };
+		let dataAsistencia = [];
+
+		$.when(Fn.ajaxNoLoad(config)).then(function (a) {
+			dataAsistencia = a.data.asistencia;
+			ad.resolve(true);
+
+			$('.vista-asistencia').removeClass('centrarContenidoDiv');
+			$(".vista-asistencia").html(a.data.html);
+
+			Home.usuariosFaltas = a.data.usuariosFalta;
+		});
+	},
+
+	// generarGraficosAsistencia: function () {
+	// 	let ad = $.Deferred();
+	// 	let data = { fecha: $('.fechaHome').val() };
+	// 	let jsonString = { 'data': JSON.stringify(data) };
+	// 	let config = { 'url': Home.url + 'get_asistencia', 'data': jsonString };
+
+	// 	$.when(Fn.ajaxNoLoad(config)).then(function (a) {
+	// 		ad.resolve(true);
+
+	// 		$.each($(".vista-asistencia"), function (index, v) {
+	// 			$(v).html(a.data.html);
+	// 		});
+	// 	});
+	// },
+
+	generarGraficosGtm: function () {
+		let ad = $.Deferred();
+		let data = { 
+			fecha: $('.fechaHome').val(),
+		};
+		let jsonString = { 'data': JSON.stringify(data) };
+		let config = { 'url': Home.url + 'get_cantidadGtm', 'data': jsonString };
+		let dataCantidadGtm = [];
+
+		$.when(Fn.ajaxNoLoad(config)).then(function (a) {
+			dataCantidadGtm = a.data.cantidadGtm;
+			ad.resolve(true);
+
+			$.each($(".vista-gtm"), function (index, v) {
+				if(dataCantidadGtm[0] == 0){
+					$(v).html(`<i class="fad fa-user-hard-hat fa-3x d-inline mr-2" style="color: brown;"></i><h1 class="mt-0 d-inline" style="color: #dbaaaa;">${dataCantidadGtm[0]} Usuarios</h1><hr>`);
+				}else{
+					$(v).html(`<i class="fad fa-store fa-3x d-inline mr-2" style="color: brown;"></i><h1 class="d-inline mt-0" style="color: #dbaaaa;">${Home.carteraHoy} Tiendas</h1>
+					<hr>
+					<i class="fad fa-user-hard-hat fa-3x d-inline mr-2" style="color: brown;"></i><h1 class="mt-0 d-inline" style="color: #dbaaaa;">${dataCantidadGtm[0]} GTM</h1>`);
+				}
+			});
+		});
+	},
+
+	generarGraficosEfectividadGtm: function () {
+		let ad = $.Deferred();
+		let tipo = $('input[name=tipoEfectividadGtm]:checked').val();
+		let data = { 
+			fecha: $('.fechaHome').val(),
+			tipo: tipo
+		};
+		let jsonString = { 'data': JSON.stringify(data) };
+		let config = { 'url': Home.url + 'get_efectividadPorGtm', 'data': jsonString };
+		let dataGtm = [];
+		let dataEfectividad = [];
+		let coloR = [];
+		let colorLabel = [];
+
+		$.when(Fn.ajaxNoLoad(config)).then(function (a) {
+			if(a.data.tipo == 0){
+				$('.vista-efectividadGtm').html(a.data.html);
+				$('#tablaEfectividadGtm').DataTable(a.data.config);
+				$('.vista-efectividadGtm').removeClass('centrarContenidoDiv');
+			}else{
+				dataGtm = a.data.dataGtm;
+				dataEfectividad = a.data.dataEfectividad;
+
+				for (let i in dataGtm) {
+					coloR.push('#28A745');
+					colorLabel.push('#ffffff9e');
+				}
+
+				ad.resolve(true);
+
+				$.each($(".vista-efectividadGtm"), function (index, v) {
+					$(v).html('<canvas class="divGraficoEfectividadGtm text-right align-middle" style="width:650px; height:450px;">');
+				});
+				$.each($(".divGraficoEfectividadGtm"), function (index, v) {
+					let data = {
+					labels: dataGtm,
+					datasets: [
+						{
+						label: 'PDV',
+						data: dataEfectividad,
+						backgroundColor: coloR,
+						}
+					]
+					};
+		
+					miCanvas = v.getContext("2d");
+		
+					let config = {
+						type: 'bar',
+						data: data,
+						options: {
+							responsive: false,
+							indexAxis: 'y',
+							elements: {
+								bar: {
+								borderWidth: 1,
+								}
+							},
+							plugins: {
+								tooltip: {
+									callbacks: {
+										label: data => ` ${data.formattedValue} %`
+									}
+								},
+								legend: {
+									display: false,
+									position: 'left'
+								},
+								title: {
+									display: false,
+									text: 'PDV'
+								}
+							},
+						},
+					};
+					var myChart = new Chart(miCanvas, config);
+				});
+			}
+			ad.resolve(true);
+		});
+	},
 }
 Home.load();
 

@@ -70,11 +70,11 @@ class Visitas extends MY_Controller{
 		/*====Filtrado=====*/
 		$input['cuenta'] = isset($data['cuenta_filtro']) ? $data['cuenta_filtro']:NULL;
 		$input['proyecto'] = isset($data['proyecto_filtro']) ? $data['proyecto_filtro']:NULL;
-		$input['grupoCanal'] = isset($data['grupoCanal_filtro']) ? $data['grupoCanal_filtro']:NULL;
+		$input['grupoCanal'] = isset($data['grupo_filtro']) ? $data['grupo_filtro']:NULL;
 		$input['canal'] = isset($data['canal_filtro']) ? $data['canal_filtro']:NULL;
 		$input['usuario'] = isset($data['usuario']) ? $data['usuario']:NULL;
 		/****/
-		
+
 		/////HFS
 		$input['zona'] = isset($data['zona']) ? $data['zona']:NULL;
 		$input['distribuidora'] = isset($data['distribuidora']) ? $data['distribuidora']:NULL;
@@ -91,6 +91,14 @@ class Visitas extends MY_Controller{
 		
 		$input['cod_usuario']=isset($data['cod_usuario']) ? $data['cod_usuario']:NULL;
 		$input['cod_cliente']=isset($data['cod_cliente']) ? $data['cod_cliente']:NULL;
+
+		$input['tipoUsuario'] = !empty($data['tipoUsuario_filtro']) ? $data['tipoUsuario_filtro'] : '';
+		$input['plaza'] = !empty($data['plaza_filtro']) ? $data['plaza_filtro'] : '';
+		$input['distribuidora'] = !empty($data['distribuidora_filtro']) ? $data['distribuidora_filtro'] : '';
+		$input['sucursal'] = !empty($data['distribuidoraSucursal_filtro']) ? $data['distribuidoraSucursal_filtro'] : '';
+		$input['zona'] = !empty($data['zona_filtro']) ? $data['zona_filtro'] : '';
+		$input['cadena'] = !empty($data['cadena_filtro']) ? $data['cadena_filtro'] : '';
+		$input['banner'] = !empty($data['banner_filtro']) ? $data['banner_filtro'] : '';
 
 		/*======*/
 		switch ($tipoGestor) {
@@ -132,7 +140,10 @@ class Visitas extends MY_Controller{
 				$result['data']['html'] = $html;
 				break;
 		}
-
+		if( !empty($data['grupo_filtro'])){
+			$grupoCanal = $this->db->get_where('trade.grupoCanal',['idGrupoCanal' =>$data['grupo_filtro'] ])->row_array();
+		}
+		$result['data']['grupoCanal'] = !empty($grupoCanal) ? strtoupper($grupoCanal['nombre']): NULL;
 		$this->aSessTrack = $this->model->aSessTrack;
 		echo json_encode($result);
 	}
@@ -319,6 +330,64 @@ class Visitas extends MY_Controller{
 						$input['estado'] = 1;
 
 						$rs_updateEstado = $this->model->update_estado_contingencia_visita_desactivar($input);
+						if ( $rs_updateEstado) { $rowUpdated++; } 
+						else { $rowUpdatedError++;	}
+					}
+
+					$result['result'] = 1;
+					$html .= '<div class="alert alert-primary" role="alert"><i class="fas fa-check-circle"></i> SE REALIZÓ LA ACTUALIZACIÓN DE <strong>'.$rowUpdated.'</strong> REGISTROS CORRECTAMENTE.</div>';
+					if ( $rowUpdatedError>0) {
+						$html .= '<div class="alert alert-danger" role="alert"><i class="fas fa-check-circle"></i> SE ENCONTRO UN ERROR EN LA ACTUALIZACIÓN DE <strong>'.$rowUpdatedError.'</strong> REGISTROS, VERIFICAR LA INFORMACIÓN.</div>';
+					}
+				} else {
+					$html = getMensajeGestion('noRegistros');
+				}
+				break;
+
+			default:
+				$html = getMensajeGestion('noRegistros');
+				break;
+		}
+
+		$result['msg']['title'] = 'ACTUALIZAR ESTADO MASIVO';
+		$result['msg']['content'] = $html;
+
+		$this->aSessTrack = $this->model->aSessTrack;
+		echo json_encode($result);
+	}
+	
+	public function activarExclusionesMasivo(){
+		$result = $this->result;
+		$data = json_decode($this->input->post('data'));
+
+		$tipoGestor = $data->{'tipoGestor'};
+		$dataRutas = $data->{'dataRutas'};
+		$dataRutasInactivas = $data->{'dataRutasInactivas'};
+		$dataVisitasActivas = $data->{'dataVisitasActivas'};
+		$dataVisitasInactivas = $data->{'dataVisitasInactivas'};
+
+		$html=''; $rowUpdated=0; $rowUpdatedError=0;
+
+		switch ($tipoGestor) {			
+			case 'visitas':
+				if (!empty($dataVisitasActivas) || !empty($dataVisitasInactivas)) {
+					$input=array();
+					foreach ($dataVisitasActivas as $klva => $visita) {
+						$input['tabla'] = 'visitas';
+						$input['idVisita'] = $visita;
+						$input['estado'] = 0;
+
+						$rs_updateEstado = $this->model->update_exclusion_visita_desactivar($input);
+						if ( $rs_updateEstado) { $rowUpdated++; } 
+						else { $rowUpdatedError++;	}
+					}
+
+					foreach ($dataVisitasInactivas as $klvi => $visita) {
+						$input['tabla'] = 'visitas';
+						$input['idVisita'] = $visita;
+						$input['estado'] = 1;
+
+						$rs_updateEstado = $this->model->update_exclusion_visita_desactivar($input);
 						if ( $rs_updateEstado) { $rowUpdated++; } 
 						else { $rowUpdatedError++;	}
 					}
@@ -894,12 +963,18 @@ class Visitas extends MY_Controller{
 					$arrayVerificacion['estado'] = 1;
 
 					$rs_verificacionRuta = $this->model->obtener_verificacion_existente($arrayVerificacion);
+					$obtener_data_ruta = $this->model->obtener_data_ruta($idRuta);
+					
 					if ( empty($rs_verificacionRuta)) {
 						//NO HAY REGISTRO DE DATA
 						//INSERTAMOS LA RUTA
 						$arrayInsertarRuta=array();
 						$arrayInsertarRuta['idUsuario'] = $idUsuario;
 						$arrayInsertarRuta['fecha'] = $fecha;
+						if(!empty($obtener_data_ruta)){
+							$arrayInsertarRuta['idCuenta'] = $obtener_data_ruta['idCuenta'];
+							$arrayInsertarRuta['idProyecto'] = $obtener_data_ruta['idProyecto'];
+						}
 						$arrayInsertarRuta['agregado'] = 1;
 
 						$insertarRuta = $this->model->insertar_ruta($arrayInsertarRuta);
@@ -1280,6 +1355,55 @@ class Visitas extends MY_Controller{
 		$result['result']=1;
 		$result['msg']['title'] = 'EXCLUIR VISITA';
 		$result['data']['html'] = $html;
+
+		$this->aSessTrack = $this->model->aSessTrack;
+		echo json_encode($result);
+	}
+	
+	public function excluirVisitasActivar(){
+		$result = $this->result;
+		$data = json_decode($this->input->post('data'));
+
+		$dataVisitasIncluido = $data->{'dataVisitasIncluido'};
+		$dataVisitasExcluido = $data->{'dataVisitasExcluido'};
+
+		$html=''; $rowUpdated=0; $rowUpdatedError=0;
+
+		if (!empty($dataVisitasIncluido) || !empty($dataVisitasExcluido)) {
+			$input=array();
+			foreach ($dataVisitasExcluido as $klva => $visita) {
+				$input['tabla'] = 'visitas';
+				$input['idVisita'] = $visita;
+				$input['idTipoExclusion'] = null;
+				$input['comentarioExclusion'] = null;
+
+				$rs_updateEstado = $this->model->update_estado_exclusion_visita($input);
+				if ( $rs_updateEstado) { $rowUpdated++; } 
+				else { $rowUpdatedError++;	}
+			}
+			$input=array();
+			foreach ($dataVisitasIncluido as $klvi => $visita) {
+				$input['tabla'] = 'visitas';
+				$input['idVisita'] = $visita;
+				$input['idTipoExclusion'] =null;
+				$input['comentarioExclusion'] = null;
+
+				$rs_updateEstado = $this->model->update_estado_exclusion_visita($input);
+				if ( $rs_updateEstado) { $rowUpdated++; } 
+				else { $rowUpdatedError++;	}
+			}
+
+			$result['result'] = 1;
+			$html .= '<div class="alert alert-primary" role="alert"><i class="fas fa-check-circle"></i> SE REALIZÓ LA ACTUALIZACIÓN DE <strong>'.$rowUpdated.'</strong> REGISTROS CORRECTAMENTE.</div>';
+			if ( $rowUpdatedError>0) {
+				$html .= '<div class="alert alert-danger" role="alert"><i class="fas fa-check-circle"></i> SE ENCONTRO UN ERROR EN LA ACTUALIZACIÓN DE <strong>'.$rowUpdatedError.'</strong> REGISTROS, VERIFICAR LA INFORMACIÓN.</div>';
+			}
+		} else {
+			$html = getMensajeGestion('noRegistros');
+		}
+		
+		$result['msg']['title'] = 'ACTUALIZAR ESTADO EXCLUSION MASIVO';
+		$result['msg']['content'] = $html;
 
 		$this->aSessTrack = $this->model->aSessTrack;
 		echo json_encode($result);

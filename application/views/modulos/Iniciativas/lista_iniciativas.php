@@ -7,7 +7,7 @@
 			</tr>
 			<tr>
 				<th class="text-center align-middle noVis" >#</th>
-				<th class="text-center align-middle">SELECCIONAR</th>
+				<th class="text-center align-middle"><input name="checkAll" id="checkAll" class="checkAll" type="checkbox" value=""></th>
 				<th class="text-center align-middle">FECHA</th>
 				<th class="text-center align-middle ">PERFIL USUARIO</th>
 				<th class="text-center align-middle ">COD USUARIO</th>

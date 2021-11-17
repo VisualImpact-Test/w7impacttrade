@@ -445,6 +445,13 @@ class Encuestas extends MY_Controller
 
 		$dataParaVista['encuestas'] = $this->m_encuestas->getEncuestas($params)->result_array();
 		$dataParaVista['data'] = $this->m_encuestas->getListas($post)->row_array();
+		
+		//
+		$data_lista=array();
+		$data_lista['idCanal']=$dataParaVista['data']['idCanal'];
+		$data_lista['idProyecto']=$dataParaVista['data']['idProyecto'];
+		$dataParaVista['clientes'] = $this->m_encuestas->getSegCliente($data_lista)->result_array();
+		//
 		$dataParaVista['lista_encuesta'] =  $this->m_encuestas->getListaEncuestas($post)->result_array();
 		$post='';
 		$dataParaVista['grupoCanal'] = $this->m_encuestas->getGrupoCanales()->result_array();
@@ -519,6 +526,7 @@ class Encuestas extends MY_Controller
 		$post = json_decode($this->input->post('data'), true);
 
 		$multiDataRefactorizada = getDataRefactorizadaMulti($post);
+		
 		$delete = true;$update = true;$insert = true;
 
 		$elementosAValidarSimple = [

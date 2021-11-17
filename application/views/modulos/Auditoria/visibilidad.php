@@ -5,7 +5,12 @@ if (!empty($obligatorios)) {
 	$addTH = 1;
 }
 ?>
-<div class="card-datatable">
+<style>
+.reporte_visibilidad button.btn.btn-sm.btn-outline-trade-visual.buttons-excel.buttons-html5 { 
+    display: none !important;
+}
+</style>
+<div class="card-datatable reporte_visibilidad">
 	<table id="tb-auditoria" class="table table-striped table-bordered nowrap" width="100%">
 		<thead>
 			<tr>
@@ -122,8 +127,8 @@ if (!empty($obligatorios)) {
 					<td <?= $modulacionClass ?>><?= $modulacion ? $modulacion : '-' ?></td>
 					<?
 					$fotos = '';
-					if (!empty($row['fotos'])) {
-						$fotos = $row['fotos'] . ' <i class="far fa-camera text-primary"></i>';
+					if (!empty($resultados_foto[$row['idVisita']]['numFotos'])) {
+						$fotos = $resultados_foto[$row['idVisita']]['numFotos'] . ' <i class="far fa-camera text-primary"></i>';
 					}
 					?>
 					<td class="text-center<?= (!empty($fotos) ? ' lk-visib-fotos cursor-pointer' : '') ?>"><?= (!empty($fotos) ? $fotos : '-') ?></td>
@@ -132,10 +137,10 @@ if (!empty($obligatorios)) {
 					<td><?= ($row['estadoIncidencia'] == 1 ? 'ACTIVO' : (!empty($row['nombreIncidencia']) ? 'INACTIVO' : '-')) ?></td>
 					<td><?= (!empty($row['observacion']) ? $row['observacion'] : '-') ?></td>
 
-					<td class="text-right"><?= (!empty($total_eo_ad[$row['idVisita']]) ? count($total_eo_ad[$row['idVisita']]) : 0) ?></td>
-					<td class="text-right"><?= (!empty($total_eo_si[$row['idVisita']]) ? count($total_eo_si[$row['idVisita']]) : 0) ?></td>
-					<td class="text-right"><?= (!empty($total_eo_no[$row['idVisita']]) ? count($total_eo_no[$row['idVisita']]) : 0) ?></td>
-					<td class="text-right"><?= (!empty($total_eo[$row['idVisita']]) ? count($total_eo[$row['idVisita']]) : 0) ?></td>
+					<td class="text-right"><?= (($row['estadoIncidencia']==1)? '-' : (!empty($total_eo_ad[$row['idVisita']]) ? count($total_eo_ad[$row['idVisita']]) : 0) )  ?></td>
+					<td class="text-right"><?= (($row['estadoIncidencia']==1)? '-' : (!empty($total_eo_si[$row['idVisita']]) ? count($total_eo_si[$row['idVisita']]) : 0) )  ?></td>
+					<td class="text-right"><?= (($row['estadoIncidencia']==1)? '-' : (!empty($total_eo_no[$row['idVisita']]) ? count($total_eo_no[$row['idVisita']]) : 0) ) ?></td>
+					<td class="text-right"><?= (($row['estadoIncidencia']==1)? '-' : (!empty($total_eo[$row['idVisita']]) ? count($total_eo[$row['idVisita']]) : 0)  )?></td>
 
 					<? foreach ($obligatorios as $row_e) { ?>
 						<?
@@ -145,6 +150,11 @@ if (!empty($obligatorios)) {
 
 						$obli_2 = '-';
 						$obli_2_txt = '';
+						$estilo_modulado='';
+						if (isset($resultados_obligatorios[$row['idVisita']][$row_e['idElementoVis']]['modulado'])) {
+							$estilo_modulado = ($resultados_obligatorios[$row['idVisita']][$row_e['idElementoVis']]['modulado']==1)?'style="font-size:15px;color: green;"':'';
+						}
+						
 						if (isset($resultados_obligatorios[$row['idVisita']][$row_e['idElementoVis']][2]['presencia'])) {
 							$obli_2 = $resultados_obligatorios[$row['idVisita']][$row_e['idElementoVis']][2]['presencia'];
 							$obli_2_txt = " text-obligatorio-{$obli_2}";
@@ -157,12 +167,12 @@ if (!empty($obligatorios)) {
 							$obli_3_txt = " text-obligatorio-{$obli_3}";
 						}
 						?>
-						<td class="text-right<?= $obliBg . $obli_2_txt ?>"><?= $obli_2 ?></td>
-						<td class="text-right<?= $obliBg . $obli_3_txt ?>"><?= $obli_3 ?></td>
-						<? if (in_array(1, $visibColumn)) { ?><td class="text-right<?= $obliBg ?>"><?= isset($resultados_obligatorios[$row['idVisita']][$row_e['idElementoVis']]['cantidad']) ? $resultados_obligatorios[$row['idVisita']][$row_e['idElementoVis']]['cantidad'] : '-' ?></td><? } ?>
-						<? if (in_array(2, $visibColumn)) { ?><td class="text-left<?= $obliBg ?>"><?= isset($resultados_obligatorios[$row['idVisita']][$row_e['idElementoVis']][3]['comentario']) ? $resultados_obligatorios[$row['idVisita']][$row_e['idElementoVis']][3]['comentario'] : '-'; ?></td><? } ?>
+						<td class="text-right<?= $obliBg . $obli_2_txt ?>"  <?=$estilo_modulado?>><?= $obli_2 ?></td>
+						<td class="text-right<?= $obliBg . $obli_3_txt ?>"  <?=$estilo_modulado?> ><?= $obli_3 ?></td>
+						<? if (in_array(1, $visibColumn)) { ?><td class="text-right<?= $obliBg ?>" <?=$estilo_modulado?> ><?= isset($resultados_obligatorios[$row['idVisita']][$row_e['idElementoVis']]['cantidad']) ? $resultados_obligatorios[$row['idVisita']][$row_e['idElementoVis']]['cantidad'] : '-' ?></td><? } ?>
+						<? if (in_array(2, $visibColumn)) { ?><td class="text-left<?= $obliBg ?>" <?=$estilo_modulado?> ><?= isset($resultados_obligatorios[$row['idVisita']][$row_e['idElementoVis']][3]['comentario']) ? $resultados_obligatorios[$row['idVisita']][$row_e['idElementoVis']][3]['comentario'] : '-'; ?></td><? } ?>
 						<? if (in_array(3, $visibColumn)) { ?>
-							<td class="text-right<?= $obliBg ?>">
+							<td class="text-right<?= $obliBg ?>" <?=$estilo_modulado?> >
 								<? if (isset($resultados_obligatorios[$row['idVisita']][$row_e['idElementoVis']][2]['foto'])) { ?>
 									<? $fotoUrl = site_url("controlFoto/obtener_carpeta_foto/visibilidadAuditoria/{$resultados_obligatorios[$row['idVisita']][$row_e['idElementoVis']][2]['foto']}"); ?>
 									<img class="lk-visib-zoom cursor-pointer" src="<?= $fotoUrl ?>" style="height: 50px;">

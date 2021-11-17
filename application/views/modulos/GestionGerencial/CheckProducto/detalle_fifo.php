@@ -3,6 +3,7 @@
         <thead>
             <tr>
                 <th class="text-center align-middle noVis">#</th>
+                <th class="text-center align-middle">FECHA</th>
                 <th class="text-center align-middle">GRUPO CANAL</th>
                 <th class="text-center align-middle">CANAL</th>
                 <th class="text-center align-middle hideCol">SUBCANAL</th>
@@ -12,11 +13,11 @@
                     <th class="text-center align-middle"><?= strtoupper($v['header']) ?></th>
                 <? } ?>
                 <th class="text-center align-middle">COD VISUAL</th>
-                <th class="text-center align-middle hideCol">COD <?=$this->sessNomCuentaCorto?></th>>
+                <th class="text-center align-middle hideCol">COD <?=$this->sessNomCuentaCorto?></th>
                 <th class="text-center align-middle">PDV</th>
                 <th class="text-center align-middle">PRODUCTO</th>
                 <th class="text-center align-middle">UNIDAD MEDIDA</th>
-                <th class="text-center align-middle">CANTIDAD VENCIDOS</th>
+                <th class="text-center align-middle">CANTIDAD POR VENCER</th>
                 <th class="text-center align-middle">FECHA VENCIMIENTO</th>
                 <th class="text-center align-middle">DÍAS PARA VENCIMIENTO</th>
             </tr>
@@ -28,6 +29,7 @@
             ?>
                 <tr>
                     <td class="text-center"><?= $i++; ?></td>
+                    <td class="text-left"><?= (!empty($row['fecha']) ? date_change_format($row['fecha']) : '-') ?></td>
                     <td class="text-left"><?= (!empty($row['grupoCanal']) ? $row['grupoCanal'] : '-') ?></td>
                     <td class="text-left"><?= (!empty($row['canal']) ? $row['canal'] : '-') ?></td>
                     <td class="text-left"><?= (!empty($row['subCanal']) ? $row['subCanal'] : '-') ?></td>

@@ -3,7 +3,6 @@
         <thead>
             <tr>
                 <th class="text-center align-middle noVis">#</th>
-                <th class="text-center align-middle">FECHA</th>
                 <th class="text-center align-middle">AÑO</th>
                 <th class="text-center align-middle">MES</th>
                 <th class="text-center align-middle">SEMANA</th>
@@ -30,7 +29,6 @@
             ?>
                 <tr>
                     <td class="text-center"><?= $i++; ?></td>
-                    <td class="text-center"><?= (!empty($row['fecha']) ? date_change_format($row['fecha']) : '-') ?></td>
                     <td class="text-center"><?= (!empty($row['anio']) ? ($row['anio']) : '-') ?></td>
                     <td class="text-center"><?= (!empty($row['mes']) ? ($row['mes']) : '-') ?></td>
                     <td class="text-center"><?= (!empty($row['semana']) ? ($row['semana']) : '-') ?></td>
@@ -44,7 +42,7 @@
                     <td class="text-left"><?= (!empty($row['marca']) ? ($row['marca']) : '-') ?></td>
                     <td class="text-center"><?= (!empty($row['formato']) ? number_format($row['formato'], 2, '.', ' ') : '-') ?></td>
                     <td class="text-left"><?= (!empty($row['producto']) ? $row['producto'] : '-') ?></td>
-                    <td class="text-right"><?= (!empty($row['precio']) ? moneda($row['precio']) : '-') ?></td>
+                    <td class="text-right"><?= 'S/ '.$row['precio'] ?></td>
                 </tr>
             <? } ?>
         </tbody>

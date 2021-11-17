@@ -1,3 +1,6 @@
+<style>
+	th.product-propio { background-color: #29943f; color: #fff; }
+</style>
 <div class="card-datatable">
 	<table id="tb-checkproductos" class="mb-0 table table-bordered text-nowrap" width="100%">
 		<thead>
@@ -32,7 +35,7 @@
 						}
 					}
 				}
-				$rows = $rows * 4;
+				$rows = $rows * 3;
 				?>
 				<th class="text-center" rowspan="1" colspan="<?= $rows ?>">PRODUCTOS</th>
 			</tr>
@@ -43,7 +46,7 @@
 					if (!empty($elementos[$idCat])) {
 						if (count($elementos[$idCat]) > 0) {
 							$rows = count($elementos[$idCat]);
-							$rows = $rows * 4;
+							$rows = $rows * 3;
 				?>
 							<th class="text-center" rowspan="1" colspan="<?= $rows ?>"><?= $categoria ?></th>
 				<?
@@ -58,8 +61,9 @@
 					if (!empty($elementos[$idCat])) {
 						if (count($elementos[$idCat]) > 0) {
 							foreach ($elementos[$idCat] as $idEle => $eleme) {
+								$color = $eleme['flagCompetencia'] ? 'product-competencia' : 'product-propio';
 				?>
-								<th class="text-center" colspan="4"><?= $eleme ?></th>
+								<th class="text-center <?=$color?>" colspan="3"><?= $eleme['nombre'] ?></th>
 				<?
 							}
 						}
@@ -73,11 +77,12 @@
 					if (!empty($elementos[$idCat])) {
 						if (count($elementos[$idCat]) > 0) {
 							foreach ($elementos[$idCat] as $idEle => $eleme) {
+								$color = $eleme['flagCompetencia'] ? 'product-competencia' : 'product-propio';
 				?>
-								<th class="text-center noVis" rowspan="1">PRESENCIA</th>
-								<th class="text-center noVis" rowspan="1">STOCK</th>
-								<th class="text-center noVis" rowspan="1">ESTADO</th>
-								<th class="text-center noVis" rowspan="1">FOTO</th>
+								<th class="text-center noVis <?=$color?>" rowspan="1">PRESENCIA</th>
+								<!--<th class="text-center noVis" rowspan="1">STOCK</th>-->
+								<th class="text-center noVis <?=$color?>" rowspan="1">MOTIVO</th>
+								<th class="text-center noVis <?=$color?>" rowspan="1">FOTO</th>
 				<?
 							}
 						}
@@ -94,7 +99,7 @@
 				<tr>
 					<td class="text-center"><?= $i++; ?></td>
 					<!-- <td class="text-center">
-						<input name="check[]" id="check" class="check" type="checkbox" value="<?= $row['idVisita']; ?>" />
+						<input name="check[]" id="check" class="check" type="checkbox" value="<?//= $row['idVisita']; ?>" />
 					</td> -->
 					<td class="text-center"><?= date_change_format($row['fecha']) ?></td>
 					<td class="text-left"><?= verificarEmpty($row['tipoUsuario'], 3) ?></td>
@@ -122,10 +127,10 @@
 							if (count($elementos[$idCat]) > 0) {
 								foreach ($elementos[$idCat] as $idEle => $eleme) {
 									$res = true;
-
+										$color = $eleme['flagCompetencia'] ? 'product-competencia' : 'product-propio';
 										if ( !empty($detalle[$row['idVisita']]) ) {
-											$row_d=$detalle[$row['idVisita']];
-											if ($row_d['idProducto'] == $idEle) {
+											if( !empty($detalle[$row['idVisita']][$idEle]) ){
+												$row_d = $detalle[$row['idVisita']][$idEle];
 												
 												$res = false;
 												$elemento_pertenece = false;
@@ -137,17 +142,15 @@
 													}
 												}
 						?>
-												<td class="text-center" <?= ($elemento_pertenece) ? 'style="background: #b2d6f5;"' : '' ?>><?= (!empty($row_d['presencia']) ? ($row_d['presencia'] == 1 ? 'SI' : 'NO') : '-') ?></td>
-												<td class="text-center" <?= ($elemento_pertenece) ? 'style="background: #b2d6f5;"' : '' ?>><?= (!empty($row_d['stock']) ? $row_d['stock'] : '-') ?></td>
-												<td class="text-center" <?= ($elemento_pertenece) ? 'style="background: #b2d6f5;"' : '' ?>><?= (!empty($row_d['estado']) ? $row_d['estado'] : '-') ?></td>
+												<td class="text-center <?=$color?>" <?= ($elemento_pertenece) ? 'style="background: #b2d6f5;"' : '' ?>><?= (!empty($row_d['presencia']) ? ($row_d['presencia'] == 1 ? 'SI' : 'NO') : '-') ?></td>
+												<!--td class="text-center" <?//= ($elemento_pertenece) ? 'style="background: #b2d6f5;"' : '' ?>><?//= (!empty($row_d['stock']) ? $row_d['stock'] : '-') ?></td-->
+												<td class="text-center <?=$color?>" <?= ($elemento_pertenece) ? 'style="background: #b2d6f5;"' : '' ?>><?= (!empty($row_d['motivo']) ? $row_d['motivo'] : '-') ?></td>
 												<?
-												$fotoImg = (!empty($row_d['foto']) && !empty($row_d['foto'])) ? foto_controlador('checklist/' . $row_d['foto']) : '';
-												if (!empty($fotoImg)) {
-													$fotoImg = '<a href="javascript:;" class="lk-foto-1" data-content="img-fotoprincipal-' . $row_d['idVisita'] . '-' . $row_d['idProducto'] . '">
-																				<img class="fotoMiniatura foto" name="img-fotoprincipal-' . $row_d['idVisita'] . '-' . $row_d['idProducto'] . '" id="img-fotoprincipal-' . $row_d['idVisita'] . '-' . $row_d['idProducto'] . '" src="' . $fotoImg . '" alt=""></a>';
+												if (!empty($row_d['foto'])) {
+													$fotoImg = rutafotoModulo(['foto'=>$row_d['foto'],'modulo'=>'checklist','icono'=>'fal fa-image-polaroid fa-lg btn-outline-primary btn border-0']); 
 												}
 												?>
-												<td class="text-center" <?= ($elemento_pertenece) ? 'style="background: #b2d6f5;"' : '' ?>><?= (!empty($fotoImg) ? $fotoImg : '-'); ?></td>
+												<td class="text-center <?=$color?>" <?= ($elemento_pertenece) ? 'style="background: #b2d6f5;"' : '' ?>><?= (!empty($fotoImg) ? $fotoImg : '-'); ?></td>
 
 										<?
 											}
@@ -156,7 +159,7 @@
 									if ($res) {
 										?>
 										<td class="text-center" rowspan="1"> - </td>
-										<td class="text-center" rowspan="1"> - </td>
+										<!--td class="text-center" rowspan="1"> - </td-->
 										<td class="text-center" rowspan="1"> - </td>
 										<td class="text-center" rowspan="1"> - </td>
 										<?

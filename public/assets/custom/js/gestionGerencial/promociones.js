@@ -13,6 +13,7 @@ var Promociones = {
 
 		$(document).on('dblclick', '.card-body > ul > li > a', function (e) {
 			$('#btn-filtrar').click();
+			
 		});
 
 		$(document).on('click','#btn-filtrar', function(e){
@@ -44,23 +45,29 @@ var Promociones = {
 					$('.filtros_aje_resumido').show();
 				}
 			}
+
+			if(Promociones.urlActivo == 'Filtrar_Aje'){
+				$('#btn-promociones-pdf').show();
+			}else{
+				$('#btn-promociones-pdf').hide();
+			}
         });
 
-		$(document).on("click",".lk-show-foto",function(){
-			var control = $(this);
+		// $(document).on("click",".lk-show-foto",function(){
+		// 	var control = $(this);
 
-			var data = { idVisita: control.data('visita'), cliente: control.data('cliente'), usuario: control.data('usuario'), perfil: control.data('perfil') };
-			var jsonString = { 'data': JSON.stringify(data) };
-			var configAjax = { 'url': Promociones.url + 'mostrarFotos', 'data': jsonString };
+		// 	var data = { idVisita: control.data('visita'), cliente: control.data('cliente'), usuario: control.data('usuario'), perfil: control.data('perfil') };
+		// 	var jsonString = { 'data': JSON.stringify(data) };
+		// 	var configAjax = { 'url': Promociones.url + 'mostrarFotos', 'data': jsonString };
 
-			$.when( Fn.ajax(configAjax) ).then( function(a){
-				++modalId;
-				var fn='Fn.showModal({ id:'+modalId+',show:false });';
-				var btn=new Array();
-					btn[0]={title:'Cerrar',fn:fn};
-				Fn.showModal({ id:modalId,show:true,title:a.msg.title,content:a.data,btn:btn});
-			});
-		});
+		// 	$.when( Fn.ajax(configAjax) ).then( function(a){
+		// 		++modalId;
+		// 		var fn='Fn.showModal({ id:'+modalId+',show:false });';
+		// 		var btn=new Array();
+		// 			btn[0]={title:'Cerrar',fn:fn};
+		// 		Fn.showModal({ id:modalId,show:true,title:a.msg.title,content:a.data,btn:btn});
+		// 	});
+		// });
 
 		$(document).on("click",".lk-foto",function(){
 			var control = $(this);
@@ -108,7 +115,50 @@ var Promociones = {
 				});
 			}
 		});
-	}
+		$(document).on('click','#btn-promociones-pdf', function(e) {
+			var data = {};
+			var jsonString = { 'data': JSON.stringify(data) };
+			var configAjax = { 'url': Promociones.url + 'getFormPromocionesPdf', 'data': jsonString };
+
+			$.when( Fn.ajax(configAjax) ).then( function(a){
+				++modalId;
+
+				var fn='Fn.showModal({ id:'+modalId+',show:false });';
+
+				if(a.result == 0 ) var fn1='Fn.showModal({ id:'+modalId+',show:false });';
+				if(a.result == 1 ) var fn1='Promociones.verificar_frm_promociones_pdf();';
+				var btn=new Array();
+					btn[0]={title:'Cerrar',fn:fn};
+					btn[1]={title:'Generar',fn:fn1};
+				Fn.showModal({ id:modalId,show:true,title:a.msg.title,content:a.data,btn:btn});
+			});
+		});
+	},
+	verificar_frm_promociones_pdf: function(){
+
+		let cantidadDeClientes = $('#clientes').val().length;
+		let topeDeClientes = $('#topClientes').val();
+		if(cantidadDeClientes <= topeDeClientes){
+			Promociones.generar_pdf_promociones();
+		}else{
+			modalId++
+			var fn='Fn.showModal({ id:'+modalId+',show:false });';
+			var title = 'Alerta';
+			var content = Fn.message({'type':2,'message':`Solo puede seleccionar un máximo de ${topeDeClientes} clientes`});
+			var btn=new Array();
+				btn[0]={title:'Aceptar',fn:fn};
+			Fn.showModal({ id:modalId,show:true,title:title,content:content,btn:btn});
+
+		}
+	},
+	generar_pdf_promociones: function(){
+		var data=Fn.formSerializeObject( Promociones.frmRutas );
+			data.frmPromociones = Fn.formSerializeObject('formPdfPromociones');
+		var jsonString={ 'data':JSON.stringify( data ) };
+		var url = site_url+Promociones.url+'promociones_pdf';
+		
+		Fn.download(url,jsonString);
+	},
 }
 
 Promociones.load();

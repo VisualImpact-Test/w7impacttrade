@@ -271,7 +271,7 @@ var Basemadre = {
 					return false;
 				}
 
-				$('#'+Basemadre.contentDetalle).html(a.data.html);
+				$('#tb-maestrosBasemadreDetalle').html(a.data.html);
 				if (a.result==1) {
 					$('#'+a.data.datatable).DataTable();
 				}
@@ -1129,6 +1129,34 @@ var Basemadre = {
 			});
 		});
 
+
+		$(document).on('click','#btn-bajaPuntoMasivo', function(e){
+			e.preventDefault();
+
+			var control= $(this);
+			var data={};
+			var jsonString = {data: JSON.stringify(data)};
+			var configAjax = {url: Basemadre.url + 'darBajaMasivo', data:jsonString };
+		 
+			
+			//
+		
+			$.when(Fn.ajax(configAjax)).then( function(a){
+				++modalId;
+				Basemadre.idModal = modalId;
+				var fn1='Basemadre.confirmarBajaPunto();';
+				var fn2='Fn.showModal({ id:'+modalId+',show:false });';
+				var btn=new Array();
+					btn[0]={title:'Guardar',fn:fn1};
+					btn[1]={title:'Cerrar',fn:fn2};
+				var message = a.data.html;
+
+				Fn.showModal({ id:modalId,title:a.msg.title,content:message,btn:btn,show:true, width:a.data.htmlWidth});
+				Basemadre.ventanaBajaHistorico(); 
+			});
+		});
+
+
 		$(document).on('change','.ch-tipo', function(e){
 			e.preventDefault();
 			var tipo=$('input[name="ch-tipo"]:checked').val();
@@ -1623,7 +1651,7 @@ var Basemadre = {
 		} else {
 			var data = Fn.formSerializeObject(Basemadre.frmBasemadreSeleccionarSegmentacionCliente);
 			var jsonString = {'data': JSON.stringify(data)};
-			var configAjax = {'url': Basemadre.url+'nuevoPuntoMasivo', 'data':jsonString};
+			var configAjax = {'url': Basemadre.url+'nuevoHistoricoMasivo', 'data':jsonString};
 
 			$.when(Fn.ajax(configAjax)).then( function(a){
 				Fn.showModal({ id:Basemadre.idModal, show:false});
@@ -2145,7 +2173,7 @@ var Basemadre = {
 		var sourceDistribuidoraSucursal = Basemadre.dataListaDistribuidoraSucursalNombre;
 
 		var data = [];
-		var container = document.getElementById('nuevoPuntoMasivo');
+		var container = document.getElementById('historicoPuntoMasivo');
 		
 		var settings = {
 			licenseKey: 'non-commercial-and-evaluation',
@@ -2235,6 +2263,24 @@ var Basemadre = {
 							weekdaysShort: ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sáb']
 						},
 					}
+					, validator :function(value, callback) {
+						if(value=='' || value==null){
+							callback(true);
+						}else{
+							if(Basemadre.handsontable.getDataAtCell(this.row,16)!=null){
+								var fecIni=Basemadre.handsontable.getDataAtCell(this.row,16);
+								var aFecIni= fecIni.split("/");
+								var fecInicio = new Date(aFecIni[1]+"/"+aFecIni[0]+"/"+aFecIni[2]);
+
+								var aFecFin= value.split("/");
+								var fecFin = new Date(aFecFin[1]+"/"+aFecFin[0]+"/"+aFecFin[2]);
+								if(fecFin<fecInicio){
+									Basemadre.handsontable.setDataAtCell(this.row,17,'');
+								}
+							}
+						}
+						callback(true);
+					}
 				},
 				{ data: 'frecuencia'
 					, type:'dropdown'
@@ -2299,7 +2345,7 @@ var Basemadre = {
 		var sourceBanner = Basemadre.dataListaBannerNombre;
 
 		var data = [];
-		var container = document.getElementById('nuevoPuntoMasivo');
+		var container = document.getElementById('historicoPuntoMasivo');
 		
 		var settings = {
 			licenseKey: 'non-commercial-and-evaluation',
@@ -2386,6 +2432,27 @@ var Basemadre = {
 							weekdaysShort: ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sáb']
 						},
 					}
+					, validator :function(value, callback) {
+						if(value=='' || value==null){
+							callback(true);
+						}else{
+							if(Basemadre.handsontable.getDataAtCell(this.row,16)!=null){
+								var fecIni=Basemadre.handsontable.getDataAtCell(this.row,16);
+								var aFecIni= fecIni.split("/");
+								var fecInicio = new Date(aFecIni[1]+"/"+aFecIni[0]+"/"+aFecIni[2]);
+
+								var aFecFin= value.split("/");
+								var fecFin = new Date(aFecFin[1]+"/"+aFecFin[0]+"/"+aFecFin[2]);
+								if(fecFin<fecInicio){
+									Basemadre.handsontable.setCellMeta(this.row,17,'className','changeFalse');
+									callback(false);
+								}else{
+									Basemadre.handsontable.setCellMeta(this.row,17,'className','');
+								}
+							}
+						}
+						callback(true);
+					}
 				},
 				{ data: 'frecuencia'
 					, type:'dropdown'
@@ -2415,6 +2482,102 @@ var Basemadre = {
 					, type:'dropdown'
 					, source: sourceBanner
 				}
+			],
+			minSpareCols: 1, //always keep at least 1 spare row at the right
+			minSpareRows: 1,  //always keep at least 1 spare row at the bottom,
+			rowHeaders: true, //n° contador de las filas
+			//filters: true, // permite filtrar en la columna, pero elimina la opción STARTROWS
+			contextMenu: true,
+			dropdownMenu: true, //desplegable en la columna, ofrece oopciones
+			height: 300,
+			//width: '100%',
+			stretchH: 'all', //Expande todas las columnas al 100%
+			maxRows: 1000, //cantidad máxima de filas
+			manualColumnResize: true
+
+			,
+			beforechange: function(changes, source){
+				//console.log('changes',changes); //Todos los cambios que se han hecho
+				//console.log('source',source); //El tipo de cambio que se ha hecho.
+				var elemento = this; 
+				//console.log('elemento',elemento);//El div.container del handsontable
+
+				if (changes!=null) {
+					changes.forEach( function(item){
+						if (item[1]=='fechas.inicio' || item[1]=='fechas.fin' ) {
+
+							var fecIni=Basemadre.handsontable.getDataAtCell(item[0],16);
+							var fecF=Basemadre.handsontable.getDataAtCell(item[0],17);
+
+							if(fecIni!=null && fecF!=null){
+								var aFecIni= fecIni.split("/");
+								var fecInicio = new Date(aFecIni[1]+"/"+aFecIni[0]+"/"+aFecIni[2]);
+
+								var aFecFin= fecF.split("/");
+								var fecFin = new Date(aFecFin[1]+"/"+aFecFin[0]+"/"+aFecFin[2]);
+								if(fecFin<fecInicio){
+									//Basemadre.handsontable.setDataAtCell(item[0],17,'');
+									Basemadre.handsontable.setCellMeta(item[0],17,'className','changeFalse');
+								}else{
+									Basemadre.handsontable.setCellMeta(item[0],17,'className','');
+								}
+							}
+						} 
+					})
+				}
+			}
+		};
+
+		Basemadre.handsontable = new Handsontable(container, settings);
+
+		setTimeout(function(){
+			Basemadre.handsontable.render(); 
+		}, 1000);
+	},
+
+
+	ventanaBajaHistorico: function(){
+		var data = [];
+		var container = document.getElementById('bajaPuntoMasivo');
+		
+		var settings = {
+			licenseKey: 'non-commercial-and-evaluation',
+			data: null,
+			dataSchema: {idCliente:null,nombreComercial:null, razonSocial:null, number:{ruc:null, dni:null}, ubigeo:{departamento:null,provincia:null,distrito:null,codigo:null}, direccion:null, referencia:null, latitud:null, longitud:null, zonaPeligrosa:null, codCliente:null, flagCartera:null, fechas:{inicio:null, fin:null}, frecuencia:null, zona:null, segNegocio:{grupoCanal:null, canal:null, clienteTipo:null}, segClienteTradicional:{plaza:null, distribuidoraSucursal:null} },
+			colHeaders: ['ID CLIENTE','FECHA FIN'],
+			startRows: 10,
+			//startCols: 4,
+			columns: [
+				{data: 'idCliente'
+					, validator :function(value, callback) {
+						if(value=='' || value==null){
+							Basemadre.handsontable.setCellMeta(this.row,0,'className','changeFalse');
+							callback(true);
+						}else{
+							Basemadre.handsontable.setCellMeta(this.row,0,'className','');
+						}
+						callback(true);
+					}
+				},
+				{ data: 'fechas.inicio'
+					, type:'date'
+					, dateFormat: 'DD/MM/YYYY'
+					, allowEmpty: true
+					, placeholder: moment().format('DD/MM/YYYY')
+					, defaultDate: moment().toDate()
+					, datePickerConfig: {
+						firstDay: 1,
+						showWeekNumber: true,
+						numberOfMonths: 1,
+						i18n: {
+							previousMonth: 'Anterior',
+							nextMonth: 'Siguiente',
+							months: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+							weekdays: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
+							weekdaysShort: ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sáb']
+						},
+					}
+				},
 			],
 			minSpareCols: 1, //always keep at least 1 spare row at the right
 			minSpareRows: 1,  //always keep at least 1 spare row at the bottom,
@@ -2515,10 +2678,11 @@ var Basemadre = {
 			Fn.showModal({ id:modalId,title:'Alerta',content:message,btn:btn,show:true});
 		}
 	},
+
 	confirmarGuardarHistoricoMasivo: function(){
 		var valoresNecesarios=0;
 		var contColsInvalid = 0;
-			contColsInvalid = $('#nuevoPuntoMasivo .htInvalid').length;
+			contColsInvalid = $('#historicoPuntoMasivo .htInvalid').length;
 		
 		for (var ix = 0; ix < Basemadre.handsontable.countRows(); ix++) {
 			if (!Basemadre.handsontable.isEmptyRow(ix)) {
@@ -2594,9 +2758,11 @@ var Basemadre = {
 		}
 
 		var tipoSegmentacion = $('#tipoSegmentacion').val();
+		var registrar = $('input[name="registrar"]:checked').val();
+		
 		var dataArrayCargaMasiva = arrayDataClientes;
 		
-		var data = {'tipoSegmentacion': tipoSegmentacion,'dataArray': dataArrayCargaMasiva};
+		var data = { 'registrar':registrar,'tipoSegmentacion': tipoSegmentacion,'dataArray': dataArrayCargaMasiva};
 		var jsonString = {'data': JSON.stringify(data)};
 		var configAjax = {'url':Basemadre.url+'guardarHistoricoMasivo', 'data':jsonString};
 
@@ -2753,7 +2919,8 @@ var Basemadre = {
 	cargaMasivaAlternativa: function() {
 		var file_data = $('#archivo').prop('files')[0];
 		var validar=true;
-		
+
+		var auditoria = $('#chk-cliente-auditoria:checked').length ? 1 : 0;
 
 		if(file_data==undefined){
 			++modalId;
@@ -2772,6 +2939,7 @@ var Basemadre = {
 			var form_data = new FormData();             
 			form_data.append('file', file_data); 
 			form_data.append('tipo', tipo); 
+			form_data.append('auditoria', auditoria); 
 
 			if((formato[1]=='csv')||(formato[1]=='CSV')){	
 				$.ajax({
@@ -2879,6 +3047,70 @@ var Basemadre = {
 			}
 		});
 	},
+
+
+	confirmarBajaPunto: function(){
+		var contColsInvalid = 0;
+			contColsInvalid = $('#bajaPuntoMasivo .htInvalid').length;
+		
+		for (var ix = 0; ix < Basemadre.handsontable.countRows(); ix++) {
+			if (!Basemadre.handsontable.isEmptyRow(ix)) {
+				//var columnaIdCliente = Basemadre.handsontable.getDataAtCell(ix,1); if ( columnaIdCliente==null) { valoresNecesarios++; }
+				//AÑADIMOS LA ROW AL ARRAY
+			}
+		}
+		
+		if ( contColsInvalid>0) {
+			++modalId;
+			var fn='Fn.showModal({ id:'+modalId+',show:false });';
+			var btn=new Array();
+				btn[0]={title:'Cerrar',fn:fn};
+			var message = Fn.message({ 'type': 2, 'message': 'Se encontró datos obligatorios que no fueron ingresadoso o datos erróneos, verificar los datos remarcados en rojo' });
+			Fn.showModal({ id:modalId,title:'Alerta',content:message,btn:btn,show:true});
+			return false;
+		} else {
+			++modalId;
+			var fn1='Basemadre.guardarBajaMasivo();Fn.showModal({ id:'+modalId+',show:false });';
+			var fn2='Fn.showModal({ id:'+modalId+',show:false });';
+			var btn=new Array();
+				btn[0]={title:'Continuar',fn:fn1};
+				btn[1]={title:'Cerrar',fn:fn2};
+			var message = Fn.message({ 'type': 3, 'message': '¿Desea continuar con la acción?' });
+			Fn.showModal({ id:modalId,title:'Alerta',content:message,btn:btn,show:true});
+		}
+	},
+
+	guardarBajaMasivo: function(){
+		var arrayDataClientes = [];
+		for (var ix = 0; ix < Basemadre.handsontable.countRows(); ix++) {
+			if (!Basemadre.handsontable.isEmptyRow(ix)) {
+				arrayDataClientes.push(Basemadre.handsontable.getDataAtRow(ix));
+			}
+		}
+
+		var dataArrayCargaMasiva = arrayDataClientes;
+		
+		var data = {'dataArray': dataArrayCargaMasiva};
+		var jsonString = {'data': JSON.stringify(data)};
+		var configAjax = {'url':Basemadre.url+'bajaMasivoFechas', 'data':jsonString};
+
+		$.when(Fn.ajax(configAjax)).then(function(a){
+			++modalId;
+			var fn='Fn.showModal({ id:'+modalId+',show:false });';
+			var btn=new Array();
+				btn[0]={title:'Cerrar',fn:fn};
+			var message = a.msg.content;
+			Fn.showModal({ id:modalId,title:a.msg.title,content:message,btn:btn,show:true,width:'80%'});
+
+			if (a.result==1) {
+				Fn.showModal({ id:Basemadre.idModal,show:false });
+				$('#btn-filtrarMaestrosBasemadre').click();
+
+			}
+		});
+	},
+
+
 }
 
 Basemadre.load();

@@ -1,13 +1,101 @@
 <?php 
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class M_auditoria extends MY_Model{
+class M_auditoria extends MY_Model{  
 
 	public function __construct(){
 		parent::__construct();
 	}
-
+	
 	public function obtener_visitas( $input = [] ){
+		$filtros = "";
+		if( !empty($input['idCuenta']) ) $filtros .= " AND r.idCuenta = ".$input['idCuenta'];
+		if( !empty($input['idProyecto']) ) $filtros .= " AND r.idProyecto = ".$input['idProyecto'];
+		if( !empty($input['idCanal']) ) $filtros .= " AND ca.idCanal = ".$input['idCanal'];
+		if( !empty($input['idGrupoCanal']) ) $filtros .= " AND ca.idGrupoCanal = ".$input['idGrupoCanal'];
+
+		$filtros .= !empty($input['distribuidora_filtro']) ? ' AND d.idDistribuidora='.$input['distribuidora_filtro'] : '';
+		$filtros .= !empty($input['zona_filtro']) ? ' AND z.idZona='.$input['zona_filtro'] : '';
+		$filtros .= !empty($input['plaza_filtro']) ? ' AND pl.idPlaza='.$input['plaza_filtro'] : '';
+		$filtros .= !empty($input['cadena_filtro']) ? ' AND cad.idCadena='.$input['cadena_filtro'] : '';
+		$filtros .= !empty($input['banner_filtro']) ? ' AND ba.idBanner='.$input['banner_filtro'] : '';
+		$filtros .= !empty($input['tipoUsuario_filtro']) ? ' AND r.idTipoUsuario='.$input['tipoUsuario_filtro'] : '';
+		$filtros .= !empty($input['usuario_filtro']) ? ' AND r.idUsuario IN ('.$input['usuario_filtro'].')': '';
+		$filtros .= !empty($input['frecuencia_filtro']) ? ' AND v.idFrecuencia='.$input['frecuencia_filtro'] : '';
+
+		$sessIdTipoUsuario = $this->idTipoUsuario;
+		if( $sessIdTipoUsuario != 4 ) $filtros .=  " AND r.demo = 0";
+		
+		$segmentacion = getSegmentacion([ 'grupoCanal_filtro' => $input['idGrupoCanal'] ]);
+		
+		$sql = "
+			DECLARE
+				@fecIni Date = '{$input['fecIni']}',
+				@fecFin DATE = '{$input['fecFin']}';
+
+			SELECT DISTINCT
+				  v.idVisita
+				, v.idListVisibilidadTradObl
+				, v.idListVisibilidadTradAdc
+				, v.idListIniciativasTrad
+				, CONVERT(VARCHAR, r.fecha, 103) AS fecha
+				, v.idCliente
+				, v.codCliente
+				, c.codDist
+				, ca.idGrupoCanal
+				, gc.nombre AS grupoCanal
+				, v.idCanal
+				, v.canal
+				, sc.nombre AS subCanal
+				, ch.idZona
+				, i.nombreIncidencia
+				, i.observacion
+				, v.estadoIncidencia
+				, ct.nombre AS clienteTipo
+				, ub1.departamento
+				, ub1.provincia
+				, ub1.distrito
+				, v.razonSocial
+				, v.direccion
+				, r.nombreUsuario AS usuario
+				, ut.nombre AS tipoUsuario
+				, i.nombreIncidencia 
+				, i.observacion
+				, v.estadoIncidencia
+				, v.frecuencia
+				, '0' fotos
+				, CASE WHEN ord.idOrden IS NOT NULL
+						THEN ord.nombre ELSE vord.descripcion
+					END AS ordenTrabajo
+				, vmod.flagCorrecto AS modulacion
+				{$segmentacion['columnas_bd']}
+			FROM trade.data_ruta r
+			JOIN trade.data_visita v ON r.idRuta = v.idRuta
+			LEFT JOIN trade.data_visitaModulacion vmod ON v.idVisita = vmod.idVisita
+			LEFT JOIN trade.data_visitaOrden vord ON v.idVisita = vord.idVisita
+			LEFT JOIN trade.orden ord ON vord.idOrden = ord.idOrden
+			LEFT JOIN trade.orden_estado orde ON vord.idOrdenEstado = orde.idOrdenEstado
+			JOIN trade.canal ca ON ca.idCanal=v.idCanal
+			LEFT JOIN trade.grupoCanal gc ON ca.idGrupoCanal = gc.idGrupoCanal
+			LEFT JOIN trade.data_visitaIncidencia i ON i.idVisita = v.idVisita
+			JOIN ".getClienteHistoricoCuenta()." ch ON v.idCliente = ch.idCliente
+			AND r.fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin, r.fecha)
+			AND ch.idProyecto=".$input['idProyecto']."
+			JOIN trade.cliente c ON c.idCliente = v.idCliente
+			LEFT JOIN trade.segmentacionNegocio sn ON sn.idSegNegocio = ch.idSegNegocio
+			LEFT JOIN trade.subCanal sc ON sn.idSubCanal = sc.idSubCanal
+			LEFT JOIN trade.cliente_tipo ct ON ct.idClienteTipo = sn.idClienteTipo
+			LEFT JOIN General.dbo.ubigeo ub1 ON ub1.cod_ubigeo = c.cod_ubigeo
+			LEFT JOIN trade.usuario_tipo ut ON r.idTipoUsuario = ut.idTipoUsuario
+			{$segmentacion['join']}
+			WHERE r.fecha BETWEEN @fecIni AND @fecFin --AND r.idTipoUsuario = 4
+			AND r.estado = 1 AND v.estado = 1{$filtros}
+		";
+		return $this->db->query($sql)->result_array();
+	}
+
+
+	public function obtener_visitas_old( $input = [] ){
 		$filtros = "";
 		if( !empty($input['idCuenta']) ) $filtros .= " AND r.idCuenta = ".$input['idCuenta'];
 		if( !empty($input['idProyecto']) ) $filtros .= " AND r.idProyecto = ".$input['idProyecto'];
@@ -34,6 +122,7 @@ class M_auditoria extends MY_Model{
 				@fecFin DATE = '{$input['fecFin']}';
 
 			SELECT 
+				DISTINCT
 				v.idVisita
 				, idListVisibilidadTradObl
 				, idListVisibilidadTradAdc
@@ -48,18 +137,10 @@ class M_auditoria extends MY_Model{
 				, v.canal
 				, sc.nombre AS subCanal
 				, ch.idZona
-				--, z.nombre AS zona
-
-				--, cd.idDistribuidoraSucursal
-				--, dis.nombre AS distribuidora
-				--, ub.departamento AS ciudad
-
 				, i.nombreIncidencia
 				, i.observacion
 				, v.estadoIncidencia
 				, ct.nombre AS clienteTipo
-				--, pl.idPlaza
-				--, pl.nombre AS plaza
 				, ub1.departamento
 				, ub1.provincia
 				, ub1.distrito
@@ -71,11 +152,12 @@ class M_auditoria extends MY_Model{
 				, i.observacion
 				, v.estadoIncidencia
 				, v.frecuencia
-				, (
+				/* , (
 					SELECT COUNT(vf.idVisitaFoto)
 					FROM trade.data_visitaFotos vf
 					WHERE vf.idVisita = v.idVisita
-				) AS fotos
+				) AS fotos */
+				, '0' fotos
 				, CASE WHEN ord.idOrden IS NOT NULL
 						THEN ord.nombre ELSE vord.descripcion
 					END AS ordenTrabajo
@@ -83,7 +165,7 @@ class M_auditoria extends MY_Model{
 				{$segmentacion['columnas_bd']}
 			FROM trade.data_ruta r
 			JOIN trade.data_visita v ON r.idRuta = v.idRuta
-			JOIN trade.data_visitaVisibilidadObligatorio vo ON vo.idVisita = v.idVisita
+			LEFT JOIN trade.data_visitaVisibilidadObligatorio vo ON vo.idVisita = v.idVisita
 			LEFT JOIN trade.data_visitaModulacion vmod ON v.idVisita = vmod.idVisita
 			LEFT JOIN trade.data_visitaOrden vord ON v.idVisita = vord.idVisita
 			LEFT JOIN trade.orden ord ON vord.idOrden = ord.idOrden
@@ -93,16 +175,11 @@ class M_auditoria extends MY_Model{
 			LEFT JOIN trade.data_visitaIncidencia i ON i.idVisita = v.idVisita
 			JOIN ".getClienteHistoricoCuenta()." ch ON v.idCliente = ch.idCliente
 			AND r.fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin, r.fecha)
+			AND ch.idProyecto=".$input['idProyecto']."
 			JOIN trade.cliente c ON c.idCliente = v.idCliente
 			LEFT JOIN trade.segmentacionNegocio sn ON sn.idSegNegocio = ch.idSegNegocio
 			LEFT JOIN trade.subCanal sc ON sn.idSubCanal = sc.idSubCanal
 			LEFT JOIN trade.cliente_tipo ct ON ct.idClienteTipo = sn.idClienteTipo
-			--LEFT JOIN trade.zona z ON z.idZona = ch.idZona
-			--LEFT JOIN trade.cliente_distribuidora cd ON cd.idCliente = v.idCliente
-			--	AND r.fecha BETWEEN cd.fecIni AND ISNULL(cd.fecFin, r.fecha)
-			--LEFT JOIN trade.distribuidoraSucursal ds ON ds.idDistribuidoraSucursal = cd.idDistribuidoraSucursal
-			--LEFT JOIN trade.distribuidora dis ON dis.idDistribuidora = ds.idDistribuidora
-			--LEFT JOIN General.dbo.ubigeo ub ON ub.cod_ubigeo = ds.cod_ubigeo
 			LEFT JOIN General.dbo.ubigeo ub1 ON ub1.cod_ubigeo = c.cod_ubigeo
 			LEFT JOIN trade.usuario_tipo ut ON r.idTipoUsuario = ut.idTipoUsuario
 			{$segmentacion['join']}
@@ -115,6 +192,7 @@ class M_auditoria extends MY_Model{
 				UNION
 
 				SELECT 
+					DISTINCT
 					v.idVisita
 					, idListVisibilidadTradObl
 					, idListVisibilidadTradAdc
@@ -129,18 +207,10 @@ class M_auditoria extends MY_Model{
 					, v.canal
 					, sc.nombre AS subCanal
 					, ch.idZona
-					--, z.nombre AS zona
-
-					--, cd.idDistribuidoraSucursal
-					--, dis.nombre AS distribuidora
-					--, ub.departamento AS ciudad
-
 					, i.nombreIncidencia
 					, i.observacion
 					, v.estadoIncidencia
 					, ct.nombre AS clienteTipo
-					--, pl.idPlaza
-					--, pl.nombre AS plaza
 					, ub1.departamento
 					, ub1.provincia
 					, ub1.distrito
@@ -152,11 +222,12 @@ class M_auditoria extends MY_Model{
 					, i.observacion
 					, v.estadoIncidencia
 					, v.frecuencia
-					, (
+					/* , (
 						SELECT COUNT(vf.idVisitaFoto)
 						FROM trade.data_visitaFotos vf
 						WHERE vf.idVisita = v.idVisita
-					) AS fotos
+					) AS fotos */
+					, '0' fotos
 					, CASE WHEN ord.idOrden IS NOT NULL
 							THEN ord.nombre ELSE vord.descripcion
 						END AS ordenTrabajo
@@ -164,7 +235,7 @@ class M_auditoria extends MY_Model{
 					{$segmentacion['columnas_bd']}
 				FROM trade.data_ruta r
 				JOIN trade.data_visita v ON r.idRuta = v.idRuta
-				JOIN trade.data_visitaVisibilidadAdicional vo ON vo.idVisita = v.idVisita
+				LEFT JOIN trade.data_visitaVisibilidadAdicional vo ON vo.idVisita = v.idVisita
 				LEFT JOIN trade.data_visitaModulacion vmod ON v.idVisita = vmod.idVisita
 				LEFT JOIN trade.data_visitaOrden vord ON v.idVisita = vord.idVisita
 				LEFT JOIN trade.orden ord ON vord.idOrden = ord.idOrden
@@ -174,16 +245,11 @@ class M_auditoria extends MY_Model{
 				LEFT JOIN trade.data_visitaIncidencia i ON i.idVisita = v.idVisita
 				JOIN ".getClienteHistoricoCuenta()." ch ON ch.idCliente = v.idCliente
 					AND r.fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin, r.fecha)
+					AND ch.idProyecto=".$input['idProyecto']."
 				JOIN trade.cliente c ON c.idCliente = v.idCliente
 				LEFT JOIN trade.segmentacionNegocio sn ON sn.idSegNegocio = ch.idSegNegocio
 				LEFT JOIN trade.subCanal sc ON sn.idSubCanal = sc.idSubCanal
 				LEFT JOIN trade.cliente_tipo ct ON ct.idClienteTipo = sn.idClienteTipo
-				--LEFT JOIN trade.zona z ON z.idZona = ch.idZona
-				--LEFT JOIN trade.cliente_distribuidora cd ON cd.idCliente = v.idCliente
-				--	AND r.fecha BETWEEN cd.fecIni AND ISNULL(cd.fecFin, r.fecha)
-				--LEFT JOIN trade.distribuidoraSucursal ds ON ds.idDistribuidoraSucursal = cd.idDistribuidoraSucursal
-				--LEFT JOIN trade.distribuidora dis ON dis.idDistribuidora = ds.idDistribuidora
-				--LEFT JOIN General.dbo.ubigeo ub ON ub.cod_ubigeo = ds.cod_ubigeo
 				LEFT JOIN General.dbo.ubigeo ub1 ON ub1.cod_ubigeo = c.cod_ubigeo
 				LEFT JOIN trade.usuario_tipo ut ON r.idTipoUsuario = ut.idTipoUsuario
 				{$segmentacion['join']}
@@ -193,6 +259,7 @@ class M_auditoria extends MY_Model{
 				UNION
 
 				SELECT 
+					DISTINCT
 					v.idVisita
 					, idListVisibilidadTradObl
 					, idListVisibilidadTradAdc
@@ -207,18 +274,10 @@ class M_auditoria extends MY_Model{
 					, v.canal
 					, sc.nombre AS subCanal
 					, ch.idZona
-					--, z.nombre AS zona
-
-					--, cd.idDistribuidoraSucursal
-					--, dis.nombre AS distribuidora
-					--, ub.departamento AS ciudad
-
 					, i.nombreIncidencia
 					, i.observacion
 					, v.estadoIncidencia
 					, ct.nombre AS clienteTipo
-					--, pl.idPlaza
-					--, pl.nombre AS plaza
 					, ub1.departamento
 					, ub1.provincia
 					, ub1.distrito
@@ -230,11 +289,12 @@ class M_auditoria extends MY_Model{
 					, i.observacion
 					, v.estadoIncidencia
 					, v.frecuencia
-					, (
+					/* , (
 						SELECT COUNT(vf.idVisitaFoto)
 						FROM trade.data_visitaFotos vf
 						WHERE vf.idVisita = v.idVisita
-					) AS fotos
+					) AS fotos */
+					, '0' fotos
 					, CASE WHEN ord.idOrden IS NOT NULL
 							THEN ord.nombre ELSE vord.descripcion
 						END AS ordenTrabajo
@@ -242,7 +302,7 @@ class M_auditoria extends MY_Model{
 					{$segmentacion['columnas_bd']}
 				FROM trade.data_ruta r
 				JOIN trade.data_visita v ON r.idRuta = v.idRuta
-				JOIN trade.data_visitaVisibilidadIniciativa vo ON vo.idVisita = v.idVisita
+				LEFT JOIN trade.data_visitaVisibilidadIniciativa vo ON vo.idVisita = v.idVisita
 				LEFT JOIN trade.data_visitaModulacion vmod ON v.idVisita = vmod.idVisita
 				LEFT JOIN trade.data_visitaOrden vord ON v.idVisita = vord.idVisita
 				LEFT JOIN trade.orden ord ON vord.idOrden = ord.idOrden
@@ -252,16 +312,11 @@ class M_auditoria extends MY_Model{
 				LEFT JOIN trade.data_visitaIncidencia i ON i.idVisita = v.idVisita
 				JOIN ".getClienteHistoricoCuenta()." ch ON ch.idCliente = v.idCliente
 					AND r.fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin, r.fecha) 
+					AND ch.idProyecto=".$input['idProyecto']."
 				JOIN trade.cliente c ON c.idCliente = v.idCliente
 				LEFT JOIN trade.segmentacionNegocio sn ON sn.idSegNegocio = ch.idSegNegocio
 				LEFT JOIN trade.subCanal sc ON sn.idSubCanal = sc.idSubCanal
 				LEFT JOIN trade.cliente_tipo ct ON ct.idClienteTipo = sn.idClienteTipo
-				--LEFT JOIN trade.zona z ON z.idZona = ch.idZona
-				--LEFT JOIN trade.cliente_distribuidora cd ON cd.idCliente = v.idCliente
-				--	AND r.fecha BETWEEN cd.fecIni AND ISNULL(cd.fecFin, r.fecha)
-				--LEFT JOIN trade.distribuidoraSucursal ds ON ds.idDistribuidoraSucursal = cd.idDistribuidoraSucursal
-				--LEFT JOIN trade.distribuidora dis ON dis.idDistribuidora = ds.idDistribuidora
-				--LEFT JOIN General.dbo.ubigeo ub ON ub.cod_ubigeo = ds.cod_ubigeo
 				LEFT JOIN General.dbo.ubigeo ub1 ON ub1.cod_ubigeo = c.cod_ubigeo
 				LEFT JOIN trade.usuario_tipo ut ON r.idTipoUsuario = ut.idTipoUsuario
 				{$segmentacion['join']}
@@ -427,7 +482,7 @@ class M_auditoria extends MY_Model{
 				@fecIni Date = '{$input['fecIni']}',
 				@fecFin DATE = '{$input['fecFin']}';
 
-			SELECT 
+			SELECT DISTINCT
 				v.idVisita
 				,v.idCliente
 				,vo.porcentaje
@@ -439,6 +494,7 @@ class M_auditoria extends MY_Model{
 				,o.descripcion
 				,vod.idVisitaFoto
 				,vf.fotoUrl
+				, CASE WHEN listD.idElementoVis IS NOT NULL THEN 1 ELSE 0 END modulado
 			FROM trade.data_ruta r
 			JOIN trade.data_visita v ON r.idRuta = v.idRuta	
 			JOIN trade.data_visitaVisibilidadObligatorio vo ON vo.idVisita = v.idVisita
@@ -446,9 +502,12 @@ class M_auditoria extends MY_Model{
 			JOIN trade.variableVisibilidad vv ON vv.idVariable = vod.idVariable
 			LEFT JOIN trade.observacionElementoVisibilidadObligatorio o ON o.idObservacion = vod.idObservacion
 			LEFT JOIN trade.data_visitaFotos vf ON vf.idVisitaFoto = vod.idVisitaFoto
+			JOIN trade.list_visibilidadTradObl list ON list.idListVisibilidadObl = v.idListVisibilidadTradObl
+			LEFT JOIN trade.list_visibilidadTradOblDet listD ON listD.idListVisibilidadObl = list.idListVisibilidadObl
 			WHERE r.fecha BETWEEN @fecIni AND @fecFin --AND r.idTipoUsuario = 4
 			AND r.estado = 1 AND v.estado = 1{$filtros}
 		";
+
 
 		return $this->db->query($sql)->result_array();
 	}
@@ -464,7 +523,7 @@ class M_auditoria extends MY_Model{
 				@fecIni Date = '{$input['fecIni']}',
 				@fecFin DATE = '{$input['fecFin']}';
 
-			SELECT
+			SELECT DISTINCT
 				v.idVisita,
 				v.idCliente,
 				vo.porcentaje,
@@ -501,7 +560,7 @@ class M_auditoria extends MY_Model{
 				@fecIni Date = '{$input['fecIni']}',
 				@fecFin DATE = '{$input['fecFin']}';
 
-			SELECT 
+			SELECT DISTINCT
 				v.idVisita,
 				v.idCliente,
 				vo.porcentaje,
@@ -635,6 +694,7 @@ class M_auditoria extends MY_Model{
 
 		return $this->db->query($sql);
 	}
+	
 	public function hfs_data_resultados_precios_marcados($input = []){
 		
 		$filtros = "";
@@ -665,6 +725,7 @@ class M_auditoria extends MY_Model{
 
 		return $this->db->query($sql);
 	}
+	
 	public function elementos_visita(){
 		$sql = "
 		SELECT
@@ -682,7 +743,8 @@ class M_auditoria extends MY_Model{
 
 		return $this->db->query($sql);
 	}
-	function obtener_resultados_auditores($input = [])
+	
+	public function obtener_resultados_auditores($input = [])
 	{
 		$filtros = "";
 		$filtros .= !empty($input['idCuenta']) ? ' AND r.idCuenta='.$input['idCuenta'] : '';
@@ -830,7 +892,7 @@ class M_auditoria extends MY_Model{
 		return $this->db->query($sql)->result_array();
 	}
 
-	function listar_distribuidoras($params = [])
+	public function listar_distribuidoras($params = [])
 	{
 		$filtros = "";
 
@@ -899,7 +961,7 @@ class M_auditoria extends MY_Model{
 		return $this->db->query($sql);
 	}
 
-	function listar_canales($params = [])
+	public function listar_canales($params = [])
 	{
 		$filtros = "";
 
@@ -918,7 +980,7 @@ class M_auditoria extends MY_Model{
 		return $this->db->query($sql);
 	}
 
-	function obtener_clientes_distribuidoras($params = [])
+	public function obtener_clientes_distribuidoras($params = [])
 	{
 		$filtros = "";
 		$subfiltros = "";
@@ -1002,7 +1064,7 @@ class M_auditoria extends MY_Model{
 		return $this->db->query($sql);
 	}
 
-	function obtener_clientes_programados_distribuidoras($params = [])
+	public function obtener_clientes_programados_distribuidoras($params = [])
 	{
 		$filtros = "";
 
@@ -1048,7 +1110,7 @@ class M_auditoria extends MY_Model{
 		return $this->db->query($sql);
 	}
 
-	function detalle_cobertura_auditores($params = [])
+	public function detalle_cobertura_auditores($params = [])
 	{
 		$subfiltros = "";
 
@@ -1132,7 +1194,7 @@ class M_auditoria extends MY_Model{
 		return $this->db->query($sql);
 	}
 
-	function detalle_cobertura_programados_auditores($params = [])
+	public function detalle_cobertura_programados_auditores($params = [])
 	{
 		$filtros = "";
 
@@ -1191,5 +1253,19 @@ class M_auditoria extends MY_Model{
 		return $this->db->query($sql);
 	}
 
+
+	public function obtener_num_fotos($input = [] ){
+		$sql ="
+			DECLARE @fecIni Date = '".$input['fecIni']."', @fecFin DATE = '".$input['fecFin']."';
+			
+			SELECT DISTINCT v.idVisita,COUNT(vf.idVisitaFoto)OVER (PARTITION BY v.idVisita ) totalFotos
+			FROM trade.data_ruta r
+			JOIN trade.data_visita v ON r.idRuta = v.idRuta	
+			JOIN trade.data_visitaFotos vf ON vf.idVisita=v.idVisita
+			WHERE 
+				 r.fecha BETWEEN @fecIni AND @fecFin
+		";
+		return $this->db->query($sql)->result_array();
+	}
 }
 ?>

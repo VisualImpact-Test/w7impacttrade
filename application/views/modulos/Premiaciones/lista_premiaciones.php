@@ -12,6 +12,7 @@ $externo = $this->flag_externo;
 			<tr>
 				<th class="text-center align-middle noVis">#</th>
 				<th class="text-center align-middle">FECHA</th>
+				<th class="text-center align-middle">HORA</th>
 				<th class="text-center align-middle">PERFIL USUARIO</th>
 				<th class="text-center align-middle hideCol">COD USUARIO</th>
 				<th class="text-center align-middle">NOMBRE USUARIO</th>
@@ -49,6 +50,7 @@ $externo = $this->flag_externo;
 				<tr>
 					<td class="text-center" style="text-align:center;vertical-align: middle;"><?= $ix; ?></td>
 					<td class="text-center" style="text-align:center;vertical-align: middle;"><?= verificarEmpty($row['fecha'], 3); ?></td>
+					<td class="text-center" style="text-align:center;vertical-align: middle;"><?= verificarEmpty($row['hora'], 3); ?></td>
 					<td class="text-left" style="text-align:center;vertical-align: middle;"><?= verificarEmpty($row['tipoUsuario'], 3); ?></td>
 					<td class="text-center" style="text-align:center;vertical-align: middle;"><?= verificarEmpty($row['idUsuario'], 3); ?></td>
 					<td class="text-left" style="text-align:center;vertical-align: middle;"><?= verificarEmpty($row['nombreUsuario'], 3); ?></td>

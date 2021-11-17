@@ -30,7 +30,7 @@
         foreach ($fotosClientes as $key => $row) {
             reset($fotosClientes);
             $primeraIteracion = ($key === key($fotosClientes)) ? true : false;
-            $link = site_url().'ControlFoto/obtener_carpeta_foto/moduloFotos/'.($row['imgRef']);
+            $link = site_url().'ControlFoto/obtener_carpeta_foto/'.$row['carpetaFoto'].'/'.($row['imgRef']);
 			// $link = "{$this->aWebUrl['fotos']['movil']}moduloFotos/{$row['imgRef']}";
             $claseActiva = !empty($primeraIteracion) ? 'class="active"' : '';
         ?>
@@ -38,7 +38,7 @@
             <?php if ($cantidadFotos < 11) { ?>
                 <li data-target="#carouselIndicators" data-slide-to="<?= $contador ?>" <?= $claseActiva ?>> <img class="d-block w-100" src="<?= $link ?>" class="img-fluid"></li>
             <?php } else { ?>
-                <li data-target="#carouselIndicators" data-slide-to="<?= $contador ?>" <?= $claseActiva ?>></li>
+                <li data-target="#carouselIndicators" data-slide-to="<?= $contador ?>" <?= $claseActiva ?>> <img class="d-block w-100" src="<?= $link ?>" class="img-fluid"></li>
             <?php } ?>
 
         <?php $contador++;
@@ -50,13 +50,14 @@
         <?php foreach ($fotosClientes as $key => $row) {
             reset($fotosClientes);
             $primeraIteracion = ($key === key($fotosClientes)) ? true : false;
-            $link = site_url().'ControlFoto/obtener_carpeta_foto/moduloFotos/'.($row['imgRef']);
+            $link = site_url().'ControlFoto/obtener_carpeta_foto/'.$row['carpetaFoto'].'/'.($row['imgRef']);
 			// $link = "{$this->aWebUrl['fotos']['movil']}moduloFotos/{$row['imgRef']}";
             $claseActiva = !empty($primeraIteracion) ? 'active' : '';
         ?>
-            <div class="carousel-item <?= $claseActiva ?>">
-                <img src="<?= $link ?>" class="d-block w-100" alt="...">
+            <div class="carousel-item <?= $claseActiva ?>" style="text-align: center;margin-bottom: 90px;">
+                <img src="<?= $link ?>" class="" alt="..." style="height: 600px;margin: auto;">
                 <div class="carousel-caption d-none d-md-block">
+                    <p class="m-0">Modulo: <?= $row['modulo'] ?></p>
                     <p class="m-0">Tipo Foto: <?= $row['tipoFoto'] ?></p>
                     <p class="m-0">Hora: <?= $row['horaFoto'] ?></p>
                     <br>
@@ -66,11 +67,11 @@
         <?php } ?>
 
     </div>
-    <a class="carousel-control-prev" href="#carouselIndicators" role="button" data-slide="prev">
+    <a class="carousel-control-prev" href="#carouselIndicators" role="button" data-slide="prev" style="background: #706767;">
         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
         <span class="sr-only">Previous</span>
     </a>
-    <a class="carousel-control-next" href="#carouselIndicators" role="button" data-slide="next">
+    <a class="carousel-control-next" href="#carouselIndicators" role="button" data-slide="next" style="background: #706767;">
         <span class="carousel-control-next-icon" aria-hidden="true"></span>
         <span class="sr-only">Next</span>
     </a>

@@ -2846,6 +2846,13 @@ class LiveStorecheckConf extends MY_Controller
 		foreach ($confClientes as $key => $row) {
 			$array['confClientes'][$row['idCliente']] = $row['idConfCliente'];
 		}
+		$clientesParaVerificar = [];
+		foreach ($post['HT'][0] as $key => $value) {
+			if(!empty($value['cliente'])){
+				$clientesParaVerificar[] = $value['cliente'];
+			}
+		}
+		$rs = $this->model->validarHistoricoClientes(['clientes'=>$clientesParaVerificar])->result_array();
 
 		$dataInsertMasivo = array();
 		

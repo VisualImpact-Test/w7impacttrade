@@ -680,7 +680,7 @@ var Gestion = {
 	defaultDT: function () {
 		Gestion.$dataTable[Gestion.idContentActivo] = $('#' + Gestion.idContentActivo + ' table').DataTable({
 			columnDefs: [
-				{ targets: 0, orderable: false, className: 'select-checkbox tex-center' },
+				{ targets: 0, orderable: false, className: 'select-checkbox text-center' },
 				{ targets: [1, 2], searchable: false, orderable: false, className: 'text-center' },
 				{ targets: [-1, -2, -3], className: 'text-center' },
 				{ targets: 'colNumerica', className: 'text-center' },

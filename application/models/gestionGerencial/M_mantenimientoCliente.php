@@ -58,7 +58,6 @@ class M_mantenimientoCliente extends MY_Model{
 			FROM trade.data_ruta r
 			JOIN trade.data_visita v ON v.idRuta=r.idRuta
 			JOIN trade.data_visitaMantenimientoCliente dvm ON dvm.idVisita=v.idVisita
-			
 			JOIN trade.cuenta cu ON cu.idCuenta=r.idCuenta
 			JOIN trade.canal ca ON ca.idCanal=v.idCanal
 			LEFT JOIN General.dbo.ubigeo ubi ON ubi.cod_ubigeo=dvm.cod_ubigeo

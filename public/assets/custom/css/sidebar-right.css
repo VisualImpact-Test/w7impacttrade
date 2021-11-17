@@ -18,6 +18,26 @@
 	-webkit-box-shadow: 0 0 8px rgb(0 0 0 / 10%);
 	box-shadow: 0 0 8px rgb(0 0 0 / 10%);
 }
+.customizerGraphics {
+	width: 100%;
+	right: -100%;
+	background-color: #FFF;
+	z-index: 1025;
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	height: 100%;
+	-webkit-transition: right .4s cubic-bezier(.05, .74, .2, .99);
+	-o-transition: right .4s cubic-bezier(.05, .74, .2, .99);
+	-moz-transition: right .4s cubic-bezier(.05, .74, .2, .99);
+	transition: right .4s cubic-bezier(.05, .74, .2, .99);
+	-webkit-backface-visibility: hidden;
+	-moz-backface-visibility: hidden;
+	backface-visibility: hidden;
+	border-left: 1px solid rgba(0, 0, 0, .05);
+	-webkit-box-shadow: 0 0 8px rgb(0 0 0 / 10%);
+	box-shadow: 0 0 8px rgb(0 0 0 / 10%);
+}
 
 .customizer a.customizer-toggle {
 	color: #967ADC;
@@ -57,6 +77,11 @@
 	position: relative;
 	height: 100%;
 	overflow-y: hidden;
+}
+.customizerGraphics .customizer-content {
+	position: relative;
+	height: 100%;
+	overflow-y: auto;
 }
 
 /* .nav.nav-tabs.active {

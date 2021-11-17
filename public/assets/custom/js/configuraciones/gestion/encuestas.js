@@ -266,6 +266,8 @@ var Encuestas = {
                 if (a.result == 1) $('.cliente_sl_form').html("<select id='cliente_form' name='cliente_form' + class='form-control form-control-sm my_select2'>"+a.data.html+"</select>");
             });
         });
+		
+		
         
         $(document).on("change", ".cuenta_cliente", function (e) {
             Encuestas.idCuenta = $(this).val();
@@ -332,6 +334,8 @@ var Encuestas = {
             $('.canal_form').html('<select id="canal_form" name="canal_form" class="form-control form-control-sm my_select2">'+html+'</select>')
            
 		});
+		
+		$('#canal_form').change();
 
     },
     resetActivo: function(){

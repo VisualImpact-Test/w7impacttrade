@@ -29,7 +29,9 @@
 			<!-- <li  class="nav-item" ></li> -->
 			<li style="display: table-cell;">
 				<div class="input-group" style="transform: translateY(-20%);">
-					<span class="input-group-text text-capitalize border-0 pt-0 text-left" style="background-color: #f8f9fa; font-size:12px"> Cuenta: <?=$this->sessNomCuenta?> <br> Proyecto: <?=$this->sessNomProyecto?></span>
+					<span class="input-group-text text-capitalize border-0 pt-0 text-left" style="background-color: #f8f9fa; font-size:12px"> 
+					Cuenta: <?=$this->sessNomCuenta?> <br> 
+					Proyecto: <?=$this->sessNomProyecto?></span>
 					<!-- <input type="text" class="form-control" placeholder="Recipient's username" aria-label="Recipient's username" aria-describedby="basic-addon2"> -->
 					<div class="input-group-append">
 						<!-- <button type="button" class="btn btn-outline-trade-visual btn-change" onclick="$('#a-cambiarcuenta').click();" ><i class="fad fa-sync" ></i></button> -->
@@ -64,6 +66,15 @@
 					?>
 						<a class="dropdown-item" href="javascript:;" id="a-cambiarcuenta"><i class="nav-link-icon fas fa-filter"></i> Cuenta / Proyecto</a>
 					<?}?>
+
+					<?
+					if($this->session->userdata('idUsuario')=="1"){
+						?>
+						<a class="dropdown-item" href="javascript:;" id="a-actualizarVisitas"><i class="nav-link-icon fas fa-sync"></i> Actualizar Visitas</a>
+						<?
+					}
+					?>
+
 					<a class="dropdown-item" href="<?=base_url().'Recover'?>"><i class="fa fa-unlock" ></i> Cambiar Clave</a>
 					<a class="dropdown-item" href="javascript:Fn.logOut('home/logout');"><i class="fa fa-sign-out"></i> Salir</a>
 				</div>

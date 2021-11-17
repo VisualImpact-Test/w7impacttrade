@@ -66,6 +66,21 @@ $select2 = "my_select2EditarLista";
                 </select>
             </div>
         </div>
+		
+		<div class="form-row">
+			<div class='col-xs-12 col-sm-12 col-md-12 col-lg-12 mb-2'>
+				<label for="cliente">Cliente</label>
+				<div class="cliente_sl_form">
+					<select id='cliente_form' name='cliente_form' class='form-control form-control-sm my_select2' style="width:100%;">
+						<option value=''>-- Seleccionar --</option>
+						<? foreach ($clientes as $row){ ?>
+							<? if ($data['idCliente'] != $row['idCliente']) {$selected='';}else{$selected='selected';}?>
+							 <option value='<?= $row['idCliente'] ?>' <?=$selected?> ><?= $row['razonSocial'] ?></option>
+						<? } ?>
+					</select>
+				</div>
+			</div>
+		</div>
 
     </div>
     <div class="form-row">

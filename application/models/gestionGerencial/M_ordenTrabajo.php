@@ -131,7 +131,8 @@ class M_ordenTrabajo extends MY_Model{
 		}
 
 		$sql = "
-			SELECT distinct 
+			DECLARE @fecIni DATE = '".$input['fecIni']."',@fecFin DATE = '".$input['fecFin']."';
+			SELECT DISTINCT 
 				r.idRuta
 				, CONVERT(VARCHAR,r.fecha,103) AS fecha
 				, v.idVisita
@@ -172,6 +173,7 @@ class M_ordenTrabajo extends MY_Model{
 			WHERE r.estado=1 AND v.estado=1 AND r.demo=0
 			and (vvd.idObservacion NOT IN (1,2,3) OR vvd.idObservacion IS NULL)
 			AND ( vot.validado IS NULL OR vot.validado=0)
+			AND r.fecha BETWEEN @fecIni AND @fecFin
 			$filtros
 		";
 		$query = $this->db->query($sql);

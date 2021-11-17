@@ -33,6 +33,7 @@
                         <th class="text-center ">LATITUD FINAL</th>
                         <th class="text-center ">LONGITUD FINAL</th>
                         <th class="text-center">TIEMPO (MIN)</th>
+                        <th class="text-center">FOTOS</th>
                         <th class="text-center">INCIDENCIA</th>
 					</tr>
 				</thead>
@@ -97,6 +98,7 @@
 						<td style="text-align:left;"><?=!empty($latiFin) ? $latiFin : '-'?></td>
 						<td style="text-align:left;"><?=!empty($longFin) ? $longFin : '-'?></td>
 						<td style="text-align:left;"><?=!empty($row['minutos']) ? $row['minutos'] : '-'?></td>
+						<td style="text-align:left;"><?=!empty($row['numFotos']) ? $row['numFotos'] : '-'?></td>
 						<td style="text-align:left;"><?=$incidencia?></td>
 					</tr>
 					<? $i++;} ?>

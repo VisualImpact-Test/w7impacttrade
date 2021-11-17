@@ -52,7 +52,7 @@
 						</div>
 					</div>
 					<div class="col-7 ">
-						<h6 class="text-success text-uppercase">HOY <h7 style="font-size: 11px;">( <?=get_fecha_larga(date('d-m-Y')) ?> )</h7></h6>
+						<h6 class="text-success text-uppercase">FECHA <h7 style="font-size: 11px;">( <?=get_fecha_larga(date_change_format_bd($fecha)) ?> )</h7></h6>
 						<div class="row" >
 							<div class="col-6">
 								<strong>Programadas</strong>

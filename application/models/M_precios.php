@@ -102,7 +102,7 @@ class M_precios extends CI_Model{
 				FROM trade.data_ruta r
 				JOIN trade.data_visita v ON v.idRuta=r.idRuta
 				JOIN trade.data_visitaPrecios dvp ON dvp.idVisita=v.idVisita
-				JOIN trade.data_visitaPreciosDet dvpd ON dvpd.idVisitaPrecios=dvp.idVisitaPrecios
+				JOIN trade.data_visitaPreciosDet dvpd ON dvpd.idVisitaPrecios=dvp.idVisitaPrecios AND dvpd.precio IS NOT NULL
 				JOIN w_producto p ON dvpd.idProducto = p.idProducto
 				JOIN trade.canal cn ON cn.idCanal=v.idCanal
 				JOIN trade.cliente c ON c.idCliente=v.idCliente
@@ -152,7 +152,7 @@ class M_precios extends CI_Model{
 			FROM trade.data_ruta r
 			JOIN trade.data_visita v ON v.idRuta=r.idRuta
 			JOIN trade.data_visitaPrecios dvp ON dvp.idVisita=v.idVisita
-			JOIN trade.data_visitaPreciosDet dvpd ON dvpd.idVisitaPrecios=dvp.idVisitaPrecios
+			JOIN trade.data_visitaPreciosDet dvpd ON dvpd.idVisitaPrecios=dvp.idVisitaPrecios AND dvpd.precio IS NOT NULL
 			JOIN trade.producto p ON p.idProducto=dvpd.idProducto
 			JOIN trade.producto_categoria pc ON pc.idCategoria=p.idCategoria
 			JOIN trade.producto_marca pm ON pm.idMarca=p.idMarca
@@ -921,6 +921,16 @@ class M_precios extends CI_Model{
 		if (!empty($post["producto"])) $filtros .= " AND p.idProducto = " . $post["producto"];
 		if (!empty($post["idCuenta"])) $filtros .= " AND r.idCuenta = " . $post["idCuenta"];
 
+		if (!empty($post["ch-precio-activo"]) && !empty($post["ch-precio-inactivo"])){
+			$filtros .= " AND (vpd.precio IS NOT NULL OR vpd.precio IS NULL)";
+		}else if(!empty($post["ch-precio-activo"]) && empty($post["ch-precio-inactivo"])){
+			$filtros .= " AND vpd.precio IS NOT NULL";
+		}else if(empty($post["ch-precio-activo"]) && !empty($post["ch-precio-inactivo"])){
+			$filtros .= " AND vpd.precio IS NULL";
+		}else if(empty($post["ch-precio-activo"]) && empty($post["ch-precio-inactivo"])){
+			$filtros .= " AND vpd.precio IS NOT NULL AND vpd.precio IS NULL";
+		}
+
 		$filtros .= !empty($post['tipoUsuario_filtro']) ? " AND uh.idTipoUsuario=".$post['tipoUsuario_filtro'] : "";
 		$filtros .= !empty($post['usuario_filtro']) ? " AND uh.idUsuario=".$post['usuario_filtro'] : "";
 
@@ -971,7 +981,7 @@ class M_precios extends CI_Model{
 			FROM trade.data_ruta r
 				JOIN trade.data_visita v ON v.idRuta = r.idRuta and (r.fecha BETWEEN @fecIni AND @fecFin)
 				JOIN trade.data_visitaprecios vp ON vp.idVisita=v.idVisita
-				JOIN trade.data_visitaPreciosDet vpd ON vp.idVisitaPrecios = vpd.idVisitaPrecios
+				JOIN trade.data_visitaPreciosDet vpd ON vp.idVisitaPrecios = vpd.idVisitaPrecios AND vpd.precio IS NOT NULL
 				JOIN trade.producto pro ON vpd.idProducto = pro.idProducto
 				JOIN trade.producto_categoria procat ON pro.idCategoria = procat.idCategoria
 				JOIN trade.usuario_historico uh On uh.idUsuario=r.idUsuario
@@ -1008,6 +1018,7 @@ class M_precios extends CI_Model{
 	public function obtener_detalle_precios_new($params = [])
 	{
 		$filtros = "";
+		$filtros_ch = "";
 		if(empty($params['proyecto_filtro'])){
 			$filtros.= getPermisos('cuenta');
 		}else{
@@ -1017,59 +1028,128 @@ class M_precios extends CI_Model{
 			$filtros .= !empty($params['canal_filtro']) ? ' AND ca.idCanal='.$params['canal_filtro'] : '';
 			// $filtros .= ' AND dvd.quiebre='.$params['quiebre'];
 
-			$filtros .= !empty($params['distribuidora_filtro']) ? ' AND d.idDistribuidora='.$params['distribuidora_filtro'] : '';
-			$filtros .= !empty($params['zona_filtro']) ? ' AND z.idZona='.$params['zona_filtro'] : '';
-			$filtros .= !empty($params['plaza_filtro']) ? ' AND pl.idPlaza='.$params['plaza_filtro'] : '';
-			$filtros .= !empty($params['cadena_filtro']) ? ' AND cad.idCadena='.$params['cadena_filtro'] : '';
-			$filtros .= !empty($params['banner_filtro']) ? ' AND ba.idBanner='.$params['banner_filtro'] : '';
+			$filtros_ch .= !empty($params['distribuidora_filtro']) ? ' AND d.idDistribuidora='.$params['distribuidora_filtro'] : '';
+			$filtros_ch .= !empty($params['zona_filtro']) ? ' AND z.idZona='.$params['zona_filtro'] : '';
+			$filtros_ch .= !empty($params['plaza_filtro']) ? ' AND pl.idPlaza='.$params['plaza_filtro'] : '';
+			$filtros_ch .= !empty($params['cadena_filtro']) ? ' AND cad.idCadena='.$params['cadena_filtro'] : '';
+			$filtros_ch .= !empty($params['banner_filtro']) ? ' AND ba.idBanner='.$params['banner_filtro'] : '';
 		}
 
 		$cliente_historico = getClienteHistoricoCuenta();
 		$segmentacion = getSegmentacion($params);
 
+		$orderby = '';
+		$groupby = '';
+		if(in_array($segmentacion['grupoCanal'], GC_MODERNOS))
+		{
+			$orderby = 'ORDER BY t.anio, t.idSemana, t.mes, ch.idCadena, ch.idBanner, producto';
+			$groupby = '
+			, ch.idCadena
+			, ch.idBanner
+			, ch.banner
+			, ch.cadena
+			';
+		}
+		if(in_array($segmentacion['grupoCanal'], GC_MAYORISTAS))
+		{
+			$orderby = 'ORDER BY t.anio, t.idSemana, t.mes, ch.idPlaza, ch.nombre, ch.idDistribuidoraSucursal, producto';
+			$groupby = '
+			, ch.plaza 
+			, ch.idPlaza
+			, ch.zona
+			, ch.idDistribuidoraSucursal
+			';
+		}
+		if(in_array($segmentacion['grupoCanal'], GC_TRADICIONALES))
+		{
+			$orderby = 'ORDER BY t.anio, t.idSemana, t.mes, ch.ciudadDistribuidoraSuc, ch.codUbigeoDisitrito, ch.idDistribuidoraSucursal, ch.zona, producto';
+			$groupby = '
+			, ch.distribuidora
+			, ch.ciudadDistribuidoraSuc
+			, ch.codUbigeoDisitrito
+			, ch.idDistribuidoraSucursal
+			, ch.zona
+			';
+		}
+
 		$sql = "
-			DECLARE @fecIni date='".$params['fecIni']."',@fecFin date='".$params['fecFin']."';
+		DECLARE @fecIni date='".$params['fecIni']."',@fecFin date='".$params['fecFin']."';
+
+		WITH list_visitasProductos AS (
 			SELECT
-				cu.nombre AS cuenta
-				, gca.nombre AS grupoCanal
-				, ca.nombre AS canal
+				r.idRuta
+				, r.fecha
+				, r.idProyecto
+				, ca.idGrupoCanal
+				, ca.idCanal
 				, v.idCliente
-				, v.codCliente
-				, v.nombreComercial
-				, ele.nombre AS producto
-				, r.fecha 
-				, me.nombre AS empresa
-				, cat.nombre AS categoria
-				, m.nombre AS marca
-				, ele.formato
-				, dvd.precio 
-				, t.mes
-				, t.idSemana semana
-				, t.diaFecha dia
-				, t.anio
-				{$segmentacion['columnas_bd']}
-				
+				, dvd.idProducto
+				, dvd.precio
 			FROM trade.data_ruta r
 			JOIN trade.data_visita v ON v.idRuta=r.idRuta
-			JOIN trade.cliente cli ON v.idCliente = cli.idCliente
-			JOIN {$cliente_historico} ch ON cli.idCliente = ch.idCliente
-				AND General.dbo.fn_fechaVigente(ch.fecIni,ch.fecFin,GETDATE(),GETDATE())=1 AND ch.idProyecto = {$params['proyecto_filtro']}
-			JOIN trade.cuenta cu ON cu.idCuenta=r.idCuenta
-			LEFT JOIN trade.canal ca ON ca.idCanal=v.idCanal
-			LEFT JOIN trade.grupoCanal gca ON ca.idGrupoCanal=gca.idGrupoCanal
 			JOIN trade.data_visitaProductos dvv ON dvv.idVisita=v.idVisita
 			JOIN trade.data_visitaProductosDet dvd ON dvd.idVisitaProductos=dvv.idVisitaProductos
-			JOIN trade.producto ele ON ele.idProducto=dvd.idProducto
-			LEFT JOIN trade.producto_marca m ON m.idMarca = ele.idMarca
-			LEFT JOIN trade.producto_categoria cat ON cat.idCategoria = ele.idCategoria
-			LEFT JOIN trade.producto_marca_empresa pme ON pme.idMarca = m.idMarca
-			LEFT JOIN trade.marca_empresa me ON me.idEmpresa = pme.idEmpresa
-			LEFT JOIN General.dbo.tiempo t ON t.fecha = r.fecha
-			{$segmentacion['join']}
+			LEFT JOIN trade.canal ca ON ca.idCanal=v.idCanal
+			LEFT JOIN trade.grupoCanal gca ON ca.idGrupoCanal=gca.idGrupoCanal
 			WHERE r.estado = 1 AND v.estado = 1 AND r.demo = 0
 			AND r.fecha BETWEEN @fecIni AND @fecFin
-			$filtros
-			ORDER BY nombreComercial
+			AND dvd.precio IS NOT NULL
+			{$filtros}
+		), lista_clientes AS (
+			SELECT
+				ch.idCliente
+				, ch.idClienteHist
+				, ch.idSegClienteModerno
+				, ch.idSegClienteTradicional
+	
+				{$segmentacion['columnas_bd']}
+			FROM trade.cliente cli
+			JOIN {$cliente_historico} ch ON cli.idCliente = ch.idCliente
+			{$segmentacion['join']}
+			WHERE ch.idProyecto = {$params['proyecto_filtro']} AND General.dbo.fn_fechaVigente(ch.fecIni, ch.fecFin, @fecIni, @fecFin) = 1
+			{$filtros_ch}
+			)
+
+		SELECT
+			t.anio
+			, t.mes
+			, t.idSemana AS semana
+			, gca.nombre AS grupoCanal
+			, ca.nombre AS canal
+
+			{$groupby}
+
+			, me.nombre AS empresa
+			, cat.nombre AS categoria
+			, m.nombre AS marca
+			, ele.nombre AS producto
+			, ele.formato
+			, CONVERT(varchar, CAST(ROUND(AVG(v.precio),2) AS decimal(10,2))) AS precio
+		FROM list_visitasProductos v
+		LEFT JOIN lista_clientes ch ON v.idCliente = ch.idCliente
+		LEFT JOIN trade.canal ca ON ca.idCanal=v.idCanal
+		LEFT JOIN trade.grupoCanal gca ON ca.idGrupoCanal=gca.idGrupoCanal
+		LEFT JOIN trade.producto ele ON ele.idProducto=v.idProducto
+		LEFT JOIN trade.producto_marca m ON m.idMarca = ele.idMarca
+		LEFT JOIN trade.producto_categoria cat ON cat.idCategoria = ele.idCategoria
+		LEFT JOIN trade.producto_marca_empresa pme ON pme.idMarca = m.idMarca
+		LEFT JOIN trade.marca_empresa me ON me.idEmpresa = pme.idEmpresa
+		LEFT JOIN General.dbo.tiempo t ON t.fecha = v.fecha
+		GROUP BY
+		t.anio
+		, t.mes
+		, t.idSemana
+		, gca.nombre
+		, ca.nombre
+
+		{$groupby}
+
+		, me.nombre
+		, cat.nombre
+		, m.nombre
+		, ele.nombre
+		, ele.formato
+		{$orderby}
 		";
 
 		$query = $this->db->query($sql);
@@ -1105,6 +1185,8 @@ class M_precios extends CI_Model{
 	public function obtener_detalle_precios_variabilidad($params = [])
 	{
 		$filtros = "";
+		$filtros_ch = "";
+		$filtros_query = "";
 		if(empty($params['proyecto_filtro'])){
 			$filtros.= getPermisos('cuenta');
 		}else{
@@ -1114,24 +1196,98 @@ class M_precios extends CI_Model{
 			$filtros .= !empty($params['canal_filtro']) ? ' AND ca.idCanal='.$params['canal_filtro'] : '';
 			// $filtros .= ' AND dvd.quiebre='.$params['quiebre'];
 
-			$filtros .= !empty($params['distribuidora_filtro']) ? ' AND d.idDistribuidora='.$params['distribuidora_filtro'] : '';
-			$filtros .= !empty($params['zona_filtro']) ? ' AND z.idZona='.$params['zona_filtro'] : '';
-			$filtros .= !empty($params['plaza_filtro']) ? ' AND pl.idPlaza='.$params['plaza_filtro'] : '';
-			$filtros .= !empty($params['cadena_filtro']) ? ' AND cad.idCadena='.$params['cadena_filtro'] : '';
-			$filtros .= !empty($params['banner_filtro']) ? ' AND ba.idBanner='.$params['banner_filtro'] : '';
+			$filtros_ch .= !empty($params['distribuidora_filtro']) ? ' AND d.idDistribuidora='.$params['distribuidora_filtro'] : '';
+			$filtros_ch .= !empty($params['zona_filtro']) ? ' AND z.idZona='.$params['zona_filtro'] : '';
+			$filtros_ch .= !empty($params['plaza_filtro']) ? ' AND pl.idPlaza='.$params['plaza_filtro'] : '';
+			$filtros_ch .= !empty($params['cadena_filtro']) ? ' AND cad.idCadena='.$params['cadena_filtro'] : '';
+			$filtros_ch .= !empty($params['banner_filtro']) ? ' AND ba.idBanner='.$params['banner_filtro'] : '';
 
-			$filtros .= !empty($params['empresa_filtro']) ? ' AND pme.idEmpresa='.$params['empresa_filtro'] : '';
-			$filtros .= !empty($params['categoria_filtro']) ? ' AND cat.idCategoria='.$params['categoria_filtro'] : '';
+			$filtros_query .= !empty($params['empresa_filtro']) ? ' AND pme.idEmpresa='.$params['empresa_filtro'] : '';
+			$filtros_query .= !empty($params['categoria_filtro']) ? ' AND cat.idCategoria='.$params['categoria_filtro'] : '';
 		}
 
 		$cliente_historico = getClienteHistoricoCuenta();
 		$segmentacion = getSegmentacion($params);
 
+		$orderby = '';
+		$groupby = '';
+		if(in_array($segmentacion['grupoCanal'], GC_MODERNOS))
+		{
+			$orderby = 'ORDER BY cadena, ele.nombre';
+			$groupby = '
+			, ch.idCadena
+			, ch.idBanner
+			, ch.banner
+			, ch.cadena
+			';
+		}
+		if(in_array($segmentacion['grupoCanal'], GC_MAYORISTAS))
+		{
+			$orderby = 'ORDER BY plaza, zona, ele.nombre';
+			$groupby = '
+			, ch.plaza 
+			, ch.idPlaza
+			, ch.zona
+			, ch.idDistribuidoraSucursal
+			';
+		}
+		if(in_array($segmentacion['grupoCanal'], GC_TRADICIONALES))
+		{
+			$orderby = 'ORDER BY distribuidora, ciudadDistribuidoraSuc, codUbigeoDisitrito, zona, ele.nombre';
+			$groupby = '
+			, ch.distribuidora
+			, ch.ciudadDistribuidoraSuc
+			, ch.codUbigeoDisitrito
+			, ch.idDistribuidoraSucursal
+			, ch.zona
+			';
+		}
+
 		$sql = "
-			DECLARE @fecIni date='".$params['fecIni']."',@fecFin date='".$params['fecFin']."';
+			DECLARE @fecIni DATE, @fecFin DATE;
+
+			SELECT
+				@fecIni = MIN(t.fecha),
+				@fecFin = MAX(t.fecha)
+			FROM General.dbo.tiempo t
+			WHERE t.anio = {$params['nanio']} AND t.idSemana IN ({$params['nsemanas']});
+
+			WITH list_visitasProductos AS (
+				SELECT
+					r.idRuta
+					, r.fecha
+					, r.idProyecto
+					, ca.idGrupoCanal
+					, ca.idCanal
+					, v.idCliente
+					, dvd.idProducto
+					, dvd.precio
+				FROM trade.data_ruta r
+				JOIN trade.data_visita v ON v.idRuta=r.idRuta
+				JOIN trade.data_visitaProductos dvv ON dvv.idVisita=v.idVisita
+				JOIN trade.data_visitaProductosDet dvd ON dvd.idVisitaProductos=dvv.idVisitaProductos
+				LEFT JOIN trade.canal ca ON ca.idCanal=v.idCanal
+				LEFT JOIN trade.grupoCanal gca ON ca.idGrupoCanal=gca.idGrupoCanal
+				WHERE r.estado = 1 AND v.estado = 1 AND r.demo = 0
+				AND r.fecha BETWEEN @fecIni AND @fecFin
+				{$filtros}
+				--AND dvd.precio IS NOT NULL
+			), lista_clientes AS (
+			SELECT
+				ch.idCliente
+				, ch.idClienteHist
+				, ch.idSegClienteModerno
+				, ch.idSegClienteTradicional
+
+				{$segmentacion['columnas_bd']}
+			FROM trade.cliente cli
+			JOIN {$cliente_historico} ch ON cli.idCliente = ch.idCliente
+			{$segmentacion['join']}
+			WHERE ch.idProyecto = {$params['proyecto_filtro']} AND General.dbo.fn_fechaVigente(ch.fecIni, ch.fecFin, @fecIni, @fecFin) = 1
+			{$filtros_ch}
+			)
 			SELECT DISTINCT
-			cu.nombre AS cuenta
-			, gca.nombre AS grupoCanal
+			gca.nombre AS grupoCanal
 			, ca.nombre AS canal
 			, ele.nombre AS producto
 			, me.nombre AS empresa
@@ -1144,33 +1300,25 @@ class M_precios extends CI_Model{
 			, cat.idCategoria
 			, m.idMarca
 			, ele.idProducto
-			, AVG(dvd.precio) OVER(PARTITION BY cad.idCadena,ba.idBanner,ele.idProducto,t.idSemana) AS promedio_semana
-			{$segmentacion['columnas_bd']}
-				
-			FROM trade.data_ruta r
-			JOIN trade.data_visita v ON v.idRuta=r.idRuta
-			JOIN trade.cliente cli ON v.idCliente = cli.idCliente
-			JOIN {$cliente_historico} ch ON cli.idCliente = ch.idCliente
-				AND General.dbo.fn_fechaVigente(ch.fecIni,ch.fecFin,GETDATE(),GETDATE())=1 AND ch.idProyecto = {$params['proyecto_filtro']}
-			JOIN trade.cuenta cu ON cu.idCuenta=r.idCuenta
+			, AVG(v.precio) OVER(PARTITION BY t.idSemana, ch.idCadena, ch.idBanner, ele.idProducto) AS promedio_semana
+			{$groupby}
+			FROM list_visitasProductos v
+			LEFT JOIN lista_clientes ch ON v.idCliente = ch.idCliente
+
 			LEFT JOIN trade.canal ca ON ca.idCanal=v.idCanal
 			LEFT JOIN trade.grupoCanal gca ON ca.idGrupoCanal=gca.idGrupoCanal
-			JOIN trade.data_visitaProductos dvv ON dvv.idVisita=v.idVisita
-			JOIN trade.data_visitaProductosDet dvd ON dvd.idVisitaProductos=dvv.idVisitaProductos
-			JOIN trade.producto ele ON ele.idProducto=dvd.idProducto
+
+			JOIN trade.producto ele ON ele.idProducto=v.idProducto
 			LEFT JOIN trade.producto_marca m ON m.idMarca = ele.idMarca
 			LEFT JOIN trade.producto_categoria cat ON cat.idCategoria = ele.idCategoria
 			LEFT JOIN trade.producto_marca_empresa pme ON pme.idMarca = m.idMarca
 			LEFT JOIN trade.marca_empresa me ON me.idEmpresa = pme.idEmpresa
-			LEFT JOIN General.dbo.tiempo t ON t.fecha = r.fecha
-			{$segmentacion['join']}
-			WHERE r.estado = 1 AND v.estado = 1 AND r.demo = 0
-			-- AND r.fecha BETWEEN @fecIni AND @fecFin
-			AND t.anio = {$params['nanio']}  AND t.idSemana IN({$params['nsemanas']}) 
-			$filtros
-			ORDER BY cad.nombre,ele.nombre
+			LEFT JOIN General.dbo.tiempo t ON t.fecha = v.fecha
+			WHERE t.anio = {$params['nanio']} AND t.idSemana IN ({$params['nsemanas']})
+			{$filtros_query}
+			{$orderby}
 		";
-
+// die($sql);
 		$query = $this->db->query($sql);
 		$result = array();
 		if ( $query ) {

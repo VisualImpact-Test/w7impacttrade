@@ -33,12 +33,14 @@
 			<? endif ?>
 			
 			<div class="mb-3 mt-3 card">
-				<div class="card-header card-header-tab-animation">
-					<ul class="nav nav-justified">
+				<div class="card-body">
+					<ul class="nav nav-tabs nav-justified">
 						<? $ix=1;?>
 						<? foreach ($ipp['listaCriterios'] as $klc => $criterio): ?>
 							<? $active = ( $ix==1 ? 'active':'' );?>
-							<li class="nav-item"><a data-toggle="tab" href="#tab-<?=$kli?>-criterio-<?=$klc?>" class="nav-link <?=$active;?> show text-uppercase"><?=$criterio['criterio'];?></a></li>
+								<li class="nav-item">
+									<a data-toggle="tab" href="#tab-<?=$kli?>-criterio-<?=$klc?>" class="nav-link <?=$active;?> show text-uppercase"><?=$criterio['criterio'];?></a>
+								</li>
 							<? $ix++;?>
 						<? endforeach ?>
 					</ul>

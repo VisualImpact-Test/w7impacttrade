@@ -16,10 +16,21 @@ class M_visitas extends MY_Model{
 		$filtros.= !empty($input['cuenta']) ? " AND r.idCuenta=".$input['cuenta']:"";
 		$filtros.= !empty($input['proyecto']) ? " AND r.idProyecto=".$input['proyecto']:"";
 		$filtros.= !empty($input['usuario']) ? " AND r.idUsuario=".$input['usuario']:"";
+		$filtros.= !empty($input['cod_usuario']) ? " AND r.idUsuario=".$input['cod_usuario']:"";
+		$filtros.= !empty($input['tipoUsuario']) ? " AND r.idTipoUsuario=".$input['tipoUsuario']:"";
+
+		$filtros.= !empty($input['grupoCanal']) ? " AND gc.idGrupoCanal=".$input['grupoCanal'] : "";
+		$filtros.= !empty($input['canal']) ? " AND uhc.idCanal=".$input['canal'] : "";
+		$filtros.= !empty($input['zona']) ? " AND uhz.idZona=".$input['zona']:"";
+		$filtros.= !empty($input['sucursal']) ? " AND uhds.idDistribuidoraSucursal=".$input['sucursal']:"";
+		$filtros.= !empty($input['distribuidora']) ? " AND ds.idDistribuidora=".$input['distribuidora']:"";
+		
+		$filtros.= !empty($input['plaza']) ? " AND uhpl.idPlaza=".$input['plaza']:"";
+		$filtros.= !empty($input['banner']) ? " AND uhb.idBanner=".$input['banner']:"";
 
 		$sql = "
 		DECLARE @fecha DATE=GETDATE(), @fecIni DATE='".$input['fecIni']."', @fecFin DATE='".$input['fecFin']."';
-		SELECT 
+		SELECT DISTINCT
 			r.idRuta
 			, CONVERT(VARCHAR,r.fecha,103) AS fecha
 			, r.idUsuario
@@ -34,15 +45,32 @@ class M_visitas extends MY_Model{
 			, py.nombre AS proyecto
 			, ec.idUsuario AS idUsuarioEncargado
 			, u.apePaterno+' '+u.apeMaterno+' '+u.nombres AS nombreUsuarioEncargado
+			--, uhc.idCanal
+			--, uhb.idBanner
+			--, uh.idTipoUsuario
+			--, uhds.idDistribuidoraSucursal
+			--, uhpl.idPlaza
+			--, uhz.idZona
 		FROM trade.data_ruta r
 		LEFT JOIN trade.cuenta c ON c.idCuenta=r.idCuenta
 		LEFT JOIN trade.proyecto py ON py.idProyecto=r.idProyecto
 		LEFT JOIN trade.encargado ec ON ec.idEncargado=r.idEncargado
 		LEFT JOIN trade.usuario u ON u.idUsuario=ec.idUsuario
+		LEFT JOIN trade.usuario_historico uh ON uh.idUsuario = r.idUsuario
+			AND uh.idTipoUsuario = r.idTipoUsuario
+			AND r.fecha BETWEEN uh.fecIni AND ISNULL(uh.fecFin,r.fecha)
+		LEFT JOIN trade.usuario_historicoCanal uhc ON uhc.idUsuarioHist = uh.idUsuarioHist
+		LEFT JOIN trade.canal ca ON ca.idCanal = uhc.idCanal
+		LEFT JOIN trade.grupoCanal gc ON gc.idGrupoCanal = ca.idGrupoCanal
+		LEFT JOIN trade.usuario_historicoBanner uhb ON uhb.idUsuarioHist = uh.idUsuarioHist
+		LEFT JOIN trade.usuario_historicoDistribuidoraSucursal uhds ON uhds.idUsuarioHist = uh.idUsuarioHist
+		LEFT JOIN trade.distribuidoraSucursal ds ON ds.idDistribuidoraSucursal = uhds.idDistribuidoraSucursal
+		LEFT JOIN trade.usuario_historicoPlaza uhpl ON uhpl.idUsuarioHist = uh.idUsuarioHist
+		LEFT JOIN trade.usuario_historicoZona  uhz ON uhz.idUsuarioHist = uh.idUsuarioHist
 		WHERE 1=1 --AND r.demo=0
 		AND r.fecha BETWEEN @fecIni AND @fecFin
 		{$filtros}
-		ORDER BY r.fecha, r.idCuenta, r.idProyecto, r.nombreUsuario ASC";
+		ORDER BY fecha, nombreUsuario ASC";
 
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_ruta' ];
 		return $this->db->query($sql)->result_array();
@@ -56,19 +84,22 @@ class M_visitas extends MY_Model{
 		$filtros.= !empty($input['cuenta']) ? " AND r.idCuenta=".$input['cuenta']:"";
 		$filtros.= !empty($input['proyecto']) ? " AND r.idProyecto=".$input['proyecto']:"";
 		$filtros.= !empty($input['grupoCanal']) ? " AND cn.idGrupoCanal=".$input['grupoCanal'] : "";
-		$filtros.= !empty($input['canal']) ? " AND v.idCanal=".$input['canal'] : "";
+		$filtros.= !empty($input['canal']) ? " AND cn.idCanal=".$input['canal'] : "";
 		$filtros.= !empty($input['usuario']) ? " AND r.idUsuario=".$input['usuario']:"";
-		
-		$filtros.= !empty($input['zona']) ? " AND v.idZona=".$input['idZona']:"";
-		$filtros.= !empty($input['idDistribuidoraSucursal']) ? " AND v.idDistribuidoraSucursal=".$input['sucursal']:"";
-		
-		$filtros.= !empty($input['plaza']) ? " AND v.idPlaza=".$input['idPlaza']:"";
-		
-		$filtros.= !empty($input['banner']) ? " AND v.idBanner=".$input['banner']:"";
 		
 		$filtros.= !empty($input['cod_usuario']) ? " AND r.idUsuario=".$input['cod_usuario']:"";
 		$filtros.= !empty($input['cod_cliente']) ? " AND v.idCliente=".$input['cod_cliente']:"";
+		$filtros.= !empty($input['tipoUsuario']) ? " AND r.idTipoUsuario=".$input['tipoUsuario']:"";
+
+		$filtros.= !empty($input['zona']) ? " AND z.idZona=".$input['zona']:"";
+		$filtros.= !empty($input['sucursal']) ? " AND ds.idDistribuidoraSucursal=".$input['sucursal']:"";
+		$filtros.= !empty($input['distribuidora']) ? " AND d.idDistribuidora=".$input['distribuidora']:"";
+		$filtros.= !empty($input['plaza']) ? " AND pl.idPlaza=".$input['plaza']:"";
+		$filtros.= !empty($input['banner']) ? " AND b.idBanner=".$input['banner']:"";
 		
+
+		$cliente_historico = getClienteHistoricoCuenta();
+		$segmentacion = getSegmentacion(['grupoCanal_filtro' => $input['grupoCanal']]);
 
 		$sql = "
 		DECLARE @fecha DATE=GETDATE(), @fecIni DATE='".$input['fecIni']."', @fecFin DATE='".$input['fecFin']."';
@@ -100,6 +131,7 @@ class M_visitas extends MY_Model{
 		LEFT JOIN trade.distribuidora d ON d.idDistribuidora=ds.idDistribuidora
 		LEFT JOIN General.dbo.ubigeo ubi ON ubi.cod_ubigeo=ds.cod_ubigeo
 		LEFT JOIN trade.canal cn ON cn.idCanal=v.idCanal
+		LEFT JOIN trade.zona z ON z.idZona = v.idZona
 		WHERE 1=1 AND r.estado=1 --AND r.demo=0
 		{$filtros} 
 		AND r.fecha BETWEEN @fecIni AND @fecFin
@@ -256,12 +288,20 @@ class M_visitas extends MY_Model{
 
 	public function obtener_verificacion_existente($input=array()){
 
-		$query = $this->db->select('idRuta')
+		$query = $this->db->select('idRuta,idProyecto,idCuenta')
 				->where( array('idUsuario'=>$input['idUsuario'],'fecha'=>$input['fecha'], 'estado'=>1 ) )
 				->get('trade.data_ruta');
 
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_ruta' ];
 		return $query->result_array();
+	}
+	
+	public function obtener_data_ruta($idRuta){
+
+		$query = "SELECT * FROM trade.data_ruta WHERE idRuta=$idRuta";
+
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_ruta' ];
+		return $this->db->query($query)->row_array();
 	}
 
 	public function insertar_ruta($input=array()){
@@ -352,7 +392,7 @@ class M_visitas extends MY_Model{
 		$sql=" 
 		DECLARE @fecha DATE=GETDATE();
 		----
-		SELECT
+		SELECT DISTINCT
 			uh.idUsuario
 			, u.apePaterno+' '+u.apeMaterno+' '+u.nombres AS nombreUsuario
 		FROM trade.usuario_historico uh

@@ -231,12 +231,13 @@ class M_liveStorecheckConf extends My_Model
 		$filtros = 'WHERE 1 = 1 ';
 
 		!empty($post['idPlaza']) ? $filtros .= " AND idPlaza = {$post['idPlaza']} " : '';
-		(!empty($post['idCliente'])) ? $filtros .= " AND idCliente = {$post['idCliente']} " : '';
+		(!empty($post['idCliente'])) ? $filtros .= " AND c.idCliente = {$post['idCliente']} " : '';
 		$sql ="
 		SELECT 
-		idCliente id
-		,razonSocial value
-		FROM pg.dbo.cliente
+		c.idCliente id
+		,c.razonSocial value
+		FROM pg.dbo.cliente c
+		JOIN pg.dbo.clienteHistorico ch ON c.idCliente = ch.idClienteTipo AND General.dbo.fn_fechaVigente(ch.fecCreacion,ch.fecTermino,GETDATE(),GETDATE())=1
 		$filtros
 		";
 		return $this->db->query($sql);
@@ -1744,5 +1745,27 @@ WHERE en.idEncuesta = {$input['idEncuesta']}
 		return $this->db->query($sql);
 	}
 
+	public function validarHistoricoClientes($input)
+	{
+		$sql = "
+		WITH list_presencia AS(
+			SELECT DISTINCT
+			ca.*,
+			CASE WHEN cad.presencia = 1 THEN COUNT(cad.idConfClienteAudDet) OVER (PARTITION BY ca.idConfClienteAud )END valor_presencia
+			FROM
+			lsck.conf_clienteAud ca
+			LEFT JOIN lsck.conf_clienteAudDet cad ON ca.idConfClienteAud = cad.idConfClienteAud
+			WHERE cad.presencia = 1
+			)
+			UPDATE
+				ca
+			SET 
+				ca.valor = lp.valor_presencia
+			FROM lsck.conf_clienteAud ca
+			JOIN list_presencia lp ON lp.idConfClienteAud = ca.idConfClienteAud
+		";
+
+		return $this->db->query($sql);
+	}
 
 }

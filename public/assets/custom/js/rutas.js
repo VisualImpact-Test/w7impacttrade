@@ -52,7 +52,7 @@ var Rutas = {
 			}
 		});
 
-		$(document).on('dblclick', '.card-body > ul > li > a', function (e) {
+		$(document).on('dblclick', '.btnReporte', function (e) {
             $('#btn-filtrarRutas').click();
         });
 
@@ -213,6 +213,31 @@ var Rutas = {
 		$('.filtroCondicion').on('click', function(e) {
 			Rutas.filtrar_leyenda();
 		});
+
+
+		$(document).on("click",".tabVerFotos",function(){
+			var control = $(this);
+			var id=control.data("value");
+			if(id==1){
+				$("#idModuloFotos").show();
+				$("#idOtrosModulos").hide();
+			}else{
+				$("#idModuloFotos").hide();
+				$("#idOtrosModulos").show();
+			}
+		});
+
+		$(document).on("click",".tabCheckProductos",function(){
+			var control = $(this);
+			var id=control.data("value");
+			if(id==1){
+				$("#idCheckProductosCuenta").show();
+				$("#idCheckProductosCuentaComp").hide();
+			}else{
+				$("#idCheckProductosCuenta").hide();
+				$("#idCheckProductosCuentaComp").show();
+			}
+		});
 		
 	},
 	loadReporte_new: function( config = {}){
@@ -286,7 +311,7 @@ var Rutas = {
 			str_condiciones = "NO CONDICIONES";
 		}
 		let columnaCondicion = Rutas.customTable.columns('.colCondicion').indexes()[0];
-		Rutas.customTable.column(columnaCondicion).search(str_condiciones,true,false).draw();		
+		Rutas.customTable.column(columnaCondicion).search(str_condiciones,true,false).draw();
 	},
 }
 

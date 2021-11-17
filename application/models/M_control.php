@@ -17,7 +17,9 @@ class M_control extends MY_Model{
 
 		$sql = "
 			DECLARE @fecha date=getdate();
-			SELECT DISTINCT c.idCuenta AS id,c.nombre {$column}
+			SELECT DISTINCT c.idCuenta AS id
+			,c.nombre {$column}
+			,COUNT(p.idProyecto) OVER (PARTITION BY uh.idUsuario) proyectos
 			FROM trade.usuario_historico uh 
 			JOIN trade.proyecto p ON p.idProyecto = uh.idProyecto
 			JOIN trade.cuenta c ON c.idCuenta = p.idCuenta
@@ -30,20 +32,28 @@ class M_control extends MY_Model{
 
 	public function get_cuentaProyecto($input = []){
 		$sql = "
+			DECLARE @fecha date=getdate();
 			SELECT
 				cu.idCuenta,
 				cu.nombre AS cuenta,
 				cu.urlCSS AS cssCuenta,
 				cu.urlLogo AS logoCuenta,
+				cu.baseDatos AS sessBDCuenta,
 				py.idProyecto,
 				py.nombre AS proyecto,
-				ISNULL(cu.abreviacion,'CUENTA') abreviacionCuenta
+				ISNULL(cu.abreviacion,'CUENTA') abreviacionCuenta,
+				uh.idUsuarioHist,
+				uh.idTipoUsuario
 				
 			FROM trade.cuenta cu
 			JOIN trade.proyecto py ON cu.idCuenta = py.idCuenta
+			JOIN trade.usuario_historico uh ON py.idProyecto = uh.idProyecto
+				AND @fecha BETWEEN uh.fecIni AND ISNULL(uh.fecFin, @fecha)
+				AND uh.idAplicacion IN(2)
 			WHERE cu.idCuenta = {$input['idCuenta']}
 			AND py.idProyecto = {$input['idProyecto']}
-		";
+			AND uh.idUsuario = ".$this->session->userdata('idUsuario');
+
 		return $this->db->query($sql)->row_array();
 	}
 
@@ -60,7 +70,17 @@ class M_control extends MY_Model{
 				$filtro .= " AND py.idCuenta = {$input['idCuenta']}";
 			}
 
-		$sql = "SELECT py.idProyecto AS id, py.nombre $columna FROM trade.proyecto py WHERE estado = 1{$filtro} ORDER BY py.nombre";
+		$sql = "
+		DECLARE @fecha date=GETDATE();
+		SELECT DISTINCT py.idProyecto AS id
+		, py.nombre $columna 
+		FROM trade.proyecto py 
+		JOIN trade.usuario_historico uh ON py.idProyecto = uh.idProyecto
+			AND @fecha BETWEEN uh.fecIni AND ISNULL(uh.fecFin, @fecha)
+			AND uh.idAplicacion IN(2)
+		WHERE py.estado = 1{$filtro} 
+		AND uh.idUsuario = ".$this->session->userdata('idUsuario')."
+		ORDER BY py.nombre";
 
 		return $this->db->query($sql)->result_array();
 	}
@@ -113,7 +133,7 @@ class M_control extends MY_Model{
 				gca.idGrupoCanal AS id,
 				gca.nombre
 			FROM trade.grupoCanal gca
-			JOIN trade.proyectoGrupoCanal pgc ON  gca.idGrupoCanal = pgc.idGrupoCanal
+			JOIN trade.proyectoGrupoCanal pgc ON  gca.idGrupoCanal = pgc.idGrupoCanal AND pgc.estado = 1
 			WHERE gca.estado = 1{$filtro}
 			ORDER BY gca.nombre
 		";
@@ -189,11 +209,11 @@ class M_control extends MY_Model{
 		$sql = "
 			SELECT DISTINCT
 				ds.idDistribuidoraSucursal AS id,
-				ubi.provincia AS nombre
+				ubi.provincia +' - '+ ubi.distrito AS nombre
 			FROM trade.distribuidoraSucursal ds
 			JOIN General.dbo.ubigeo ubi ON ds.cod_ubigeo = ubi.cod_ubigeo
 			WHERE ds.estado = 1{$filtro}
-			ORDER BY ubi.provincia
+			ORDER BY nombre;
 		";
 		return $this->db->query($sql)->result_array();
 	}
@@ -202,13 +222,22 @@ class M_control extends MY_Model{
 		$idProyecto = $this->sessIdProyecto;
 
 		$filtro = "";
-			$filtro .= getPermisos('cadena', $idProyecto);
+		$filtro .= getPermisos('cadena', $idProyecto);
 
-			if( !empty($input['idCadena']) ){
-				$filtro .= " AND cd.idCadena = {$input['idCadena']}";
-			}
+		if( !empty($input['idCadena']) ){
+			$filtro .= " AND cd.idCadena = {$input['idCadena']}";
+		}
 
-		$sql = "SELECT cd.idCadena AS id, cd.nombre FROM trade.cadena cd WHERE cd.estado = 1{$filtro} ORDER BY cd.nombre";
+		$cliente_historico = getClienteHistoricoCuenta();			
+		$sql = "SELECT DISTINCT
+				cd.idCadena AS id, 
+				cd.nombre 
+				FROM trade.cadena cd 
+				JOIN trade.banner b ON b.idCadena = cd.idCadena
+				JOIN trade.segmentacionClienteModerno segmod ON segmod.idBanner = b.idBanner
+				JOIN {$cliente_historico} ch ON segmod.idSegClienteModerno = ch.idSegClienteModerno
+				WHERE cd.estado = 1{$filtro} 
+				ORDER BY cd.nombre";
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -535,10 +564,11 @@ class M_control extends MY_Model{
 		$idProyecto = $this->sessIdProyecto;
 		$sessIdHistorico = $this->idUsuarioHist;
 
+
 		$filtro = "";
 			!empty($sessIdHistorico) ? $filtro.= " AND hpz.idUsuarioHist = {$sessIdHistorico} " : '' ;
 		$sql = "
-		SELECT idUsuarioHistPlaza FROM trade.usuario_historicoPlaza hpz WHERE hpz.estado = 1{$filtro}
+		SELECT idPlaza FROM trade.usuario_historicoPlaza hpz WHERE hpz.estado = 1{$filtro}
 		";
 		return $this->db->query($sql)->result_array();
 	}
@@ -549,7 +579,7 @@ class M_control extends MY_Model{
 		$filtro = "";
 			!empty($sessIdHistorico) ? $filtro.= " AND uhb.idUsuarioHist = {$sessIdHistorico} " : '' ;
 		$sql = "
-		SELECT idUsuarioHistBanner FROM trade.usuario_historicoBanner uhb WHERE uhb.estado = 1{$filtro}
+		SELECT idBanner FROM trade.usuario_historicoBanner uhb WHERE uhb.estado = 1{$filtro}
 		";
 		return $this->db->query($sql)->result_array();
 	}
@@ -584,6 +614,7 @@ class M_control extends MY_Model{
 		AND m.idModuloGrupo = {$params['idModulo']}
 		{$filtro}
 		";
+		
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -621,4 +652,93 @@ class M_control extends MY_Model{
 		ORDER BY idCliente DESC";
 		return $this->db->query($sql);
 	}
+
+
+	public function get_peticion_actualizar_visitas($input = array()){
+		$sql = "
+			DECLARE @fecha date=getdate();
+			SELECT TOP 1  
+				idUsuario,idProyecto,fechaIni,fechaFin,hora,estado,porcentaje,
+				CONVERT(varchar,fechaActualizacion,103) fechaActualizacion,
+				CASE WHEN (fechaActualizacion IS NOT NULL) THEN 1 ELSE 0 END actualizado
+			FROM 
+				trade.peticionActualizarVisitas
+			WHERE idProyecto={$input['idProyecto']}
+			ORDER BY fechaIni DESC,idPeticion DESC;";
+		return $this->db->query($sql)->result_array();
+	}
+
+
+	public function get_peticiones_actualizar_visitas(){
+		$sql = "
+			DECLARE @fecha date=getdate();
+			SELECT  idPeticion,idUsuario,idProyecto,fechaIni,fechaFin,hora,estado,porcentaje,
+				CONVERT(varchar,fechaActualizacion,103) fechaActualizacion,
+				CASE WHEN (fechaActualizacion IS NOT NULL) THEN 1 ELSE 0 END actualizado
+			FROM 
+				trade.peticionActualizarVisitas
+			WHERE estado=1 and fechaActualizacion is null
+			ORDER BY fechaIni DESC;";
+		return $this->db->query($sql)->result_array();
+	}
+
+
+	public function actualizar_visitas($post)
+	{
+		$sql = "
+			WITH list_visitas AS (
+				SELECT v.idVisita  
+				FROM trade.data_ruta r 
+				JOIN trade.data_visita v ON v.idRuta=r.idRuta
+				WHERE r.idProyecto={$post['idProyecto']} and r.fecha='{$post['fecha']}'
+			)
+			UPDATE trade.data_visita
+			SET estado=estado
+			where idVisita IN (
+				SELECT  idVisita FROM list_visitas
+			);";
+		return $this->db->query($sql)->result_array();
+	}
+
+	public function actualizar_peticion_estado($post)
+	{
+
+		$sql = "
+			DECLARE @fecha date=GETDATE();
+			UPDATE trade.peticionActualizarVisitas
+				SET estado=0
+			WHERE 
+				idPeticion={$post['idPeticion']}
+			;";
+		return $this->db->query($sql);
+	}
+
+	public function actualizar_peticion($post)
+	{
+
+		$sql = "
+			DECLARE @fecha date=GETDATE();
+			UPDATE trade.peticionActualizarVisitas
+				SET estado=0,fechaActualizacion=GETDATE(),hora=GETDATE(),porcentaje={$post['porcentaje']}
+			WHERE 
+				idPeticion={$post['idPeticion']}
+			;";
+		return $this->db->query($sql);
+	}
+
+	public function registrar_peticion_actualizar_visitas($post)
+	{
+		$insert = [
+			'idProyecto' => trim($post['idProyecto']),
+			'fechaIni' => trim($post['fechaIni']),
+			'fechaFin' => trim($post['fechaFin']),
+			'idUsuario' => trim($post['idUsuario']),
+			'estado' => 1
+		];
+
+		$insert = $this->db->insert("trade.peticionActualizarVisitas", $insert);
+		return $insert;
+	}
+
+
 }

@@ -272,6 +272,15 @@ var Precios = {
 					}
 				}, 500);
 
+				Precios.myDatatable.on( 'search.dt',   function () {
+					setTimeout(function(){
+						if(Precios.myDatatable){
+							Precios.generarGraficos();
+							Precios.myDatatable.columns.adjust();
+						}
+					}, 500);
+				});
+
 			} else {
 				$('#' + config.contentDetalle).html(a.data.html);
 				if (a.result == 1) {

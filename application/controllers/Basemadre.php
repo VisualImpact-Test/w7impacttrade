@@ -58,6 +58,7 @@ class Basemadre extends MY_Controller{
 		$input['usuario_filtro'] = !empty($data['usuario_filtro']) ? $data['usuario_filtro'] : '';
 
 		$idUsuario=$this->session->userdata('idUsuario');
+		$idCuenta=$this->session->userdata('idCuenta');
 
 		$rs_resultado = $this->model->obtener_basemadre($input);
 
@@ -214,24 +215,32 @@ class Basemadre extends MY_Controller{
 							 );
 						} 
 						array_push($new_data[$kr],
-						!empty($row['departamento']) ? "<p class='text-left'>{$row['departamento']}</p>" : '-', 
-						!empty($row['provincia']) ? "<p class='text-left'>{$row['provincia']}</p>" : '-', 
-						!empty($row['distrito']) ? "<p class='text-left'>{$row['distrito']}</p>" : '-', 
-						!empty($row['idCliente']) ? "<p class='text-center'>{$row['idCliente']}</p>" : '-', 
-						!empty($row['codCliente']) ? "<p class='text-center'>{$row['codCliente']}</p>" : '-', 
-						!empty($row['codPdv']) ? "<p class='text-center'>{$row['codPdv']}</p>" : '-', 
-						!empty($row['razonSocial']) ? "<p class='text-left'>{$row['razonSocial']}</p>" : '-', 
-						!empty($row['nombreComercial']) ? "<p class='text-left'>{$row['nombreComercial']}</p>" : '-', 
-						!empty($row['direccion']) ? "<p class='text-left'>{$row['direccion']}</p>" : '-',
-						!empty($row['ruc']) ? "<p class='text-left'>{$row['ruc']}</p>" : '-',
-						!empty($row['dni']) ? "<p class='text-left'>{$row['dni']}</p>" : '-',
-						!empty($row['frecuencia']) ? "<p class='text-left'>{$row['frecuencia']}</p>" : '-',
-						!empty($row['flagCartera']) ? "<p class='text-center'>SÍ</p>" : '-',
-						!empty($row['monto']) ? "<p class='text-right'>".moneda($row['monto'])."</p>" : '-',
-						($array['total_venta'] > 0)  ? "<p class='text-right'>".round(($row['monto'] / $array['total_venta']) * 100, 2) . '%'."</p>" : '-',
-						isset($total_canal[$row['idCanal']]) ? "<p class='text-right'>".(($total_canal[$row['idCanal']] > 0) ? round(($row['monto'] / $total_canal[$row['idCanal']]) * 100, 2) . '%' : '-')."</p>" : '-',
-						isset($total_dep[$row['cod_departamento']]) ? "<p class='text-right'>".(($total_dep[$row['cod_departamento']] > 0) ? round(($row['monto'] / $total_dep[$row['cod_departamento']]) * 100, 2) . '%' : '-')."</p>" : '-',
+							!empty($row['departamento']) ? "<p class='text-left'>{$row['departamento']}</p>" : '-', 
+							!empty($row['provincia']) ? "<p class='text-left'>{$row['provincia']}</p>" : '-', 
+							!empty($row['distrito']) ? "<p class='text-left'>{$row['distrito']}</p>" : '-', 
+							!empty($row['idCliente']) ? "<p class='text-center'>{$row['idCliente']}</p>" : '-', 
+							!empty($row['codCliente']) ? "<p class='text-center'>{$row['codCliente']}</p>" : '-', 
+							!empty($row['codPdv']) ? "<p class='text-center'>{$row['codPdv']}</p>" : '-', 
+							!empty($row['razonSocial']) ? "<p class='text-left'>{$row['razonSocial']}</p>" : '-', 
+							!empty($row['nombreComercial']) ? "<p class='text-left'>{$row['nombreComercial']}</p>" : '-', 
+							!empty($row['direccion']) ? "<p class='text-left'>{$row['direccion']}</p>" : '-',
+							!empty($row['ruc']) ? "<p class='text-left'>{$row['ruc']}</p>" : '-',
+							!empty($row['dni']) ? "<p class='text-left'>{$row['dni']}</p>" : '-',
+							!empty($row['frecuencia']) ? "<p class='text-left'>{$row['frecuencia']}</p>" : '-',
+							!empty($row['flagCartera']) ? "<p class='text-center'>SÍ</p>" : '-'
+						);
+
+						if($idCuenta!="2"){
+							array_push($new_data[$kr],
+								!empty($row['monto']) ? "<p class='text-right'>".moneda($row['monto'])."</p>" : '-',
+								($array['total_venta'] > 0)  ? "<p class='text-right'>".round(($row['monto'] / $array['total_venta']) * 100, 2) . '%'."</p>" : '-',
+								isset($total_canal[$row['idCanal']]) ? "<p class='text-right'>".(($total_canal[$row['idCanal']] > 0) ? round(($row['monto'] / $total_canal[$row['idCanal']]) * 100, 2) . '%' : '-')."</p>" : '-',
+								isset($total_dep[$row['cod_departamento']]) ? "<p class='text-right'>".(($total_dep[$row['cod_departamento']] > 0) ? round(($row['monto'] / $total_dep[$row['cod_departamento']]) * 100, 2) . '%' : '-')."</p>" : '-'
+							);
+						}
 						
+						
+						array_push($new_data[$kr],
 						!empty($prog) ? "<p class='text-center'>".'SÍ'."</p>" : '-',
 						!empty($row['direccion']) ? "<p class='text-left'>".utf8_encode($user)."</p>" : '-'
 						

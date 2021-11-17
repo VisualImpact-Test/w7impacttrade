@@ -2,19 +2,23 @@
 		<table id="<?=$idDataTableDetalle;?>" class="table table-striped table-bordered nowrap">
 			<thead>
 				<tr>
-					<th class="text-center align-middle" rowspan="3">#</th>
+					<th class="text-center align-middle noVis" rowspan="3">#</th>
 					<th class="text-center align-middle" rowspan="3">FECHA</th>
-					<th class="text-center align-middle" rowspan="3">PROYECTO</th>
+					<th class="text-center align-middle" rowspan="3">COD<br>USUARIO</th>
+					<th class="text-center align-middle" rowspan="3">USUARIO</th>
+					<th class="text-center align-middle " rowspan="3">GRUPO CANAL</th>
 					<th class="text-center align-middle" rowspan="3">CANAL</th>
-					<th class="text-center align-middle" rowspan="3">DEPARTAMENTO</th>
-					<th class="text-center align-middle" rowspan="3">PROVINCIA</th>
-					<th class="text-center align-middle" rowspan="3">DISTRITO</th>
+					<? foreach ($segmentacion['headers'] as $k => $v) { ?>
+						<th rowspan="3" class="text-center align-middle"><?= strtoupper($v['header']) ?></th>
+						<? } ?>
+					<th class="text-center align-middle hideCol" rowspan="3">DEPARTAMENTO</th>
+					<th class="text-center align-middle hideCol" rowspan="3">PROVINCIA</th>
+					<th class="text-center align-middle hideCol" rowspan="3">DISTRITO</th>
 					<th class="text-center align-middle" rowspan="3">PDV</th>
-					<th class="text-center align-middle" rowspan="3">CÓDIGO<br>VISUAL</th>
-					<th class="text-center align-middle" rowspan="3">CÓDIGO<br>CLIENTE</th>
-					<th class="text-center align-middle" rowspan="3">DIRECCIÓN</th>
-					<th class="text-center align-middle" rowspan="3">CÓDIGO<br>USUARIO</th>
-					<th class="text-center align-middle" rowspan="3">EMPLEADO</th>
+					<th class="text-center align-middle" rowspan="3">COD<br>VISUAL</th>
+					<th class="text-center align-middle" rowspan="3">COD<br>CLIENTE</th>
+					<th class="text-center align-middle hideCol" rowspan="3">DIRECCIÓN</th>
+					<th class="text-center align-middle" rowspan="3">CONDICIÓN</th>
 					<th class="text-center align-middle" colspan="3">HORARIO</th>
 					<th class="text-center align-middle" rowspan="3">INCIDENCIA</th>
 					<th class="text-center align-middle" colspan="20">MÓDULOS</th>
@@ -44,9 +48,9 @@
 					<th class="text-center align-middle" colspan="3">VISIBILIDAD<br>AUDITORIA</th>
 				</tr>
 				<tr>
-					<th class="text-center align-middle noVis">OBLIGATORIA</th>
+					<th class="text-center align-middle  noVis">OBLIGATORIA</th>
 					<th class="text-center align-middle">INICIATIVA</th>
-					<th class="text-center align-middle noVis">ADICIONAL</th>
+					<th class="text-center align-middle  noVis">ADICIONAL</th>
 				</tr>
 			</thead>
 			<tbody>

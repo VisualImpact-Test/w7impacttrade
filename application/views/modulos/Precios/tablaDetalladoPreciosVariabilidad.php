@@ -8,7 +8,6 @@
         <thead>
             <tr>
                 <th class="text-center align-middle">EMPRESA</th>
-                <th class="text-center align-middle">SEMANA</th>
                 <? $nroHeaders = 9; ?>
                 <? foreach ($segmentacion['headers'] as $k => $v) { ?>
                     <? $nroHeaders++; ?>
@@ -39,12 +38,11 @@
         <tbody>
             <?
             $i = 1;
-            foreach ($precios['cadenas'] as $cadenas) {
+            foreach ($precios['cadenas'] as $idCadena => $cadenas) {
             ?>
                 <? foreach ($cadenas as  $row) { ?>
                     <tr>
                         <td class="text-left align-middle"><?= (!empty($row['empresa']) ? $row['empresa'] : '-') ?></td>
-                        <td class="text-center align-middle"><?= (!empty($row['semana']) ? ($row['semana']) : '-') ?></td>
                         <? foreach ($segmentacion['headers'] as $k => $v) { ?>
                             <td class="text-left align-middle"><?= (!empty($row[($v['columna'])]) ? $row[($v['columna'])] : '-') ?></td>
                         <? } ?>
@@ -56,9 +54,10 @@
                         $numItems = count($semanas);
                         $i = 0;
                         foreach ($semanas as $k => $v) {
-                            $valorxsemana = !empty($precios['semana'][$v][$row['idProducto']]['promedio']) ? number_format(moneda($precios['semana'][$v][$row['idProducto']]['promedio']), 3, '.', ',') : number_format(0, 3, '.', ',');
+                            $valorxsemanaTD = !empty($precios['semana'][$v][$idCadena][$row['idProducto']]['promedio']) ? moneda(floatval($precios['semana'][$v][$idCadena][$row['idProducto']]['promedio'])) : moneda(0);
+                            $valorxsemana = !empty($precios['semana'][$v][$idCadena][$row['idProducto']]['promedio']) ? number_format( $precios['semana'][$v][$idCadena][$row['idProducto']]['promedio'], 2, '.', ','  ) : number_format(0, 2, '.', ','  );
                         ?>
-                            <td class="text-right align-middle"><?= $valorxsemana ?></td>
+                            <td class="text-right align-middle"><?= $valorxsemanaTD ?></td>
                         <?
                             if (++$i === $numItems) {
                                 $valorxsemanaGraf .= $valorxsemana . ']';
