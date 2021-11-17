@@ -64,18 +64,10 @@ class M_rutas extends MY_Model{
 				, CONVERT(VARCHAR(8), v.horaFin) hora_fin
 				, DATEDIFF(MINUTE,v.horaIni,v.horaFin) minutos
 				, vi.nombreIncidencia indicencia_nombre
-				, CASE WHEN (v.horaIni IS NOT NULL AND v.horaFin IS NOT NULL ) THEN
-						3
-					ELSE
-						CASE WHEN (v.horaIni IS NOT NULL ) THEN
-								1
-						ELSE
-							CASE WHEN (estadoIncidencia IS NOT NULL OR estadoIncidencia = 1) THEN
-								2
-							ELSE
-								0
-							END
-						END
+				, CASE WHEN (v.horaIni IS NOT NULL AND v.horaFin IS NOT NULL AND v.numFotos >= 1 AND ISNULL(estadoIncidencia,0) <> 1 ) THEN 3 --Efectiva
+					   WHEN (v.estadoIncidencia = 1 ) THEN 2 --INCIDENCIA
+					   WHEN (v.horaIni IS NULL AND v.horaFin IS NULL AND ISNULL(v.numFotos,0) = 0  AND estadoIncidencia IS NULL ) THEN 0 -- No Visitado
+					   ELSE	1 --No Efectiva
 					END condicion
 				, v.idVisita
 				, v.idCanal
@@ -298,8 +290,8 @@ class M_rutas extends MY_Model{
 		return $this->db->query($sql)->result_array();
 	}
 
-	public function detalle_checkproducto($idVisita){
-		$columnas_adicionales = getColumnasAdicionales(['idModulo' => 3, 'shortag' => 'dvpd'])['columnas_adicionales'];
+	public function detalle_checkproducto($idVisita, $idGrupoCanal = ''){
+		$columnas_adicionales = getColumnasAdicionales(['idModulo' => 3, 'shortag' => 'dvpd', 'idGrupoCanal' => $idGrupoCanal])['columnas_adicionales'];
 
 		$sql = "
 			SELECT 
@@ -332,8 +324,8 @@ class M_rutas extends MY_Model{
 		return $this->db->query($sql)->result_array();
 	}
 
-	public function detalle_precio($idVisita){
-		$columnas_adicionales = getColumnasAdicionales(['idModulo' => 10, 'shortag' => 'dvpd'])['columnas_adicionales'];
+	public function detalle_precio($idVisita, $idGrupoCanal = ''){
+		$columnas_adicionales = getColumnasAdicionales(['idModulo' => 10, 'shortag' => 'dvpd', 'idGrupoCanal' => $idGrupoCanal])['columnas_adicionales'];
 
 		$sql = "
 			SELECT 
@@ -358,8 +350,8 @@ class M_rutas extends MY_Model{
 		return $this->db->query($sql)->result_array();
 	}
 
-	public function detalle_promociones($idVisita){
-		$columnas_adicionales = getColumnasAdicionales(['idModulo' => 7, 'shortag' => 'dvpd'])['columnas_adicionales'];
+	public function detalle_promociones($idVisita, $idGrupoCanal = ''){
+		$columnas_adicionales = getColumnasAdicionales(['idModulo' => 7, 'shortag' => 'dvpd', 'idGrupoCanal' => $idGrupoCanal])['columnas_adicionales'];
 		$join_adicional = '';
 		if(!empty($columnas_adicionales)){
 			$join_adicional = 'LEFT JOIN trade.producto pr ON dvpd.producto = pr.idProducto';

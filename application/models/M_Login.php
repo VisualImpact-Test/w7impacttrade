@@ -261,4 +261,168 @@ WHERE u.estado = 1 AND u.usuario = '".$data['usuario']."'
 
 	}
 
+	public function filtro_clientes(){
+		$sql="
+			DECLARE @fecha DATE = GETDATE();
+			WITH lista AS (
+			SELECT DISTINCT
+				cu.idCuenta
+				, cu.nombre cuenta
+				, py.idProyecto
+				, py.nombre proyecto
+				, gc.idGrupoCanal
+				, gc.nombre grupoCanal
+				, ca.idCanal
+				, ca.nombre canal
+				--
+				, ub.cod_departamento
+				, ub.departamento
+				, ub.cod_provincia
+				, ub.provincia
+				, ub.cod_distrito
+				, ub.distrito
+				--
+				, cn.idCadena
+				, cn.nombre cadena
+				, b.idBanner
+				, b.nombre banner
+				--
+				, ub_pl.cod_provincia codCiudad
+				, ub_pl.provincia ciudad
+				, pl.idPlaza
+				, pl.nombre plaza
+				--
+				, d.idDistribuidora
+				, d.nombre distribuidora
+				, ds.idDistribuidoraSucursal
+				, ds.nombre distribuidoraSucursal
+				, z.idZona
+				, z.nombre zona
+			FROM 
+				trade.cliente c
+				JOIN trade.cliente_historico ch ON c.idcliente = ch.idCliente
+				AND @fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin, @fecha) AND ch.flagCartera = 1
+				--
+				JOIN trade.segmentacionNegocio sn ON sn.idSegNegocio = ch.idSegNegocio AND sn.estado = 1
+				JOIN trade.canal ca ON ca.idCanal = sn.idCanal AND ca.estado = 1
+				JOIN trade.grupoCanal gc ON gc.idGrupoCanal = ca.idGrupoCanal AND gc.estado = 1
+				--
+				JOIN General.dbo.ubigeo ub ON ub.cod_ubigeo = c.cod_ubigeo
+				--
+				LEFT JOIN trade.segmentacionClienteModerno sm ON sm.idSegClienteModerno = ch.idSegClienteModerno AND sm.estado = 1
+				LEFT JOIN trade.banner b ON sm.idBanner = b.idBanner AND b.estado = 1
+				LEFT JOIN trade.cadena cn ON cn.idCadena = b.idCadena AND cn.estado = 1
+				--
+				LEFT JOIN trade.segmentacionClienteTradicional st ON st.idSegClienteTradicional = ch.idSegClienteTradicional AND st.estado = 1
+				LEFT JOIN trade.plaza pl ON pl.idPlaza = st.idPlaza
+				LEFT JOIN General.dbo.ubigeo ub_pl ON ub_pl.cod_ubigeo = pl.cod_ubigeo
+				--
+				LEFT JOIN trade.segmentacionClienteTradicionalDet std ON std.idSegClienteTradicional = st.idSegClienteTradicional
+				LEFT JOIN trade.distribuidoraSucursal ds ON ( ds.idDistribuidoraSucursal = st.idDistribuidoraSucursal OR  std.idDistribuidoraSucursal = ds.idDistribuidoraSucursal ) AND ds.estado = 1
+				LEFT JOIN trade.distribuidora d ON d.idDistribuidora = ds.idDistribuidora AND d.estado = 1
+				--
+				LEFT JOIN trade.zona z ON z.idZona = ch.idZona
+				--
+				JOIN trade.proyecto py ON py.idProyecto = ch.idProyecto AND py.estado = 1
+				JOIN trade.cuenta cu ON cu.idCuenta = py.idCuenta
+			)
+			SELECT * FROM lista
+			ORDER BY cuenta, proyecto, grupoCanal, canal, departamento, provincia, distrito, cadena, banner, zona, ciudad, plaza, distribuidora, distribuidoraSucursal ASC
+		";
+
+		return $this->db->query($sql);
+	}
+	public function filtro_usuarios(){
+		$sql = "
+		DECLARE @fecha DATE = GETDATE();
+		WITH lista AS (
+		SELECT DISTINCT
+			cu.idCuenta
+			, py.idProyecto
+			, ca.idCanal
+			, ca.idGrupoCanal
+			, b.idBanner
+			, b.idCadena
+			, ub_pl.cod_provincia codCiudad
+			, pl.idPlaza
+			, z.idZona
+			, ds.idDistribuidoraSucursal
+			, ds.idDistribuidora
+			, ut.idTipoUsuario
+			, ut.nombre tipoUsuario
+			, u.idUsuario
+			, u.apePaterno + ' ' + u.apeMaterno + ' ' + u.nombres usuario
+		FROM 
+			trade.usuario u 
+			JOIN trade.usuario_historico uh ON uh.idUsuario = u.idUsuario
+			AND @fecha BETWEEN uh.fecIni AND ISNULL(uh.fecFin,@fecha)
+			JOIN trade.aplicacion a ON a.idAplicacion = uh.idAplicacion
+			AND a.estado = 1 AND a.flagAndroid = 1
+			JOIN trade.usuario_tipo ut ON ut.idTipoUsuario = uh.idTipoUsuario AND ut.estado = 1
+			JOIN trade.proyecto py ON py.idProyecto = uh.idProyecto AND py.estado = 1
+			JOIN trade.cuenta cu ON cu.idCuenta = py.idCuenta AND cu.estado = 1
+			LEFT JOIN trade.usuario_historicoCanal uhdc ON uhdc.idUsuarioHist = uh.idUsuarioHist AND uhdc.estado = 1
+			LEFT JOIN trade.canal ca ON ca.idCanal = uhdc.idCanal AND ca.estado = 1
+			LEFT JOIN trade.usuario_historicoBanner uhdb ON uhdb.idUsuarioHist = uh.idUsuarioHist AND uhdb.estado = 1
+			LEFT JOIN trade.banner b ON b.idBanner = uhdb.idBanner AND b.estado = 1
+			LEFT JOIN trade.usuario_historicoZona uhdz ON uhdz.idUsuarioHist = uh.idUsuarioHist AND uhdz.estado = 1
+			LEFT JOIN trade.zona z ON z.idZona = uhdz.idZona AND z.estado = 1
+			LEFT JOIN trade.usuario_historicoPlaza uhdp ON uhdp.idUsuarioHist = uh.idUsuarioHist AND uhdp.estado = 1
+			LEFT JOIN trade.plaza pl ON pl.idPlaza = uhdp.idPlaza AND pl.estado = 1
+			LEFT JOIN General.dbo.ubigeo ub_pl ON ub_pl.cod_ubigeo = pl.cod_ubigeo
+			LEFT JOIN trade.usuario_historicoDistribuidoraSucursal uhdd ON uhdd.idUsuarioHist = uh.idUsuarioHist AND uhdd.estado = 1
+			LEFT JOIN trade.distribuidoraSucursal ds ON ds.idDistribuidoraSucursal = uhdd.idDistribuidoraSucursal AND ds.estado = 1
+		)
+		SELECT * FROM lista
+		ORDER BY tipoUsuario, usuario ASC
+		";
+
+		return $this->db->query($sql);
+	}
+
+	public function filtro_encargado(){
+		$sql ="
+			DECLARE @fecha DATE=GETDATE();
+			WITH lista AS (
+			SELECT DISTINCT
+			cu.idCuenta
+			,py.idProyecto 
+			
+			,e.idEncargado
+			,e.idUsuario idUsuarioEnc
+			,uEnc.apePaterno+' '+uEnc.apeMaterno+' '+uEnc.nombres encargado
+			
+			,eu.idUsuario idUsuarioSub
+			,uSub.apePaterno+' '+uSub.apeMaterno+' '+uSub.nombres colaborador
+			
+			FROM trade.encargado e 
+			JOIN trade.encargado_usuario eu ON e.idEncargado=eu.idEncargado AND @fecha between eu.fecIni AND ISNULL(eu.fecFin, @fecha)
+			JOIN trade.usuario uEnc ON uEnc.idUsuario=e.idUsuario
+			JOIN trade.usuario uSub ON uSub.idUsuario=eu.idUsuario
+			JOIN trade.usuario_historico uhEnc ON uhEnc.idUsuario=uEnc.idUsuario
+			JOIN trade.proyecto py ON py.idProyecto=uhEnc.idProyecto
+			JOIN trade.cuenta cu ON cu.idCuenta=py.idCuenta 
+			JOIN General.dbo.ubigeo ub ON ub.cod_ubigeo = uhEnc.cod_ubigeo
+			WHERE e.estado=1 AND eu.estado=1 AND uEnc.demo=0 AND uSub.demo=0
+			AND @fecha between uhEnc.fecIni AND ISNULL(uhEnc.fecFin, @fecha)
+			AND uSub.externo=0
+			)
+			SELECT * FROM lista
+			ORDER BY idCuenta, idProyecto, idEncargado, idUsuarioEnc, encargado, idUsuarioSub,colaborador
+		";
+
+		return $this->db->query($sql);
+	}
+	public function filtro_producto(){
+		$sql = "
+		SELECT p.idCuenta, p.idProducto, UPPER(p.nombre) producto, pm.idMarca, UPPER(pm.nombre) marca, pc.idCategoria, UPPER(pc.nombre) categoria FROM trade.producto p
+		JOIN trade.producto_marca pm ON pm.idMarca = p.idMarca AND pm.estado = 1
+		JOIN trade.producto_categoria pc ON pc.idCategoria = p.idCategoria AND pc.estado = 1
+		WHERE p.estado = 1
+		ORDER BY categoria, marca, producto ASC
+		";
+
+		return $this->db->query($sql);
+	}
+
 }

@@ -77,9 +77,12 @@ var Scorecard = {
 			var ruta = control.data('ruta');
 			var tipo = control.data('tipo');
 			var str_clientes = control.data('codClientes');
+			var str_visitas = control.data('codVisitas');
 			var grupoCanal = control.data('grupoCanal');
+			var canal = control.data('canal');
+			var flagTotal = control.data('flagTotal');
 			//
-			var data = { 'idSubCanal':idSubCanal,'fecIni':fecIni,'fecFin':fecFin,'tipo':tipo,'str_clientes':str_clientes,'grupoCanal':grupoCanal };
+			var data = { 'idSubCanal':idSubCanal,'fecIni':fecIni,'fecFin':fecFin,'tipo':tipo,'str_clientes':str_clientes,'grupoCanal':grupoCanal ,'canal':canal, 'str_visitas': str_visitas, 'flagTotal':flagTotal};
 			var jsonString = { 'data': JSON.stringify(data) };
 			var configAjax = { 'url': Scorecard.url + ruta, 'data': jsonString };
 

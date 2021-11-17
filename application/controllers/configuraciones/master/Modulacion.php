@@ -1909,7 +1909,8 @@ class Modulacion extends MY_Controller{
 		}
 		$total = $sum;
 
-		//$idProyecto=($this->session->userdata('idProyecto')=='13')? '3': $this->session->userdata('idProyecto') ;
+		//$idProyecto=($this->session->userdata('idProyecto')=='13')? '3': 
+		$idProyecto=$this->session->userdata('idProyecto') ;
 		$idCuenta=$this->session->userdata('idCuenta');
 		$auditoria = !empty($_POST['auditoria']) ? 1 : 0;
 	
@@ -1919,6 +1920,7 @@ class Modulacion extends MY_Controller{
 			'carpeta' => $nombre_carpeta,
 			'totalRegistros' => $total,
 			'idCuenta' => $idCuenta,
+			'idProyecto' => $idProyecto,
 			'auditoria' => $auditoria
 		);
 

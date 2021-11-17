@@ -567,6 +567,7 @@ class M_control extends MY_Model{
 		$idProyecto = $this->sessIdProyecto;
 
 		$filtro = "";
+		!empty($params['idGrupoCanal']) ? $filtro.= " AND cd.idGrupoCanal = {$params['idGrupoCanal']} " : '' ;
 
 		$sql = "
 		SELECT
@@ -581,8 +582,20 @@ class M_control extends MY_Model{
 		AND cd.idCuenta = {$idCuenta}
 		AND cd.idProyecto = {$idProyecto}
 		AND m.idModuloGrupo = {$params['idModulo']}
+		{$filtro}
 		";
 		return $this->db->query($sql)->result_array();
+	}
+
+	public function getGrupoCanalDeVisita($params = []){
+		$sql = "
+		SELECT TOP 1
+			c.idGrupoCanal
+		FROM trade.data_visita v
+		JOIN trade.canal c ON v.idCanal = c.idCanal
+		WHERE v.idVisita  = {$params}
+		";
+		return $this->db->query($sql)->row_array();
 	}
 
 	public function get_clientes_json($params = [])

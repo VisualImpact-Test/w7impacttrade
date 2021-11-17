@@ -744,10 +744,12 @@ class Rutas extends MY_Controller{
 	public function detalle_checkproducto($idVisita){
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visitaProductosDet' ];
 
-		$rs_det = $this->model->detalle_checkproducto($idVisita);
+		$idGrupoCanal = getGrupoCanalDeVisita($idVisita);
+		$rs_det = $this->model->detalle_checkproducto($idVisita, $idGrupoCanal);
 		if(!empty($rs_det)){
 			$array=array();
 			$array['checkproducto']=$rs_det;
+			$array['columnasAdicionales'] = getColumnasAdicionales(['idModulo' => 3, 'idGrupoCanal' => $idGrupoCanal]);
 			$html = $this->load->view("modulos/rutas/detalle_checkproducto",$array,true);
 		} else {
 			$html = getMensajeGestion('noRegistros');
@@ -759,10 +761,12 @@ class Rutas extends MY_Controller{
 	public function detalle_precios($idVisita){
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visitaPrecios' ];
 
-		$rs_det = $this->model->detalle_precio($idVisita);
+		$idGrupoCanal = getGrupoCanalDeVisita($idVisita);
+		$rs_det = $this->model->detalle_precio($idVisita, $idGrupoCanal);
 		if(!empty($rs_det)){
 			$array=array();
 			$array['precio']=$rs_det;
+			$array['columnasAdicionales'] = getColumnasAdicionales(['idModulo' => 10, 'idGrupoCanal' => $idGrupoCanal]);
 			$html = $this->load->view("modulos/rutas/detalle_precio",$array,true);
 		} else {
 			$html = getMensajeGestion('noRegistros');
@@ -774,10 +778,12 @@ class Rutas extends MY_Controller{
 	public function detalle_promociones($idVisita){
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visitaPromociones' ];
 
-		$rs_det = $this->model->detalle_promociones($idVisita);
+		$idGrupoCanal = getGrupoCanalDeVisita($idVisita);
+		$rs_det = $this->model->detalle_promociones($idVisita, $idGrupoCanal);
 		if(!empty($rs_det)){
 			$array=array();
 			$array['promociones']=$rs_det;
+			$array['columnasAdicionales'] = getColumnasAdicionales(['idModulo' => 7, 'idGrupoCanal' => $idGrupoCanal]);
 			$html = $this->load->view("modulos/rutas/detalle_promociones",$array,true);
 		} else {
 			$html = getMensajeGestion('noRegistros');

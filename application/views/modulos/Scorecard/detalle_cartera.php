@@ -28,18 +28,19 @@
 				<tbody>
 					<? $i=1; foreach($cartera as $row){ 
 						
-						if($segmentacion['tipoSegmentacion'] == 'tradicional'){
-							$ejecutivo = !empty($usuarios[6][$row['idDistribuidoraSucursal']])? $usuarios[6][$row['idDistribuidoraSucursal']] : ' - ' ;
-							$supervisor = !empty($usuarios[2][$row['idDistribuidoraSucursal']])? $usuarios[2][$row['idDistribuidoraSucursal']] : ' - ' ;
-							$coordinador = !empty($usuarios[10][$row['idDistribuidoraSucursal']])? $usuarios[10][$row['idDistribuidoraSucursal']] : ' - ' ;
-						}else if($segmentacion['tipoSegmentacion'] == 'mayorista'){
-							$ejecutivo = !empty($usuarios[6][$row['idPlaza']])? $usuarios[6][$row['idPlaza']] : ' - ' ;
-							$supervisor = !empty($usuarios[2][$row['idPlaza']])? $usuarios[2][$row['idPlaza']] : ' - ' ;
-							$coordinador = !empty($usuarios[10][$row['idPlaza']])? $usuarios[10][$row['idPlaza']] : ' - ' ;
-						}else if($segmentacion['tipoSegmentacion'] == 'moderno'){
-							$ejecutivo = !empty($usuarios[6][$row['idBanner']])? $usuarios[6][$row['idBanner']] : ' - ' ;
-							$supervisor = !empty($usuarios[2][$row['idBanner']])? $usuarios[2][$row['idBanner']] : ' - ' ;
-							$coordinador = !empty($usuarios[10][$row['idBanner']])? $usuarios[10][$row['idBanner']] : ' - ' ;
+						$grupoCanal = $row['grupoCanal'];
+						if(in_array($grupoCanal, GC_TRADICIONALES)) {
+							$ejecutivo = !empty($usuarios['tradicional'][6][$row['idDistribuidoraSucursal']])? $usuarios['tradicional'][6][$row['idDistribuidoraSucursal']] : ' - ' ;
+							$supervisor = !empty($usuarios['tradicional'][2][$row['idDistribuidoraSucursal']])? $usuarios['tradicional'][2][$row['idDistribuidoraSucursal']] : ' - ' ;
+							$coordinador = !empty($usuarios['tradicional'][10][$row['idDistribuidoraSucursal']])? $usuarios['tradicional'][10][$row['idDistribuidoraSucursal']] : ' - ' ;
+						}else if(in_array($grupoCanal, GC_MAYORISTAS)){
+							$ejecutivo = !empty($usuarios['mayorista'][6][$row['idPlaza']])? $usuarios['mayorista'][6][$row['idPlaza']] : ' - ' ;
+							$supervisor = !empty($usuarios['mayorista'][2][$row['idPlaza']])? $usuarios['mayorista'][2][$row['idPlaza']] : ' - ' ;
+							$coordinador = !empty($usuarios['mayorista'][10][$row['idPlaza']])? $usuarios['mayorista'][10][$row['idPlaza']] : ' - ';
+						}else if(in_array($grupoCanal, GC_MODERNOS)){
+							$ejecutivo = !empty($usuarios['moderno'][6][$row['idBanner']])? $usuarios['moderno'][6][$row['idBanner']] : ' - ' ;
+							$supervisor = !empty($usuarios['moderno'][2][$row['idBanner']])? $usuarios['moderno'][2][$row['idBanner']] : ' - ' ;
+							$coordinador = !empty($usuarios['moderno'][10][$row['idBanner']])? $usuarios['moderno'][10][$row['idBanner']] : ' - ' ;
 						}else{
 							$ejecutivo = '-';
 							$supervisor = '-';

@@ -991,7 +991,7 @@ class M_promociones extends MY_Model{
 		JOIN {$cliente_historico} ch ON ch.idCliente = v.idCliente AND General.dbo.fn_fechaVigente(ch.fecIni,ch.fecFin,@fecIni,@fecFin)=1 AND ch.idProyecto = {$input['proyecto_filtro']}
 		LEFT JOIN trade.data_visitaFotos vf ON vf.idVisitaFoto = vpd.idVisitaFoto
 		LEFT JOIN trade.tipoPromocion tpro ON tpro.idTipoPromocion = pro.idTipoPromocion
-		LEFT JOIN trade.producto p ON p.idProducto = vpd.idProducto
+		LEFT JOIN trade.producto p ON p.idProducto = vpd.producto
 		LEFT JOIN trade.producto_categoria cat ON cat.idCategoria = p.idCategoria
 		LEFT JOIN trade.producto_marca m On m.idMarca = p.idMarca
 		LEFT JOIN General.dbo.ubigeo ubi ON ubi.cod_ubigeo=v.cod_ubigeo
@@ -1116,7 +1116,7 @@ class M_promociones extends MY_Model{
 		JOIN trade.grupoCanal gc ON gc.idGrupoCanal = ca.idGrupoCanal
 		JOIN {$cliente_historico} ch ON ch.idCliente = v.idCliente AND General.dbo.fn_fechaVigente(ch.fecIni,ch.fecFin,GETDATE(),GETDATE())=1 AND ch.idProyecto = {$input['proyecto_filtro']}
 		LEFT JOIN trade.tipoPromocion tpro ON tpro.idTipoPromocion = pro.idTipoPromocion
-		LEFT JOIN trade.producto p ON p.idProducto = vpd.idProducto
+		LEFT JOIN trade.producto p ON p.idProducto = vpd.producto
 		LEFT JOIN trade.producto_categoria cat ON cat.idCategoria = p.idCategoria
 		LEFT JOIN trade.producto_marca m On m.idMarca = p.idMarca
 		LEFT JOIN trade.producto_marca_empresa pme ON m.idMarca = pme.idMarca

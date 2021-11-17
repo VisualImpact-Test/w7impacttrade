@@ -10,7 +10,7 @@
 				<th class="text-center align-middle">MOTIVO</th>
 				<th class="text-center align-middle">FOTO</th>
 
-				<?=getColumnasAdicionales(['idModulo' => 3])['headers_adicionales'];?>
+				<?=$columnasAdicionales['headers_adicionales'];?>
 			</tr>
 		</thead>
 		<tbody>
@@ -30,7 +30,7 @@
 							</a>
 						<?} else echo '-';?>
 					</td>
-					<? foreach(getColumnasAdicionales(['idModulo' => 3])['body_adicionales'] AS $k => $r) {?>
+					<? foreach($columnasAdicionales['body_adicionales'] AS $k => $r) {?>
 						<? if($r == 'quiebre') { ?>
 							<td class="text-center"><?=!empty($row[$r]) ? 'SI' : 'NO'?></td>
 						<? }else { ?>

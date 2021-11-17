@@ -35,6 +35,7 @@ class Login extends MY_Controller {
 		$result['status'] = 0;
 
 		$rs = $this->model->find_usuario($input);
+		$result['data']['filtros'] = $this->filtros($rs);
 		$this->aSessTrack[] = [ 'idAccion' => 1 ];
 
 		$config_ = array( 'type' => 2, 'message' => "Ocurrió un error al validar sus datos, vuelva a intentarlo" );
@@ -343,6 +344,74 @@ class Login extends MY_Controller {
 		}
     }
 
+	public function filtros($input){
+		$array = array();
+		//
+		$arr_cuentas = array();
+		$arr_proyecto = array();
+		$arr_grupoCanal = array(); $arr_canal = array();
+		$arr_cadena = array(); $arr_banner = array();
+		$arr_ciudad = array(); $arr_plaza = array();
+		$arr_zona = array(); $arr_distribuidora = array(); $arr_distribuidoraSucursal = array();
+		foreach($input as $row){
+			if(!empty($row['idCuenta'])) $arr_cuentas[$row['idCuenta']] = $row['idCuenta'];
+			if(!empty($row['idProyecto'])) $arr_proyecto[$row['idProyecto']] = $row['idProyecto'];
+			if(!empty($row['idGrupoCanal'])) $arr_grupoCanal[$row['idGrupoCanal']] = $row['idGrupoCanal'];
+			if(!empty($row['idCanal'])) $arr_canal[$row['idCanal']] = $row['idCanal'];
+			if(!empty($row['idCadena'])) $arr_cadena[$row['idCadena']] = $row['idCadena'];
+			if(!empty($row['idBanner'])) $arr_banner[$row['idBanner']] = $row['idBanner'];
+			if(!empty($row['codCiudad'])) $arr_ciudad[$row['codCiudad']] = $row['codCiudad'];
+			if(!empty($row['idPlaza'])) $arr_plaza[$row['idPlaza']] = $row['idPlaza'];
+			if(!empty($row['idZona'])) $arr_zona[$row['idZona']] = $row['idZona'];
+			if(!empty($row['idDistribuidora'])) $arr_distribuidora[$row['idDistribuidora']] = $row['idDistribuidora'];
+			if(!empty($row['idDistribuidoraSucursal'])) $arr_distribuidoraSucursal[$row['idDistribuidoraSucursal']] = $row['idDistribuidoraSucursal'];
+		}
+		//
+		$rs_clientes=$this->model->filtro_clientes()->result_array();
+		$rs_usuarios=$this->model->filtro_usuarios()->result_array();
+		$rs_productos=$this->model->filtro_producto()->result_array();
+		//
+		foreach($rs_clientes as $row){
+			if( empty($arr_zona) || isset($arr_zona[$row['idZona']]) ) $array['departamentos'][trim($row['cod_departamento'])] = trim($row['departamento']);
+			if( empty($arr_zona) || isset($arr_zona[$row['idZona']]) ) $array['provincias'][trim($row['cod_departamento'])][trim($row['cod_provincia'])]  = trim($row['provincia']);
+			if( empty($arr_zona) || isset($arr_zona[$row['idZona']]) ) $array['distritos'][trim($row['cod_departamento'])][trim($row['cod_provincia'])][trim($row['cod_distrito'])] = trim($row['distrito']);
+			//
+			if( empty($arr_cuentas) || isset($arr_cuentas[$row['idCuenta']]) ) $array['cuentas'][$row['idCuenta']] = $row['cuenta'];
+			if( empty($arr_proyecto) || isset($arr_proyecto[$row['idProyecto']]) ) $array['proyectos'][$row['idCuenta']][$row['idProyecto']] = $row['proyecto'];
+			if( empty($arr_grupoCanal) || isset($arr_grupoCanal[$row['idGrupoCanal']]) ) $array['grupoCanal'][$row['idCuenta']][$row['idProyecto']][$row['idGrupoCanal']] = $row['grupoCanal'];
+			if( empty($arr_canal) || isset($arr_canal[$row['idCanal']]) ) $array['canal'][$row['idCuenta']][$row['idProyecto']][$row['idGrupoCanal']][$row['idCanal']] = $row['canal'];
+			//
+			if( empty($arr_cadena) || isset($arr_cadena[$row['idCadena']]) ) $array['cadenas'][$row['idCuenta']][$row['idProyecto']][$row['idGrupoCanal']][$row['idCanal']][$row['idCadena']] = $row['cadena'];
+			if( empty($arr_banner) || isset($arr_banner[$row['idBanner']]) ) $array['banner'][$row['idCuenta']][$row['idProyecto']][$row['idGrupoCanal']][$row['idCanal']][$row['idCadena']][$row['idBanner']] = $row['banner'];
+			//
+			if( empty($arr_ciudad) || isset($arr_ciudad[$row['codCiudad']]) ) $array['ciudad'][$row['idCuenta']][$row['idProyecto']][$row['idGrupoCanal']][$row['idCanal']][$row['codCiudad']] = $row['ciudad'];
+			if( empty($arr_plaza) || isset($arr_plaza[$row['idPlaza']]) ) $array['plaza'][$row['idCuenta']][$row['idProyecto']][$row['idGrupoCanal']][$row['idCanal']][$row['codCiudad']][$row['idPlaza']] = $row['plaza'];
+			//
+			if( empty($arr_zona) || isset($arr_zona[$row['idZona']]) ) $array['zonas'][$row['idCuenta']][$row['idProyecto']][$row['idGrupoCanal']][$row['idCanal']][$row['idZona']] = $row['zona'];
+			if( empty($arr_distribuidora) || isset($arr_distribuidora[$row['idDistribuidora']]) ) $array['distribuidora'][$row['idCuenta']][$row['idProyecto']][$row['idGrupoCanal']][$row['idCanal']][$row['idZona']][$row['idDistribuidora']] = $row['distribuidora'];
+			if( empty($arr_distribuidoraSucursal) || isset($arr_distribuidora[$row['idDistribuidoraSucursal']]) ) $array['distribuidoraSucursal'][$row['idCuenta']][$row['idProyecto']][$row['idGrupoCanal']][$row['idCanal']][$row['idZona']][$row['idDistribuidora']][$row['idDistribuidoraSucursal']] = $row['distribuidoraSucursal'];		
+			//
+				if( empty($arr_cuentas) || isset($arr_cuentas[$row['idCuenta']]) ) $array['cuentas'][$row['idCuenta']] = $row['cuenta'];
+		}
+		//
+		foreach($rs_usuarios as $row){
+			if( empty($arr_cuentas) || isset($arr_cuentas[$row['idCuenta']]) ) $array['tipoUsuarios'][$row['idCuenta']][$row['idProyecto']][$row['idTipoUsuario']] = $row;
+			if( empty($arr_cuentas) || isset($arr_cuentas[$row['idCuenta']]) ) $array['usuarios'][$row['idCuenta']][$row['idProyecto']][$row['idTipoUsuario']][$row['idUsuario']] = $row;
+		}
+		//
+		$rs_encargados=$this->model->filtro_encargado()->result_array();
+		foreach($rs_encargados as $row){
+			if( empty($arr_cuentas) || isset($arr_cuentas[$row['idCuenta']]) ) $array['encargados'][$row['idCuenta']][$row['idProyecto']][$row['idUsuarioEnc']] = $row['encargado'];
+			if( empty($arr_cuentas) || isset($arr_cuentas[$row['idCuenta']]) ) $array['colaboradores'][$row['idCuenta']][$row['idProyecto']][$row['idUsuarioEnc']][$row['idUsuarioSub']] = $row['colaborador'];
+		}
+		//
+		foreach($rs_productos as $row){
+			if( empty($arr_cuentas) || isset($arr_cuentas[$row['idCuenta']]) ) $array['categorias'][$row['idCategoria']] = $row['categoria'];
+			if( empty($arr_cuentas) || isset($arr_cuentas[$row['idCuenta']]) ) $array['marcas'][$row['idCategoria']][$row['idMarca']] = $row['marca'];
+			if( empty($arr_cuentas) || isset($arr_cuentas[$row['idCuenta']]) ) $array['productos'][$row['idCategoria']][$row['idMarca']][$row['idProducto']] = $row['producto'];
+		}
+		return json_encode($array);
+	}
 
 
 }

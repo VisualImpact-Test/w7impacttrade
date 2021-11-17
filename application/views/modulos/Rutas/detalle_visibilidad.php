@@ -24,9 +24,12 @@
 					<td class="text-center"><?=(!empty($row['presencia']))? 'SI' :'-';?></td>
 					<td class="text-center"><?=(!empty($row['cantidad']))? $row['cantidad']:'-';?></td>
 					<td class="text-center">
-						<?$fotoUrl = site_url("controlFoto/obtener_carpeta_foto/visibilidad/{$row['foto']}")?>
-						<a href="javascript:;" class="lk-foto" data-fotourl="<?=$fotoUrl?>" >
-						<?=($row['foto']!=0)?'<img src="'.$fotoUrl.'" style="width:96px;border: 2px solid #CCC;" />':'-';?></a>
+						<?if(!empty($row['foto'])){?>
+							<?$fotoUrl = site_url("controlFoto/obtener_carpeta_foto/visibilidad/{$row['foto']}")?>
+							<a href="javascript:;" class="lk-foto" data-fotourl="<?=$fotoUrl?>" >
+							<i class="fas fa-camera"></i>
+							</a>
+						<?}else{ echo '-';}?>
 					</td>
 				</tr>
 			<? } ?>

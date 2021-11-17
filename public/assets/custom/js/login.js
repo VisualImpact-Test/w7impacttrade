@@ -45,6 +45,7 @@ var Login={
 								fn[0] = 'Fn.showModal({ id:'+modalId+',show:false });Fn.loadPage("'+b.url+'");';
 								localStorage.setItem('flag_anuncio_visto',b.data.flag_anuncio_visto);
 								localStorage.setItem('modalCuentaProyecto', 0);
+								localStorage.setItem('vi_tv_filtros_ww7',b.data.filtros);
 								
 							}else{
 								fn[0] = 'Fn.showModal({ id:'+modalId+',show:false });grecaptcha.reset();';

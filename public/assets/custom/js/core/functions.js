@@ -713,8 +713,8 @@ var Fn = {
 	selectOption: function(name,filter=[]){
 		var html='';
 
-		if( localStorage.getItem("vi_tv_filtros") !== null ){
-			var objectLocal=$.parseJSON(localStorage.getItem('vi_tv_filtros'));
+		if( localStorage.getItem("vi_tv_filtros_ww7") !== null ){
+			var objectLocal=JSON.parse(localStorage.getItem('vi_tv_filtros_ww7'));
 			switch(name){
 				case 'zona':
 					html+='<option value="" class="label label-success" >Zona (Todo)</option>';

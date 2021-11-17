@@ -9,7 +9,7 @@
 				<th class="text-center align-middle">CHECK</th>
 				<th class="text-center align-middle">FOTO</th>
 
-				<?=getColumnasAdicionales(['idModulo' => 7])['headers_adicionales'];?>
+				<?=$columnasAdicionales['headers_adicionales'];?>
 			</tr>
 		</thead>
 		<tbody>
@@ -32,7 +32,7 @@
 						<a href="javascript:;" class="lk-foto" data-fotoUrl="<?=$fotoUrl?>"  >
 						<?=($row['foto']!=0)?'<img src="'.$fotoUrl.'" style="width:96px;border: 2px solid #CCC;" />':'-';?></a>
 
-						<? foreach(getColumnasAdicionales(['idModulo' => 7])['body_adicionales'] AS $k => $r) {?>
+						<? foreach($columnasAdicionales['body_adicionales'] AS $k => $r) {?>
 							<td class="text-center"><?=verificarEmpty($row[$r], 3)?></td>
 						<? } ?>
 					</td>

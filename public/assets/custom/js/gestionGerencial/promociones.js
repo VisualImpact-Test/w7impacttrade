@@ -29,7 +29,6 @@ var Promociones = {
 			nav.click();
 
 			Fn.loadReporte_validado(config);
-			$('.flt_grupoCanal').change();
 		});
 
 		$(document).on('click', '.card-body > ul > li > a', function (e) {

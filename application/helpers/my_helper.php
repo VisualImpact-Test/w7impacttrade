@@ -1425,6 +1425,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 						, ubi1.provincia AS ciudadDistribuidoraSuc
 						, ubi1.cod_ubigeo AS codUbigeoDisitrito
 						, ds.idDistribuidoraSucursal
+						, z.nombre AS zona
 						';
 					// JOINS para la consulta a base de datos
 					$join .= " LEFT JOIN trade.distribuidoraSucursal ds ON ds.idDistribuidoraSucursal = sctd.idDistribuidoraSucursal ";
@@ -1541,7 +1542,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		$CI = &get_instance();
 		$CI->load->model('M_control', 'm_control');
 
-		$columnas_adicionales_query = $CI->m_control->getColumnasAdicionales(['idModulo' => $params['idModulo']]);
+		$idGrupoCanal = !empty($params['idGrupoCanal']) ? $params['idGrupoCanal'] : '';
+
+		$columnas_adicionales_query = $CI->m_control->getColumnasAdicionales(['idModulo' => $params['idModulo'], 'idGrupoCanal' => $idGrupoCanal]);
 		$columnas_adicionales = '';
 		$headers_adicionales = '';
 		$body_adicionales = [];
@@ -1561,4 +1564,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		}
 
 		return ['columnas_adicionales' => $columnas_adicionales, 'headers_adicionales' => $headers_adicionales, 'body_adicionales' => $body_adicionales];
+	}
+
+	function getGrupoCanalDeVisita($params){
+		$CI = &get_instance();
+		$CI->load->model('M_control', 'm_control');
+
+		$grupoCanal = $CI->m_control->getGrupoCanalDeVisita($params);
+
+		return $grupoCanal['idGrupoCanal'];
 	}
