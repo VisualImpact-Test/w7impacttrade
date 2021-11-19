@@ -9,7 +9,7 @@ class M_tipoCliente extends My_Model
 		parent::__construct();
 
 		$this->tablas = [
-			'elemento' => ['tabla' => 'lsck.tipoCliente', 'id' => 'idTipoCliente'],
+			'elemento' => ['tabla' => "{$this->sessBDCuenta}.lsck.tipoCliente", 'id' => 'idTipoCliente'],
 		
 			
 		];

@@ -69,15 +69,15 @@ class M_auditoria extends MY_Model{
 					END AS ordenTrabajo
 				, vmod.flagCorrecto AS modulacion
 				{$segmentacion['columnas_bd']}
-			FROM trade.data_ruta r
-			JOIN trade.data_visita v ON r.idRuta = v.idRuta
-			LEFT JOIN trade.data_visitaModulacion vmod ON v.idVisita = vmod.idVisita
-			LEFT JOIN trade.data_visitaOrden vord ON v.idVisita = vord.idVisita
+			FROM {$this->sessBDCuenta}.trade.data_ruta r
+			JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta
+			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaModulacion vmod ON v.idVisita = vmod.idVisita
+			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaOrden vord ON v.idVisita = vord.idVisita
 			LEFT JOIN trade.orden ord ON vord.idOrden = ord.idOrden
 			LEFT JOIN trade.orden_estado orde ON vord.idOrdenEstado = orde.idOrdenEstado
 			JOIN trade.canal ca ON ca.idCanal=v.idCanal
 			LEFT JOIN trade.grupoCanal gc ON ca.idGrupoCanal = gc.idGrupoCanal
-			LEFT JOIN trade.data_visitaIncidencia i ON i.idVisita = v.idVisita
+			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaIncidencia i ON i.idVisita = v.idVisita
 			JOIN ".getClienteHistoricoCuenta()." ch ON v.idCliente = ch.idCliente
 			AND r.fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin, r.fecha)
 			AND ch.idProyecto=".$input['idProyecto']."
@@ -154,7 +154,7 @@ class M_auditoria extends MY_Model{
 				, v.frecuencia
 				/* , (
 					SELECT COUNT(vf.idVisitaFoto)
-					FROM trade.data_visitaFotos vf
+					FROM {$this->sessBDCuenta}.trade.data_visitaFotos vf
 					WHERE vf.idVisita = v.idVisita
 				) AS fotos */
 				, '0' fotos
@@ -163,16 +163,16 @@ class M_auditoria extends MY_Model{
 					END AS ordenTrabajo
 				, vmod.flagCorrecto AS modulacion
 				{$segmentacion['columnas_bd']}
-			FROM trade.data_ruta r
-			JOIN trade.data_visita v ON r.idRuta = v.idRuta
-			LEFT JOIN trade.data_visitaVisibilidadObligatorio vo ON vo.idVisita = v.idVisita
-			LEFT JOIN trade.data_visitaModulacion vmod ON v.idVisita = vmod.idVisita
-			LEFT JOIN trade.data_visitaOrden vord ON v.idVisita = vord.idVisita
+			FROM {$this->sessBDCuenta}.trade.data_ruta r
+			JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta
+			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaVisibilidadObligatorio vo ON vo.idVisita = v.idVisita
+			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaModulacion vmod ON v.idVisita = vmod.idVisita
+			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaOrden vord ON v.idVisita = vord.idVisita
 			LEFT JOIN trade.orden ord ON vord.idOrden = ord.idOrden
 			LEFT JOIN trade.orden_estado orde ON vord.idOrdenEstado = orde.idOrdenEstado
 			JOIN trade.canal ca ON ca.idCanal=v.idCanal
 			LEFT JOIN trade.grupoCanal gc ON ca.idGrupoCanal = gc.idGrupoCanal
-			LEFT JOIN trade.data_visitaIncidencia i ON i.idVisita = v.idVisita
+			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaIncidencia i ON i.idVisita = v.idVisita
 			JOIN ".getClienteHistoricoCuenta()." ch ON v.idCliente = ch.idCliente
 			AND r.fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin, r.fecha)
 			AND ch.idProyecto=".$input['idProyecto']."
@@ -224,7 +224,7 @@ class M_auditoria extends MY_Model{
 					, v.frecuencia
 					/* , (
 						SELECT COUNT(vf.idVisitaFoto)
-						FROM trade.data_visitaFotos vf
+						FROM {$this->sessBDCuenta}.trade.data_visitaFotos vf
 						WHERE vf.idVisita = v.idVisita
 					) AS fotos */
 					, '0' fotos
@@ -233,16 +233,16 @@ class M_auditoria extends MY_Model{
 						END AS ordenTrabajo
 					, vmod.flagCorrecto AS modulacion
 					{$segmentacion['columnas_bd']}
-				FROM trade.data_ruta r
-				JOIN trade.data_visita v ON r.idRuta = v.idRuta
-				LEFT JOIN trade.data_visitaVisibilidadAdicional vo ON vo.idVisita = v.idVisita
-				LEFT JOIN trade.data_visitaModulacion vmod ON v.idVisita = vmod.idVisita
-				LEFT JOIN trade.data_visitaOrden vord ON v.idVisita = vord.idVisita
+				FROM {$this->sessBDCuenta}.trade.data_ruta r
+				JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta
+				LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaVisibilidadAdicional vo ON vo.idVisita = v.idVisita
+				LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaModulacion vmod ON v.idVisita = vmod.idVisita
+				LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaOrden vord ON v.idVisita = vord.idVisita
 				LEFT JOIN trade.orden ord ON vord.idOrden = ord.idOrden
 				LEFT JOIN trade.orden_estado orde ON vord.idOrdenEstado = orde.idOrdenEstado
 				JOIN trade.canal ca ON ca.idCanal = v.idCanal
 				LEFT JOIN trade.grupoCanal gc ON ca.idGrupoCanal = gc.idGrupoCanal
-				LEFT JOIN trade.data_visitaIncidencia i ON i.idVisita = v.idVisita
+				LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaIncidencia i ON i.idVisita = v.idVisita
 				JOIN ".getClienteHistoricoCuenta()." ch ON ch.idCliente = v.idCliente
 					AND r.fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin, r.fecha)
 					AND ch.idProyecto=".$input['idProyecto']."
@@ -291,7 +291,7 @@ class M_auditoria extends MY_Model{
 					, v.frecuencia
 					/* , (
 						SELECT COUNT(vf.idVisitaFoto)
-						FROM trade.data_visitaFotos vf
+						FROM {$this->sessBDCuenta}.trade.data_visitaFotos vf
 						WHERE vf.idVisita = v.idVisita
 					) AS fotos */
 					, '0' fotos
@@ -300,16 +300,16 @@ class M_auditoria extends MY_Model{
 						END AS ordenTrabajo
 					, vmod.flagCorrecto AS modulacion
 					{$segmentacion['columnas_bd']}
-				FROM trade.data_ruta r
-				JOIN trade.data_visita v ON r.idRuta = v.idRuta
-				LEFT JOIN trade.data_visitaVisibilidadIniciativa vo ON vo.idVisita = v.idVisita
-				LEFT JOIN trade.data_visitaModulacion vmod ON v.idVisita = vmod.idVisita
-				LEFT JOIN trade.data_visitaOrden vord ON v.idVisita = vord.idVisita
+				FROM {$this->sessBDCuenta}.trade.data_ruta r
+				JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta
+				LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaVisibilidadIniciativa vo ON vo.idVisita = v.idVisita
+				LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaModulacion vmod ON v.idVisita = vmod.idVisita
+				LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaOrden vord ON v.idVisita = vord.idVisita
 				LEFT JOIN trade.orden ord ON vord.idOrden = ord.idOrden
 				LEFT JOIN trade.orden_estado orde ON vord.idOrdenEstado = orde.idOrdenEstado
 				JOIN trade.canal ca ON ca.idCanal = v.idCanal
 				LEFT JOIN trade.grupoCanal gc ON ca.idGrupoCanal = gc.idGrupoCanal
-				LEFT JOIN trade.data_visitaIncidencia i ON i.idVisita = v.idVisita
+				LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaIncidencia i ON i.idVisita = v.idVisita
 				JOIN ".getClienteHistoricoCuenta()." ch ON ch.idCliente = v.idCliente
 					AND r.fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin, r.fecha) 
 					AND ch.idProyecto=".$input['idProyecto']."
@@ -333,11 +333,11 @@ class M_auditoria extends MY_Model{
 			SELECT
 				ct.idClienteTipo,
 				ct.nombre
-			FROM ImpactTrade_bd.trade.cliente_tipo ct
-			JOIN ImpactTrade_bd.trade.canal ca ON ct.idCanal = ca.idCanal
-			JOIN ImpactTrade_bd.trade.grupoCanal gca ON ca.idGrupoCanal = gca.idGrupoCanal
-			JOIN ImpactTrade_bd.trade.proyectoGrupoCanal pygca ON gca.idGrupoCanal = pygca.idGrupoCanal
-			JOIN ImpactTrade_bd.trade.proyecto py ON pygca.idProyecto = py.idProyecto
+			FROM trade.cliente_tipo ct
+			JOIN trade.canal ca ON ct.idCanal = ca.idCanal
+			JOIN trade.grupoCanal gca ON ca.idGrupoCanal = gca.idGrupoCanal
+			JOIN trade.proyectoGrupoCanal pygca ON gca.idGrupoCanal = pygca.idGrupoCanal
+			JOIN trade.proyecto py ON pygca.idProyecto = py.idProyecto
 			WHERE py.idCuenta = {$input['idCuenta']}
 			AND py.idProyecto = {$input['idProyecto']}
 		";
@@ -359,8 +359,8 @@ class M_auditoria extends MY_Model{
 				--lo.idListVisibilidadObl,
 				ele.idElementoVis,
 				ele.nombre
-			FROM trade.list_visibilidadTradObl lo
-			JOIN trade.list_visibilidadTradOblDet lod ON lo.idListVisibilidadObl = lod.idListVisibilidadObl
+			FROM {$this->sessBDCuenta}.trade.list_visibilidadTradObl lo
+			JOIN {$this->sessBDCuenta}.trade.list_visibilidadTradOblDet lod ON lo.idListVisibilidadObl = lod.idListVisibilidadObl
 			JOIN trade.elementoVisibilidadTrad ele ON lod.idElementoVis = ele.idElementoVis
 			JOIN trade.proyecto py ON lo.idProyecto = py.idProyecto
 			WHERE fn.datesBetween(lo.fecIni, lo.fecFin, @fecIni, @fecFin) = 1 
@@ -385,9 +385,9 @@ class M_auditoria extends MY_Model{
 				,evt.idElementoVis
 				, evt.nombre
 				from 
-				trade.list_visibilidadTradObl vo
+				{$this->sessBDCuenta}.trade.list_visibilidadTradObl vo
 				JOIN trade.proyecto py ON py.idProyecto=vo.idProyecto
-				JOIN trade.list_visibilidadTradOblDet vod
+				JOIN {$this->sessBDCuenta}.trade.list_visibilidadTradOblDet vod
 					ON vod.idListVisibilidadObl = vo.idListVisibilidadObl
 				JOIN trade.elementoVisibilidadTrad evt
 					ON evt.idElementoVis = vod.idElementoVis
@@ -432,8 +432,8 @@ class M_auditoria extends MY_Model{
 				--la.idListVisibilidadAdc,
 				ele.idElementoVis,
 				ele.nombre
-			FROM trade.list_visibilidadTradAdc la
-			JOIN trade.list_visibilidadTradAdcDet lad ON la.idListVisibilidadAdc = lad.idListVisibilidadAdc
+			FROM {$this->sessBDCuenta}.trade.list_visibilidadTradAdc la
+			JOIN {$this->sessBDCuenta}.trade.list_visibilidadTradAdcDet lad ON la.idListVisibilidadAdc = lad.idListVisibilidadAdc
 			JOIN trade.elementoVisibilidadTrad ele ON lad.idElementoVis = ele.idElementoVis
 			JOIN trade.proyecto py ON py.idProyecto = la.idProyecto
 			WHERE fn.datesBetween(la.fecIni, la.fecFin, @fecIni, @fecFin) = 1
@@ -457,10 +457,10 @@ class M_auditoria extends MY_Model{
 				--li.idListIniciativaTrad,
 				ele.idElementoVis,
 				ini.nombre + '<br>' + ele.nombre AS nombre
-			FROM trade.list_iniciativaTrad li
-			JOIN trade.list_iniciativaTradDet lid ON li.idListIniciativaTrad = lid.idListIniciativaTrad
-			JOIN trade.list_iniciativaTradDetElemento lide ON lid.idListIniciativaTradDet = lide.idListIniciativaTradDet
-			JOIN trade.iniciativaTrad ini ON lid.idIniciativa = ini.idIniciativa
+			FROM {$this->sessBDCuenta}.trade.list_iniciativaTrad li
+			JOIN {$this->sessBDCuenta}.trade.list_iniciativaTradDet lid ON li.idListIniciativaTrad = lid.idListIniciativaTrad
+			JOIN {$this->sessBDCuenta}.trade.list_iniciativaTradDetElemento lide ON lid.idListIniciativaTradDet = lide.idListIniciativaTradDet
+			JOIN {$this->sessBDCuenta}.trade.iniciativaTrad ini ON lid.idIniciativa = ini.idIniciativa
 			JOIN trade.elementoVisibilidadTrad ele ON lide.idElementoVis = ele.idElementoVis
 			JOIN trade.proyecto py ON li.idProyecto = py.idProyecto
 			WHERE fn.datesBetween(li.fecIni, li.fecFin, @fecIni, @fecFin) = 1
@@ -495,15 +495,15 @@ class M_auditoria extends MY_Model{
 				,vod.idVisitaFoto
 				,vf.fotoUrl
 				, CASE WHEN listD.idElementoVis IS NOT NULL THEN 1 ELSE 0 END modulado
-			FROM trade.data_ruta r
-			JOIN trade.data_visita v ON r.idRuta = v.idRuta	
-			JOIN trade.data_visitaVisibilidadObligatorio vo ON vo.idVisita = v.idVisita
-			JOIN trade.data_visitaVisibilidadObligatorioDet vod ON vod.idVisitaVisibilidad = vo.idVisitaVisibilidad
+			FROM {$this->sessBDCuenta}.trade.data_ruta r
+			JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta	
+			JOIN {$this->sessBDCuenta}.trade.data_visitaVisibilidadObligatorio vo ON vo.idVisita = v.idVisita
+			JOIN {$this->sessBDCuenta}.trade.data_visitaVisibilidadObligatorioDet vod ON vod.idVisitaVisibilidad = vo.idVisitaVisibilidad
 			JOIN trade.variableVisibilidad vv ON vv.idVariable = vod.idVariable
 			LEFT JOIN trade.observacionElementoVisibilidadObligatorio o ON o.idObservacion = vod.idObservacion
-			LEFT JOIN trade.data_visitaFotos vf ON vf.idVisitaFoto = vod.idVisitaFoto
-			JOIN trade.list_visibilidadTradObl list ON list.idListVisibilidadObl = v.idListVisibilidadTradObl
-			LEFT JOIN trade.list_visibilidadTradOblDet listD ON listD.idListVisibilidadObl = list.idListVisibilidadObl
+			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisitaFoto = vod.idVisitaFoto
+			JOIN {$this->sessBDCuenta}.trade.list_visibilidadTradObl list ON list.idListVisibilidadObl = v.idListVisibilidadTradObl
+			LEFT JOIN {$this->sessBDCuenta}.trade.list_visibilidadTradOblDet listD ON listD.idListVisibilidadObl = list.idListVisibilidadObl
 			WHERE r.fecha BETWEEN @fecIni AND @fecFin --AND r.idTipoUsuario = 4
 			AND r.estado = 1 AND v.estado = 1{$filtros}
 		";
@@ -530,18 +530,18 @@ class M_auditoria extends MY_Model{
 				vod.idElementoVis,
 				vod.presencia,
 				vod.cant
-			FROM trade.data_ruta r
-			JOIN trade.data_visita v ON r.idRuta = v.idRuta
+			FROM {$this->sessBDCuenta}.trade.data_ruta r
+			JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta
 		";
 
 		if( $input['visibFormato'] == 2 ) // FORMATO EO
 		$sql .= "
-			JOIN trade.data_visitaVisibilidadObligatorio vob ON v.idVisita = vob.idVisita
+			JOIN {$this->sessBDCuenta}.trade.data_visitaVisibilidadObligatorio vob ON v.idVisita = vob.idVisita
 		";
 
 		$sql .= "
-			JOIN trade.data_visitaVisibilidadAdicional vo ON vo.idVisita = v.idVisita
-			JOIN trade.data_visitaVisibilidadAdicionalDet vod ON vod.idVisitaVisibilidad = vo.idVisitaVisibilidad
+			JOIN {$this->sessBDCuenta}.trade.data_visitaVisibilidadAdicional vo ON vo.idVisita = v.idVisita
+			JOIN {$this->sessBDCuenta}.trade.data_visitaVisibilidadAdicionalDet vod ON vod.idVisitaVisibilidad = vo.idVisitaVisibilidad
 			WHERE r.fecha BETWEEN @fecIni AND @fecFin --AND r.idTipoUsuario=4
 			AND r.estado = 1 AND v.estado = 1{$filtros}
 		";
@@ -566,18 +566,18 @@ class M_auditoria extends MY_Model{
 				vo.porcentaje,
 				vod.idElementoVis,
 				vod.presencia
-			FROM trade.data_ruta r
-			JOIN trade.data_visita v ON r.idRuta = v.idRuta
+			FROM {$this->sessBDCuenta}.trade.data_ruta r
+			JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta
 		";
 
 		if( $input['visibFormato'] == 2 ) // FORMATO EO
 		$sql .= "
-			JOIN trade.data_visitaVisibilidadObligatorio vob ON v.idVisita = vob.idVisita
+			JOIN {$this->sessBDCuenta}.trade.data_visitaVisibilidadObligatorio vob ON v.idVisita = vob.idVisita
 		";
 
 		$sql .= "
-			JOIN trade.data_visitaVisibilidadIniciativa vo ON vo.idVisita = v.idVisita
-			JOIN trade.data_visitaVisibilidadIniciativaDet vod ON vod.idVisitaVisibilidad = vo.idVisitaVisibilidad
+			JOIN {$this->sessBDCuenta}.trade.data_visitaVisibilidadIniciativa vo ON vo.idVisita = v.idVisita
+			JOIN {$this->sessBDCuenta}.trade.data_visitaVisibilidadIniciativaDet vod ON vod.idVisitaVisibilidad = vo.idVisitaVisibilidad
 			WHERE r.fecha BETWEEN @fecIni AND @fecFin --AND r.idTipoUsuario = 4
 			AND r.estado = 1 AND v.estado = 1{$filtros}
 		";
@@ -639,16 +639,16 @@ class M_auditoria extends MY_Model{
 			, ISNULL(oeo.descripcion,'-') observacion
 			{$segmentacion['columnas_bd']}
 		FROM
-			trade.data_visita v
-			JOIN trade.data_visitaVisibilidadIniciativa vo
+			{$this->sessBDCuenta}.trade.data_visita v
+			JOIN {$this->sessBDCuenta}.trade.data_visitaVisibilidadIniciativa vo
 				ON vo.idVisita = v.idVisita
 			JOIN trade.canal ca 
 				ON ca.idCanal=v.idCanal
 			LEFT JOIN trade.grupoCanal gc 
 				ON ca.idGrupoCanal=gc.idGrupoCanal
-			LEFT JOIN trade.data_visitaIncidencia i
+			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaIncidencia i
 				ON i.idVisita = v.idVisita
-			JOIN trade.data_ruta r
+			JOIN {$this->sessBDCuenta}.trade.data_ruta r
 				ON r.idRuta = v.idRuta
 				--AND r.idTipoUsuario=4 
 				and r.demo=0
@@ -674,9 +674,9 @@ class M_auditoria extends MY_Model{
 			--	ON ub.cod_ubigeo = ds.cod_ubigeo
 			LEFT JOIN General.dbo.ubigeo ub1
 				ON ub1.cod_ubigeo = c.cod_ubigeo
-			JOIN trade.data_visitaVisibilidadObligatorio vvt
+			JOIN {$this->sessBDCuenta}.trade.data_visitaVisibilidadObligatorio vvt
 				ON vvt.idVisita = v.idVisita
-			JOIN trade.data_visitaVisibilidadObligatorioDet vvtd
+			JOIN {$this->sessBDCuenta}.trade.data_visitaVisibilidadObligatorioDet vvtd
 				ON vvtd.idVisitaVisibilidad = vvt.idVisitaVisibilidad
 			JOIN trade.elementoVisibilidadTrad evt
 				ON evt.idElementoVis = vvtd.idElementoVis
@@ -713,9 +713,9 @@ class M_auditoria extends MY_Model{
 		v.idVisita
 		,vvo.porcentajePM
 		FROM
-		trade.data_ruta r
-		JOIN trade.data_visita v ON r.idRuta = v.idRuta
-		JOIN trade.data_visitaVisibilidadObligatorio vvo ON vvo.idVisita = v.idVisita
+		{$this->sessBDCuenta}.trade.data_ruta r
+		JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta
+		JOIN {$this->sessBDCuenta}.trade.data_visitaVisibilidadObligatorio vvo ON vvo.idVisita = v.idVisita
 		LEFT JOIN trade.canal c ON v.idCanal = c.idCanal
 		LEFT JOIN trade.grupoCanal gc ON c.idGrupoCanal = gc.idGrupoCanal
 		WHERE 
@@ -729,9 +729,9 @@ class M_auditoria extends MY_Model{
 	public function elementos_visita(){
 		$sql = "
 		SELECT
-		JOIN trade.data_visitaVisibilidadObligatorio vvt
+		JOIN {$this->sessBDCuenta}.trade.data_visitaVisibilidadObligatorio vvt
 		ON vvt.idVisita = v.idVisita
-		JOIN trade.data_visitaVisibilidadObligatorioDet vvtd
+		JOIN {$this->sessBDCuenta}.trade.data_visitaVisibilidadObligatorioDet vvtd
 			ON vvtd.idVisitaVisibilidad = vvt.idVisitaVisibilidad
 		JOIN trade.elementoVisibilidadTrad evt
 			ON evt.idElementoVis = vvtd.idElementoVis
@@ -768,9 +768,9 @@ class M_auditoria extends MY_Model{
 			(vv.porcentaje*100/100) as porcentajeCliente,
 			((vv.porcentajeV*80/100)+(vv.porcentajePM*20/100)) as porcentajeGTM
 		FROM 
-			trade.data_ruta r
-			JOIN trade.data_visita v ON r.idRuta=v.idRuta
-			JOIN trade.data_visitaVisibilidadObligatorio vv ON v.idVisita=vv.idVisita
+			{$this->sessBDCuenta}.trade.data_ruta r
+			JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta=v.idRuta
+			JOIN {$this->sessBDCuenta}.trade.data_visitaVisibilidadObligatorio vv ON v.idVisita=vv.idVisita
 		WHERE 
 		r.fecha between @fecIni and @fecFin
 		and r.estado='1' and r.demo = '0'and v.estado='1'
@@ -828,14 +828,14 @@ class M_auditoria extends MY_Model{
 			, sum(case when (v.estado =1 )  then isnull(convert(tinyint,v.estadoIncidencia),0) else 0 end ) over(partition by v.idCliente) 'cantIncidencias'
 
 		FROM
-			trade.data_visita v
-			JOIN trade.data_visitaVisibilidadIniciativa vo
+			{$this->sessBDCuenta}.trade.data_visita v
+			JOIN {$this->sessBDCuenta}.trade.data_visitaVisibilidadIniciativa vo
 				ON vo.idVisita = v.idVisita
 			JOIN trade.canal ca 
 				ON ca.idCanal=v.idCanal
 			LEFT JOIN trade.grupoCanal gc
 				ON ca.idGrupoCanal=gc.idGrupoCanal
-			JOIN trade.data_ruta r
+			JOIN {$this->sessBDCuenta}.trade.data_ruta r
 				ON r.idRuta = v.idRuta
 				--AND r.idTipoUsuario=4 
 				and r.demo=0
@@ -882,8 +882,8 @@ class M_auditoria extends MY_Model{
 				e.idElementoVis,
 				e.nombre,
 				vmodd.flagCorrecto
-			FROM trade.data_visitaModulacion vmod
-			JOIN trade.data_visitaModulacionDet vmodd ON vmod.idVisitaModulacion = vmodd.idVisitaModulacion
+			FROM {$this->sessBDCuenta}.trade.data_visitaModulacion vmod
+			JOIN {$this->sessBDCuenta}.trade.data_visitaModulacionDet vmodd ON vmod.idVisitaModulacion = vmodd.idVisitaModulacion
 			JOIN trade.elementoVisibilidadTrad e ON vmodd.idElementoVis = e.idElementoVis
 			WHERE vmod.idVisita = {$input['idVisita']}
 			ORDER BY e.nombre
@@ -909,11 +909,11 @@ class M_auditoria extends MY_Model{
 			ubi.distrito AS distrito,
 			dis.nombre AS distribuidora
 		FROM 
-		trade.data_ruta r
-		JOIN trade.data_visita v ON r.idRuta = v.idRuta
+		{$this->sessBDCuenta}.trade.data_ruta r
+		JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta
 		JOIN trade.canal c ON v.idCanal = c.idCanal
 		JOIN trade.grupoCanal gc ON c.idGrupoCanal = gc.idGrupoCanal
-		JOIN trade.data_visitaDet vd on v.idVisita = vd.idVisita
+		JOIN {$this->sessBDCuenta}.trade.data_visitaDet vd on v.idVisita = vd.idVisita
 		JOIN trade.distribuidoraSucursal ds on vd.idDistribuidoraSucursal = ds.idDistribuidoraSucursal
 		JOIN trade.distribuidora dis on ds.idDistribuidora = dis.idDistribuidora
 		JOIN General.dbo.ubigeo ubi ON ds.cod_ubigeo = ubi.cod_ubigeo
@@ -945,8 +945,8 @@ class M_auditoria extends MY_Model{
 				, r.nombreUsuario
 				, r.idUsuario
 			FROM 
-				trade.data_ruta r
-				JOIN trade.data_visita v 
+				{$this->sessBDCuenta}.trade.data_ruta r
+				JOIN {$this->sessBDCuenta}.trade.data_visita v 
 					ON r.idRuta=v.idRuta 
 				LEFT JOIN trade.usuario_tipo ut
 					ON r.idTipoUsuario = ut.idTipoUsuario
@@ -1002,11 +1002,11 @@ class M_auditoria extends MY_Model{
 			WITH distribuidorasSucursales AS (
 				SELECT DISTINCT
 					vd.idDistribuidoraSucursal
-				FROM trade.data_ruta r
-				JOIN trade.data_visita v ON v.idRuta = r.idRuta
+				FROM {$this->sessBDCuenta}.trade.data_ruta r
+				JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta = r.idRuta
 				JOIN trade.canal c ON v.idCanal = c.idCanal
 				JOIN trade.grupoCanal gc ON c.idGrupoCanal = gc.idGrupoCanal
-				JOIN trade.data_visitaDet vd ON v.idVisita = vd.idVisita
+				JOIN {$this->sessBDCuenta}.trade.data_visitaDet vd ON v.idVisita = vd.idVisita
 				LEFT JOIN ".getClienteHistoricoCuenta()." ch ON v.idCliente = ch.idCliente
 				LEFT JOIN trade.segmentacionNegocio sn ON ch.idSegNegocio = sn.idSegNegocio
 				JOIN trade.distribuidoraSucursal ds ON vd.idDistribuidoraSucursal = ds.idDistribuidoraSucursal
@@ -1083,11 +1083,11 @@ class M_auditoria extends MY_Model{
 					vd.idDistribuidoraSucursal
 					, v.idCanal
 					, v.idCliente
-				FROM trade.data_ruta r
-				JOIN trade.data_visita v ON v.idRuta = r.idRuta
+				FROM {$this->sessBDCuenta}.trade.data_ruta r
+				JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta = r.idRuta
 				JOIN trade.canal c ON v.idCanal = c.idCanal
 				JOIN trade.grupoCanal gc ON c.idGrupoCanal = gc.idGrupoCanal
-				JOIN trade.data_visitaDet vd ON v.idVisita = vd.idVisita
+				JOIN {$this->sessBDCuenta}.trade.data_visitaDet vd ON v.idVisita = vd.idVisita
 				LEFT JOIN ".getClienteHistoricoCuenta()." ch ON v.idCliente = ch.idCliente
 				LEFT JOIN trade.segmentacionNegocio sn ON ch.idSegNegocio = sn.idSegNegocio
 				JOIN trade.distribuidoraSucursal ds ON vd.idDistribuidoraSucursal = ds.idDistribuidoraSucursal
@@ -1182,8 +1182,8 @@ class M_auditoria extends MY_Model{
         SUM(CASE WHEN v.horaIni is not null and v.horaFin is not null and (v.estadoIncidencia=0 or v.estadoIncidencia is null) THEN 1 ELSE 0 END) over (partition by r.idUsuario) as vEfecTotalEmpleado,
         SUM(CASE WHEN v.horaIni is not null and v.horaFin is not null and (v.estadoIncidencia=0 or v.estadoIncidencia is null) THEN 1 ELSE 0 END) over (partition by r.fecha) as vEfecTotalFecha
       FROM 
-        trade.data_ruta r
-        JOIN trade.data_visita v ON r.idRuta=v.idRuta
+        {$this->sessBDCuenta}.trade.data_ruta r
+        JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta=v.idRuta
 		LEFT JOIN trade.canal c ON v.idCanal = c.idCanal
 		LEFT JOIN trade.grupoCanal gc ON c.idGrupoCanal = gc.idGrupoCanal
       WHERE 
@@ -1215,11 +1215,11 @@ class M_auditoria extends MY_Model{
 			, cl.codDist AS codRD
 			, ch.razonSocial
 			, ch.direccion
-		FROM trade.data_ruta r
-		JOIN trade.data_visita v ON v.idRuta = r.idRuta
+		FROM {$this->sessBDCuenta}.trade.data_ruta r
+		JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta = r.idRuta
 		JOIN trade.canal c ON v.idCanal = c.idCanal
 		JOIN trade.grupoCanal gc ON c.idGrupoCanal = gc.idGrupoCanal
-		JOIN trade.data_visitaDet vd ON v.idVisita = vd.idVisita
+		JOIN {$this->sessBDCuenta}.trade.data_visitaDet vd ON v.idVisita = vd.idVisita
 		LEFT JOIN trade.cliente cl ON v.idCliente = cl.idCliente
 		LEFT JOIN ".getClienteHistoricoCuenta()." ch ON v.idCliente = ch.idCliente
 		LEFT JOIN trade.segmentacionNegocio sn ON ch.idSegNegocio = sn.idSegNegocio
@@ -1259,9 +1259,9 @@ class M_auditoria extends MY_Model{
 			DECLARE @fecIni Date = '".$input['fecIni']."', @fecFin DATE = '".$input['fecFin']."';
 			
 			SELECT DISTINCT v.idVisita,COUNT(vf.idVisitaFoto)OVER (PARTITION BY v.idVisita ) totalFotos
-			FROM trade.data_ruta r
-			JOIN trade.data_visita v ON r.idRuta = v.idRuta	
-			JOIN trade.data_visitaFotos vf ON vf.idVisita=v.idVisita
+			FROM {$this->sessBDCuenta}.trade.data_ruta r
+			JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta	
+			JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisita=v.idVisita
 			WHERE 
 				 r.fecha BETWEEN @fecIni AND @fecFin
 		";

@@ -65,13 +65,13 @@ class M_surtido extends MY_Model{
 				, gc.nombre grupoCanal
 				, subca.nombre subCanal
 				{$segmentacion['columnas_bd']}
-			FROM trade.data_ruta r
-			JOIN trade.data_visita v ON v.idRuta=r.idRuta
+			FROM {$this->sessBDCuenta}.trade.data_ruta r
+			JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
 			JOIN trade.usuario_historico uh On uh.idUsuario=r.idUsuario
 				and General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,@fecIni,@fecFin)=1
 				and uh.idProyecto=r.idProyecto
 
-			JOIN trade.data_visitaSurtido dvv ON dvv.idVisita=v.idVisita
+			JOIN {$this->sessBDCuenta}.trade.data_visitaSurtido dvv ON dvv.idVisita=v.idVisita
 			JOIN trade.cuenta cu ON cu.idCuenta=r.idCuenta
 			JOIN trade.canal ca ON ca.idCanal=v.idCanal
 			JOIN trade.grupoCanal gc ON gc.idGrupoCanal = ca.idGrupoCanal
@@ -141,15 +141,15 @@ class M_surtido extends MY_Model{
 			, dvd.presencia
 			, vf.fotoUrl 'foto'
 			, dvd.observacion 
-            FROM trade.data_ruta r
-            JOIN trade.data_visita v ON v.idRuta=r.idRuta
+            FROM {$this->sessBDCuenta}.trade.data_ruta r
+            JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
             JOIN trade.cuenta cu ON cu.idCuenta=r.idCuenta
             JOIN trade.canal ca ON ca.idCanal=v.idCanal
-            JOIN trade.data_visitaSurtido dvv ON dvv.idVisita=v.idVisita
-            JOIN trade.data_visitaSurtidoDet dvd ON dvd.idVisitaSurtido=dvv.idVisitaSurtido
+            JOIN {$this->sessBDCuenta}.trade.data_visitaSurtido dvv ON dvv.idVisita=v.idVisita
+            JOIN {$this->sessBDCuenta}.trade.data_visitaSurtidoDet dvd ON dvd.idVisitaSurtido=dvv.idVisitaSurtido
             JOIN trade.producto ele ON ele.idProducto=dvd.idProducto
             JOIN trade.producto_categoria pc ON pc.idCategoria=ele.idCategoria
-            LEFT JOIN trade.data_visitaFotos vf ON vf.idVisitaFoto=dvd.idVisitaFoto
+            LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisitaFoto=dvd.idVisitaFoto
             WHERE r.fecha BETWEEN @fecIni AND @fecFin
             AND r.estado = 1 AND v.estado = 1{$filtros}
 		";
@@ -189,11 +189,11 @@ class M_surtido extends MY_Model{
 			SELECT DISTINCT 
 				v.idVisita 
 				, lstd.idProducto
-			FROM trade.data_ruta r
-			JOIN trade.data_visita v ON v.idRuta=r.idRuta
-			JOIN trade.data_visitaSurtido vi ON vi.idVisita=v.idVisita
-			JOIN trade.list_surtido lst ON lst.idListSurtido=v.idListSurtido
-			JOIN trade.list_surtidoDet lstd ON lstd.idListSurtido=lst.idListSurtido
+			FROM {$this->sessBDCuenta}.trade.data_ruta r
+			JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
+			JOIN {$this->sessBDCuenta}.trade.data_visitaSurtido vi ON vi.idVisita=v.idVisita
+			JOIN {$this->sessBDCuenta}.trade.list_surtido lst ON lst.idListSurtido=v.idListSurtido
+			JOIN {$this->sessBDCuenta}.trade.list_surtidoDet lstd ON lstd.idListSurtido=lst.idListSurtido
 	
 			JOIN trade.cuenta cu ON cu.idCuenta=r.idCuenta
 			JOIN trade.canal ca ON ca.idCanal=v.idCanal
@@ -218,7 +218,7 @@ class M_surtido extends MY_Model{
 				, CONVERT(VARCHAR(8),vf.hora)hora
 				, vf.fotoUrl foto
 			FROM 
-				trade.data_visitaFotos vf
+				{$this->sessBDCuenta}.trade.data_visitaFotos vf
 				JOIN trade.aplicacion_modulo m ON vf.idModulo = m.idModulo
 			WHERE 
 				idVisita = $idVisita";

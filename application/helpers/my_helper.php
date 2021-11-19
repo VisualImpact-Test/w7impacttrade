@@ -1363,16 +1363,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		$ci = &get_instance();
 		$idCuenta = $ci->sessIdCuenta;
 
-		$retorno = "trade.cliente_historico";
-		if ($idCuenta == "3") {
-			$retorno = "trade.cliente_historico_pg";
-		};
-		if ($idCuenta == "13") {
-			$retorno = "trade.cliente_historico_visualimpact";
-		};
-		if ($idCuenta == "2") {
-			$retorno = "trade.cliente_historico_aje";
-		};
+		$retorno = "{$ci->sessBDCuenta}.trade.cliente_historico";
+		// if ($idCuenta == "3") {
+		// 	$retorno = "{$ci->sessBDCuenta}.trade.cliente_historico";
+		// };
+		// if ($idCuenta == "13") {
+		// 	$retorno = "{$ci->sessBDCuenta}.trade.cliente_historico";
+		// };
+		// if ($idCuenta == "2") {
+		// 	$retorno = "{$ci->sessBDCuenta}.trade.cliente_historico";
+		// };
 
 		return $retorno;
 	}

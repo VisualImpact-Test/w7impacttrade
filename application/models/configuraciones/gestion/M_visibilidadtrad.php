@@ -12,8 +12,8 @@ class M_visibilidadtrad extends My_Model
 
 		$this->tablas = [
 			'elemento' => ['tabla' => 'trade.elementoVisibilidadTrad', 'id' => 'idElementoVis'],
-			'lista' => ['tabla' => 'trade.list_visibilidadTrad', 'id' => 'idListVisibilidad'],
-			'listaDet' => ['tabla'=>'trade.list_visibilidadTradDet','id'=>'idListVisibilidadDet'],
+			'lista' => ['tabla' => "{$this->sessBDCuenta}.trade.list_visibilidadTrad", 'id' => 'idListVisibilidad'],
+			'listaDet' => ['tabla'=>"{$this->sessBDCuenta}.trade.list_visibilidadTradDet",'id'=>'idListVisibilidadDet'],
 			'tipoElemento' => ['tabla'=>'trade.tipoElementoVisibilidadTrad','id'=>'idTipoElementoVis'],
 		
 			
@@ -477,15 +477,15 @@ class M_visibilidadtrad extends My_Model
 			,ca.nombre
 			,ch.idCuenta
 		FROM 
-			ImpactTrade_bd.trade.cliente_historico ch
-			JOIN ImpactTrade_bd.trade.segmentacionNegocio sn
+			{$this->sessBDCuenta}.trade.cliente_historico ch
+			JOIN trade.segmentacionNegocio sn
 				ON sn.idSegNegocio = ch.idSegNegocio
-			JOIN ImpactTrade_bd.trade.canal ca
+			JOIN trade.canal ca
 				ON ca.idCanal=sn.idCanal 
 		{$filtros}
 		";
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.cliente_historico' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.cliente_historico" ];
 		return $this->db->query($sql);
 	}
 
@@ -523,7 +523,7 @@ class M_visibilidadtrad extends My_Model
 			c.idCliente
 			,c.razonSocial
 		FROM trade.cliente c
-		JOIN trade.cliente_historico ch ON c.idCliente = ch.idCliente
+		JOIN {$this->sessBDCuenta}.trade.cliente_historico ch ON c.idCliente = ch.idCliente
 		JOIN trade.segmentacionNegocio seg ON ch.idSegNegocio = seg.idSegNegocio
 		WHERE 1=1 {$filtro}";
 

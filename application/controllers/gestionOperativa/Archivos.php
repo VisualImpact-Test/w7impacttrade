@@ -161,14 +161,14 @@ class Archivos extends MY_Controller
 
 		$nombreRegistrado = trim($post['nombreRegistrado']);
 		$idCategoria = $post['idCategoria'];
-		$tabla = 'trade.gestorArchivos_archivo';
+		$tabla = "{$this->sessBDCuenta}.trade.gestorArchivos_archivo";
 		$idUsuarioCreador = $this->idUsuario;
 		$ip = $this->ip = getIp();
 		$fechaHoraDeSubida = getActualDateTime();
 
 		$carpeta = $this->carpetaArchivos;
 
-		$tabla = "trade.gestorArchivos_archivo";
+		$tabla = "{$this->sessBDCuenta}.trade.gestorArchivos_archivo";
 		$filtros = " AND idCarpeta = " . $idCategoria;
 		$filtros .= " AND nombre = '" . $nombreRegistrado . "'";
 		$filtros .= " AND eliminado = 0";
@@ -330,7 +330,7 @@ class Archivos extends MY_Controller
 		$size = $post['size'];
 		$idGrupo = $post['idGrupo'];
 
-		$tabla = "trade.gestorArchivos_archivo";
+		$tabla = "{$this->sessBDCuenta}.trade.gestorArchivos_archivo";
 		$filtros = " AND idCarpeta = " . $idCategoria;
 		$filtros .= " AND nombre = '" . $nombreRegistrado . "'";
 		$filtros .= " AND eliminado = 0";

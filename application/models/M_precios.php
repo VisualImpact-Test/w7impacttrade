@@ -99,16 +99,16 @@ class M_precios extends CI_Model{
 					p.unidadPack,
 					p.formato,
 					v.banner
-				FROM trade.data_ruta r
-				JOIN trade.data_visita v ON v.idRuta=r.idRuta
-				JOIN trade.data_visitaPrecios dvp ON dvp.idVisita=v.idVisita
-				JOIN trade.data_visitaPreciosDet dvpd ON dvpd.idVisitaPrecios=dvp.idVisitaPrecios AND dvpd.precio IS NOT NULL
+				FROM {$this->sessBDCuenta}.trade.data_ruta r
+				JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
+				JOIN {$this->sessBDCuenta}.trade.data_visitaPrecios dvp ON dvp.idVisita=v.idVisita
+				JOIN {$this->sessBDCuenta}.trade.data_visitaPreciosDet dvpd ON dvpd.idVisitaPrecios=dvp.idVisitaPrecios AND dvpd.precio IS NOT NULL
 				JOIN w_producto p ON dvpd.idProducto = p.idProducto
 				JOIN trade.canal cn ON cn.idCanal=v.idCanal
 				JOIN trade.cliente c ON c.idCliente=v.idCliente
 				JOIN General.dbo.ubigeo ubi ON ubi.cod_ubigeo=c.cod_ubigeo
 				JOIN trade.banner b ON b.idBanner=v.idBanner
-				JOIN trade.list_productos lp ON lp.idListProductos=v.idListProductos				
+				JOIN {$this->sessBDCuenta}.trade.list_productos lp ON lp.idListProductos=v.idListProductos				
 				JOIN ".getClienteHistoricoCuenta()." ch ON ch.idCliente = c.idCliente AND r.fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin,r.fecha) AND ch.flagCartera=1
 				WHERE r.fecha BETWEEN @fecIni AND @fecFin
 				AND r.demo=0{$filtros}
@@ -149,10 +149,10 @@ class M_precios extends CI_Model{
 			pc.idCategoria,pc.nombre categoria,pm.idMarca,pm.nombre marca,p.idProducto,p.nombre producto,p.presentacion
 			,p.formato,pp.precioSugerido,pp.precioPromedio  
 				
-			FROM trade.data_ruta r
-			JOIN trade.data_visita v ON v.idRuta=r.idRuta
-			JOIN trade.data_visitaPrecios dvp ON dvp.idVisita=v.idVisita
-			JOIN trade.data_visitaPreciosDet dvpd ON dvpd.idVisitaPrecios=dvp.idVisitaPrecios AND dvpd.precio IS NOT NULL
+			FROM {$this->sessBDCuenta}.trade.data_ruta r
+			JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
+			JOIN {$this->sessBDCuenta}.trade.data_visitaPrecios dvp ON dvp.idVisita=v.idVisita
+			JOIN {$this->sessBDCuenta}.trade.data_visitaPreciosDet dvpd ON dvpd.idVisitaPrecios=dvp.idVisitaPrecios AND dvpd.precio IS NOT NULL
 			JOIN trade.producto p ON p.idProducto=dvpd.idProducto
 			JOIN trade.producto_categoria pc ON pc.idCategoria=p.idCategoria
 			JOIN trade.producto_marca pm ON pm.idMarca=p.idMarca
@@ -164,7 +164,7 @@ class M_precios extends CI_Model{
 			JOIN trade.cliente c ON c.idCliente=v.idCliente
 			JOIN General.dbo.ubigeo ubi ON ubi.cod_ubigeo=c.cod_ubigeo
 			JOIN trade.banner b ON b.idBanner=v.idBanner
-			JOIN trade.list_productos lp ON lp.idListProductos=v.idListProductos
+			JOIN {$this->sessBDCuenta}.trade.list_productos lp ON lp.idListProductos=v.idListProductos
 
 			
 			
@@ -190,10 +190,10 @@ class M_precios extends CI_Model{
 			 , v.idCliente
 			 , v.idBanner
 			 , r.fecha 
-			from trade.data_ruta r
-			join trade.data_visita v ON r.idRuta = v.idRuta
-			join trade.data_visitaPrecios vp ON vp.idVisita = v.idVisita
-			join trade.data_visitaPreciosDet vpd ON vpd.idVisitaPrecios = vp.idVisitaPrecios AND vpd.precio IS NOT NULL 
+			from {$this->sessBDCuenta}.trade.data_ruta r
+			join {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta
+			join {$this->sessBDCuenta}.trade.data_visitaPrecios vp ON vp.idVisita = v.idVisita
+			join {$this->sessBDCuenta}.trade.data_visitaPreciosDet vpd ON vpd.idVisitaPrecios = vp.idVisitaPrecios AND vpd.precio IS NOT NULL 
 			where
 			r.fecha between @fecIni and @fecFin
 			), lista2 as (
@@ -204,8 +204,8 @@ class M_precios extends CI_Model{
 			lista
 			)
 			select * from lista2 l
-			join trade.data_visitaPrecios pv on pv.idVisita = l.idVisita
-			join trade.data_visitaPreciosDet pvd ON pvd.idVisitaPrecios = pv.idVisitaPrecios and precio is not null
+			join {$this->sessBDCuenta}.trade.data_visitaPrecios pv on pv.idVisita = l.idVisita
+			join {$this->sessBDCuenta}.trade.data_visitaPreciosDet pvd ON pvd.idVisitaPrecios = pv.idVisitaPrecios and precio is not null
 			where l.ord = 1
 		";
 		
@@ -214,7 +214,7 @@ class M_precios extends CI_Model{
 
 	public function obtener_marcas(){
 		$sql ="select pme.idMarca,me.nombre empresa from trade.producto_marca_empresa pme
-		JOIN trade.marca_empresa me ON me.idEmpresa=pme.idEmpresa 
+		JOIN {$this->sessBDCuenta}.trade.marca_empresa me ON me.idEmpresa=pme.idEmpresa 
 		where me.estado=1 and pme.estado=1";
 		return $this->db->query($sql);
 	}
@@ -243,10 +243,10 @@ class M_precios extends CI_Model{
 			v.idVisita, ubi.departamento, ubi.provincia, ubi.distrito, v.idCliente, v.idCanal, c.codCliente, v.razonSocial, v.direccion, convert(varchar,r.fecha,103) fecha
 			, r.idUsuario, r.nombreUsuario usuario, v.canal, UPPER(r.tipoUsuario) tipoUsuario, p.idProducto, p.nombre producto, p.ean, pm.idMarca, pm.nombre marca
 			, pc.idCategoria, pc.nombre categoria, dvpd.precio, p.flagCompetencia
-		FROM trade.data_ruta r
-		JOIN trade.data_visita v ON v.idRuta=r.idRuta
-		JOIN trade.data_visitaPrecios dvp ON dvp.idVisita=v.idVisita
-		JOIN trade.data_visitaPreciosDet dvpd ON dvpd.idVisitaPrecios=dvp.idVisitaPrecios and dvpd.precio IS NOT NULL
+		FROM {$this->sessBDCuenta}.trade.data_ruta r
+		JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
+		JOIN {$this->sessBDCuenta}.trade.data_visitaPrecios dvp ON dvp.idVisita=v.idVisita
+		JOIN {$this->sessBDCuenta}.trade.data_visitaPreciosDet dvpd ON dvpd.idVisitaPrecios=dvp.idVisitaPrecios and dvpd.precio IS NOT NULL
 		JOIN trade.producto_top pt ON pt.idProducto=dvpd.idProducto
 		
 		JOIN trade.producto p ON p.idProducto=dvpd.idProducto and p.flagCompetencia=0
@@ -257,7 +257,7 @@ class M_precios extends CI_Model{
 		JOIN trade.cliente c ON c.idCliente=v.idCliente
 		JOIN General.dbo.ubigeo ubi ON ubi.cod_ubigeo=c.cod_ubigeo
 		JOIN trade.banner b ON b.idBanner=v.idBanner
-		JOIN trade.list_productos lp ON lp.idListProductos=v.idListProductos
+		JOIN {$this->sessBDCuenta}.trade.list_productos lp ON lp.idListProductos=v.idListProductos
 		
 		
 		JOIN ".getClienteHistoricoCuenta()." ch ON ch.idCliente = c.idCliente
@@ -295,10 +295,10 @@ class M_precios extends CI_Model{
 				, v.idCliente
 				, v.idBanner
 				, r.fecha 
-				from trade.data_ruta r
-				join trade.data_visita v ON r.idRuta = v.idRuta
-				join trade.data_visitaPrecios vp ON vp.idVisita = v.idVisita
-				join trade.data_visitaPreciosDet vpd ON vpd.idVisitaPrecios = vp.idVisitaPrecios AND vpd.precio IS NOT NULL 
+				from {$this->sessBDCuenta}.trade.data_ruta r
+				join {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta
+				join {$this->sessBDCuenta}.trade.data_visitaPrecios vp ON vp.idVisita = v.idVisita
+				join {$this->sessBDCuenta}.trade.data_visitaPreciosDet vpd ON vpd.idVisitaPrecios = vp.idVisitaPrecios AND vpd.precio IS NOT NULL 
 				
 				JOIN trade.producto p ON p.idProducto=vpd.idProducto
 				JOIN trade.producto_categoria pcat ON pcat.idCategoria=p.idCategoria
@@ -307,7 +307,7 @@ class M_precios extends CI_Model{
 				JOIN trade.cliente c ON c.idCliente=v.idCliente
 				JOIN General.dbo.ubigeo ubi ON ubi.cod_ubigeo=c.cod_ubigeo
 				JOIN trade.banner b ON b.idBanner=v.idBanner
-				JOIN trade.list_productos lp ON lp.idListProductos=v.idListProductos
+				JOIN {$this->sessBDCuenta}.trade.list_productos lp ON lp.idListProductos=v.idListProductos
 				
 				
 				JOIN ".getClienteHistoricoCuenta()." ch ON ch.idCliente = c.idCliente
@@ -324,8 +324,8 @@ class M_precios extends CI_Model{
 				lista
 				)
 				select l.fecha,l.idVisita,pv.hora,pvd.precio,pt.idProducto idProductoTop,pc.idProductoCompetencia  from lista2 l
-				join trade.data_visitaPrecios pv on pv.idVisita = l.idVisita
-				join trade.data_visitaPreciosDet pvd ON pvd.idVisitaPrecios = pv.idVisitaPrecios and precio is not null
+				join {$this->sessBDCuenta}.trade.data_visitaPrecios pv on pv.idVisita = l.idVisita
+				join {$this->sessBDCuenta}.trade.data_visitaPreciosDet pvd ON pvd.idVisitaPrecios = pv.idVisitaPrecios and precio is not null
 				
 				JOIN trade.producto_competencia pc ON pc.idProductoCompetencia=pvd.idProducto
 				JOIN trade.producto_top pt ON pt.idTop=pc.idTop 
@@ -472,12 +472,12 @@ class M_precios extends CI_Model{
 					, ub.departamento
 					, ddm.codigo_mapa
 				FROM 
-					trade.data_ruta r
-					JOIN trade.data_visita v 
+					{$this->sessBDCuenta}.trade.data_ruta r
+					JOIN {$this->sessBDCuenta}.trade.data_visita v 
 						ON v.idRuta=r.idRuta
-					JOIN trade.data_visitaPrecios dvp 
+					JOIN {$this->sessBDCuenta}.trade.data_visitaPrecios dvp 
 						ON dvp.idVisita=v.idVisita
-					JOIN trade.data_visitaPreciosDet dvpd 
+					JOIN {$this->sessBDCuenta}.trade.data_visitaPreciosDet dvpd 
 						ON dvpd.idVisitaPrecios=dvp.idVisitaPrecios
 					JOIN trade.producto p 
 						ON p.idProducto=dvpd.idProducto
@@ -495,7 +495,7 @@ class M_precios extends CI_Model{
 						ON ddm.cod_departamento = ubi.cod_departamento
 					JOIN trade.banner b 
 						ON b.idBanner=v.idBanner
-					JOIN trade.list_productos lp 
+					JOIN {$this->sessBDCuenta}.trade.list_productos lp 
 						ON lp.idListProductos=v.idListProductos
 					JOIN ".getClienteHistoricoCuenta()." ch 
 						ON ch.idCliente = c.idCliente
@@ -689,12 +689,12 @@ class M_precios extends CI_Model{
 					, ub.departamento
 					, ddm.codigo_mapa
 				FROM 
-					trade.data_ruta r
-					JOIN trade.data_visita v 
+					{$this->sessBDCuenta}.trade.data_ruta r
+					JOIN {$this->sessBDCuenta}.trade.data_visita v 
 						ON v.idRuta=r.idRuta
-					JOIN trade.data_visitaPrecios dvp 
+					JOIN {$this->sessBDCuenta}.trade.data_visitaPrecios dvp 
 						ON dvp.idVisita=v.idVisita
-					JOIN trade.data_visitaPreciosDet dvpd 
+					JOIN {$this->sessBDCuenta}.trade.data_visitaPreciosDet dvpd 
 						ON dvpd.idVisitaPrecios=dvp.idVisitaPrecios
 					JOIN trade.producto p 
 						ON p.idProducto=dvpd.idProducto
@@ -712,7 +712,7 @@ class M_precios extends CI_Model{
 						ON ddm.cod_departamento = ubi.cod_departamento
 					JOIN trade.banner b 
 						ON b.idBanner=v.idBanner
-					JOIN trade.list_productos lp 
+					JOIN {$this->sessBDCuenta}.trade.list_productos lp 
 						ON lp.idListProductos=v.idListProductos
 					JOIN ".getClienteHistoricoCuenta()." ch 
 						ON ch.idCliente = c.idCliente
@@ -855,7 +855,7 @@ class M_precios extends CI_Model{
 		$sql = "
                 SELECT *
                 FROM
-					impactTrade_bd.trade.producto_categoria
+					trade.producto_categoria
 				WHERE
 					estado=1
 			";
@@ -978,10 +978,10 @@ class M_precios extends CI_Model{
 				ubi.cod_departamento,
 				vp.idVisita
 				{$segmentacion['columnas_bd']}
-			FROM trade.data_ruta r
-				JOIN trade.data_visita v ON v.idRuta = r.idRuta and (r.fecha BETWEEN @fecIni AND @fecFin)
-				JOIN trade.data_visitaprecios vp ON vp.idVisita=v.idVisita
-				JOIN trade.data_visitaPreciosDet vpd ON vp.idVisitaPrecios = vpd.idVisitaPrecios AND vpd.precio IS NOT NULL
+			FROM {$this->sessBDCuenta}.trade.data_ruta r
+				JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta = r.idRuta and (r.fecha BETWEEN @fecIni AND @fecFin)
+				JOIN {$this->sessBDCuenta}.trade.data_visitaprecios vp ON vp.idVisita=v.idVisita
+				JOIN {$this->sessBDCuenta}.trade.data_visitaPreciosDet vpd ON vp.idVisitaPrecios = vpd.idVisitaPrecios AND vpd.precio IS NOT NULL
 				JOIN trade.producto pro ON vpd.idProducto = pro.idProducto
 				JOIN trade.producto_categoria procat ON pro.idCategoria = procat.idCategoria
 				JOIN trade.usuario_historico uh On uh.idUsuario=r.idUsuario
@@ -1010,7 +1010,7 @@ class M_precios extends CI_Model{
 				AND v.estado = 1
 				$filtros
 		";
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visitaprecios' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaprecios" ];
 
 		return $this->db->query($sql);
 	}
@@ -1085,10 +1085,10 @@ class M_precios extends CI_Model{
 				, v.idCliente
 				, dvd.idProducto
 				, dvd.precio
-			FROM trade.data_ruta r
-			JOIN trade.data_visita v ON v.idRuta=r.idRuta
-			JOIN trade.data_visitaProductos dvv ON dvv.idVisita=v.idVisita
-			JOIN trade.data_visitaProductosDet dvd ON dvd.idVisitaProductos=dvv.idVisitaProductos
+			FROM {$this->sessBDCuenta}.trade.data_ruta r
+			JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
+			JOIN {$this->sessBDCuenta}.trade.data_visitaProductos dvv ON dvv.idVisita=v.idVisita
+			JOIN {$this->sessBDCuenta}.trade.data_visitaProductosDet dvd ON dvd.idVisitaProductos=dvv.idVisitaProductos
 			LEFT JOIN trade.canal ca ON ca.idCanal=v.idCanal
 			LEFT JOIN trade.grupoCanal gca ON ca.idGrupoCanal=gca.idGrupoCanal
 			WHERE r.estado = 1 AND v.estado = 1 AND r.demo = 0
@@ -1133,7 +1133,7 @@ class M_precios extends CI_Model{
 		LEFT JOIN trade.producto_marca m ON m.idMarca = ele.idMarca
 		LEFT JOIN trade.producto_categoria cat ON cat.idCategoria = ele.idCategoria
 		LEFT JOIN trade.producto_marca_empresa pme ON pme.idMarca = m.idMarca
-		LEFT JOIN trade.marca_empresa me ON me.idEmpresa = pme.idEmpresa
+		LEFT JOIN {$this->sessBDCuenta}.trade.marca_empresa me ON me.idEmpresa = pme.idEmpresa
 		LEFT JOIN General.dbo.tiempo t ON t.fecha = v.fecha
 		GROUP BY
 		t.anio
@@ -1262,10 +1262,10 @@ class M_precios extends CI_Model{
 					, v.idCliente
 					, dvd.idProducto
 					, dvd.precio
-				FROM trade.data_ruta r
-				JOIN trade.data_visita v ON v.idRuta=r.idRuta
-				JOIN trade.data_visitaProductos dvv ON dvv.idVisita=v.idVisita
-				JOIN trade.data_visitaProductosDet dvd ON dvd.idVisitaProductos=dvv.idVisitaProductos
+				FROM {$this->sessBDCuenta}.trade.data_ruta r
+				JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
+				JOIN {$this->sessBDCuenta}.trade.data_visitaProductos dvv ON dvv.idVisita=v.idVisita
+				JOIN {$this->sessBDCuenta}.trade.data_visitaProductosDet dvd ON dvd.idVisitaProductos=dvv.idVisitaProductos
 				LEFT JOIN trade.canal ca ON ca.idCanal=v.idCanal
 				LEFT JOIN trade.grupoCanal gca ON ca.idGrupoCanal=gca.idGrupoCanal
 				WHERE r.estado = 1 AND v.estado = 1 AND r.demo = 0
@@ -1312,7 +1312,7 @@ class M_precios extends CI_Model{
 			LEFT JOIN trade.producto_marca m ON m.idMarca = ele.idMarca
 			LEFT JOIN trade.producto_categoria cat ON cat.idCategoria = ele.idCategoria
 			LEFT JOIN trade.producto_marca_empresa pme ON pme.idMarca = m.idMarca
-			LEFT JOIN trade.marca_empresa me ON me.idEmpresa = pme.idEmpresa
+			LEFT JOIN {$this->sessBDCuenta}.trade.marca_empresa me ON me.idEmpresa = pme.idEmpresa
 			LEFT JOIN General.dbo.tiempo t ON t.fecha = v.fecha
 			WHERE t.anio = {$params['nanio']} AND t.idSemana IN ({$params['nsemanas']})
 			{$filtros_query}
@@ -1360,7 +1360,7 @@ class M_precios extends CI_Model{
 			SELECT DISTINCT
 				e.idEmpresa
 				, e.nombre AS empresa
-			FROM trade.marca_empresa e
+			FROM {$this->sessBDCuenta}.trade.marca_empresa e
 			WHERE e.estado = 1{$filtro}
 			ORDER BY empresa ASC
 		";

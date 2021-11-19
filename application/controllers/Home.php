@@ -76,7 +76,7 @@ class Home extends MY_Controller {
 	}
 
 	public function get_cobertura(){
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_ruta' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_ruta" ];
 
 		$post = json_decode($this->input->post('data'), true);
 		$result = $this->result;
@@ -92,7 +92,7 @@ class Home extends MY_Controller {
 	}
 
 	public function get_efectividad(){
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_ruta' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_ruta" ];
 
 		$post = json_decode($this->input->post('data'), true);
 		$result = $this->result;
@@ -126,7 +126,7 @@ class Home extends MY_Controller {
 
 	public function get_asistencia()
 	{
-		$this->aSessTrack[] = ['idAccion' => 5, 'tabla' => 'trade.data_ruta'];
+		$this->aSessTrack[] = ['idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_ruta"];
 
 		$post = json_decode($this->input->post('data'), true);
 		$result = $this->result;

@@ -14,7 +14,7 @@ class M_ipp extends CI_Model{
 		$sql="
 			DECLARE @fecha DATE =GETDATE();
 			SELECT c.idCliente, c.razonSocial FROM trade.cliente c
-			JOIN trade.cliente_historico ch ON c.idCliente = ch.idCliente 
+			JOIN {$this->sessBDCuenta}.trade.cliente_historico ch ON c.idCliente = ch.idCliente 
 			AND @fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin,@fecha) AND ch.flagCartera=1
 			WHERE ch.estado=1
 		";
@@ -25,13 +25,13 @@ class M_ipp extends CI_Model{
 
 	public function obtener_data(){
 		$sql="SELECT DISTINCT lid.idPregunta, ip.nombre pregunta, lid.idAlternativa, ia.nombre alternativa, lid.puntaje, ip.idCriterio, c.nombre criterio
-		FROM trade.list_ippDet lid
-		LEFT JOIN trade.ipp_pregunta ip ON ip.idPregunta=lid.idPregunta
-		LEFT JOIN trade.ipp_alternativa ia ON ia.idAlternativa=lid.idAlternativa
-		JOIN trade.ipp_criterio c ON c.idCriterio=ip.idCriterio
+		FROM {$this->sessBDCuenta}.trade.list_ippDet lid
+		LEFT JOIN {$this->sessBDCuenta}.trade.ipp_pregunta ip ON ip.idPregunta=lid.idPregunta
+		LEFT JOIN {$this->sessBDCuenta}.trade.ipp_alternativa ia ON ia.idAlternativa=lid.idAlternativa
+		JOIN {$this->sessBDCuenta}.trade.ipp_criterio c ON c.idCriterio=ip.idCriterio
 		WHERE 1=1 ";
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.list_ippDet' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.list_ippDet" ];
 		return $this->db->query($sql);
 	}
 	
@@ -54,14 +54,14 @@ class M_ipp extends CI_Model{
 		, v.idVisita, v.canal, v.idCliente, v.razonSocial, v.codCliente, v.direccion
 		, i.idVisitaIpp, i.puntaje puntajeGlobal
 		, id.idPregunta, id.idAlternativa, id.puntaje, p.idCriterio
-		FROM trade.data_ruta r WITH(NOLOCK)
-		JOIN trade.data_visita v ON v.idRuta=r.idRuta
-		JOIN trade.data_visitaIpp i ON i.idVisita=v.idVisita
-		JOIN trade.data_visitaIppDet id ON id.idVisitaIpp=i.idVisitaIpp
+		FROM {$this->sessBDCuenta}.trade.data_ruta r WITH(NOLOCK)
+		JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
+		JOIN {$this->sessBDCuenta}.trade.data_visitaIpp i ON i.idVisita=v.idVisita
+		JOIN {$this->sessBDCuenta}.trade.data_visitaIppDet id ON id.idVisitaIpp=i.idVisitaIpp
 		JOIN trade.cliente c ON c.idCliente = v.idCliente
-		JOIN trade.ipp_pregunta p ON p.idPregunta= id.idPregunta
+		JOIN {$this->sessBDCuenta}.trade.ipp_pregunta p ON p.idPregunta= id.idPregunta
 
-		JOIN trade.cliente_historico ch ON ch.idCliente = c.idCliente
+		JOIN {$this->sessBDCuenta}.trade.cliente_historico ch ON ch.idCliente = c.idCliente
 		AND r.fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin,r.fecha) AND ch.flagCartera=1
 		
 		WHERE r.estado=1 AND r.demo=0
@@ -70,7 +70,7 @@ class M_ipp extends CI_Model{
 		$filtros
 		ORDER BY fecha, v.idVisita, v.idCliente, id.idPregunta, id.idAlternativa ASC";
 		
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_ruta' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_ruta" ];
 		return $this->db->query($sql);
 	}
 
@@ -99,20 +99,20 @@ class M_ipp extends CI_Model{
 		, id.idVisitaIpp, id.idPregunta, id.idAlternativa, id.puntaje 
 		, b.nombre banner, ca.nombre cadena, ca.idCadena, b.idBanner
 		, cc.idCriterio, cn.idCanal
-		FROM trade.data_ruta r WITH(NOLOCK)
-		JOIN trade.data_visita v ON v.idRuta=r.idRuta
-		JOIN trade.data_visitaIpp i ON i.idVisita=v.idVisita
-		JOIN trade.data_visitaIppDet id ON id.idVisitaIpp=i.idVisitaIpp
+		FROM {$this->sessBDCuenta}.trade.data_ruta r WITH(NOLOCK)
+		JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
+		JOIN {$this->sessBDCuenta}.trade.data_visitaIpp i ON i.idVisita=v.idVisita
+		JOIN {$this->sessBDCuenta}.trade.data_visitaIppDet id ON id.idVisitaIpp=i.idVisitaIpp
 		JOIN trade.cliente c ON c.idCliente = v.idCliente
 		JOIN General.dbo.ubigeo ubi ON ubi.cod_ubigeo = c.cod_ubigeo
 		JOIN trade.canal cn ON cn.idCanal=v.idCanal
 		JOIN trade.banner b ON b.idBanner=v.idBanner
 		JOIN trade.cadena ca ON ca.idCadena =b.idCadena
 		--
-		JOIN trade.ipp_pregunta ip ON ip.idPregunta=id.idPregunta
-		JOIN trade.ipp_criterio cc ON cc.idCriterio=ip.idCriterio
+		JOIN {$this->sessBDCuenta}.trade.ipp_pregunta ip ON ip.idPregunta=id.idPregunta
+		JOIN {$this->sessBDCuenta}.trade.ipp_criterio cc ON cc.idCriterio=ip.idCriterio
 
-		JOIN trade.cliente_historico ch ON ch.idCliente = c.idCliente
+		JOIN {$this->sessBDCuenta}.trade.cliente_historico ch ON ch.idCliente = c.idCliente
 		AND r.fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin,r.fecha) AND ch.flagCartera=1
 
 		WHERE r.estado=1 AND r.demo=0
@@ -120,7 +120,7 @@ class M_ipp extends CI_Model{
 		$filtros
 		ORDER BY v.canal, cadena, banner ASC";
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_ruta' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_ruta" ];
 		return $this->db->query($sql);
 	}
 	
@@ -131,14 +131,14 @@ class M_ipp extends CI_Model{
 
 		$sql="
 		SELECT DISTINCT bn.idCadena,scm.idBanner, ch.idCliente,ch.razonSocial 
-		FROM trade.cliente_historico ch
+		FROM {$this->sessBDCuenta}.trade.cliente_historico ch
 		JOIN trade.segmentacionClienteModerno scm ON ch.idSegClienteModerno=scm.idSegClienteModerno
 		JOIN trade.banner bn ON bn.idBanner=scm.idBanner
 		WHERE $filtros
 		ORDER BY ch.razonSocial
 		";
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.cliente_historico' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.cliente_historico" ];
 		return $this->db->query($sql);
 	}
 	
@@ -252,12 +252,12 @@ class M_ipp extends CI_Model{
 							, cn.idCanal
 							, a.objetivo
 						FROM 
-							trade.data_ruta r WITH(NOLOCK)
-							JOIN trade.data_visita v 
+							{$this->sessBDCuenta}.trade.data_ruta r WITH(NOLOCK)
+							JOIN {$this->sessBDCuenta}.trade.data_visita v 
 								ON v.idRuta=r.idRuta
-							JOIN trade.data_visitaIpp i 
+							JOIN {$this->sessBDCuenta}.trade.data_visitaIpp i 
 								ON i.idVisita=v.idVisita
-							JOIN trade.data_visitaIppDet id 
+							JOIN {$this->sessBDCuenta}.trade.data_visitaIppDet id 
 								ON id.idVisitaIpp=i.idVisitaIpp
 							JOIN trade.cliente c 
 								ON c.idCliente = v.idCliente
@@ -270,11 +270,11 @@ class M_ipp extends CI_Model{
 							JOIN trade.cadena ca 
 								ON ca.idCadena =b.idCadena
 							--
-							JOIN trade.ipp_pregunta ip 
+							JOIN {$this->sessBDCuenta}.trade.ipp_pregunta ip 
 								ON ip.idPregunta=id.idPregunta
-							JOIN trade.ipp_criterio cc 
+							JOIN {$this->sessBDCuenta}.trade.ipp_criterio cc 
 								ON cc.idCriterio=ip.idCriterio
-							JOIN trade.cliente_historico ch 
+							JOIN {$this->sessBDCuenta}.trade.cliente_historico ch 
 								ON ch.idCliente = c.idCliente
 								AND r.fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin,r.fecha) 
 								AND ch.flagCartera=1
@@ -302,7 +302,7 @@ class M_ipp extends CI_Model{
 			)d
 			";
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_ruta' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_ruta" ];
 		return $this->db->query($sql);
 	}
 
@@ -315,12 +315,12 @@ class M_ipp extends CI_Model{
 				  v.idBanner
 				, v.banner
 			FROM 
-				trade.data_ruta r WITH(NOLOCK)
-				JOIN trade.data_visita v 
+				{$this->sessBDCuenta}.trade.data_ruta r WITH(NOLOCK)
+				JOIN {$this->sessBDCuenta}.trade.data_visita v 
 					ON v.idRuta=r.idRuta
-				JOIN trade.data_visitaIpp i 
+				JOIN {$this->sessBDCuenta}.trade.data_visitaIpp i 
 					ON i.idVisita=v.idVisita
-				JOIN trade.data_visitaIppDet id 
+				JOIN {$this->sessBDCuenta}.trade.data_visitaIppDet id 
 					ON id.idVisitaIpp=i.idVisitaIpp
 			WHERE
 				r.estado=1 
@@ -329,7 +329,7 @@ class M_ipp extends CI_Model{
 			ORDER BY idBanner
 		";
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_ruta' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_ruta" ];
 		return $this->db->query($sql);
 	}
 	
@@ -449,12 +449,12 @@ class M_ipp extends CI_Model{
 							, a.objetivo
 							, a.semana
 						FROM 
-							trade.data_ruta r WITH(NOLOCK)
-							JOIN trade.data_visita v 
+							{$this->sessBDCuenta}.trade.data_ruta r WITH(NOLOCK)
+							JOIN {$this->sessBDCuenta}.trade.data_visita v 
 								ON v.idRuta=r.idRuta
-							JOIN trade.data_visitaIpp i 
+							JOIN {$this->sessBDCuenta}.trade.data_visitaIpp i 
 								ON i.idVisita=v.idVisita
-							JOIN trade.data_visitaIppDet id 
+							JOIN {$this->sessBDCuenta}.trade.data_visitaIppDet id 
 								ON id.idVisitaIpp=i.idVisitaIpp
 							JOIN trade.cliente c 
 								ON c.idCliente = v.idCliente
@@ -467,11 +467,11 @@ class M_ipp extends CI_Model{
 							JOIN trade.cadena ca 
 								ON ca.idCadena =b.idCadena
 							--
-							JOIN trade.ipp_pregunta ip 
+							JOIN {$this->sessBDCuenta}.trade.ipp_pregunta ip 
 								ON ip.idPregunta=id.idPregunta
-							JOIN trade.ipp_criterio cc 
+							JOIN {$this->sessBDCuenta}.trade.ipp_criterio cc 
 								ON cc.idCriterio=ip.idCriterio
-							JOIN trade.cliente_historico ch 
+							JOIN {$this->sessBDCuenta}.trade.cliente_historico ch 
 								ON ch.idCliente = c.idCliente
 								AND r.fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin,r.fecha) 
 								AND ch.flagCartera=1
@@ -499,7 +499,7 @@ class M_ipp extends CI_Model{
 
 		";
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_ruta' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_ruta" ];
 		return $this->db->query($sql);
 	}
 	
@@ -584,12 +584,12 @@ class M_ipp extends CI_Model{
 					, a.objetivo
 					, a.semana
 				FROM 
-					trade.data_ruta r WITH(NOLOCK)
-					JOIN trade.data_visita v 
+					{$this->sessBDCuenta}.trade.data_ruta r WITH(NOLOCK)
+					JOIN {$this->sessBDCuenta}.trade.data_visita v 
 						ON v.idRuta=r.idRuta
-					JOIN trade.data_visitaIpp i 
+					JOIN {$this->sessBDCuenta}.trade.data_visitaIpp i 
 						ON i.idVisita=v.idVisita
-					JOIN trade.data_visitaIppDet id 
+					JOIN {$this->sessBDCuenta}.trade.data_visitaIppDet id 
 						ON id.idVisitaIpp=i.idVisitaIpp
 					JOIN trade.cliente c 
 						ON c.idCliente = v.idCliente
@@ -602,11 +602,11 @@ class M_ipp extends CI_Model{
 					JOIN trade.cadena ca 
 						ON ca.idCadena =b.idCadena
 					--
-					JOIN trade.ipp_pregunta ip 
+					JOIN {$this->sessBDCuenta}.trade.ipp_pregunta ip 
 						ON ip.idPregunta=id.idPregunta
-					JOIN trade.ipp_criterio cc 
+					JOIN {$this->sessBDCuenta}.trade.ipp_criterio cc 
 						ON cc.idCriterio=ip.idCriterio
-					JOIN trade.cliente_historico ch 
+					JOIN {$this->sessBDCuenta}.trade.cliente_historico ch 
 						ON ch.idCliente = c.idCliente
 						AND r.fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin,r.fecha) 
 						AND ch.flagCartera=1
@@ -629,7 +629,7 @@ class M_ipp extends CI_Model{
 
 		";
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_ruta' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_ruta" ];
 		return $this->db->query($sql);
 	}
 	
@@ -686,10 +686,10 @@ class M_ipp extends CI_Model{
 						, v.idBanner
 						, v.idCanal
 					FROM  
-						trade.data_ruta r WITH(NOLOCK)
-						JOIN trade.data_visita v 
+						{$this->sessBDCuenta}.trade.data_ruta r WITH(NOLOCK)
+						JOIN {$this->sessBDCuenta}.trade.data_visita v 
 							ON v.idRuta=r.idRuta
-						JOIN trade.data_visitaIpp i 
+						JOIN {$this->sessBDCuenta}.trade.data_visitaIpp i 
 							ON i.idVisita=v.idVisita
 						JOIN trade.cliente c 
 							ON c.idCliente = v.idCliente
@@ -701,7 +701,7 @@ class M_ipp extends CI_Model{
 						JOIN trade.banner b 
 							ON b.idBanner=v.idBanner
 						--
-						JOIN trade.cliente_historico ch 
+						JOIN {$this->sessBDCuenta}.trade.cliente_historico ch 
 							ON ch.idCliente = c.idCliente
 							AND r.fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin,r.fecha) 
 							AND ch.flagCartera=1
@@ -716,7 +716,7 @@ class M_ipp extends CI_Model{
 			)c
 		";
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_ruta' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_ruta" ];
 		return $this->db->query($sql);
 	}
 }

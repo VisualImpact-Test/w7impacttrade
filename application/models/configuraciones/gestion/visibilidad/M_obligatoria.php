@@ -12,10 +12,10 @@ class M_obligatoria extends My_Model
 
 		$this->tablas = [
 			'elemento' => ['tabla' => 'trade.elementoVisibilidadTrad', 'id' => 'idElementoVis'],
-			'lista' => ['tabla' => 'trade.list_visibilidadTradObl', 'id' => 'idListVisibilidadObl'],
-			'listaDet' => ['tabla'=>'trade.list_visibilidadTradOblDet','id'=>'idListVisibilidadOblDet'],
+			'lista' => ['tabla' => "{$this->sessBDCuenta}.trade.list_visibilidadTradObl", 'id' => 'idListVisibilidadObl'],
+			'listaDet' => ['tabla'=>"{$this->sessBDCuenta}.trade.list_visibilidadTradOblDet",'id'=>'idListVisibilidadOblDet'],
 			'tipoElemento' => ['tabla'=>'trade.tipoElementoVisibilidadTrad','id'=>'idTipoElementoVis'],
-			'modulacion' => ['tabla'=>'trade.master_listaElementos','id'=>'idLista'],
+			'modulacion' => ['tabla'=>"{$this->sessBDCuenta}.trade.master_listaElementos",'id'=>'idLista'],
 		];
 	}
 
@@ -43,8 +43,8 @@ class M_obligatoria extends My_Model
                 FROM
                 ".$this->tablas['elemento']['tabla']." p
                 JOIN ".$this->tablas['tipoElemento']['tabla']." t ON t.".$this->tablas['tipoElemento']['id']." = p.idTipoElementoVisibilidad
-                LEFT JOIN impactTrade_bd.trade.producto_categoria pc ON pc.idCategoria = p.idCategoria
-                JOIN impactTrade_bd.trade.proyecto py ON py.idProyecto=p.idProyecto
+                LEFT JOIN trade.producto_categoria pc ON pc.idCategoria = p.idCategoria
+                JOIN trade.proyecto py ON py.idProyecto=p.idProyecto
                 {$filtros} and p.idTipoElementoVisibilidad IN (1,2)
 			";
 
@@ -75,8 +75,8 @@ class M_obligatoria extends My_Model
                 FROM
                 ".$this->tablas['elemento']['tabla']." p
                 JOIN ".$this->tablas['tipoElemento']['tabla']." t ON t.".$this->tablas['tipoElemento']['id']." = p.idTipoElementoVisibilidad
-                LEFT JOIN impactTrade_bd.trade.producto_categoria pc ON pc.idCategoria = p.idCategoria
-                JOIN impactTrade_bd.trade.proyecto py ON py.idProyecto=p.idProyecto
+                LEFT JOIN trade.producto_categoria pc ON pc.idCategoria = p.idCategoria
+                JOIN trade.proyecto py ON py.idProyecto=p.idProyecto
                 {$filtros} and p.idTipoElementoVisibilidad IN (1)
 			";
 
@@ -111,7 +111,7 @@ class M_obligatoria extends My_Model
 		$sql = "
                 SELECT *
                 FROM
-					impactTrade_bd.trade.producto_categoria
+					trade.producto_categoria
 				WHERE
 					estado=1
 			";
@@ -123,9 +123,9 @@ class M_obligatoria extends My_Model
 	public function getIdEncuesta($encuesta){
 
 		
-		$sql = $this->db->get_where('trade.encuesta',array('nombre'=>$encuesta));
+		$sql = $this->db->get_where("{$this->sessBDCuenta}.trade.encuesta",array('nombre'=>$encuesta));
 
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.encuesta' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.encuesta" ];
 		return ($sql);
 
 	}
@@ -547,14 +547,14 @@ class M_obligatoria extends My_Model
 				, fecFin fecFinal
 				, estado
 			FROM 
-				impactTrade_bd.trade.master_listaElementos
+				{$this->sessBDCuenta}.trade.master_listaElementos
 			WHERE
 				1=1
 				{$filtros}
 			ORDER BY estado DESC ,idLista DESC
 			";
 
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.master_listaElementos' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.master_listaElementos" ];
 		return $this->db->query($sql);
 	}
 
@@ -566,10 +566,10 @@ class M_obligatoria extends My_Model
 		];
 		if(!empty($post['fechaFin'])){$insert['fecFin']=$post['fechaFin'];}
 
-		$insert = $this->db->insert('trade.master_listaElementos', $insert);
+		$insert = $this->db->insert("{$this->sessBDCuenta}.trade.master_listaElementos", $insert);
 		$this->insertId = $this->db->insert_id();
 
-		$this->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => 'trade.master_listaElementos', 'id' => $this->insertId ];
+		$this->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => "{$this->sessBDCuenta}.trade.master_listaElementos", 'id' => $this->insertId ];
 		return $insert;
 	}
 	
@@ -584,7 +584,7 @@ class M_obligatoria extends My_Model
 				,t.nombre tipo
 				, m.orden
 			FROM 
-				impactTrade_bd.trade.master_listaElementosDet m
+				{$this->sessBDCuenta}.trade.master_listaElementosDet m
 				JOIN trade.elementoVisibilidadTrad evt
 					ON evt.idElementoVis = m.idElementoVisibilidad
 				JOIN ".$this->tablas['tipoElemento']['tabla']." t ON t.".$this->tablas['tipoElemento']['id']." = evt.idTipoElementoVisibilidad
@@ -592,7 +592,7 @@ class M_obligatoria extends My_Model
 				idLista='".$post['id']."'
 			";
 
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.master_listaElementosDet' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.master_listaElementosDet" ];
 		return $this->db->query($sql);
 	}
 	
@@ -608,9 +608,9 @@ class M_obligatoria extends My_Model
 		];
 
 		$this->db->where($where);
-		$update = $this->db->update('trade.master_listaElementos', $update);
+		$update = $this->db->update("{$this->sessBDCuenta}.trade.master_listaElementos", $update);
 
-		$this->aSessTrack[] = [ 'idAccion' => 7, 'tabla' => 'trade.master_listaElementos', 'id' => $post['idlst'] ];
+		$this->aSessTrack[] = [ 'idAccion' => 7, 'tabla' => "{$this->sessBDCuenta}.trade.master_listaElementos", 'id' => $post['idlst'] ];
 		return $update;
 	}
 	
@@ -627,9 +627,9 @@ class M_obligatoria extends My_Model
 			}
 		}
 		if (empty($input)) return true;
-		$update =  $this->actualizarMasivo('trade.master_listaElementosDet', $input, 'idLista');
+		$update =  $this->actualizarMasivo("{$this->sessBDCuenta}.trade.master_listaElementosDet", $input, 'idLista');
 
-		$this->aSessTrack[] = [ 'idAccion' => 7, 'tabla' => 'trade.master_listaElementosDet' ];$this->aSessTrack[] = [ 'idAccion' => 7, 'tabla' => 'trade.master_listaElementosDet' ];
+		$this->aSessTrack[] = [ 'idAccion' => 7, 'tabla' => "{$this->sessBDCuenta}.trade.master_listaElementosDet" ];$this->aSessTrack[] = [ 'idAccion' => 7, 'tabla' => "{$this->sessBDCuenta}.trade.master_listaElementosDet" ];
 		return $update;
 	}
 	
@@ -641,7 +641,7 @@ class M_obligatoria extends My_Model
 		$repetidos = false;
 		foreach($multiDataRefactorizada as $index => $row){
 			$new_array[] = $row['elemento_lista'];
-			$rs = $this->db->get_where('trade.master_listaElementosDet',array('idLista'=>$idLista,'idElementoVisibilidad'=>$row['elemento_lista']))->row_array();
+			$rs = $this->db->get_where("{$this->sessBDCuenta}.trade.master_listaElementosDet",array('idLista'=>$idLista,'idElementoVisibilidad'=>$row['elemento_lista']))->row_array();
 			if($rs!=null){
 				if(count($rs) >=1){
 					$repetidos = true;
@@ -671,8 +671,8 @@ class M_obligatoria extends My_Model
 				}
 			}
 			if (empty($input)) return true;
-			$insert = $this->db->insert_batch('trade.master_listaElementosDet', $input);
-			$this->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => 'trade.master_listaElementosDet' ];
+			$insert = $this->db->insert_batch("{$this->sessBDCuenta}.trade.master_listaElementosDet", $input);
+			$this->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => "{$this->sessBDCuenta}.trade.master_listaElementosDet" ];
 		
 		}else{
 			$insert = 'repetido';
@@ -683,22 +683,22 @@ class M_obligatoria extends My_Model
 	public function verificar_lista_modulacion($input=array()){
 		$query = $this->db->select('idLista')
 				->where( $input )
-				->get('trade.master_listaElementos');
+				->get("{$this->sessBDCuenta}.trade.master_listaElementos");
 
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.master_listaElementos' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.master_listaElementos" ];
 		return $query->result_array();
 	}
 
 	public function insertar_lista_modulacion($input=array()){
 		$aSessTrack = [];
 
-		$table = 'trade.master_listaElementos';
+		$table = "{$this->sessBDCuenta}.trade.master_listaElementos";
 		$this->db->trans_begin();
 
 			$insert = $this->db->insert($table, $input);
 			$id = $this->db->insert_id();
 
-			$aSessTrack = [ 'idAccion' => 6, 'tabla' => 'trade.master_listaElementos', 'id' => $id ];
+			$aSessTrack = [ 'idAccion' => 6, 'tabla' => "{$this->sessBDCuenta}.trade.master_listaElementos", 'id' => $id ];
 
 		if ( $this->db->trans_status()===FALSE ) {
 			$this->db->trans_rollback();
@@ -719,15 +719,15 @@ class M_obligatoria extends My_Model
 	public function verificar_lista_modulacion_detalle($input=array()){
 		$query = $this->db->select('idListaDet')
 				->where( $input )
-				->get('trade.master_listaElementosDet');
+				->get("{$this->sessBDCuenta}.trade.master_listaElementosDet");
 
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.master_listaElementosDet' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.master_listaElementosDet" ];
 		return $query->result_array();
 	}
 
 	public function insertar_lista_modulacion_detalle($input=array()){
 		$aSessTrack = [];
-		$table = 'trade.master_listaElementosDet';
+		$table = "{$this->sessBDCuenta}.trade.master_listaElementosDet";
 		$this->db->trans_begin();
 
 			$insert = $this->db->insert($table, $input);
@@ -781,11 +781,11 @@ class M_obligatoria extends My_Model
 			,ch.idCuenta
 		FROM 
 			".getClienteHistoricoCuenta()." ch
-			JOIN ImpactTrade_bd.trade.segmentacionNegocio sn
+			JOIN trade.segmentacionNegocio sn
 				ON sn.idSegNegocio = ch.idSegNegocio
-			JOIN ImpactTrade_bd.trade.canal ca
+			JOIN trade.canal ca
 				ON ca.idCanal=sn.idCanal 
-			JOIN ImpactTrade_bd.trade.grupoCanal gc 
+			JOIN trade.grupoCanal gc 
 			    ON gc.idGrupoCanal=ca.idGrupoCanal
 			{$filtros}
 		ORDER BY gc.idGrupoCanal

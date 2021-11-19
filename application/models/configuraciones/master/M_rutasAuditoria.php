@@ -42,8 +42,8 @@ class M_rutasAuditoria extends My_Model{
 				, CONVERT(VARCHAR,r.fecFin,103) fecFin
 				, r.estado
 			FROM
-				trade.master_rutaProgramada r
-				LEFT JOIN trade.master_rutaProgramadaDet rd
+				{$this->sessBDCuenta}.trade.master_rutaProgramada r
+				LEFT JOIN {$this->sessBDCuenta}.trade.master_rutaProgramadaDet rd
 					ON rd.idRutaProg = r.idRutaProg
 					AND general.dbo.fn_fechaVigente(rd.fecIni,rd.fecFin,@fecIni,@fecFin)=1
 				LEFT JOIN trade.usuario gtm
@@ -77,8 +77,8 @@ class M_rutasAuditoria extends My_Model{
 				, vpd.idDia
 				, vp.idVisitaProg
 			FROM 
-				trade.master_visitaProgramada vp
-				JOIN trade.master_visitaProgramadaDet vpd
+				{$this->sessBDCuenta}.trade.master_visitaProgramada vp
+				JOIN {$this->sessBDCuenta}.trade.master_visitaProgramadaDet vpd
 					ON vpd.idVisitaProg = vp.idVisitaProg
 				JOIN trade.cliente c
 					ON c.idCliente = vp.idCliente
@@ -101,7 +101,7 @@ class M_rutasAuditoria extends My_Model{
 				, nombreRuta
 
 			FROM 
-				trade.master_rutaProgramada 
+				{$this->sessBDCuenta}.trade.master_rutaProgramada 
 			WHERE
 				General.dbo.fn_fechaVigente(fecIni,fecFin,@fecIni,@fecFin)=1
 				AND estado=1
@@ -120,12 +120,12 @@ class M_rutasAuditoria extends My_Model{
 				, convert(varchar,rpd.fecIni,103) fecIni
 				, vpd.idDia
 			FROM 
-				trade.master_rutaProgramada rp
-				JOIN trade.master_rutaProgramadaDet rpd
+				{$this->sessBDCuenta}.trade.master_rutaProgramada rp
+				JOIN {$this->sessBDCuenta}.trade.master_rutaProgramadaDet rpd
 					ON rpd.idRutaProg = rp.idRutaProg
-				JOIN trade.master_visitaProgramada vp
+				JOIN {$this->sessBDCuenta}.trade.master_visitaProgramada vp
 					ON vp.idRutaProg = rpd.idRutaProgDet
-				JOIN trade.master_visitaProgramadaDet vpd
+				JOIN {$this->sessBDCuenta}.trade.master_visitaProgramadaDet vpd
 					ON vpd.idVisitaProg = vp.idVisitaProg
 				JOIN trade.cliente c
 					ON c.idCliente = vp.idCliente
@@ -148,7 +148,7 @@ class M_rutasAuditoria extends My_Model{
 				--, f.nombre frecuencia
 			FROM 
 				trade.cliente c 
-				JOIN trade.cliente_historico_pg ch ON ch.idCliente=c.idCliente
+				JOIN {$this->sessBDCuenta}.trade.cliente_historico ch ON ch.idCliente=c.idCliente
 				/* JOIN dbo.master_rutas_frecuencia mrf
 					ON mrf.idCliente = c.idCliente
 				JOIN dbo.frecuencia f
@@ -182,7 +182,7 @@ class M_rutasAuditoria extends My_Model{
 				, ub.departamento
 			FROM
 				trade.cliente c
-				JOIN trade.cliente_historico_pg ch
+				JOIN {$this->sessBDCuenta}.trade.cliente_historico ch
 					ON ch.idCliente = c.idCliente
 					AND ch.idProyecto IN (3)
 					AND General.dbo.fn_fechaVigente(ch.fecIni,ch.fecFin,@fecIni,@fecFin)=1
@@ -217,7 +217,7 @@ class M_rutasAuditoria extends My_Model{
 				, CONVERT(VARCHAR,rp.fecIni,103) fecIni 
 				, CONVERT(VARCHAR,rp.fecFin,103) fecFin
 			FROM 
-				trade.master_rutaProgramadaDet rp
+				{$this->sessBDCuenta}.trade.master_rutaProgramadaDet rp
 				JOIN trade.usuario u
 					ON u.idUsuario = rp.idUsuario
 			WHERE

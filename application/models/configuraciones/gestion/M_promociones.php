@@ -13,8 +13,8 @@ class M_promociones extends My_Model
 		$this->tablas = [
 			'elemento' => ['tabla' => 'trade.promocion', 'id' => 'idPromocion'],
 			'tipoPromocion' => ['tabla' => 'trade.tipoPromocion', 'id' => 'idTipoPromocion'],
-			'lista' => ['tabla' => 'trade.list_promociones', 'id' => 'idListPromociones'],
-			'listaDet' => ['tabla'=>'trade.list_promocionesDet','id'=>'idListPromocionesDet'],
+			'lista' => ['tabla' => "{$this->sessBDCuenta}.trade.list_promociones", 'id' => 'idListPromociones'],
+			'listaDet' => ['tabla'=>"{$this->sessBDCuenta}.trade.list_promocionesDet",'id'=>'idListPromocionesDet'],
 			'marca' => ['tabla'=>'trade.producto_marca','id'=>'idMarca'],
 		];
 
@@ -529,9 +529,9 @@ class M_promociones extends My_Model
 			,ch.idCuenta
 		FROM 
 			".getClienteHistoricoCuenta()." ch
-			JOIN ImpactTrade_bd.trade.segmentacionNegocio sn
+			JOIN trade.segmentacionNegocio sn
 				ON sn.idSegNegocio = ch.idSegNegocio
-			JOIN ImpactTrade_bd.trade.canal ca
+			JOIN trade.canal ca
 				ON ca.idCanal=sn.idCanal 
 		{$filtros}
 		";

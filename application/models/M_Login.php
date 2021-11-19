@@ -302,7 +302,7 @@ WHERE u.estado = 1 AND u.usuario = '".$data['usuario']."'
 				, z.nombre zona
 			FROM 
 				trade.cliente c
-				JOIN trade.cliente_historico ch ON c.idcliente = ch.idCliente
+				JOIN {$this->sessBDCuenta}.trade.cliente_historico ch ON c.idcliente = ch.idCliente
 				AND @fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin, @fecha) AND ch.flagCartera = 1
 				--
 				JOIN trade.segmentacionNegocio sn ON sn.idSegNegocio = ch.idSegNegocio AND sn.estado = 1

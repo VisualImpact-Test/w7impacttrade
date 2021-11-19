@@ -130,7 +130,7 @@ class M_scorecard extends MY_Model{
 				 LEFT JOIN General.dbo.ubigeo ubd ON ubd.cod_ubigeo = ds.cod_ubigeo
 				 LEFT JOIN trade.plaza p ON p.idPlaza = scm.idPlaza
 				 LEFT JOIN General.dbo.ubigeo ubp ON ubp.cod_ubigeo = p.cod_ubigeo
-				 LEFT JOIN trade.cartera_objetivo co ON co.idSubCanal = sca.idClienteTipo
+				 LEFT JOIN {$this->sessBDCuenta}.trade.cartera_objetivo co ON co.idSubCanal = sca.idClienteTipo
 				
 			WHERE
 				c.estado = 1 
@@ -218,8 +218,8 @@ class M_scorecard extends MY_Model{
 					{$segmentacion['columnas_bd']}
 
 				FROM
-					trade.data_ruta r WITH(NOLOCK)
-					JOIN trade.data_visita v
+					{$this->sessBDCuenta}.trade.data_ruta r WITH(NOLOCK)
+					JOIN {$this->sessBDCuenta}.trade.data_visita v
 						ON v.idRuta = r.idRuta
 						AND r.fecha BETWEEN @fecIni AND @fecFin
 						AND r.idTIpoUsuario IN(1)
@@ -247,7 +247,7 @@ class M_scorecard extends MY_Model{
 			{$filtro}
 		";
 
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visita' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visita" ];
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -329,8 +329,8 @@ class M_scorecard extends MY_Model{
 					, r.idUsuario
 					, r.idTipoUsuario
 					, r.tipoUsuario
-					, (SELECT TOP 1 nombreIncidencia FROM trade.data_visitaIncidencia WHERE idVisita = v.idVisita ORDER BY idVisitaIncidencia DESC) incidencia_nombre
-					, (SELECT TOP 1 CONVERT(VARCHAR(8), hora) FROM trade.data_visitaIncidencia WHERE idVisita = v.idVisita ORDER BY idVisitaIncidencia DESC) incidencia_hora
+					, (SELECT TOP 1 nombreIncidencia FROM {$this->sessBDCuenta}.trade.data_visitaIncidencia WHERE idVisita = v.idVisita ORDER BY idVisitaIncidencia DESC) incidencia_nombre
+					, (SELECT TOP 1 CONVERT(VARCHAR(8), hora) FROM {$this->sessBDCuenta}.trade.data_visitaIncidencia WHERE idVisita = v.idVisita ORDER BY idVisitaIncidencia DESC) incidencia_hora
 					, ISNULL(v.latIni,0) lati_ini
 					, ISNULL(v.lonIni,0) long_ini
 					, ISNULL(v.latFin,0) lati_fin
@@ -341,8 +341,8 @@ class M_scorecard extends MY_Model{
 					{$segmentacion['columnas_bd']}
 
 				FROM
-					trade.data_ruta r WITH(NOLOCK)
-					JOIN trade.data_visita v
+					{$this->sessBDCuenta}.trade.data_ruta r WITH(NOLOCK)
+					JOIN {$this->sessBDCuenta}.trade.data_visita v
 						ON v.idRuta = r.idRuta
 						AND r.fecha BETWEEN @fecIni AND @fecFin
 						AND r.idTIpoUsuario IN(1)
@@ -355,7 +355,7 @@ class M_scorecard extends MY_Model{
 					JOIN trade.canal ca ON ca.idCanal = sn.idCanal AND ca.estado=1 AND ca.idCanal NOT IN (11)
 					JOIN trade.cliente_tipo sca ON sca.idClienteTipo = sn.idClienteTipo AND sca.estado = 1
 					JOIN trade.grupoCanal gc ON gc.idGrupoCanal = ca.idGrupoCanal 
-					LEFT JOIN trade.data_visitaIncidencia vi ON vi.idVisita = v.idVisita
+					LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaIncidencia vi ON vi.idVisita = v.idVisita
 					{$segmentacion['join']}
 				WHERE
 					1=1
@@ -366,7 +366,7 @@ class M_scorecard extends MY_Model{
 	
 		";
 
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visita' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visita" ];
 		return $this->db->query($sql)->result_array();
 	}
 	public function obtener_cartera_seg($input = array() ){
@@ -461,7 +461,7 @@ class M_scorecard extends MY_Model{
 					-- LEFT JOIN General.dbo.ubigeo ubd ON ubd.cod_ubigeo = ds.cod_ubigeo
 					-- LEFT JOIN trade.plaza p ON p.idPlaza = scm.idPlaza
 					-- LEFT JOIN General.dbo.ubigeo ubp ON ubp.cod_ubigeo = p.cod_ubigeo
-					LEFT JOIN trade.cartera_objetivo co
+					LEFT JOIN {$this->sessBDCuenta}.trade.cartera_objetivo co
 						ON co.idSubCanal = sca.idClienteTipo
 					{$segmentacion['join']}
 				WHERE

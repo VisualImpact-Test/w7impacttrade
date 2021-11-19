@@ -171,7 +171,7 @@ class Iniciativas extends MY_Controller
 		);
 
 		$this->db->where('idVisitaIniciativaTradDet', $idIniciativaDet );
-		$this->db->update('trade.data_visitaIniciativaTradDet', $editar);
+		$this->db->update("{$this->sessBDCuenta}.trade.data_visitaIniciativaTradDet", $editar);
 		
 		$result['result']=1;
 		$result['data']=$estado;
@@ -207,7 +207,7 @@ class Iniciativas extends MY_Controller
 				);
 
 				$this->db->where('idVisitaIniciativaTradDet',  $post[$i]['iniciativas'][0] );
-				$this->db->update('trade.data_visitaIniciativaTradDet', $editar);
+				$this->db->update("{$this->sessBDCuenta}.trade.data_visitaIniciativaTradDet", $editar);
 			}
 		}
 

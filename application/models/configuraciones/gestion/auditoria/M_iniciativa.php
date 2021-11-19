@@ -12,9 +12,9 @@ class M_iniciativa extends My_Model
 
 		$this->tablas = [
 			'elemento' => ['tabla' => 'trade.elementoIniciativaTrad', 'id' => 'idElementoIniciativa'],
-			'lista' => ['tabla' => 'trade.list_visibilidadTradIni', 'id' => 'idListVisibilidadIni'],
-			'listaDet' => ['tabla'=>'trade.list_visibilidadTradIniDet','id'=>'idListVisibilidadIniDet'],
-			'tipoElemento' => ['tabla'=>'trade.iniciativaTrad','id'=>'idIniciativa'],
+			'lista' => ['tabla' => "{$this->sessBDCuenta}.trade.list_visibilidadTradIni", 'id' => 'idListVisibilidadIni'],
+			'listaDet' => ['tabla'=>"{$this->sessBDCuenta}.trade.list_visibilidadTradIniDet",'id'=>'idListVisibilidadIniDet'],
+			'tipoElemento' => ['tabla'=>"{$this->sessBDCuenta}.trade.iniciativaTrad",'id'=>'idIniciativa'],
 		
 			
 		];
@@ -65,9 +65,9 @@ class M_iniciativa extends My_Model
 	}
 
 	public function getIdEncuesta($encuesta){
-		$sql = $this->db->get_where('trade.encuesta',array('nombre'=>$encuesta));
+		$sql = $this->db->get_where("{$this->sessBDCuenta}.trade.encuesta",array('nombre'=>$encuesta));
 
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.encuesta' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.encuesta" ];
 		return ($sql);
 	}
 
@@ -372,7 +372,7 @@ class M_iniciativa extends My_Model
 			SELECT --TOP 6000
 			c.idCliente, c.razonSocial
 			FROM trade.cliente c
-			JOIN trade.cliente_historico_pg ch ON ch.idCliente = c.idCliente
+			JOIN {$this->sessBDCuenta}.trade.cliente_historico ch ON ch.idCliente = c.idCliente
 			WHERE 1=1 AND ch.estado=1
 			AND @fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin,@fecha)
 			{$filtros}
@@ -492,18 +492,18 @@ class M_iniciativa extends My_Model
 			,ca.nombre
 			,ch.idCuenta
 		FROM 
-			ImpactTrade_bd.trade.cliente_historico_pg ch
-			JOIN ImpactTrade_bd.trade.segmentacionNegocio sn
+			{$this->sessBDCuenta}.trade.cliente_historico ch
+			JOIN trade.segmentacionNegocio sn
 				ON sn.idSegNegocio = ch.idSegNegocio
-			JOIN ImpactTrade_bd.trade.canal ca
+			JOIN trade.canal ca
 				ON ca.idCanal=sn.idCanal 
-			JOIN ImpactTrade_bd.trade.grupoCanal gc 
+			JOIN trade.grupoCanal gc 
 			    ON gc.idGrupoCanal=ca.idGrupoCanal
 			{$filtros}
 		ORDER BY gc.idGrupoCanal
 		";
 
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.cliente_historico_pg' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.cliente_historico" ];
 		return $this->db->query($sql);
 	}
 	public function obtenerProyectos($post)
@@ -544,7 +544,7 @@ class M_iniciativa extends My_Model
 			c.idCliente
 			,c.razonSocial
 		FROM trade.cliente c
-		JOIN trade.cliente_historico_pg ch ON c.idCliente = ch.idCliente
+		JOIN {$this->sessBDCuenta}.trade.cliente_historico ch ON c.idCliente = ch.idCliente
 		JOIN trade.segmentacionNegocio seg ON ch.idSegNegocio = seg.idSegNegocio
 		WHERE 1=1 {$filtro}";
 

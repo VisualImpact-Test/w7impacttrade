@@ -711,7 +711,7 @@ class Basemadre extends MY_Controller{
 			$inputHistorico['latitud'] = $latitud;
 			$inputHistorico['longitud'] = $longitud;
 
-			$insertClienteHistorico = $this->model->insertar_cliente_historico_pg_v1($inputHistorico);
+			$insertClienteHistorico = $this->model->insertar_cliente_historico_v1($inputHistorico);
 			if ($insertClienteHistorico) {
 				$rowInserted++;
 				$result['result']=1;
@@ -766,7 +766,7 @@ class Basemadre extends MY_Controller{
 				$inputHistorico['longitud'] = $longitud;
 				$inputHistorico['idUsuarioSolicitud'] = $idUsuario;
 
-				$insertClienteHistorico = $this->model->insertar_cliente_historico_pg_v1($inputHistorico);
+				$insertClienteHistorico = $this->model->insertar_cliente_historico_v1($inputHistorico);
 				if ($insertClienteHistorico) {
 					$rowInserted++;
 					$result['result']=1;
@@ -930,7 +930,7 @@ class Basemadre extends MY_Controller{
 				$input['idClientePg'] = !empty($data->{'cliente'}) ? $data->{'cliente'}:NULL;
 				$input['idClienteHistPg'] = !empty($data->{'clienteHistorico'}) ? $data->{'clienteHistorico'}:NULL;
 
-				$rs_clienteHistorico = $this->model->obtener_cliente_historico_pg_v1($input);
+				$rs_clienteHistorico = $this->model->obtener_cliente_historico_v1($input);
 				break;
 
 			default:
@@ -1184,7 +1184,7 @@ class Basemadre extends MY_Controller{
 					$arrayUpdateClienteHistorico['arrayParams'] = $inputHistorico;
 					$arrayUpdateClienteHistorico['arrayWhere'] = $inputWhere;
 					//
-					$updateClienteHistorico = $this->model->update_cliente_historico_pg_v1($arrayUpdateClienteHistorico);
+					$updateClienteHistorico = $this->model->update_cliente_historico_v1($arrayUpdateClienteHistorico);
 					break;
 				default:
 					$updateClienteHistorico = false;
@@ -1841,7 +1841,7 @@ class Basemadre extends MY_Controller{
 							$inputHistorico['longitud'] = $longitud;
 							$inputHistorico['idUsuarioSolicitud'] = $idUsuario;
 
-							$insertClienteHistorico = $this->model->insertar_cliente_historico_pg_v1($inputHistorico);
+							$insertClienteHistorico = $this->model->insertar_cliente_historico_v1($inputHistorico);
 							//VERIFICAMOS EL CORRECTO ALMACENAMIENTO DEL HISTÓRICO
 							if ($insertClienteHistorico) {
 								$rowInsertedClienteHistorico++;
@@ -1884,7 +1884,7 @@ class Basemadre extends MY_Controller{
 						// $inputHistorico['longitud'] = $longitud;
 						// $inputHistorico['idUsuarioSolicitud'] = $idUsuario;
 
-						// $insertClienteHistorico = $this->model->insertar_cliente_historico_pg_v1($inputHistorico);
+						// $insertClienteHistorico = $this->model->insertar_cliente_historico_v1($inputHistorico);
 						// if ($insertClienteHistorico) {
 						// 	$rowInsertedClienteHistorico++;
 						// 	$html .= '<div class="alert alert-primary fade show" role="alert"><i class="fas fa-check-circle"></i> SE LOGRÓ REGISTRAR EL CLIENTE HISTÓRICO DE <strong>'.$nombreComercial.'</strong> CORRECTAMENTE.</div>';
@@ -3014,7 +3014,7 @@ class Basemadre extends MY_Controller{
 									$html .= '<div class="alert alert-success fade show" role="alert"><i class="fas fa-store-alt"></i> SE LOGRÓ REGISTRAR EL CLIENTE <strong>'.$arrayCabecera['nombreComercial'].'</strong> CORRECTAMENTE.</div>';
 								
 									//CLIENTE HISTÓRICO
-									$rs_obtenerTransferirClienteHistorico = $this->model->obtener_tranferir_cliente_historico_pg_v1($input);
+									$rs_obtenerTransferirClienteHistorico = $this->model->obtener_tranferir_cliente_historico_v1($input);
 
 									if (!empty($rs_obtenerTransferirClienteHistorico)) {
 										//ARRAY HISTORICO
@@ -3061,7 +3061,7 @@ class Basemadre extends MY_Controller{
 								$idCliente = $rs_verificarExistencia[0]['idCliente'];
 
 								//CLIENTE HISTÓRICO
-								$rs_obtenerTransferirClienteHistorico = $this->model->obtener_tranferir_cliente_historico_pg_v1($input);
+								$rs_obtenerTransferirClienteHistorico = $this->model->obtener_tranferir_cliente_historico_v1($input);
 
 								if (!empty($rs_obtenerTransferirClienteHistorico)) {
 									//ARRAY HISTORICO
@@ -3818,7 +3818,7 @@ class Basemadre extends MY_Controller{
 			'auditoria' => $auditoria
 		);
 
-		$this->db->insert('impactTrade_bd.trade.cargaCliente',$carga);
+		$this->db->insert("{$this->sessBDCuenta}.trade.cargaCliente",$carga);
 
 		$result=array();
 		$result['data']= '1';
@@ -4204,7 +4204,7 @@ class Basemadre extends MY_Controller{
 			'idProyecto' => $idProyecto
 		);
 
-		$this->db->insert('impactTrade_bd.trade.cargaClienteProyecto',$carga);
+		$this->db->insert('trade.cargaClienteProyecto',$carga);
 
 		$result=array();
 		$result['data']= '1';

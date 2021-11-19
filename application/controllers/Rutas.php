@@ -35,7 +35,7 @@ class Rutas extends MY_Controller{
 		ini_set('memory_limit','2048M');
 		set_time_limit(0);
 
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_ruta' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_ruta" ];
 
 		$result = $this->result;
 		$data = json_decode($this->input->post('data'));
@@ -662,7 +662,7 @@ class Rutas extends MY_Controller{
 	}
 
 	public function mostrarFotos(){
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visitaFotos' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaFotos" ];
 
 		$result = $this->result;
 		$data = json_decode($this->input->post('data'));
@@ -801,7 +801,7 @@ class Rutas extends MY_Controller{
 	}
 
 	public function detalle_encuesta($idVisita){
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visitaEncuesta' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaEncuesta" ];
 
 		$data = [
 			'encuesta' => [],
@@ -834,7 +834,7 @@ class Rutas extends MY_Controller{
 	}
 
 	public function detalle_ipp($idVisita){
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visitaIpp' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaIpp" ];
 
 		$rs_det= $this->model->detalle_ipp($idVisita);
 		if(!empty($rs_det)){
@@ -858,7 +858,7 @@ class Rutas extends MY_Controller{
 	}
 
 	public function detalle_checkproducto($idVisita){
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visitaProductosDet' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaProductosDet" ];
 
 		$idGrupoCanal = getGrupoCanalDeVisita($idVisita);
 		$rs_det = $this->model->detalle_checkproducto($idVisita, $idGrupoCanal);
@@ -897,7 +897,7 @@ class Rutas extends MY_Controller{
 	}
 
 	public function detalle_precios($idVisita){
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visitaPrecios' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaPrecios" ];
 
 		$idGrupoCanal = getGrupoCanalDeVisita($idVisita);
 		$rs_det = $this->model->detalle_precio($idVisita, $idGrupoCanal);
@@ -914,7 +914,7 @@ class Rutas extends MY_Controller{
 	}
 
 	public function detalle_promociones($idVisita){
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visitaPromociones' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaPromociones" ];
 
 		$idGrupoCanal = getGrupoCanalDeVisita($idVisita);
 		$rs_det = $this->model->detalle_promociones($idVisita, $idGrupoCanal);
@@ -942,7 +942,7 @@ class Rutas extends MY_Controller{
 	}
 
 	public function detalle_sos($idVisita){
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visitaSoS' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaSoS" ];
 
 		$rs_det = $this->model->detalle_sos($idVisita);
 		if(!empty($rs_det)){
@@ -957,7 +957,7 @@ class Rutas extends MY_Controller{
 	}
 
 	public function detalle_sod($idVisita){
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visitaSod' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaSod" ];
 
 		$rs_det=$this->model->detalle_sod($idVisita);
 		if(!empty($rs_det)){
@@ -976,7 +976,7 @@ class Rutas extends MY_Controller{
 	}
 
 	public function detalle_encarte($idVisita){
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visitaEncartes' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaEncartes" ];
 
 		$rs_det=$this->model->detalle_encarte($idVisita);
 		if(!empty($rs_det)){
@@ -994,7 +994,7 @@ class Rutas extends MY_Controller{
 	}
 
 	public function detalle_seguimiento_plan($idVisita){
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visitaSeguimientoPlan' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaSeguimientoPlan" ];
 
 		$rs_det=$this->model->detalle_seguimiento_plan($idVisita);
 		if(!empty($rs_det)){
@@ -1012,7 +1012,7 @@ class Rutas extends MY_Controller{
 	}
 
 	public function detalle_despacho($idVisita){
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visitaDespachos' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaDespachos" ];
 
 		$rs_det=$this->model->detalle_despacho($idVisita);
 		if(!empty($rs_det)){
@@ -1030,7 +1030,7 @@ class Rutas extends MY_Controller{
 	}
 
 	public function detalle_inventario($idVisita){
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visitaInventario' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaInventario" ];
 
 		$rs_det=$this->model->detalle_inventario($idVisita);
 		if(!empty($rs_det)){
@@ -1056,7 +1056,7 @@ class Rutas extends MY_Controller{
 	}
 
 	public function detalle_visibilidad($idVisita){
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visitaVisibilidadTrad' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaVisibilidadTrad" ];
 
 		$query = $this->model->detalle_visibilidad($idVisita);
 		if( !empty($query) ){
@@ -1079,7 +1079,7 @@ class Rutas extends MY_Controller{
 	}
 
 	public function detalle_mantenimientoCliente($idVisita){
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visitaMantenimientoCliente' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaMantenimientoCliente" ];
 
 		$rs_det=$this->model->detalle_mantenimientoCliente($idVisita);
 		if(!empty($rs_det)){
@@ -1094,7 +1094,7 @@ class Rutas extends MY_Controller{
 	}
 
 	public function detalle_iniciativas($idVisita){
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visitaIniciativaTrad' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaIniciativaTrad" ];
 
 		$query = $this->model->detalle_iniciativas($idVisita);
 		if( !empty($query) ){
@@ -1124,7 +1124,7 @@ class Rutas extends MY_Controller{
 	}
 
 	public function detalle_inteligenciaCompetitiva($idVisita){
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visitaInteligenciaTrad' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaInteligenciaTrad" ];
 
 		$rs_det=$this->model->detalle_inteligenciaCompetitiva($idVisita);
 		if(!empty($rs_det)){
@@ -1140,7 +1140,7 @@ class Rutas extends MY_Controller{
 	}
 
 	public function detalle_ordenTrabajo($idVisita){
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visitaOrden' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaOrden" ];
 
 		$rs_det=$this->model->detalle_ordenTrabajo($idVisita);
 		if(!empty($rs_det)){
@@ -1163,7 +1163,7 @@ class Rutas extends MY_Controller{
 		if( !empty($rs_detObligatoria) || !empty($rs_detIniciativa) || !empty($rs_detAdicional) ){
 			$html = '';
 			if ( !empty($rs_detObligatoria) ) {
-				$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visitaVisibilidadObligatorio' ];
+				$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaVisibilidadObligatorio" ];
 
 				$array = array();
 				foreach($rs_detObligatoria as $row){
@@ -1196,7 +1196,7 @@ class Rutas extends MY_Controller{
 			}
 
 			if ( !empty($rs_detIniciativa) ) {
-				$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visitaVisibilidadIniciativa' ];
+				$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaVisibilidadIniciativa" ];
 
 				$array = array();
 				foreach($rs_detIniciativa as $row){
@@ -1218,7 +1218,7 @@ class Rutas extends MY_Controller{
 			}
 
 			if ( !empty($rs_detAdicional) ) {
-				$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visitaVisibilidadAdicional' ];
+				$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaVisibilidadAdicional" ];
 
 				$array = array();
 				foreach($rs_detAdicional as $row){
@@ -1244,7 +1244,7 @@ class Rutas extends MY_Controller{
 	}
 
 	public function detalle_encuestaPremio($idVisita){
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visitaEncuestaPremio' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaEncuestaPremio" ];
 
 		$rs_det=$this->model->detalle_encuestaPremio($idVisita);
 		if(!empty($rs_det)){
@@ -1267,7 +1267,7 @@ class Rutas extends MY_Controller{
 	}
 
 	public function detalle_premiacion($idVisita){
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visitaPremiacion' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaPremiacion" ];
 
 		$query = $this->model->detalle_premiacion($idVisita);
 		if( !empty($query) ){
@@ -1281,7 +1281,7 @@ class Rutas extends MY_Controller{
 	}
 
 	public function detalle_surtido($idVisita){
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visitaSurtido' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaSurtido" ];
 
 		$aSurtido = $this->model->detalle_surtido($idVisita);
 		$aSugerido = $this->model->detalle_sugerido($idVisita);
@@ -1296,7 +1296,7 @@ class Rutas extends MY_Controller{
 	}
 
 	public function detalle_observacion($idVisita){
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visitaObservacion' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaObservacion" ];
 
 		$rs_det= $this->model->detalle_observacion($idVisita);
 		if(!empty($rs_det)){
@@ -1312,7 +1312,7 @@ class Rutas extends MY_Controller{
 	}
 
 	public function detalle_tarea($idVisita){
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visitaTarea' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaTarea" ];
 
 		$rs_det = $this->model->detalle_tarea($idVisita);
 
@@ -1340,7 +1340,7 @@ class Rutas extends MY_Controller{
 	}
 
 	public function detalle_evidenciaFotografica($idVisita){
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visitaEvidenciaFotografica' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaEvidenciaFotografica" ];
 
 		$rs_det = $this->model->detalle_evidenciaFotografica($idVisita);
 
@@ -1366,7 +1366,7 @@ class Rutas extends MY_Controller{
 	}
 
 	public function detalle_orden($idVisita){
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visitaOrden' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaOrden" ];
 
 		$query = $this->model->detalle_orden($idVisita);
 		if( !empty($query) ){
@@ -1380,7 +1380,7 @@ class Rutas extends MY_Controller{
 	}
 
 	public function detalle_modulacion($idVisita){
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visitaModulacion' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaModulacion" ];
 
 		$query = $this->model->detalle_modulacion($idVisita);
 

@@ -36,8 +36,8 @@ class M_rutas extends My_Model{
 				, r.estado
 				, r.generado
 			FROM
-				trade.master_rutaProgramada r
-				LEFT JOIN trade.master_rutaProgramadaDet rd
+				{$this->sessBDCuenta}.trade.master_rutaProgramada r
+				LEFT JOIN {$this->sessBDCuenta}.trade.master_rutaProgramadaDet rd
 					ON rd.idRutaProg = r.idRutaProg
 					AND general.dbo.fn_fechaVigente(rd.fecIni,rd.fecFin,@fecIni,@fecFin)=1
 				LEFT JOIN trade.usuario gtm
@@ -53,7 +53,7 @@ class M_rutas extends My_Model{
 				{$filtros}
 		";
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.master_rutaProgramada' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.master_rutaProgramada" ];
 		return $this->db->query($sql)->result_array();
 	}
 	
@@ -72,8 +72,8 @@ class M_rutas extends My_Model{
 				, vpd.idDia
 				, vp.idVisitaProg
 			FROM 
-				trade.master_visitaProgramada vp
-				JOIN trade.master_visitaProgramadaDet vpd
+				{$this->sessBDCuenta}.trade.master_visitaProgramada vp
+				JOIN {$this->sessBDCuenta}.trade.master_visitaProgramadaDet vpd
 					ON vpd.idVisitaProg = vp.idVisitaProg
 				JOIN trade.cliente c
 					ON c.idCliente = vp.idCliente
@@ -82,7 +82,7 @@ class M_rutas extends My_Model{
 				AND vp.idRutaProg = {$idRutaProg}
 		";
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.master_visitaProgramada' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.master_visitaProgramada" ];
 		return $this->db->query($sql)->result_array();
 	}
 	
@@ -96,13 +96,13 @@ class M_rutas extends My_Model{
 				, nombreRuta
 
 			FROM 
-				trade.master_rutaProgramada 
+				{$this->sessBDCuenta}.trade.master_rutaProgramada 
 			WHERE
 				General.dbo.fn_fechaVigente(fecIni,fecFin,@fecIni,@fecFin)=1
 				AND estado=1
 		";
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.master_rutaProgramada' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.master_rutaProgramada" ];
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -115,10 +115,10 @@ class M_rutas extends My_Model{
 				, c.razonSocial
 				, vpd.idDia
 			FROM 
-				trade.master_rutaProgramada rp
-				JOIN trade.master_visitaProgramada vp
+				{$this->sessBDCuenta}.trade.master_rutaProgramada rp
+				JOIN {$this->sessBDCuenta}.trade.master_visitaProgramada vp
 					ON vp.idRutaProg = rp.idRutaProg
-				JOIN trade.master_visitaProgramadaDet vpd
+				JOIN {$this->sessBDCuenta}.trade.master_visitaProgramadaDet vpd
 					ON vpd.idVisitaProg = vp.idVisitaProg
 				JOIN trade.cliente c
 					ON c.idCliente = vp.idCliente
@@ -128,7 +128,7 @@ class M_rutas extends My_Model{
 				idCliente
 		";
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.master_visitaProgramadaDet' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.master_visitaProgramadaDet" ];
 		return $this->db->query($sql)->result_array();
 	}
 	
@@ -214,7 +214,7 @@ class M_rutas extends My_Model{
 				, CONVERT(VARCHAR,rp.fecIni,103) fecIni 
 				, CONVERT(VARCHAR,rp.fecFin,103) fecFin
 			FROM 
-				trade.master_rutaProgramadaDet rp
+				{$this->sessBDCuenta}.trade.master_rutaProgramadaDet rp
 				JOIN trade.usuario u
 					ON u.idUsuario = rp.idUsuario
 			WHERE
@@ -222,7 +222,7 @@ class M_rutas extends My_Model{
 		
 		";
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.master_rutaProgramadaDet' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.master_rutaProgramadaDet" ];
 		return $this->db->query($sql)->result_array();
 	}
 	
@@ -311,14 +311,14 @@ class M_rutas extends My_Model{
 				, t.fecha
 				, cc.nombreComercial
 			FROM
-				trade.master_rutaProgramada rp
-				JOIN trade.master_rutaProgramadaDet rpd 
+				{$this->sessBDCuenta}.trade.master_rutaProgramada rp
+				JOIN {$this->sessBDCuenta}.trade.master_rutaProgramadaDet rpd 
 					ON rpd.idRutaProg=rp.idRutaProg
-				JOIN trade.master_visitaProgramada vp
+				JOIN {$this->sessBDCuenta}.trade.master_visitaProgramada vp
 					ON vp.idRutaProg = rpd.idRutaProg
 				JOIN trade.cliente cc
 					ON cc.idCliente=vp.idCliente
-				JOIN trade.master_visitaProgramadaDet vpd
+				JOIN {$this->sessBDCuenta}.trade.master_visitaProgramadaDet vpd
 					ON vpd.idVisitaProg=vp.idVisitaProg
 				JOIN General.dbo.tiempo t 
 					ON t.fecha between rp.fecIni and rp.fecFin and t.idDia=vpd.idDia
@@ -326,7 +326,7 @@ class M_rutas extends My_Model{
 				rp.idRutaProg=@idRutaProg;
 		";
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.master_rutaProgramada' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.master_rutaProgramada" ];
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -340,12 +340,12 @@ class M_rutas extends My_Model{
 			, vp.idCliente
 			, t.fecha 
 		FROM
-			trade.master_rutaProgramada rp
-			JOIN trade.master_rutaProgramadaDet rpd 
+			{$this->sessBDCuenta}.trade.master_rutaProgramada rp
+			JOIN {$this->sessBDCuenta}.trade.master_rutaProgramadaDet rpd 
 				ON rpd.idRutaProg=rp.idRutaProg
-			JOIN trade.master_visitaProgramada vp
+			JOIN {$this->sessBDCuenta}.trade.master_visitaProgramada vp
 				ON vp.idRutaProg = rpd.idRutaProg
-			JOIN trade.master_visitaProgramadaDet vpd
+			JOIN {$this->sessBDCuenta}.trade.master_visitaProgramadaDet vpd
 				ON vpd.idVisitaProg=vp.idVisitaProg
 			JOIN General.dbo.tiempo t 
 				ON t.fecha between rp.fecIni and rp.fecFin and t.idDia=vpd.idDia
@@ -353,7 +353,7 @@ class M_rutas extends My_Model{
 			rp.idRutaProg={$idRutaProg};
 		";
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.master_rutaProgramada' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.master_rutaProgramada" ];
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -368,31 +368,31 @@ class M_rutas extends My_Model{
 			SET @fecha=CONVERT(DATE,'{$params['fecha']}');
 			SELECT
 				@num=COUNT(idRuta)
-			FROM trade.data_ruta
+			FROM {$this->sessBDCuenta}.trade.data_ruta
 			WHERE idUsuario={$params['idUsuario']}
 			AND fecha=@fecha AND idCuenta = {$params['idCuenta']} AND idProyecto = {$params['idProyecto']};
 
 			IF( @num=0 )BEGIN
-				INSERT INTO trade.data_ruta (fecha,idUsuario,idEncargado,idProyecto,idCuenta) VALUES (@fecha,{$params['idUsuario']},null,{$params['idProyecto']},{$params['idCuenta']})
+				INSERT INTO {$this->sessBDCuenta}.trade.data_ruta (fecha,idUsuario,idEncargado,idProyecto,idCuenta) VALUES (@fecha,{$params['idUsuario']},null,{$params['idProyecto']},{$params['idCuenta']})
 			END
 
 			SELECT
 				@idRuta=idRuta
-			FROM trade.data_ruta
+			FROM {$this->sessBDCuenta}.trade.data_ruta
 			WHERE idUsuario={$params['idUsuario']}
 			AND fecha=@fecha AND idProyecto = {$params['idProyecto']} AND idCuenta = {$params['idCuenta']};
 
 			SELECT
 				@num=COUNT(idVisita)
-			FROM trade.data_visita
+			FROM {$this->sessBDCuenta}.trade.data_visita
 			WHERE idRuta=@idRuta
 			AND idCliente={$params['idCliente']} 
 
 			IF( @num=0 )BEGIN
-				INSERT INTO trade.data_visita (idRuta,idCliente) VALUES (@idRuta,{$params['idCliente']});
+				INSERT INTO {$this->sessBDCuenta}.trade.data_visita (idRuta,idCliente) VALUES (@idRuta,{$params['idCliente']});
 			END
 		";
-		$this->CI->aSessTrack[] = [ 'idAccion' => 8, 'tabla' => 'trade.data_visita', 'id' => $params['idCliente'] ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 8, 'tabla' => "{$this->sessBDCuenta}.trade.data_visita", 'id' => $params['idCliente'] ];
 		return $this->db->query($sql);
 	}
 
@@ -405,12 +405,12 @@ class M_rutas extends My_Model{
 				, convert(varchar,fechaRegistro,103) fecRegistro
 				, convert(varchar,fechaRegistro,108) horaRegistro 
 				, convert(varchar,finRegistro,108) horaFin
-				, (SELECT COUNT(*) FROM  trade.cargaRutaNoProcesados WHERE idCarga=cm.idCarga  ) noProcesados
+				, (SELECT COUNT(*) FROM  {$this->sessBDCuenta}.trade.cargaRutaNoProcesados WHERE idCarga=cm.idCarga  ) noProcesados
 				,(
-					SELECT count(*) FROM trade.cargaRutaNoProcesados WHERE idCarga=cm.idCarga
+					SELECT count(*) FROM {$this->sessBDCuenta}.trade.cargaRutaNoProcesados WHERE idCarga=cm.idCarga
 				) error
 			FROM 
-				trade.cargaRuta cm
+				{$this->sessBDCuenta}.trade.cargaRuta cm
 				order by cm.idCarga DESC
 
 		";
@@ -420,7 +420,7 @@ class M_rutas extends My_Model{
 
 	////ERRORES
 	public function obtener_rutas_no_procesado($id){
-		$sql="SELECT * FROM trade.cargaRutaNoProcesados where idCarga= $id";
+		$sql="SELECT * FROM {$this->sessBDCuenta}.trade.cargaRutaNoProcesados where idCarga= $id";
 		return $this->db->query($sql)->result_array();
 	}
 

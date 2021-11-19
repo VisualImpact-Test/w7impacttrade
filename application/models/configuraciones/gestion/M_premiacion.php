@@ -30,7 +30,7 @@ class M_premiacion extends My_Model
 
         $sql = "
 				SELECT *
-				FROM trade.premiacion
+				FROM {$this->sessBDCuenta}.trade.premiacion
 				{$filtros}
 			";
 
@@ -58,7 +58,7 @@ class M_premiacion extends My_Model
 		}
 		
 
-        $insert = $this->db->insert('trade.premiacion', $insert);
+        $insert = $this->db->insert("{$this->sessBDCuenta}.trade.premiacion", $insert);
         $this->insertId = $this->db->insert_id();
         return $insert;
     }
@@ -82,7 +82,7 @@ class M_premiacion extends My_Model
         ];
 
         $this->db->where($where);
-        $update = $this->db->update('trade.premiacion', $update);
+        $update = $this->db->update("{$this->sessBDCuenta}.trade.premiacion", $update);
         return $update;
     }
 }

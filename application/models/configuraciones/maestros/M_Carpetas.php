@@ -8,8 +8,8 @@ class M_Carpetas extends MY_Model
 		parent::__construct();
 
 		$this->tablas = [
-			// 'archivos' => ['tabla' => 'trade.gestorArchivos_archivo', 'id' => 'idArchivo'],
-			'carpetas' => ['tabla' => 'trade.gestorArchivos_carpeta', 'id' => 'idCarpeta'],
+			// 'archivos' => ['tabla' => "{$this->sessBDCuenta}.trade.gestorArchivos_archivo", 'id' => 'idArchivo'],
+			'carpetas' => ['tabla' => "{$this->sessBDCuenta}.trade.gestorArchivos_carpeta", 'id' => 'idCarpeta'],
 		];
 	}
 
@@ -21,7 +21,7 @@ class M_Carpetas extends MY_Model
 		
 		$sql = "
 			SELECT *
-			FROM trade.gestorArchivos_grupo
+			FROM {$this->sessBDCuenta}.trade.gestorArchivos_grupo
 			WHERE estado = 1
 			{$filtros}
 			ORDER BY orden ASC;
@@ -50,9 +50,9 @@ class M_Carpetas extends MY_Model
 				SUM(a.peso) OVER(PARTITION BY c.idCarpeta) espacioOcupado,
 				c.fechaCreacion,
 				c.fechaModificacion
-			FROM trade.gestorArchivos_carpeta c
-				JOIN trade.gestorArchivos_grupo g ON c.idGrupo = g.idGrupo
-				LEFT JOIN trade.gestorArchivos_archivo a ON c.idCarpeta = a.idCarpeta
+			FROM {$this->sessBDCuenta}.trade.gestorArchivos_carpeta c
+				JOIN {$this->sessBDCuenta}.trade.gestorArchivos_grupo g ON c.idGrupo = g.idGrupo
+				LEFT JOIN {$this->sessBDCuenta}.trade.gestorArchivos_archivo a ON c.idCarpeta = a.idCarpeta
 			$filtros
 			ORDER BY g.orden ASC, 
 					c.idCarpeta;

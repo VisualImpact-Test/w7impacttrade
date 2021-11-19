@@ -1377,7 +1377,7 @@ class Iniciativatrad extends MY_Controller
 		
         $listas = $post['HT']['0'];
 		$listasParams['tablaHT'] = $listas;
-		$listasParams['grupos'][0] = ['columnas' => ['iniciativa'], 'columnasReales' => ['nombre'], 'tabla' => 'trade.iniciativaTrad', 'idTabla' => 'idIniciativa'];
+		$listasParams['grupos'][0] = ['columnas' => ['iniciativa'], 'columnasReales' => ['nombre'], 'tabla' => "{$this->sessBDCuenta}.trade.iniciativaTrad", 'idTabla' => 'idIniciativa'];
         $listas = $this->getIdsCorrespondientes($listasParams);
         
 		array_pop($listas);

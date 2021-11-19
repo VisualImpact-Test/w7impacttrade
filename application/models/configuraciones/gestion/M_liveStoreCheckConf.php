@@ -9,21 +9,21 @@ class M_liveStorecheckConf extends My_Model
 		parent::__construct();
 
 		$this->tablas = [
-			'infoPlaza' => ['tabla' => 'lsck.tipoInfo', 'id' => 'idInfo'],
-			'tipoCliente' => ['tabla' => 'lsck.tipoCliente', 'id' => 'idTipoCliente'],
-			'tipoResponsable' => ['tabla' => 'lsck.responsableTipo', 'id' => 'idTipo'],
-			'responsable' => ['tabla' => 'lsck.responsable', 'id' => 'idResponsable'],
-			'tipoAuditoria' => ['tabla' => 'lsck.ext_auditoriaTipo', 'id' => 'idExtAudTipo'],
-			'empresa' => ['tabla' => 'lsck.tipoEmpresa', 'id' => 'idEmpresa'],
+			'infoPlaza' => ['tabla' => "{$this->sessBDCuenta}.lsck.tipoInfo", 'id' => 'idInfo'],
+			'tipoCliente' => ['tabla' => "{$this->sessBDCuenta}.lsck.tipoCliente", 'id' => 'idTipoCliente'],
+			'tipoResponsable' => ['tabla' => "{$this->sessBDCuenta}.lsck.responsableTipo", 'id' => 'idTipo'],
+			'responsable' => ['tabla' => "{$this->sessBDCuenta}.lsck.responsable", 'id' => 'idResponsable'],
+			'tipoAuditoria' => ['tabla' => "{$this->sessBDCuenta}.lsck.ext_auditoriaTipo", 'id' => 'idExtAudTipo'],
+			'empresa' => ['tabla' => "{$this->sessBDCuenta}.lsck.tipoEmpresa", 'id' => 'idEmpresa'],
 			'infPlaza' => ['tabla' => "{$this->sessBDCuenta}.lsck.conf_plazaInfo", 'id' => 'idPlazaInfo'],
 			'confPlaza' => ['tabla' => "{$this->sessBDCuenta}.lsck.conf_plaza", 'id' => 'idConfPlaza'],
 			'confCliente' => ['tabla' => "{$this->sessBDCuenta}.lsck.conf_cliente", 'id' => 'idConfCliente'],
-			'confTipoCliente' => ['tabla' => "{$this->sessBDCuenta}.lsck.conf_tipoClienteAud", 'id' => 'idTipoClienteAud','tablaDet' => 'lsck.conf_tipoClienteAudDet'],
-			'listaEvaluacion' => ['tabla' => 'lsck.listEvaluacion', 'id' => 'idListEval','tablaDet' => 'lsck.listEvaluacionDet'],
-			'preguntas' => ['tabla' => 'lsck.tipoEncuesta', 'id' => 'idEncuesta'],
-			'tipoEvaluacion' => ['tabla' => 'lsck.tipoEvaluacion', 'id' => 'idEvaluacion'],
-			'evaluacion' => ['tabla' => 'lsck.tipoEvaluacionDet', 'id' => 'idEvaluacionDet'],
-			'materiales' => ['tabla'=> 'lsck.ext_auditoriaMaterial','id' => 'idExtAudMat'],
+			'confTipoCliente' => ['tabla' => "{$this->sessBDCuenta}.lsck.conf_tipoClienteAud", 'id' => 'idTipoClienteAud','tablaDet' => "{$this->sessBDCuenta}.lsck.conf_tipoClienteAudDet"],
+			'listaEvaluacion' => ['tabla' => "{$this->sessBDCuenta}.lsck.listEvaluacion", 'id' => 'idListEval','tablaDet' => "{$this->sessBDCuenta}.lsck.listEvaluacionDet"],
+			'preguntas' => ['tabla' => "{$this->sessBDCuenta}.lsck.tipoEncuesta", 'id' => 'idEncuesta'],
+			'tipoEvaluacion' => ['tabla' => "{$this->sessBDCuenta}.lsck.tipoEvaluacion", 'id' => 'idEvaluacion'],
+			'evaluacion' => ['tabla' => "{$this->sessBDCuenta}.lsck.tipoEvaluacionDet", 'id' => 'idEvaluacionDet'],
+			'materiales' => ['tabla'=> "{$this->sessBDCuenta}.lsck.ext_auditoriaMaterial",'id' => 'idExtAudMat'],
 		];
 	}
 
@@ -106,7 +106,7 @@ class M_liveStorecheckConf extends My_Model
 		idInfo id
 		,nombre value
 		FROM 
-		lsck.tipoInfo
+		{$this->sessBDCuenta}.lsck.tipoInfo
 		WHERE estado = 1
 		";
 		return $this->db->query($sql);
@@ -117,7 +117,7 @@ class M_liveStorecheckConf extends My_Model
 		idEmpresa id
 		,nombre value
 		FROM 
-		lsck.tipoEmpresa
+		{$this->sessBDCuenta}.lsck.tipoEmpresa
 		WHERE estado = 1
 		";
 		return $this->db->query($sql);
@@ -128,7 +128,7 @@ class M_liveStorecheckConf extends My_Model
 		idTipoCliente id
 		,nombre value
 		FROM 
-		lsck.tipoCliente
+		{$this->sessBDCuenta}.lsck.tipoCliente
 		WHERE estado = 1
 		";
 		return $this->db->query($sql);
@@ -139,7 +139,7 @@ class M_liveStorecheckConf extends My_Model
 		idTipoAuditoria id
 		,nombre value
 		FROM 
-		lsck.tipoAuditoria
+		{$this->sessBDCuenta}.lsck.tipoAuditoria
 		WHERE estado = 1
 		";
 		return $this->db->query($sql);
@@ -150,7 +150,7 @@ class M_liveStorecheckConf extends My_Model
 		idEvaluacionDet id
 		,nombre value
 		FROM 
-		lsck.tipoEvaluacionDet
+		{$this->sessBDCuenta}.lsck.tipoEvaluacionDet
 		WHERE estado = 1
 		";
 		return $this->db->query($sql);
@@ -161,7 +161,7 @@ class M_liveStorecheckConf extends My_Model
 		idEncuesta id
 		,nombre value
 		FROM 
-		lsck.tipoEncuesta
+		{$this->sessBDCuenta}.lsck.tipoEncuesta
 		WHERE estado = 1
 		";
 		return $this->db->query($sql);
@@ -172,7 +172,7 @@ class M_liveStorecheckConf extends My_Model
 		idTipo id
 		,nombre value
 		FROM 
-		lsck.responsableTipo
+		{$this->sessBDCuenta}.lsck.responsableTipo
 		WHERE estado = 1
 		";
 		return $this->db->query($sql);
@@ -194,7 +194,7 @@ class M_liveStorecheckConf extends My_Model
 		idPregunta id
 		,nombre value
 		FROM 
-		lsck.tipoEncuestaPreg
+		{$this->sessBDCuenta}.lsck.tipoEncuestaPreg
 		WHERE estado = 1
 		";
 		return $this->db->query($sql);
@@ -206,7 +206,7 @@ class M_liveStorecheckConf extends My_Model
 		,nombre value
 		,idEncuesta idEncuesta
 		FROM 
-		lsck.tipoEncuestaPreg
+		{$this->sessBDCuenta}.lsck.tipoEncuestaPreg
 		WHERE estado = 1
 		";
 		return $this->db->query($sql);
@@ -220,7 +220,7 @@ class M_liveStorecheckConf extends My_Model
 		idExtAudTipo id
 		,nombre value
 		FROM 
-		lsck.ext_auditoriaTipo
+		{$this->sessBDCuenta}.lsck.ext_auditoriaTipo
 		WHERE estado = 1
 		$filtros
 		";
@@ -254,8 +254,8 @@ class M_liveStorecheckConf extends My_Model
 		am.idExtAudMat id
 		,am.nombre value
 		,ta.nombre tipoAuditoria
-		FROM lsck.ext_auditoriaMaterial am
-		LEFT JOIN lsck.ext_auditoriaTipo ta ON ta.idExtAudTipo =am.idExtAudTipo
+		FROM {$this->sessBDCuenta}.lsck.ext_auditoriaMaterial am
+		LEFT JOIN {$this->sessBDCuenta}.lsck.ext_auditoriaTipo ta ON ta.idExtAudTipo =am.idExtAudTipo
 		WHERE am.estado = 1 AND am.idExtAudTipo = {$idTipoAud} $filtros
 		";
 		return $this->db->query($sql);
@@ -266,7 +266,7 @@ class M_liveStorecheckConf extends My_Model
 		idExtAudMat id
 		,nombre value
 		,idExtAudTipo
-		FROM lsck.ext_auditoriaMaterial
+		FROM {$this->sessBDCuenta}.lsck.ext_auditoriaMaterial
 		WHERE estado = 1 
 		";
 		return $this->db->query($sql);
@@ -279,7 +279,7 @@ class M_liveStorecheckConf extends My_Model
 		FROM
 		{$this->sessBDCuenta}.lsck.conf_cliente p
 		LEFT JOIN trade.usuario u ON u.idUsuario = p.idUsuarioReg
-		LEFT JOIN lsck.tipoCliente tc ON tc.idTipoCliente = p.idTipoCliente
+		LEFT JOIN {$this->sessBDCuenta}.lsck.tipoCliente tc ON tc.idTipoCliente = p.idTipoCliente
 		LEFT JOIN pg.dbo.cliente c ON c.idCliente = p.idCliente
 		WHERE  ISNULL(fecFin,GETDATE()) BETWEEN fecIni AND GETDATE()
 		";
@@ -290,7 +290,7 @@ class M_liveStorecheckConf extends My_Model
 		SELECT 
 		idEvaluacion id
 		,nombre value
-		FROM lsck.tipoEvaluacion
+		FROM {$this->sessBDCuenta}.lsck.tipoEvaluacion
 		WHERE estado = 1 
 		";
 		return $this->db->query($sql);
@@ -400,7 +400,7 @@ class M_liveStorecheckConf extends My_Model
                 FROM
                 ".$this->tablas['responsable']['tabla']." p
 				LEFT JOIN trade.usuario u ON u.idUsuario = p.idUsuarioReg
-				LEFT JOIN lsck.responsableTipo rt ON rt.idTipo = p.idTipo
+				LEFT JOIN {$this->sessBDCuenta}.lsck.responsableTipo rt ON rt.idTipo = p.idTipo
                 $filtros
 			";
 
@@ -555,8 +555,8 @@ class M_liveStorecheckConf extends My_Model
 		{$this->sessBDCuenta}.lsck.conf_plazaInfo p
 		LEFT JOIN trade.usuario u ON u.idUsuario = p.idUsuarioReg
 		LEFT JOIN pg.auditoria.plazaCliente plz ON plz.idPlaza = p.idPlaza
-		LEFT JOIN lsck.tipoInfo ti ON ti.idInfo = p.idInfo
-		LEFT JOIN lsck.tipoEmpresa te ON te.idEmpresa = p.idEmpresa
+		LEFT JOIN {$this->sessBDCuenta}.lsck.tipoInfo ti ON ti.idInfo = p.idInfo
+		LEFT JOIN {$this->sessBDCuenta}.lsck.tipoEmpresa te ON te.idEmpresa = p.idEmpresa
 		LEFT JOIN pg.dbo.distribuidoraSucursal ds ON ds.idDistribuidoraSucursal = plz.idDistribuidoraSucursal
 		LEFT JOIN pg.dbo.distribuidora d ON d.idDistribuidora = ds.idDistribuidora
 		LEFT JOIN General.dbo.ubigeo u_d ON u_d.cod_ubigeo = ds.cod_ubigeo
@@ -637,8 +637,8 @@ class M_liveStorecheckConf extends My_Model
 		{$this->sessBDCuenta}.lsck.conf_plaza p
 		LEFT JOIN trade.usuario u ON u.idUsuario = p.idUsuarioReg
 		LEFT JOIN pg.auditoria.plazaCliente plz ON plz.idPlaza = p.idPlaza
-		LEFT JOIN lsck.tipoCliente tc ON tc.idTipoCliente = p.idTipoCliente
-		LEFT JOIN lsck.ext_auditoriaTipo tae ON tae.idExtAudTipo = p.idExtAudTipo
+		LEFT JOIN {$this->sessBDCuenta}.lsck.tipoCliente tc ON tc.idTipoCliente = p.idTipoCliente
+		LEFT JOIN {$this->sessBDCuenta}.lsck.ext_auditoriaTipo tae ON tae.idExtAudTipo = p.idExtAudTipo
 		LEFT JOIN pg.dbo.distribuidoraSucursal ds ON ds.idDistribuidoraSucursal = plz.idDistribuidoraSucursal
 		LEFT JOIN pg.dbo.distribuidora d ON d.idDistribuidora = ds.idDistribuidora
 		LEFT JOIN General.dbo.ubigeo u_d ON u_d.cod_ubigeo = ds.cod_ubigeo
@@ -784,7 +784,7 @@ class M_liveStorecheckConf extends My_Model
 		FROM
 		{$this->sessBDCuenta}.lsck.conf_cliente p
 		LEFT JOIN trade.usuario u ON u.idUsuario = p.idUsuarioReg
-		LEFT JOIN lsck.tipoCliente tc ON tc.idTipoCliente = p.idTipoCliente
+		LEFT JOIN {$this->sessBDCuenta}.lsck.tipoCliente tc ON tc.idTipoCliente = p.idTipoCliente
 		LEFT JOIN pg.dbo.cliente c ON c.idCliente = p.idCliente
 		LEFT JOIN pg.auditoria.plazaCliente pz ON pz.idPlaza = c.idPlaza
 		LEFT JOIN pg.dbo.distribuidoraSucursal ds ON ds.idDistribuidoraSucursal = pz.idDistribuidoraSucursal
@@ -819,8 +819,8 @@ class M_liveStorecheckConf extends My_Model
 		LEFT JOIN {$this->sessBDCuenta}.lsck.conf_cliente cc ON cc.idConfCliente = p.idConfCliente
 		LEFT JOIN pg.dbo.cliente c ON c.idCliente = cc.idCliente
 		LEFT JOIN trade.usuario u ON u.idUsuario = p.idUsuarioReg
-		LEFT JOIN lsck.ext_auditoriaTipo aut ON aut.idExtAudTipo = p.idExtAudTipo
-		LEFT JOIN lsck.tipoCliente tc ON tc.idTipoCliente = cc.idTipoCliente
+		LEFT JOIN {$this->sessBDCuenta}.lsck.ext_auditoriaTipo aut ON aut.idExtAudTipo = p.idExtAudTipo
+		LEFT JOIN {$this->sessBDCuenta}.lsck.tipoCliente tc ON tc.idTipoCliente = cc.idTipoCliente
 		$filtros
 		";
 
@@ -846,9 +846,9 @@ class M_liveStorecheckConf extends My_Model
 		FROM
 		{$this->sessBDCuenta}.lsck.conf_clienteAudDet p
 		LEFT JOIN trade.usuario u ON u.idUsuario = p.idUsuarioReg
-		LEFT JOIN lsck.ext_auditoriaMaterial aum ON aum.idExtAudMat = p.idExtAudMat AND aum.estado = 1
+		LEFT JOIN {$this->sessBDCuenta}.lsck.ext_auditoriaMaterial aum ON aum.idExtAudMat = p.idExtAudMat AND aum.estado = 1
 		LEFT JOIN {$this->sessBDCuenta}.lsck.conf_clienteAud cca ON cca.idConfClienteAud = p.idConfClienteAud
-		LEFT JOIN lsck.ext_auditoriaTipo aut ON aut.idExtAudTipo = cca.idExtAudTipo
+		LEFT JOIN {$this->sessBDCuenta}.lsck.ext_auditoriaTipo aut ON aut.idExtAudTipo = cca.idExtAudTipo
 		$filtros
 		";
 
@@ -980,9 +980,9 @@ class M_liveStorecheckConf extends My_Model
 		FROM
 		{$this->sessBDCuenta}.lsck.conf_tipoClienteAud p
 		LEFT JOIN trade.usuario u ON u.idUsuario = p.idUsuarioReg
-		LEFT JOIN lsck.ext_auditoriaTipo aut ON aut.idExtAudTipo = p.idExtAudTipo
-		LEFT JOIN lsck.tipoCliente tc ON tc.idTipoCliente = p.idTipoCliente
-		LEFT JOIN lsck.conf_tipoClienteAudDet pd ON pd.idTipoClienteAud = p.idTipoClienteAud
+		LEFT JOIN {$this->sessBDCuenta}.lsck.ext_auditoriaTipo aut ON aut.idExtAudTipo = p.idExtAudTipo
+		LEFT JOIN {$this->sessBDCuenta}.lsck.tipoCliente tc ON tc.idTipoCliente = p.idTipoCliente
+		LEFT JOIN {$this->sessBDCuenta}.lsck.conf_tipoClienteAudDet pd ON pd.idTipoClienteAud = p.idTipoClienteAud
 		$filtros
 		";
 
@@ -1003,9 +1003,9 @@ class M_liveStorecheckConf extends My_Model
 		,(u.nombres + ' ' + u.apePaterno + ' ' + u.apeMaterno) usuario
 		,aem.nombre material
 		FROM
-		lsck.conf_tipoClienteAudDet p
+		{$this->sessBDCuenta}.lsck.conf_tipoClienteAudDet p
 		LEFT JOIN trade.usuario u ON u.idUsuario = p.idUsuarioReg
-		LEFT JOIN lsck.ext_auditoriaMaterial aem ON aem.idExtAudMat = p.idExtAudMat
+		LEFT JOIN {$this->sessBDCuenta}.lsck.ext_auditoriaMaterial aem ON aem.idExtAudMat = p.idExtAudMat
 		$filtros
 		ORDER BY p.idExtAudMat ASC
 		";
@@ -1167,7 +1167,7 @@ class M_liveStorecheckConf extends My_Model
 			SELECT 
 			c.*
 			,(General.dbo.fn_fechaVigente(fecIni,fecFin,GETDATE(),GETDATE())) as vigente
-			FROM lsck.listEvaluacion  c
+			FROM {$this->sessBDCuenta}.lsck.listEvaluacion  c
 			)
 			SELECT * FROM list
 			WHERE idTipoAuditoria = {$post['sl_tipoAuditoria']} AND vigente = 1
@@ -1235,7 +1235,7 @@ class M_liveStorecheckConf extends My_Model
 		$sql = "
 		SELECT 
 		*
-		FROM lsck.conf_clienteAud
+		FROM {$this->sessBDCuenta}.lsck.conf_clienteAud
 		WHERE idConfCliente = {$post['idConfCliente']} AND idExtAudTipo = {$post['sl_tipoAuditoria']} 
 		$filtros
 		";
@@ -1286,11 +1286,11 @@ class M_liveStorecheckConf extends My_Model
 			,ta.nombre tipoAuditoria
 			,COUNT(ed.idListEvalDet) OVER (PARTITION BY p.idListEval) categorias
 			FROM
-			lsck.listEvaluacion p
+			{$this->sessBDCuenta}.lsck.listEvaluacion p
 			LEFT JOIN trade.usuario u ON u.idUsuario = p.idUsuarioReg
-			LEFT JOIN lsck.tipoCliente tc ON tc.idTipoCliente = p.idTipoCliente
-			LEFT JOIN lsck.tipoAuditoria ta ON ta.idTipoAuditoria = p.idTipoAuditoria
-			LEFT JOIN lsck.listEvaluacionDet ed ON ed.idListEval = p.idListEval
+			LEFT JOIN {$this->sessBDCuenta}.lsck.tipoCliente tc ON tc.idTipoCliente = p.idTipoCliente
+			LEFT JOIN {$this->sessBDCuenta}.lsck.tipoAuditoria ta ON ta.idTipoAuditoria = p.idTipoAuditoria
+			LEFT JOIN {$this->sessBDCuenta}.lsck.listEvaluacionDet ed ON ed.idListEval = p.idListEval
             $filtros
 			";
 		return $this->db->query($sql);
@@ -1313,10 +1313,10 @@ class M_liveStorecheckConf extends My_Model
 			,te.nombre encuesta
 			,ed.nombre evaluacion
 			FROM
-			lsck.listEvaluacionDet p
+			{$this->sessBDCuenta}.lsck.listEvaluacionDet p
 			LEFT JOIN trade.usuario u ON u.idUsuario = p.idUsuarioReg
-			LEFT JOIN lsck.tipoEvaluacionDet ed ON ed.idEvaluacionDet = p.idEvaluacionDet
-			LEFT JOIN lsck.tipoEncuesta te ON te.idEncuesta = p.idEncuesta
+			LEFT JOIN {$this->sessBDCuenta}.lsck.tipoEvaluacionDet ed ON ed.idEvaluacionDet = p.idEvaluacionDet
+			LEFT JOIN {$this->sessBDCuenta}.lsck.tipoEncuesta te ON te.idEncuesta = p.idEncuesta
             $filtros
 			";
 		return $this->db->query($sql);
@@ -1443,7 +1443,7 @@ class M_liveStorecheckConf extends My_Model
                 ".$this->tablas['evaluacion']['tabla']." p
 				LEFT JOIN trade.cuenta c ON c.idCuenta = p.idCuenta
 				LEFT JOIN trade.usuario u ON u.idUsuario = p.idUsuarioReg
-				LEFT JOIN lsck.tipoEvaluacion te ON te.idEvaluacion = p.idEvaluacion
+				LEFT JOIN {$this->sessBDCuenta}.lsck.tipoEvaluacion te ON te.idEvaluacion = p.idEvaluacion
                 $filtros
 			";
 
@@ -1556,16 +1556,16 @@ class M_liveStorecheckConf extends My_Model
 		return $this->db->insert_batch($this->tablas['evaluacion']['tabla'], $insert);
 	}
 	public function registrarMatExt($insert){
-		return $this->db->insert('lsck.ext_auditoriaMaterial', $insert);
+		return $this->db->insert("{$this->sessBDCuenta}.lsck.ext_auditoriaMaterial", $insert);
 	}
 	public function registrarEncuesta($insert){
-		return $this->db->insert('lsck.tipoEncuesta', $insert);
+		return $this->db->insert("{$this->sessBDCuenta}.lsck.tipoEncuesta", $insert);
 	}
 	public function registrarPreguntaEncuesta($insert){
-		return $this->db->insert('lsck.tipoEncuestaPreg', $insert);
+		return $this->db->insert("{$this->sessBDCuenta}.lsck.tipoEncuestaPreg", $insert);
 	}
 	public function registrarEncPregAlt($insert){
-		return $this->db->insert_batch('lsck.tipoEncuestaPregAlt', $insert);
+		return $this->db->insert_batch("{$this->sessBDCuenta}.lsck.tipoEncuestaPregAlt", $insert);
 	}
 	public function consultarPreguntas($input){
 		$filtro = "";
@@ -1578,12 +1578,12 @@ class M_liveStorecheckConf extends My_Model
 				enc.nombre,
 				(
 					SELECT COUNT(1)
-					FROM lsck.tipoEncuestaPreg
+					FROM {$this->sessBDCuenta}.lsck.tipoEncuestaPreg
 					WHERE idEncuesta = enc.idEncuesta
 				) AS numPreg,
 				enc.estado
 				,enc.cliente flag_cliente
-			FROM lsck.tipoEncuesta enc
+			FROM {$this->sessBDCuenta}.lsck.tipoEncuesta enc
 			JOIN trade.cuenta cu ON enc.idCuenta = cu.idCuenta
 			WHERE 1 = 1{$filtro}
 			ORDER BY enc.fechaReg DESC, enc.horaReg DESC
@@ -1614,7 +1614,7 @@ ORDER BY nombre
 						'idUsuarioReg' => $this->idUsuario,
 						'cliente' => !empty($input['flag_cliente'])? 1 : 0 ,
 					);
-				$this->db->insert('lsck.tipoEncuesta', $iEncuesta);
+				$this->db->insert("{$this->sessBDCuenta}.lsck.tipoEncuesta", $iEncuesta);
 				$idEncuesta = $this->db->insert_id();
 
 				if( !is_array($input["aPregunta"]) ){
@@ -1631,7 +1631,7 @@ ORDER BY nombre
 					!empty($input["presencia[{$num}]"]) &&  $input["presencia[{$num}]"] == "SI" ?  $iPregunta['extAudPresencia'] = 1: $iPregunta['extAudPresencia'] =  0;
 					!empty($input["checkDetalle[{$num}]"] )  &&  $input["checkDetalle[{$num}]"] == "on"? $iPregunta['extAudDetalle'] = 1 : $iPregunta['extAudDetalle'] = 0;
 					
-					$this->db->insert('lsck.tipoEncuestaPreg', $iPregunta);
+					$this->db->insert("{$this->sessBDCuenta}.lsck.tipoEncuestaPreg", $iPregunta);
 					$idPregunta = $this->db->insert_id();
 
 					if(empty($input["tipoAuditoria[{$num}]"])){
@@ -1655,7 +1655,7 @@ ORDER BY nombre
 									'idPregunta' => $idPregunta,
 									'nombre' => $alt,
 								);
-							$this->db->insert('lsck.tipoEncuestaPregAlt', $iAlternativa);
+							$this->db->insert("{$this->sessBDCuenta}.lsck.tipoEncuestaPregAlt", $iAlternativa);
 						}
 					}
 				}
@@ -1685,11 +1685,11 @@ ORDER BY nombre
 		aut.nombre tipoAuditoria
 		,en.cliente flag_cliente
 		,enp.extAudPresencia flag_presencia
-	FROM lsck.tipoEncuesta en
-	JOIN lsck.tipoEncuestaPreg enp ON en.idEncuesta = enp.idEncuesta
+	FROM {$this->sessBDCuenta}.lsck.tipoEncuesta en
+	JOIN {$this->sessBDCuenta}.lsck.tipoEncuestaPreg enp ON en.idEncuesta = enp.idEncuesta
 	JOIN master.tipoPregunta enpt ON enp.idTipoPregunta = enpt.idTipoPregunta
-	LEFT JOIN lsck.tipoEncuestaPregAlt enpa ON enp.idPregunta = enpa.idPregunta
-	LEFT JOIN lsck.ext_auditoriaTipo aut ON aut.idExtAudTipo = enp.idExtAudTipo
+	LEFT JOIN {$this->sessBDCuenta}.lsck.tipoEncuestaPregAlt enpa ON enp.idPregunta = enpa.idPregunta
+	LEFT JOIN {$this->sessBDCuenta}.lsck.ext_auditoriaTipo aut ON aut.idExtAudTipo = enp.idExtAudTipo
 WHERE en.idEncuesta = {$input['idEncuesta']}
 ";
 		return $this->db->query($sql)->result_array();
@@ -1698,11 +1698,11 @@ WHERE en.idEncuesta = {$input['idEncuesta']}
 	public function checkConfTipoClienteAudDetRepetido($params = []){
 		$where = $params;
 
-		return $this->db->get_where('lsck.conf_tipoClienteAudDet',$where)->result_array();
+		return $this->db->get_where("{$this->sessBDCuenta}.lsck.conf_tipoClienteAudDet",$where)->result_array();
 	}
 
 	public function registrarExtauditoriaMaterial($insert){
-		return $this->db->insert('lsck.ext_auditoriaMaterial',$insert);
+		return $this->db->insert("{$this->sessBDCuenta}.lsck.ext_auditoriaMaterial",$insert);
 	}
 	public function registrarMasivoConfClienteAudDet($insert,$post = []){
 		$where = array(

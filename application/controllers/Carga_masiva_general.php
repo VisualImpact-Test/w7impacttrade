@@ -325,7 +325,7 @@ class Carga_masiva_general extends CI_Controller{
 											'direccion'=>$data[7],
 										); 
 										
-										$this->db->insert('trade.cliente_pg_v1',$insert);
+										$this->db->insert("{$this->sessBDCuenta}.trade.cliente_pg_v1",$insert);
 										$id = $this->db->insert_id();
 										
 										
@@ -351,7 +351,7 @@ class Carga_masiva_general extends CI_Controller{
 										}elseif($canal_carga==1){
 											$insert_d['idSegClienteTradicional']=$idSegTradicional;
 										}
-										$this->db->insert('trade.cliente_pg_historico_v1',$insert_d);
+										$this->db->insert("{$this->sessBDCuenta}.trade.cliente_pg_historico_v1",$insert_d);
 										
 										$this->model->actualizar_procesados($idCarga);
 									}
@@ -469,7 +469,7 @@ class Carga_masiva_general extends CI_Controller{
 												'idUsuario'=>$idUsuario,
 												'fecha'=>$fecha,
 											);
-											$this->model->registrar_detalle('trade.data_ruta',$array);
+											$this->model->registrar_detalle("{$this->sessBDCuenta}.trade.data_ruta",$array);
 											
 											$idRuta_i = $this->db->insert_id();
 											
@@ -480,7 +480,7 @@ class Carga_masiva_general extends CI_Controller{
 											'idRuta'=>$idRuta_i,
 											'idCliente'=>$idCliente,
 										);
-										$this->model->registrar_detalle('trade.data_visita',$array);
+										$this->model->registrar_detalle("{$this->sessBDCuenta}.trade.data_visita",$array);
 									}
 									
 									$array =array (
@@ -490,7 +490,7 @@ class Carga_masiva_general extends CI_Controller{
 										'idCarga' => $idCarga,
 										'comentario' => $mensaje
 									);
-									$this->model->registrar_detalle('trade.cargaProgramacionRutasDet',$array);
+									$this->model->registrar_detalle("{$this->sessBDCuenta}.trade.cargaProgramacionRutasDet",$array);
 														
 								$cont++;
 							}
@@ -575,7 +575,7 @@ class Carga_masiva_general extends CI_Controller{
 										);
 
 										$this->db->where('idVisita', $idVisita);
-										$this->db->update('trade.data_visita', $data);
+										$this->db->update("{$this->sessBDCuenta}.trade.data_visita", $data);
 									}
 									
 									$array =array (
@@ -585,7 +585,7 @@ class Carga_masiva_general extends CI_Controller{
 										'idCarga' => $idCarga,
 										'comentario' => $mensaje
 									);
-									$this->model->registrar_detalle('trade.cargaExclusionesRutasDet',$array);
+									$this->model->registrar_detalle("{$this->sessBDCuenta}.trade.cargaExclusionesRutasDet",$array);
 														
 								$cont++;
 							}

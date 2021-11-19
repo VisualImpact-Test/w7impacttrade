@@ -101,7 +101,7 @@ SELECT
 	UPPER(c.nombreComercial) AS nombreComercial,
 	UPPER(c.direccion) AS direccion
 FROM trade.cliente c
-JOIN trade.cliente_historico_pg ch ON c.idCliente = ch.idCliente AND @fecha BETWEEN fecIni AND ISNULL(fecFin, @fecha)
+JOIN {$this->sessBDCuenta}.trade.cliente_historico ch ON c.idCliente = ch.idCliente AND @fecha BETWEEN fecIni AND ISNULL(fecFin, @fecha)
 JOIN trade.segmentacionNegocio sng ON ch.idSegNegocio = sng.idSegNegocio
 LEFT JOIN trade.canal ca ON sng.idCanal = ca.idCanal
 LEFT JOIN trade.grupoCanal gca ON ca.idGrupoCanal = gca.idGrupoCanal

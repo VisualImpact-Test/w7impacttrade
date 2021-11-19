@@ -1042,7 +1042,7 @@ class Modulacion extends MY_Controller{
 
 	public function generar_listas(){
 		$sql = "
-			select idCliente,fecIni,fecFin,idModulacion from trade.master_modulacion where estado=1
+			select idCliente,fecIni,fecFin,idModulacion from {$this->sessBDCuenta}.trade.master_modulacion where estado=1
 		";
 		$res = $this->db->query($sql)->result_array();
 		if(count($res)>0){
@@ -1052,15 +1052,15 @@ class Modulacion extends MY_Controller{
 					, 'fecIni'=>$row['fecIni']
 					, 'fecFin'=>$row['fecFin']
 				);
-				$this->db->insert('trade.list_visibilidadTrad',$insert);
+				$this->db->insert("{$this->sessBDCuenta}.trade.list_visibilidadTrad",$insert);
 				$id = $this->db->insert_id();
 				
-				$sql ='
-					insert into trade.list_visibilidadTradDet (idListVisibilidad,idElementoVis)
-					select '.$id.',idElementoVis from trade.master_modulacionDet where idModulacion='.$row['idModulacion'];
+				$sql ="
+					insert into {$this->sessBDCuenta}.trade.list_visibilidadTradDet (idListVisibilidad,idElementoVis)
+					select ".$id.",idElementoVis from {$this->sessBDCuenta}.trade.master_modulacionDet where idModulacion=".$row['idModulacion'];
 				$this->db->query($sql);
 				
-				$update = 'update trade.master_modulacion SET estado=0 WHERE idModulacion='.$row['idModulacion'];
+				$update = 'update {$this->sessBDCuenta}.trade.master_modulacion SET estado=0 WHERE idModulacion='.$row['idModulacion'];
 				$this->db->query($update);
 			}
 		}
@@ -1088,7 +1088,7 @@ class Modulacion extends MY_Controller{
 			$total_elementos = count($post[$i]['modulacion']);
 			if($total_elementos>0){
 				$idCliente = $post[$i]['idCliente'];
-				$validar_lista = "SELECT idModulacion FROM impactTrade_bd.trade.master_modulacion WHERE idCliente= $idCliente AND fecIni='".$fecIni."' AND fecFin = '".$fecFin."' ";
+				$validar_lista = "SELECT idModulacion FROM {$this->sessBDCuenta}.trade.master_modulacion WHERE idCliente= $idCliente AND fecIni='".$fecIni."' AND fecFin = '".$fecFin."' ";
 				$res_validacion = $this->db->query($validar_lista)->row_array();
 				$total_listas = count($res_validacion).'<br>';
 					if($total_listas==0){
@@ -1097,7 +1097,7 @@ class Modulacion extends MY_Controller{
 							, 'fecIni' 			=> $fecIni
 							, 'fecFin' 			=> $fecFin
 						);
-						$this->db->insert('trade.master_modulacion',$insert);
+						$this->db->insert("{$this->sessBDCuenta}.trade.master_modulacion",$insert);
 						$id = $this->db->insert_id();
 						for($j=0;$j<$total_elementos;$j++){
 							$idElemento = $post[$i]['modulacion'][$j];
@@ -1107,11 +1107,11 @@ class Modulacion extends MY_Controller{
 								, 'idElementoVis' => $idElemento
 								, 'cantidad' => $cantidad
 							);
-							$this->db->insert('trade.master_modulacionDet',$insert_elementos);
+							$this->db->insert("{$this->sessBDCuenta}.trade.master_modulacionDet",$insert_elementos);
 						}
 					}else{
 						$id =$res_validacion['idModulacion'];
-						$delete = "delete from  trade.master_modulacionDet WHERE idModulacion=".$id;
+						$delete = "delete from  {$this->sessBDCuenta}.trade.master_modulacionDet WHERE idModulacion=".$id;
 						$this->db->query($delete);
 						for($j=0;$j<$total_elementos;$j++){
 							$idElemento = $post[$i]['modulacion'][$j];
@@ -1121,7 +1121,7 @@ class Modulacion extends MY_Controller{
 								, 'idElementoVis' => $idElemento
 								, 'cantidad' => $cantidad
 							);
-							$this->db->insert('trade.master_modulacionDet',$insert_elementos);
+							$this->db->insert("{$this->sessBDCuenta}.trade.master_modulacionDet",$insert_elementos);
 						}
 						
 					} 
@@ -1395,7 +1395,7 @@ class Modulacion extends MY_Controller{
 			'totalRegistros' => $total,
 		);
 
-		$this->db->insert('impactTrade_bd.trade.cargaModulacion',$carga);
+		$this->db->insert("{$this->sessBDCuenta}.trade.cargaModulacion",$carga);
 
 		$result=array();
 		$result['data']= '1';
@@ -1924,7 +1924,7 @@ class Modulacion extends MY_Controller{
 			'auditoria' => $auditoria
 		);
 
-		$this->db->insert('impactTrade_bd.trade.cargaPermiso',$carga);
+		$this->db->insert("{$this->sessBDCuenta}.trade.cargaPermiso",$carga);
 		$idCarga=$this->db->insert_id();
 
 		$result=array();
@@ -2066,7 +2066,7 @@ class Modulacion extends MY_Controller{
 		$fecFin = $_POST['fecFin'];
 		$datetime = date('dmYHis');
 		
-		$sql = "SELECT * FROM trade.cargaModulacion WHERE idPermiso= $idPermiso ";
+		$sql = "SELECT * FROM {$this->sessBDCuenta}.trade.cargaModulacion WHERE idPermiso= $idPermiso ";
 		$res = $this->db->query($sql)->result_array();
 		$total = count($res);
 		$result=array();

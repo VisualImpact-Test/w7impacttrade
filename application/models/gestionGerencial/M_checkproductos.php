@@ -64,9 +64,9 @@ class M_checkproductos extends MY_Model{
 			, subca.nombre subCanal
 			, gca.nombre grupoCanal
 			{$segmentacion['columnas_bd']}
-		FROM trade.data_ruta r
-		JOIN trade.data_visita v ON v.idRuta=r.idRuta
-		JOIN trade.data_visitaProductos dvv ON dvv.idVisita=v.idVisita
+		FROM {$this->sessBDCuenta}.trade.data_ruta r
+		JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
+		JOIN {$this->sessBDCuenta}.trade.data_visitaProductos dvv ON dvv.idVisita=v.idVisita
 		JOIN trade.cuenta cu ON cu.idCuenta=r.idCuenta
 		JOIN trade.canal ca ON ca.idCanal=v.idCanal
 		JOIN trade.grupoCanal gca ON ca.idGrupoCanal=gca.idGrupoCanal
@@ -138,15 +138,15 @@ class M_checkproductos extends MY_Model{
 				, um.nombre 'unidadMedida'
 				, ele.flagCompetencia
 				, mo.nombre AS motivo
-			FROM trade.data_ruta r
-			JOIN trade.data_visita v ON v.idRuta=r.idRuta
+			FROM {$this->sessBDCuenta}.trade.data_ruta r
+			JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
 			JOIN trade.cuenta cu ON cu.idCuenta=r.idCuenta
 			JOIN trade.canal ca ON ca.idCanal=v.idCanal
-			JOIN trade.data_visitaProductos dvv ON dvv.idVisita=v.idVisita
-			JOIN trade.data_visitaProductosDet dvd ON dvd.idVisitaProductos=dvv.idVisitaProductos
+			JOIN {$this->sessBDCuenta}.trade.data_visitaProductos dvv ON dvv.idVisita=v.idVisita
+			JOIN {$this->sessBDCuenta}.trade.data_visitaProductosDet dvd ON dvd.idVisitaProductos=dvv.idVisitaProductos
 			JOIN trade.producto ele ON ele.idProducto=dvd.idProducto 
 			JOIN trade.producto_categoria pc ON pc.idCategoria=ele.idCategoria
-			LEFT JOIN trade.data_visitaFotos vf ON vf.idVisitaFoto=dvd.idVisitaFoto
+			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisitaFoto=dvd.idVisitaFoto
 			LEFT JOIN trade.unidadMedida um ON um.idUnidadMedida = dvd.idUnidadMedida
 			LEFT JOIN trade.motivo mo ON dvd.idMotivo=mo.idMotivo
 			WHERE r.estado=1 AND v.estado=1 
@@ -182,11 +182,11 @@ class M_checkproductos extends MY_Model{
 			SELECT DISTINCT 
 				v.idVisita 
 				, lstd.idProducto
-			FROM trade.data_ruta r
-			JOIN trade.data_visita v ON v.idRuta=r.idRuta
-			JOIN trade.data_visitaProductos vi ON vi.idVisita=v.idVisita
-			JOIN trade.list_productos lst ON lst.idListProductos=v.idListProductos
-			JOIN trade.list_productosDet lstd ON lstd.idListProductos=lst.idListProductos
+			FROM {$this->sessBDCuenta}.trade.data_ruta r
+			JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
+			JOIN {$this->sessBDCuenta}.trade.data_visitaProductos vi ON vi.idVisita=v.idVisita
+			JOIN {$this->sessBDCuenta}.trade.list_productos lst ON lst.idListProductos=v.idListProductos
+			JOIN {$this->sessBDCuenta}.trade.list_productosDet lstd ON lstd.idListProductos=lst.idListProductos
 	
 			JOIN trade.cuenta cu ON cu.idCuenta=r.idCuenta
 			JOIN trade.canal ca ON ca.idCanal=v.idCanal
@@ -212,7 +212,7 @@ class M_checkproductos extends MY_Model{
 				, CONVERT(VARCHAR(8),vf.hora)hora
 				, vf.fotoUrl foto
 			FROM 
-				trade.data_visitaFotos vf
+				{$this->sessBDCuenta}.trade.data_visitaFotos vf
 				JOIN trade.aplicacion_modulo m ON vf.idModulo = m.idModulo
 			WHERE 
 				idVisita = $idVisita";
@@ -306,21 +306,21 @@ class M_checkproductos extends MY_Model{
 				, r.nombreUsuario
 				, r.fecha
 				{$segmentacion['columnas_bd']}
-			FROM trade.data_ruta r
-			JOIN trade.data_visita v ON v.idRuta=r.idRuta
+			FROM {$this->sessBDCuenta}.trade.data_ruta r
+			JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
 			JOIN trade.cliente cli ON v.idCliente = cli.idCliente
 			JOIN {$cliente_historico} ch ON cli.idCliente = ch.idCliente
 				AND General.dbo.fn_fechaVigente(ch.fecIni,ch.fecFin,GETDATE(),GETDATE())=1 AND ch.idProyecto = {$params['proyecto_filtro']}
 			JOIN trade.cuenta cu ON cu.idCuenta=r.idCuenta
 			LEFT JOIN trade.canal ca ON ca.idCanal=v.idCanal
 			LEFT JOIN trade.grupoCanal gca ON ca.idGrupoCanal=gca.idGrupoCanal
-			JOIN trade.data_visitaProductos dvv ON dvv.idVisita=v.idVisita
-			JOIN trade.data_visitaProductosDet dvd ON dvd.idVisitaProductos=dvv.idVisitaProductos
+			JOIN {$this->sessBDCuenta}.trade.data_visitaProductos dvv ON dvv.idVisita=v.idVisita
+			JOIN {$this->sessBDCuenta}.trade.data_visitaProductosDet dvd ON dvd.idVisitaProductos=dvv.idVisitaProductos
 			LEFT JOIN trade.motivo mo ON dvd.idMotivo=mo.idMotivo
 			JOIN trade.producto ele ON ele.idProducto=dvd.idProducto
 			LEFT JOIN trade.segmentacionNegocio segneg ON segneg.idSegNegocio = ch.idSegNegocio
 			LEFT JOIN trade.subCanal subca ON subca.idSubCanal = segneg.idSubcanal
-			LEFT JOIN trade.data_visitaFotos vf ON vf.idVisitaFoto=dvd.idVisitaFoto
+			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisitaFoto=dvd.idVisitaFoto
 			LEFT JOIN trade.aplicacion_modulo m ON m.idModulo = vf.idModulo
 			LEFT JOIN trade.aplicacion_modulo_grupo mg ON mg.idModuloGrupo = m.idModuloGrupo
 			
@@ -410,16 +410,16 @@ class M_checkproductos extends MY_Model{
 					WHEN dvd.fechaVencido IS NULL THEN '#08cf37'
 				  END color
 				{$segmentacion['columnas_bd']}
-			FROM trade.data_ruta r
-			JOIN trade.data_visita v ON v.idRuta=r.idRuta
+			FROM {$this->sessBDCuenta}.trade.data_ruta r
+			JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
 			JOIN trade.cliente cli ON v.idCliente = cli.idCliente
 			JOIN {$cliente_historico} ch ON cli.idCliente = ch.idCliente
 				AND General.dbo.fn_fechaVigente(ch.fecIni,ch.fecFin,GETDATE(),GETDATE())=1 AND ch.idProyecto = {$params['proyecto_filtro']}
 			JOIN trade.cuenta cu ON cu.idCuenta=r.idCuenta
 			LEFT JOIN trade.canal ca ON ca.idCanal=v.idCanal
 			LEFT JOIN trade.grupoCanal gca ON ca.idGrupoCanal=gca.idGrupoCanal
-			JOIN trade.data_visitaProductos dvv ON dvv.idVisita=v.idVisita
-			JOIN trade.data_visitaProductosDet dvd ON dvd.idVisitaProductos=dvv.idVisitaProductos
+			JOIN {$this->sessBDCuenta}.trade.data_visitaProductos dvv ON dvv.idVisita=v.idVisita
+			JOIN {$this->sessBDCuenta}.trade.data_visitaProductosDet dvd ON dvd.idVisitaProductos=dvv.idVisitaProductos
 			JOIN trade.producto ele ON ele.idProducto=dvd.idProducto AND ele.flagCompetencia = 0
 			LEFT JOIN trade.unidadMedida um ON um.idUnidadMedida = dvd.idUnidadMedida
 			LEFT JOIN trade.segmentacionNegocio segneg ON segneg.idSegNegocio = ch.idSegNegocio
@@ -462,8 +462,8 @@ class M_checkproductos extends MY_Model{
                 END
               END condicion
         FROM 
-            trade.data_ruta r WITH(NOLOCK)
-            JOIN trade.data_visita v ON r.idRuta = v.idRuta
+            {$this->sessBDCuenta}.trade.data_ruta r WITH(NOLOCK)
+            JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta
         WHERE 
             r.fecha BETWEEN @fecIni AND @fecFin
             AND r.estado = 1
@@ -511,8 +511,8 @@ class M_checkproductos extends MY_Model{
                 END
               END condicion
         FROM 
-            trade.data_ruta r WITH(NOLOCK)
-            JOIN trade.data_visita v ON r.idRuta = v.idRuta
+            {$this->sessBDCuenta}.trade.data_ruta r WITH(NOLOCK)
+            JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta
         WHERE 
             r.fecha BETWEEN @fecIni AND @fecFin
             AND r.estado = 1
@@ -639,11 +639,11 @@ class M_checkproductos extends MY_Model{
 		,DENSE_RANK() OVER (PARTITION BY cad.idCadena order BY v.idCliente) + DENSE_RANK() OVER (PARTITION BY cad.idCadena order BY v.idCliente desc) - 1 clientesCadena
 		,cad.color_hex color
 		FROM
-		trade.data_ruta r 
-		JOIN trade.data_visita v ON v.idRuta = r.idRuta
-		JOIN trade.data_visitaProductos dv ON dv.idVisita = v.idVisita
-		JOIN trade.data_visitaProductosDet dvd ON dvd.idVisitaProductos = dv.idVisitaProductos
-		JOIN trade.cliente_historico_aje ch ON ch.idCliente = v.idCliente
+		{$this->sessBDCuenta}.trade.data_ruta r 
+		JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta = r.idRuta
+		JOIN {$this->sessBDCuenta}.trade.data_visitaProductos dv ON dv.idVisita = v.idVisita
+		JOIN {$this->sessBDCuenta}.trade.data_visitaProductosDet dvd ON dvd.idVisitaProductos = dv.idVisitaProductos
+		JOIN {$this->sessBDCuenta}.trade.cliente_historico ch ON ch.idCliente = v.idCliente
 			AND r.fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin,r.fecha)
 			AND ch.idProyecto = 14
 		JOIN trade.segmentacionClienteModerno segmod ON segmod.idSegClienteModerno = ch.idSegClienteModerno
@@ -673,11 +673,11 @@ class M_checkproductos extends MY_Model{
 		,DENSE_RANK() OVER (PARTITION BY cad.idCadena order BY v.idCliente) + DENSE_RANK() OVER (PARTITION BY cad.idCadena order BY v.idCliente desc) - 1 clientesCadena
 		,cad.color_hex color
 		FROM
-		trade.data_ruta r 
-		JOIN trade.data_visita v ON v.idRuta = r.idRuta
-		JOIN trade.data_visitaProductos dv ON dv.idVisita = v.idVisita
-		JOIN trade.data_visitaProductosDet dvd ON dvd.idVisitaProductos = dv.idVisitaProductos
-		JOIN trade.cliente_historico_aje ch ON ch.idCliente = v.idCliente
+		{$this->sessBDCuenta}.trade.data_ruta r 
+		JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta = r.idRuta
+		JOIN {$this->sessBDCuenta}.trade.data_visitaProductos dv ON dv.idVisita = v.idVisita
+		JOIN {$this->sessBDCuenta}.trade.data_visitaProductosDet dvd ON dvd.idVisitaProductos = dv.idVisitaProductos
+		JOIN {$this->sessBDCuenta}.trade.cliente_historico ch ON ch.idCliente = v.idCliente
 			AND r.fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin,r.fecha)
 			AND ch.idProyecto = 14
 		JOIN trade.segmentacionClienteModerno segmod ON segmod.idSegClienteModerno = ch.idSegClienteModerno
@@ -814,10 +814,10 @@ class M_checkproductos extends MY_Model{
                 , dvd.idProducto
 				, dvd.presencia
 				, dvd.quiebre
-            FROM trade.data_ruta r
-            JOIN trade.data_visita v ON v.idRuta=r.idRuta
-            JOIN trade.data_visitaProductos dvv ON dvv.idVisita=v.idVisita
-            JOIN trade.data_visitaProductosDet dvd ON dvd.idVisitaProductos=dvv.idVisitaProductos
+            FROM {$this->sessBDCuenta}.trade.data_ruta r
+            JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
+            JOIN {$this->sessBDCuenta}.trade.data_visitaProductos dvv ON dvv.idVisita=v.idVisita
+            JOIN {$this->sessBDCuenta}.trade.data_visitaProductosDet dvd ON dvd.idVisitaProductos=dvv.idVisitaProductos
             LEFT JOIN trade.canal ca ON ca.idCanal=v.idCanal
             LEFT JOIN trade.grupoCanal gca ON ca.idGrupoCanal=gca.idGrupoCanal
             WHERE r.estado = 1 AND v.estado = 1 AND r.demo = 0

@@ -75,9 +75,9 @@ class M_evidenciaFoto extends MY_Model{
 			, subca.nombre subCanal
 			, gca.nombre grupoCanal
 			{$segmentacion['columnas_bd']}
-		FROM trade.data_ruta r
-		JOIN trade.data_visita v ON v.idRuta=r.idRuta
-		JOIN trade.data_visitaEvidenciaFotografica dvv ON dvv.idVisita=v.idVisita
+		FROM {$this->sessBDCuenta}.trade.data_ruta r
+		JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
+		JOIN {$this->sessBDCuenta}.trade.data_visitaEvidenciaFotografica dvv ON dvv.idVisita=v.idVisita
 		JOIN trade.cuenta cu ON cu.idCuenta=r.idCuenta
 		JOIN trade.canal ca ON ca.idCanal=v.idCanal
 		JOIN trade.grupoCanal gca ON ca.idGrupoCanal=gca.idGrupoCanal
@@ -140,15 +140,15 @@ class M_evidenciaFoto extends MY_Model{
 				, vf.fotoUrl 'foto'
 				, vf.idVisitaFoto
 				, vft.idTipoFotoEvidencia
-			FROM trade.data_ruta r
-			JOIN trade.data_visita v ON v.idRuta=r.idRuta
+			FROM {$this->sessBDCuenta}.trade.data_ruta r
+			JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
 			JOIN trade.cuenta cu ON cu.idCuenta=r.idCuenta
 			JOIN trade.canal ca ON ca.idCanal=v.idCanal
-			JOIN trade.data_visitaEvidenciaFotografica dvv ON dvv.idVisita=v.idVisita
-			JOIN trade.data_visitaEvidenciaFotograficaDet dvd ON dvd.idVisitaEvidenciaFotografica=dvv.idVisitaEvidenciaFotografica
+			JOIN {$this->sessBDCuenta}.trade.data_visitaEvidenciaFotografica dvv ON dvv.idVisita=v.idVisita
+			JOIN {$this->sessBDCuenta}.trade.data_visitaEvidenciaFotograficaDet dvd ON dvd.idVisitaEvidenciaFotografica=dvv.idVisitaEvidenciaFotografica
 			LEFT JOIN trade.foto_tipo tf ON tf.idTipoFoto = dvd.idTipoFoto
-			LEFT JOIN trade.data_visitaEvidenciaFotograficaDetFoto vft ON vft.idVisitaEvidenciaFotograficaDet = dvd.idVisitaEvidenciaFotograficaDet
-			LEFT JOIN trade.data_visitaFotos vf ON vf.idVisitaFoto=vft.idVisitaFoto
+			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaEvidenciaFotograficaDetFoto vft ON vft.idVisitaEvidenciaFotograficaDet = dvd.idVisitaEvidenciaFotograficaDet
+			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisitaFoto=vft.idVisitaFoto
 			WHERE r.estado=1 AND v.estado=1 
 			AND r.fecha BETWEEN @fecIni AND @fecFin
 			$filtros
@@ -172,7 +172,7 @@ class M_evidenciaFoto extends MY_Model{
 				, CONVERT(VARCHAR(8),vf.hora)hora
 				, vf.fotoUrl foto
 			FROM 
-				trade.data_visitaFotos vf
+				{$this->sessBDCuenta}.trade.data_visitaFotos vf
 				JOIN trade.aplicacion_modulo m ON vf.idModulo = m.idModulo
 			WHERE 
 				vf.idVisitaFoto IN({$fotos})";

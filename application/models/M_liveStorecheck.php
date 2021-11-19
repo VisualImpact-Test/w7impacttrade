@@ -21,7 +21,7 @@ class M_liveStorecheck extends CI_Model{
 SELECT
 	tc.idTipoCliente,
 	tc.nombre
-FROM lsck.tipoCliente tc
+FROM {$this->sessBDCuenta}.lsck.tipoCliente tc
 WHERE 1 = 1{$filtro}
 ORDER BY nombre
 ";
@@ -57,7 +57,7 @@ JOIN pg.dbo.clienteHistorico ch ON c.idCliente = ch.idCliente
 	AND pg.fn.datesBetween(ch.fecCreacion, ch.fecTermino, @fecIni, @fecFin) = 1
 JOIN {$this->sessBDCuenta}.lsck.conf_cliente cc ON c.idCliente = cc.idCliente
 	AND pg.fn.datesBetween(cc.fecIni, cc.fecFin, @fecIni, @fecFin) = 1
-JOIN lsck.tipoCliente tc ON cc.idTipoCliente = tc.idTipoCliente
+JOIN {$this->sessBDCuenta}.lsck.tipoCliente tc ON cc.idTipoCliente = tc.idTipoCliente
 WHERE c.estado2 = 1{$filtro}
 GROUP BY
 	ds.nombre + ' - ' + ubi_dsc.distrito,
@@ -109,7 +109,7 @@ JOIN pg.dbo.clienteHistorico ch ON c.idCliente = ch.idCliente
 	AND pg.fn.datesBetween(ch.fecCreacion, ch.fecTermino, @fecIni, @fecFin) = 1
 JOIN {$this->sessBDCuenta}.lsck.conf_cliente cc ON c.idCliente = cc.idCliente
 	AND pg.fn.datesBetween(cc.fecIni, cc.fecFin, @fecIni, @fecFin) = 1
-JOIN lsck.tipoCliente tc ON cc.idTipoCliente = tc.idTipoCliente
+JOIN {$this->sessBDCuenta}.lsck.tipoCliente tc ON cc.idTipoCliente = tc.idTipoCliente
 LEFT JOIN General.dbo.ubigeo ubi_c ON c.cod_ubigeo = ubi_c.cod_ubigeo
 WHERE c.estado2 = 1{$filtro}
 ORDER BY tipoCliente, razonSocial, direccion 
@@ -122,8 +122,8 @@ ORDER BY tipoCliente, razonSocial, direccion
 		$filtro = "";
 			if( isset($input['estado']) ) $filtro .= " AND estado = {$input['estado']}";
 
-		$sql = "SELECT idInfo, nombre FROM lsck.tipoInfo WHERE 1 = 1{$filtro}";
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'lsck.tipoInfo' ];
+		$sql = "SELECT idInfo, nombre FROM {$this->sessBDCuenta}.lsck.tipoInfo WHERE 1 = 1{$filtro}";
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.lsck.tipoInfo" ];
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -142,8 +142,8 @@ SELECT
 	tem.idEmpresa,
 	tem.nombre AS empresa
 FROM {$this->sessBDCuenta}.lsck.conf_plazaInfo pzi
-JOIN lsck.tipoInfo ti ON pzi.idInfo = ti.idInfo
-LEFT JOIN lsck.tipoEmpresa tem ON pzi.idEmpresa = tem.idEmpresa
+JOIN {$this->sessBDCuenta}.lsck.tipoInfo ti ON pzi.idInfo = ti.idInfo
+LEFT JOIN {$this->sessBDCuenta}.lsck.tipoEmpresa tem ON pzi.idEmpresa = tem.idEmpresa
 WHERE @fecha BETWEEN pzi.fecIni AND ISNULL(pzi.fecFin, @fecha)
 AND pzi.estado = 1{$filtro}
 ORDER BY ti.idInfo
@@ -171,13 +171,13 @@ SELECT
 	(
 		SELECT COUNT(idTipoClienteAudDet)
 		FROM {$this->sessBDCuenta}.lsck.conf_tipoClienteAud ctca
-		JOIN lsck.conf_tipoClienteAudDet ctcad ON ctca.idTipoClienteAud = ctcad.idTipoClienteAud
+		JOIN {$this->sessBDCuenta}.lsck.conf_tipoClienteAudDet ctcad ON ctca.idTipoClienteAud = ctcad.idTipoClienteAud
 		WHERE ctca.idTipoCliente = cpz.idTipoCliente
 		AND ctca.idExtAudTipo = exadt.idExtAudTipo
 		AND @fecha BETWEEN ctca.fecIni AND ISNULL(ctca.fecFin, @fecha)
 	) AS audTotal
 FROM {$this->sessBDCuenta}.lsck.conf_plaza cpz
-JOIN lsck.ext_auditoriaTipo exadt ON cpz.idExtAudTipo = exadt.idExtAudTipo
+JOIN {$this->sessBDCuenta}.lsck.ext_auditoriaTipo exadt ON cpz.idExtAudTipo = exadt.idExtAudTipo
 WHERE @fecha BETWEEN cpz.fecIni AND ISNULL(cpz.fecFin, @fecha)
 AND cpz.idPlaza = {$input['idPlaza']}
 ";
@@ -197,15 +197,15 @@ SELECT
 	evd.nombre AS evaluacionDet,
 	evd.detallar,
 	levd.idEncuesta
-FROM lsck.listEvaluacion lev
-JOIN lsck.listEvaluacionDet levd ON lev.idListEval = levd.idListEval
-JOIN lsck.tipoEvaluacionDet evd ON levd.idEvaluacionDet = evd.idEvaluacionDet
-JOIN lsck.tipoEvaluacion ev ON evd.idEvaluacion = ev.idEvaluacion
+FROM {$this->sessBDCuenta}.lsck.listEvaluacion lev
+JOIN {$this->sessBDCuenta}.lsck.listEvaluacionDet levd ON lev.idListEval = levd.idListEval
+JOIN {$this->sessBDCuenta}.lsck.tipoEvaluacionDet evd ON levd.idEvaluacionDet = evd.idEvaluacionDet
+JOIN {$this->sessBDCuenta}.lsck.tipoEvaluacion ev ON evd.idEvaluacion = ev.idEvaluacion
 WHERE @fecha BETWEEN lev.fecIni AND ISNULL(lev.fecFin, @fecha)
 AND lev.idTipoAuditoria = 1 AND lev.estado = 1 AND levd.estado = 1
 AND evd.estado = 1 AND ev.estado = 1{$filtro}
 ";
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'lsck.listEvaluacion' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.lsck.listEvaluacion" ];
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -260,7 +260,7 @@ SELECT
 FROM {$this->sessBDCuenta}.lsck.auditoriaPlaza apz
 JOIN pg.auditoria.plazaCliente pz ON apz.idPlaza = pz.idPlaza
 JOIN {$this->sessBDCuenta}.lsck.auditoriaCalculo aca ON apz.idAudCalculo = aca.idAudCalculo
-JOIN lsck.perfectOms prf ON aca.idPerfectOms = prf.idPerfectOms
+JOIN {$this->sessBDCuenta}.lsck.perfectOms prf ON aca.idPerfectOms = prf.idPerfectOms
 JOIN trade.usuario u ON apz.idUsuario = u.idUsuario
 WHERE apz.estado = 1 {$filtro}
 ORDER BY apz.fecha DESC, apz.horaReg DESC
@@ -288,10 +288,10 @@ SELECT
 	evd.detallar,
 	levd.idEncuesta
 FROM {$this->sessBDCuenta}.lsck.conf_cliente cc
-JOIN lsck.listEvaluacion lev ON cc.idTipoCliente = lev.idTipoCliente
-JOIN lsck.listEvaluacionDet levd ON lev.idListEval = levd.idListEval
-JOIN lsck.tipoEvaluacionDet evd ON levd.idEvaluacionDet = evd.idEvaluacionDet
-JOIN lsck.tipoEvaluacion ev ON evd.idEvaluacion = ev.idEvaluacion
+JOIN {$this->sessBDCuenta}.lsck.listEvaluacion lev ON cc.idTipoCliente = lev.idTipoCliente
+JOIN {$this->sessBDCuenta}.lsck.listEvaluacionDet levd ON lev.idListEval = levd.idListEval
+JOIN {$this->sessBDCuenta}.lsck.tipoEvaluacionDet evd ON levd.idEvaluacionDet = evd.idEvaluacionDet
+JOIN {$this->sessBDCuenta}.lsck.tipoEvaluacion ev ON evd.idEvaluacion = ev.idEvaluacion
 WHERE @fecha BETWEEN cc.fecIni AND ISNULL(cc.fecFin, @fecha)
 AND @fecha BETWEEN lev.fecIni AND ISNULL(lev.fecFin, @fecha)
 AND lev.idTipoAuditoria = 2{$filtro}
@@ -319,7 +319,7 @@ SELECT
 FROM {$this->sessBDCuenta}.lsck.conf_cliente c
 JOIN {$this->sessBDCuenta}.lsck.conf_clienteAud ca ON c.idConfCliente = ca.idConfCliente
 JOIN {$this->sessBDCuenta}.lsck.conf_clienteAudDet cad ON ca.idConfClienteAud = cad.idConfClienteAud
-JOIN lsck.ext_auditoriaMaterial xam ON cad.idExtAudMat = xam.idExtAudMat
+JOIN {$this->sessBDCuenta}.lsck.ext_auditoriaMaterial xam ON cad.idExtAudMat = xam.idExtAudMat
 WHERE @fecha BETWEEN c.fecIni AND ISNULL(c.fecFin, @fecha){$filtro}
 ORDER BY idCliente, idExtAudTipo, nombre
 ";
@@ -346,8 +346,8 @@ JOIN pg.auditoria.plazaCliente pz ON apz.idPlaza = pz.idPlaza
 JOIN pg.dbo.cliente c ON ac.idCliente = c.idCliente
 JOIN {$this->sessBDCuenta}.lsck.auditoriaClienteEval acev ON ac.idAudCliente = acev.idAudCliente
 JOIN {$this->sessBDCuenta}.lsck.auditoriaClienteEvalPreg acevp ON acev.idAudClienteEval = acevp.idAudClienteEval
-JOIN lsck.tipoEncuestaPreg preg ON acevp.idPregunta = preg.idPregunta
-JOIN lsck.tipoEncuestaPregAlt pregalt ON preg.idPregunta = pregalt.idPregunta
+JOIN {$this->sessBDCuenta}.lsck.tipoEncuestaPreg preg ON acevp.idPregunta = preg.idPregunta
+JOIN {$this->sessBDCuenta}.lsck.tipoEncuestaPregAlt pregalt ON preg.idPregunta = pregalt.idPregunta
 LEFT JOIN {$this->sessBDCuenta}.lsck.auditoriaClienteEvalPregAlt acevpa ON acevp.idAudClienteEvalPreg = acevpa.idAudClienteEvalPreg AND pregalt.idAlternativa = acevpa.idAlternativa
 WHERE preg.idTipoPregunta = 3
 AND acevpa.idAlternativa IS NULL{$filtro}
@@ -363,11 +363,11 @@ JOIN pg.auditoria.plazaCliente pz ON apz.idPlaza = pz.idPlaza
 JOIN pg.dbo.cliente c ON ac.idCliente = c.idCliente
 JOIN {$this->sessBDCuenta}.lsck.auditoriaClienteEval acev ON ac.idAudCliente = acev.idAudCliente
 JOIN {$this->sessBDCuenta}.lsck.auditoriaClienteEvalPreg acevp ON acev.idAudClienteEval = acevp.idAudClienteEval
-JOIN lsck.tipoEncuestaPreg preg ON acevp.idPregunta = preg.idPregunta
+JOIN {$this->sessBDCuenta}.lsck.tipoEncuestaPreg preg ON acevp.idPregunta = preg.idPregunta
 JOIN {$this->sessBDCuenta}.lsck.conf_cliente cc ON ac.idCliente = cc.idCliente AND apz.fecha BETWEEN cc.fecIni AND ISNULL(cc.fecFin, apz.fecha)
 JOIN {$this->sessBDCuenta}.lsck.conf_clienteAud cca ON cc.idConfCliente = cca.idConfCliente AND preg.idExtAudTipo = cca.idExtAudTipo
 JOIN {$this->sessBDCuenta}.lsck.conf_clienteAudDet ccad ON cca.idConfClienteAud = ccad.idConfClienteAud AND preg.extAudPresencia = ccad.presencia
-JOIN lsck.ext_auditoriaMaterial exam ON ccad.idExtAudMat = exam.idExtAudMat
+JOIN {$this->sessBDCuenta}.lsck.ext_auditoriaMaterial exam ON ccad.idExtAudMat = exam.idExtAudMat
 LEFT JOIN {$this->sessBDCuenta}.lsck.auditoriaClienteEvalPregAlt acevpa ON acevp.idAudClienteEvalPreg = acevpa.idAudClienteEvalPreg AND ccad.idExtAudMat = acevpa.idExtAudMat
 WHERE acevpa.idExtAudMat IS NULL{$filtro}
 ";
@@ -393,7 +393,7 @@ SELECT
 FROM {$this->sessBDCuenta}.lsck.auditoriaPlaza apz
 JOIN {$this->sessBDCuenta}.lsck.auditoriaCLiente ac ON apz.idAudPlaza = ac.idAudPlaza
 JOIN {$this->sessBDCuenta}.lsck.conf_cliente cc ON ac.idCliente = cc.idCliente AND apz.fecha BETWEEN cc.fecIni AND ISNULL(cc.fecFin, apz.fecha)
-JOIN lsck.tipoCliente tc ON cc.idTipoCliente = tc.idTipoCliente
+JOIN {$this->sessBDCuenta}.lsck.tipoCliente tc ON cc.idTipoCliente = tc.idTipoCliente
 JOIN pg.dbo.cliente c ON ac.idCliente = c.idCliente
 WHERE ac.estado = 1{$filtro}
 ORDER BY apz.fecha DESC, apz.horaReg DESC
@@ -414,7 +414,7 @@ SELECT
 	af.idAudFoto,
 	af.estado
 FROM {$this->sessBDCuenta}.lsck.auditoriaFoto af
-JOIN lsck.tipoEvaluacion ev ON af.idEvaluacion = ev.idEvaluacion
+JOIN {$this->sessBDCuenta}.lsck.tipoEvaluacion ev ON af.idEvaluacion = ev.idEvaluacion
 WHERE 1 = 1{$filtro}
 ";
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaFoto" ];
@@ -441,9 +441,9 @@ SELECT
 	enp.extAudDetalle,
 	enpa.idAlternativa,
 	enpa.nombre AS alternativa
-FROM lsck.tipoEncuesta en
-JOIN lsck.tipoEncuestaPreg enp ON en.idEncuesta = enp.idEncuesta
-LEFT JOIN lsck.tipoEncuestaPregAlt enpa ON enp.idPregunta = enpa.idPregunta AND enpa.estado = 1
+FROM {$this->sessBDCuenta}.lsck.tipoEncuesta en
+JOIN {$this->sessBDCuenta}.lsck.tipoEncuestaPreg enp ON en.idEncuesta = enp.idEncuesta
+LEFT JOIN {$this->sessBDCuenta}.lsck.tipoEncuestaPregAlt enpa ON enp.idPregunta = enpa.idPregunta AND enpa.estado = 1
 WHERE en.estado = 1 AND enp.estado = 1{$filtro}
 ";
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaFoto" ];
@@ -469,12 +469,12 @@ SELECT
 	enp.extAudDetalle,
 	enpa.idAlternativa,
 	enpa.nombre AS alternativa
-FROM lsck.tipoEncuesta en
-JOIN lsck.tipoEncuestaPreg enp ON en.idEncuesta = enp.idEncuesta
-LEFT JOIN lsck.tipoEncuestaPregAlt enpa ON enp.idPregunta = enpa.idPregunta AND enpa.estado = 1
+FROM {$this->sessBDCuenta}.lsck.tipoEncuesta en
+JOIN {$this->sessBDCuenta}.lsck.tipoEncuestaPreg enp ON en.idEncuesta = enp.idEncuesta
+LEFT JOIN {$this->sessBDCuenta}.lsck.tipoEncuestaPregAlt enpa ON enp.idPregunta = enpa.idPregunta AND enpa.estado = 1
 WHERE en.estado = 1 AND enp.estado = 1 AND en.cliente = 1{$filtro}
 ";
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'lsck.tipoEncuesta' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.lsck.tipoEncuesta" ];
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -490,11 +490,11 @@ SELECT
 	rsp.nombres,
 	rsp.apellidos,
 	rsp.email
-FROM lsck.responsable rsp
-JOIN lsck.responsableTipo rspt ON rsp.idTipo = rspt.idTipo
+FROM {$this->sessBDCuenta}.lsck.responsable rsp
+JOIN {$this->sessBDCuenta}.lsck.responsableTipo rspt ON rsp.idTipo = rspt.idTipo
 WHERE rsp.estado = 1
 ";
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'lsck.responsable' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.lsck.responsable" ];
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -514,18 +514,18 @@ SELECT
 	ip.valor_01,
 	ip.valor_02,
 	ip.punto
-FROM lsck.indicador i
-JOIN lsck.indicadorPuntaje ip ON i.idIndicador = ip.idIndicador
-JOIN lsck.tipoIndicador ti ON i.idTipoIndicador = ti.idTipoIndicador
+FROM {$this->sessBDCuenta}.lsck.indicador i
+JOIN {$this->sessBDCuenta}.lsck.indicadorPuntaje ip ON i.idIndicador = ip.idIndicador
+JOIN {$this->sessBDCuenta}.lsck.tipoIndicador ti ON i.idTipoIndicador = ti.idTipoIndicador
 WHERE i.estado = 1 AND ip.estado = 1
 ";
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'lsck.indicador' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.lsck.indicador" ];
 		return $this->db->query($sql)->result_array();
 	}
 
 	public function listPerfectOms(){
-		$sql = "SELECT idPerfectOms, nombre, condicion FROM lsck.perfectOms WHERE estado = 1";
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'lsck.perfectOms' ];
+		$sql = "SELECT idPerfectOms, nombre, condicion FROM {$this->sessBDCuenta}.lsck.perfectOms WHERE estado = 1";
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.lsck.perfectOms" ];
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -558,7 +558,7 @@ JOIN pg.auditoria.plazaCliente pz ON apz.idPlaza = pz.idPlaza
 JOIN pg.dbo.cliente c ON ac.idCliente = c.idCliente
 JOIN {$this->sessBDCuenta}.lsck.auditoriaClienteEval acev ON ac.idAudCliente = acev.idAudCliente
 JOIN {$this->sessBDCuenta}.lsck.auditoriaClienteEvalPreg acevp ON acev.idAudClienteEval = acevp.idAudClienteEval
-JOIN lsck.tipoEncuestaPreg preg ON acevp.idPregunta = preg.idPregunta
+JOIN {$this->sessBDCuenta}.lsck.tipoEncuestaPreg preg ON acevp.idPregunta = preg.idPregunta
 WHERE LEN(ISNULL(acevp.ordenTrabajo, '')) > 0{$filtro}
 ";
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaClienteEvalPreg" ];
@@ -590,7 +590,7 @@ JOIN pg.dbo.cliente c ON ac.idCliente = c.idCliente
 JOIN {$this->sessBDCuenta}.lsck.auditoriaClienteEval acev ON ac.idAudCliente = acev.idAudCliente
 JOIN {$this->sessBDCuenta}.lsck.auditoriaClienteEvalPreg acevp ON acev.idAudClienteEval = acevp.idAudClienteEval
 JOIN {$this->sessBDCuenta}.lsck.auditoriaClienteEvalPregResp acevpr ON acevp.idAudClienteEvalPreg = acevpr.idAudClienteEvalPreg
-JOIN lsck.responsable rsp ON acevpr.idResponsable = rsp.idResponsable
+JOIN {$this->sessBDCuenta}.lsck.responsable rsp ON acevpr.idResponsable = rsp.idResponsable
 WHERE LEN(ISNULL(acevp.ordenTrabajo, '')) > 0{$filtro}
 ";
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaClienteEvalPregResp" ];
@@ -629,9 +629,9 @@ JOIN pg.auditoria.plazaCliente pz ON apz.idPlaza = pz.idPlaza
 JOIN pg.dbo.cliente c ON ac.idCliente = c.idCliente
 JOIN {$this->sessBDCuenta}.lsck.auditoriaClienteEval acev ON ac.idAudCliente = acev.idAudCliente
 JOIN {$this->sessBDCuenta}.lsck.auditoriaClienteEvalPreg acevp ON acev.idAudClienteEval = acevp.idAudClienteEval
-JOIN lsck.tipoEncuestaPreg preg ON acevp.idPregunta = preg.idPregunta
+JOIN {$this->sessBDCuenta}.lsck.tipoEncuestaPreg preg ON acevp.idPregunta = preg.idPregunta
 JOIN {$this->sessBDCuenta}.lsck.auditoriaClienteEvalPregResp acevpr ON acevp.idAudClienteEvalPreg = acevpr.idAudClienteEvalPreg
-JOIN lsck.responsable rsp ON acevpr.idResponsable = rsp.idResponsable
+JOIN {$this->sessBDCuenta}.lsck.responsable rsp ON acevpr.idResponsable = rsp.idResponsable
 WHERE LEN(ISNULL(acevp.ordenTrabajo, '')) > 0{$filtro}
 ";
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaClienteEvalPregResp" ];
@@ -669,7 +669,7 @@ JOIN pg.dbo.distribuidora ds ON dsc.idDistribuidora = ds.idDistribuidora
 JOIN General.dbo.ubigeo ubi_dsc ON dsc.cod_ubigeo = ubi_dsc.cod_ubigeo
 LEFT JOIN General.dbo.ubigeo ubi_pz ON pz.cod_ubigeo = ubi_pz.cod_ubigeo
 JOIN {$this->sessBDCuenta}.lsck.auditoriaCalculo aca ON apz.idAudCalculo = aca.idAudCalculo
-JOIN lsck.perfectOms prf ON aca.idPerfectOms = prf.idPerfectOms
+JOIN {$this->sessBDCuenta}.lsck.perfectOms prf ON aca.idPerfectOms = prf.idPerfectOms
 WHERE apz.estado = 1{$filtro}
 ";
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaPlaza" ];
@@ -714,12 +714,12 @@ SELECT
 	epa.nombre AS alternativa
 FROM {$this->sessBDCuenta}.lsck.auditoriaPlaza apz
 JOIN {$this->sessBDCuenta}.lsck.auditoriaPlazaEval apze ON apz.idAudPlaza = apze.idAudPlaza
-JOIN lsck.tipoEvaluacionDet evd ON apze.idEvaluacionDet = evd.idEvaluacionDet
-JOIN lsck.tipoEvaluacion ev ON evd.idEvaluacion = ev.idEvaluacion
+JOIN {$this->sessBDCuenta}.lsck.tipoEvaluacionDet evd ON apze.idEvaluacionDet = evd.idEvaluacionDet
+JOIN {$this->sessBDCuenta}.lsck.tipoEvaluacion ev ON evd.idEvaluacion = ev.idEvaluacion
 JOIN {$this->sessBDCuenta}.lsck.auditoriaPlazaEvalPreg apzep ON apze.idAudPlazaEval = apzep.idAudPlazaEval
 LEFT JOIN {$this->sessBDCuenta}.lsck.auditoriaPlazaEvalPregAlt apzepa ON apzep.idAudPlazaEvalPreg = apzepa.idAudPlazaEvalPreg
-JOIN lsck.tipoEncuestaPreg ep ON apzep.idPregunta = ep.idPregunta
-LEFT JOIN lsck.tipoEncuestaPregAlt epa ON apzepa.idAlternativa = epa.idAlternativa
+JOIN {$this->sessBDCuenta}.lsck.tipoEncuestaPreg ep ON apzep.idPregunta = ep.idPregunta
+LEFT JOIN {$this->sessBDCuenta}.lsck.tipoEncuestaPregAlt epa ON apzepa.idAlternativa = epa.idAlternativa
 WHERE 1 = 1{$filtro}
 ";
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaPlazaEval" ];
@@ -755,7 +755,7 @@ JOIN {$this->sessBDCuenta}.lsck.auditoriaCLiente ac ON apz.idAudPlaza = ac.idAud
 JOIN pg.dbo.cliente c ON ac.idCliente = c.idCliente
 JOIN {$this->sessBDCuenta}.lsck.conf_cliente cc ON c.idCliente = cc.idCliente
 	AND apz.fecha BETWEEN cc.fecIni AND ISNULL(fecFin, apz.fecha)
-JOIN lsck.tipoCliente tc ON cc.idTipoCliente = tc.idTipoCliente
+JOIN {$this->sessBDCuenta}.lsck.tipoCliente tc ON cc.idTipoCliente = tc.idTipoCliente
 WHERE ac.estado = 1{$filtro}
 ";
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaCLiente" ];
@@ -785,9 +785,9 @@ FROM {$this->sessBDCuenta}.lsck.auditoriaPlaza apz
 JOIN {$this->sessBDCuenta}.lsck.auditoriaCLiente ac ON apz.idAudPlaza = ac.idAudPlaza
 JOIN {$this->sessBDCuenta}.lsck.auditoriaClientePreg acp ON ac.idAudCliente = acp.idAudCliente
 LEFT JOIN {$this->sessBDCuenta}.lsck.auditoriaClientePregAlt acpa ON acp.idAudClientePreg = acpa.idAudClientePreg
-LEFT JOIN lsck.tipoEncuestaPregAlt epa ON acpa.idAlternativa = epa.idAlternativa
-JOIN lsck.tipoEncuestaPreg ep ON acp.idPregunta = ep.idPregunta
-JOIN lsck.tipoEncuesta e ON ep.idEncuesta = e.idEncuesta
+LEFT JOIN {$this->sessBDCuenta}.lsck.tipoEncuestaPregAlt epa ON acpa.idAlternativa = epa.idAlternativa
+JOIN {$this->sessBDCuenta}.lsck.tipoEncuestaPreg ep ON acp.idPregunta = ep.idPregunta
+JOIN {$this->sessBDCuenta}.lsck.tipoEncuesta e ON ep.idEncuesta = e.idEncuesta
 WHERE ac.estado = 1{$filtro}
 ";
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaClientePreg" ];
@@ -832,13 +832,13 @@ FROM {$this->sessBDCuenta}.lsck.auditoriaPlaza apz
 JOIN {$this->sessBDCuenta}.lsck.auditoriaCLiente ac ON apz.idAudPlaza = ac.idAudPlaza
 JOIN {$this->sessBDCuenta}.lsck.auditoriaClienteEval acev ON ac.idAudCliente = acev.idAudCliente
 JOIN {$this->sessBDCuenta}.lsck.auditoriaClienteEvalPreg acevp ON acev.idAudClienteEval = acevp.idAudClienteEval
-LEFT JOIN lsck.tipoEncuestaPregAlt epa ON acevp.idPregunta = epa.idPregunta
+LEFT JOIN {$this->sessBDCuenta}.lsck.tipoEncuestaPregAlt epa ON acevp.idPregunta = epa.idPregunta
 LEFT JOIN {$this->sessBDCuenta}.lsck.auditoriaClienteEvalPregAlt acevpa ON acevp.idAudClienteEvalPreg = acevpa.idAudClienteEvalPreg AND epa.idAlternativa = acevpa.idAlternativa
 LEFT JOIN {$this->sessBDCuenta}.lsck.auditoriaClienteEvalPregResp acevpr ON acevp.idAudClienteEvalPreg = acevpr.idAudClienteEvalPreg
-LEFT JOIN lsck.responsable res ON acevpr.idResponsable = res.idResponsable
-JOIN lsck.tipoEncuestaPreg ep ON acevp.idPregunta = ep.idPregunta
-JOIN lsck.tipoEvaluacionDet evd ON acev.idEvaluacionDet = evd.idEvaluacionDet
-JOIN lsck.tipoEvaluacion ev ON evd.idEvaluacion = ev.idEvaluacion
+LEFT JOIN {$this->sessBDCuenta}.lsck.responsable res ON acevpr.idResponsable = res.idResponsable
+JOIN {$this->sessBDCuenta}.lsck.tipoEncuestaPreg ep ON acevp.idPregunta = ep.idPregunta
+JOIN {$this->sessBDCuenta}.lsck.tipoEvaluacionDet evd ON acev.idEvaluacionDet = evd.idEvaluacionDet
+JOIN {$this->sessBDCuenta}.lsck.tipoEvaluacion ev ON evd.idEvaluacion = ev.idEvaluacion
 WHERE ac.estado = 1 AND ep.idExtAudTipo IS NULL{$filtro}
 
 UNION
@@ -871,16 +871,16 @@ FROM {$this->sessBDCuenta}.lsck.auditoriaPlaza apz
 JOIN {$this->sessBDCuenta}.lsck.auditoriaCLiente ac ON apz.idAudPlaza = ac.idAudPlaza
 JOIN {$this->sessBDCuenta}.lsck.auditoriaClienteEval acev ON ac.idAudCliente = acev.idAudCliente
 JOIN {$this->sessBDCuenta}.lsck.auditoriaClienteEvalPreg acevp ON acev.idAudClienteEval = acevp.idAudClienteEval
-JOIN lsck.tipoEncuestaPreg ep ON acevp.idPregunta = ep.idPregunta
+JOIN {$this->sessBDCuenta}.lsck.tipoEncuestaPreg ep ON acevp.idPregunta = ep.idPregunta
 JOIN {$this->sessBDCuenta}.lsck.conf_cliente cc ON ac.idCliente = cc.idCliente AND apz.fecha BETWEEN cc.fecIni AND ISNULL(cc.fecFin, apz.fecha)
 JOIN {$this->sessBDCuenta}.lsck.conf_clienteAud cca ON cc.idConfCliente = cca.idConfCliente AND ep.idExtAudTipo = cca.idExtAudTipo
 JOIN {$this->sessBDCuenta}.lsck.conf_clienteAudDet ccad ON cca.idConfClienteAud = ccad.idConfClienteAud AND ep.extAudPresencia = ccad.presencia
-JOIN lsck.ext_auditoriaMaterial eam ON ccad.idExtAudMat = eam.idExtAudMat
+JOIN {$this->sessBDCuenta}.lsck.ext_auditoriaMaterial eam ON ccad.idExtAudMat = eam.idExtAudMat
 LEFT JOIN {$this->sessBDCuenta}.lsck.auditoriaClienteEvalPregAlt acevpa ON acevp.idAudClienteEvalPreg = acevpa.idAudClienteEvalPreg AND eam.idExtAudMat = acevpa.idExtAudMat
 LEFT JOIN {$this->sessBDCuenta}.lsck.auditoriaClienteEvalPregResp acevpr ON acevp.idAudClienteEvalPreg = acevpr.idAudClienteEvalPreg
-LEFT JOIN lsck.responsable res ON acevpr.idResponsable = res.idResponsable
-JOIN lsck.tipoEvaluacionDet evd ON acev.idEvaluacionDet = evd.idEvaluacionDet
-JOIN lsck.tipoEvaluacion ev ON evd.idEvaluacion = ev.idEvaluacion
+LEFT JOIN {$this->sessBDCuenta}.lsck.responsable res ON acevpr.idResponsable = res.idResponsable
+JOIN {$this->sessBDCuenta}.lsck.tipoEvaluacionDet evd ON acev.idEvaluacionDet = evd.idEvaluacionDet
+JOIN {$this->sessBDCuenta}.lsck.tipoEvaluacion ev ON evd.idEvaluacion = ev.idEvaluacion
 WHERE ac.estado = 1 AND ep.idExtAudTipo IS NOT NULL{$filtro}
 ";
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaClienteEval" ];
@@ -1301,7 +1301,7 @@ WHERE 1 = 1{$filtro}
 
 													$sql = "";
 														$sql .= "SELECT email ";
-														$sql .= "FROM lsck.responsable ";
+														$sql .= "FROM {$this->sessBDCuenta}.lsck.responsable ";
 														$sql .= "WHERE idResponsable = {$idResponsable}";
 
 													$responsableEmail = $this->db->query($sql)->row()->email;
@@ -1316,7 +1316,7 @@ WHERE 1 = 1{$filtro}
 													$this->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaClienteEvalPregResp", 'id' => $idAudClienteEvalPregResp ];
 
 													if( !empty($ordenTrabajo) && !empty($responsableEmail) ){
-														$pregunta = $this->db->get_where('lsck.tipoEncuestaPreg', array('idPregunta' => $idPregunta))->row()->nombre;
+														$pregunta = $this->db->get_where("{$this->sessBDCuenta}.lsck.tipoEncuestaPreg", array('idPregunta' => $idPregunta))->row()->nombre;
 
 														$notificar[$responsableEmail][$idAudClienteEvalPreg]['idCliente'] = $idCliente;
 														$notificar[$responsableEmail][$idAudClienteEvalPreg]['cliente'] = $cliente;

@@ -114,12 +114,12 @@ class M_iniciativas extends MY_Model{
 				{$segmentacion['columnas_bd']}
 
 			FROM 
-				trade.data_visitaIniciativaTrad i
-				JOIN trade.data_visitaIniciativaTradDet id
+				{$this->sessBDCuenta}.trade.data_visitaIniciativaTrad i
+				JOIN {$this->sessBDCuenta}.trade.data_visitaIniciativaTradDet id
 					ON id.idVisitaIniciativaTrad = i.idVisitaIniciativaTrad
-				JOIN trade.data_visita v
+				JOIN {$this->sessBDCuenta}.trade.data_visita v
 					ON v.idVisita = i.idVisita
-				JOIN trade.data_ruta r
+				JOIN {$this->sessBDCuenta}.trade.data_ruta r
 					ON r.idRuta = v.idRuta
 				JOIN trade.usuario_historico uh On uh.idUsuario=r.idUsuario
 					AND General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,@fecIni,@fecFin)=1
@@ -139,13 +139,13 @@ class M_iniciativas extends MY_Model{
 					ON gc.idGrupoCanal = ca.idGrupoCanal
 				LEFT JOIN trade.subCanal subca 
 					ON subca.idSubCanal = sn.idSubcanal
-				JOIN trade.iniciativaTrad it
+				JOIN {$this->sessBDCuenta}.trade.iniciativaTrad it
 					ON it.idIniciativa = id.idIniciativa
 				JOIN trade.elementoVisibilidadTrad ei
 					ON ei.idElementoVis=id.idElementoIniciativa
 				LEFT JOIN trade.estadoIniciativaTrad eit
 					ON eit.idEstadoIniciativa=id.idEstadoIniciativa
-				LEFT JOIN trade.data_visitaFotos vf
+				LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf
 					ON vf.idVisitaFoto = id.idVisitaFoto
 				{$segmentacion['join']}
 
@@ -168,10 +168,10 @@ class M_iniciativas extends MY_Model{
 				, ISNULL(id.cantidad,0) cantidad
 				, id.idVisitaIniciativaTradDet
 			FROM 
-			trade.data_visitaIniciativaTrad i
-			JOIN trade.data_visitaIniciativaTradDet id
+			{$this->sessBDCuenta}.trade.data_visitaIniciativaTrad i
+			JOIN {$this->sessBDCuenta}.trade.data_visitaIniciativaTradDet id
 				ON id.idVisitaIniciativaTrad = i.idVisitaIniciativaTrad
-			JOIN trade.iniciativaTrad it
+			JOIN {$this->sessBDCuenta}.trade.iniciativaTrad it
 				ON it.idIniciativa = id.idIniciativa
 			LEFT JOIN trade.elementoIniciativaTrad ei
 				ON ei.idElementoIniciativa=id.idElementoIniciativa
@@ -195,7 +195,7 @@ class M_iniciativas extends MY_Model{
 	
 	public function obtener_estado_validacion($id){
 		$sql = "
-			SELECT validacion_ejecutivo,validacion_analista FROM trade.data_visitaIniciativaTradDet WHERE idVisitaIniciativaTradDet = $id
+			SELECT validacion_ejecutivo,validacion_analista FROM {$this->sessBDCuenta}.trade.data_visitaIniciativaTradDet WHERE idVisitaIniciativaTradDet = $id
 		";
 
 		return $this->query($sql);
@@ -236,12 +236,12 @@ class M_iniciativas extends MY_Model{
 				, id.editado
 				, id.idVisitaIniciativaTradDet
 			FROM 
-				trade.data_visitaIniciativaTrad i
-				JOIN trade.data_visitaIniciativaTradDet id
+				{$this->sessBDCuenta}.trade.data_visitaIniciativaTrad i
+				JOIN {$this->sessBDCuenta}.trade.data_visitaIniciativaTradDet id
 					ON id.idVisitaIniciativaTrad = i.idVisitaIniciativaTrad
-				JOIN trade.data_visita v
+				JOIN {$this->sessBDCuenta}.trade.data_visita v
 					ON v.idVisita = i.idVisita
-				JOIN trade.data_ruta r
+				JOIN {$this->sessBDCuenta}.trade.data_ruta r
 					ON r.idRuta = v.idRuta
 				JOIN ".getClienteHistoricoCuenta()." ch
 					ON ch.idCliente = v.idCliente
@@ -265,13 +265,13 @@ class M_iniciativas extends MY_Model{
 					ON pl.idPlaza = sct.idPlaza
 				LEFT JOIN general.dbo.ubigeo ubp
 					ON ubp.cod_ubigeo = pl.cod_ubigeo
-				LEFT JOIN trade.iniciativaTrad it
+				LEFT JOIN {$this->sessBDCuenta}.trade.iniciativaTrad it
 					ON it.idIniciativa = id.idIniciativa
 				LEFT JOIN trade.elementoVisibilidadTrad ei
 					ON ei.idElementoVis=id.idElementoIniciativa
 				LEFT JOIN trade.estadoIniciativaTrad eit
 					ON eit.idEstadoIniciativa=id.idEstadoIniciativa
-				LEFT JOIN trade.data_visitaFotos vf
+				LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf
 					ON vf.idVisitaFoto = id.idVisitaFoto
 			WHERE 
 				1=1
@@ -365,7 +365,7 @@ class M_iniciativas extends MY_Model{
 				idIniciativa
 				, nombre
 				, descripcion
-			FROM trade.iniciativaTrad
+			FROM {$this->sessBDCuenta}.trade.iniciativaTrad
 			WHERE estado = 1
 			AND fn.datesBetween(fecIni, fecFin, @fechaHoy, @fechaHoy) = 1
 			{$filtros}
@@ -385,12 +385,12 @@ class M_iniciativas extends MY_Model{
 		foreach($params AS $key => $row){
 			if(!empty($row['iniciativas'])){
 				$this->db->where('idVisitaIniciativaTradDet',  $row['iniciativas'] );
-				$this->db->update('trade.data_visitaIniciativaTradDet', ['validacion_analista' => $row['tipoHabilitar']]);
+				$this->db->update("{$this->sessBDCuenta}.trade.data_visitaIniciativaTradDet", ['validacion_analista' => $row['tipoHabilitar']]);
 			}
 		}
 
 		$id = $this->db->insert_id();
-		$aSessTrack = [ 'idAccion' => 7, 'tabla' => 'trade.data_visitaIniciativaTradDet', 'id' => $id ];
+		$aSessTrack = [ 'idAccion' => 7, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaIniciativaTradDet", 'id' => $id ];
 
 		if ( $this->db->trans_status() === FALSE ) {
 			$this->db->trans_rollback();
@@ -415,10 +415,10 @@ class M_iniciativas extends MY_Model{
 		$this->db->trans_begin();
 
 		$this->db->where('idVisitaIniciativaTradDet',  $params['idIniciativaDet'] );
-		$this->db->update('trade.data_visitaIniciativaTradDet', $params['editar']);
+		$this->db->update("{$this->sessBDCuenta}.trade.data_visitaIniciativaTradDet", $params['editar']);
 
 		$id = $this->db->insert_id();
-		$aSessTrack = [ 'idAccion' => 7, 'tabla' => 'trade.data_visitaIniciativaTradDet', 'id' => $id ];
+		$aSessTrack = [ 'idAccion' => 7, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaIniciativaTradDet", 'id' => $id ];
 
 		if ( $this->db->trans_status() === FALSE ) {
 			$this->db->trans_rollback();

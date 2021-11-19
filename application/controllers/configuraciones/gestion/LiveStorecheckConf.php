@@ -3848,7 +3848,7 @@ class LiveStorecheckConf extends MY_Controller
 				'nombre'=>trim($input['encuesta']),
 				'estado' => 1,
 			);
-			$checkEnc = $this->db->get_where('lsck.tipoEncuesta',$where)->result_array();
+			$checkEnc = $this->db->get_where("{$this->sessBDCuenta}.lsck.tipoEncuesta",$where)->result_array();
 
 			if(!empty($checkEnc)){
 				$result['result'] = 0;

@@ -1923,7 +1923,7 @@ class Iniciativatrad extends MY_Controller
 			$carga['fecFin']=$fecFin;
 		}
 
-		$this->db->insert('impactTrade_bd.trade.cargaIniciativa',$carga);
+		$this->db->insert("{$this->sessBDCuenta}.trade.cargaIniciativa",$carga);
 
 		$result=array();
 		$result['data']= '1';

@@ -386,7 +386,7 @@ class Permisos extends MY_Controller{
 						if ($rs_insertarPermisoModulo) { $rowInsertedModulo++; } 
 						else { $rowInsertedModuloError++; }
 
-						//ACTUALISAMOS LA TABLA trade.master_modulacion
+						//ACTUALISAMOS LA TABLA {$this->sessBDCuenta}.trade.master_modulacion
 						$rs_updateFechasCarga = $this->model->update_fechas_carga_modulacion($arrayWhere, $arrayUpdate);
 					}
 

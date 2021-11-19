@@ -11,12 +11,12 @@ class M_encuestas extends My_Model
 		parent::__construct();
 
 		$this->tablas = [
-			'encuesta' => ['tabla' => 'trade.encuesta', 'id' => 'idEncuesta'],
-			'lista' => ['tabla' => 'trade.list_encuesta', 'id' => 'idListEncuesta'],
-			'listaDet' => ['tabla'=>'trade.list_encuestaDet','id'=>'idListEncuestaDet'],
-			'pregunta' => ['tabla'=>'trade.encuesta_pregunta','id'=>'idPregunta'],
-			'alternativa'=> ['tabla'=>'trade.encuesta_alternativa','id'=>'idAlternativa'],
-			'tipoPregunta'=> ['tabla'=>'trade.master.tipoPregunta','id'=>'idTipoPregunta'],
+			'encuesta' => ['tabla' => "{$this->sessBDCuenta}.trade.encuesta", 'id' => 'idEncuesta'],
+			'lista' => ['tabla' => "{$this->sessBDCuenta}.trade.list_encuesta", 'id' => 'idListEncuesta'],
+			'listaDet' => ['tabla'=>"{$this->sessBDCuenta}.trade.list_encuestaDet",'id'=>'idListEncuestaDet'],
+			'pregunta' => ['tabla'=>"{$this->sessBDCuenta}.trade.encuesta_pregunta",'id'=>'idPregunta'],
+			'alternativa'=> ['tabla'=>"{$this->sessBDCuenta}.trade.encuesta_alternativa",'id'=>'idAlternativa'],
+			'tipoPregunta'=> ['tabla'=>'master.tipoPregunta','id'=>'idTipoPregunta'],
 			
 		];
 	}
@@ -35,11 +35,11 @@ class M_encuestas extends My_Model
 				SELECT 
 				ea.*
 				FROM
-				trade.encuesta_alternativa ea
+				{$this->sessBDCuenta}.trade.encuesta_alternativa ea
 				{$filtros}
 			";
 
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.encuesta_alternativa' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.encuesta_alternativa" ];
 		return $this->db->query($sql);
 	}
 	//SECCION PREGUNTAS
@@ -58,7 +58,7 @@ class M_encuestas extends My_Model
 				ep.*
 				,tp.nombre tipo
 				FROM
-				trade.encuesta_pregunta ep
+				{$this->sessBDCuenta}.trade.encuesta_pregunta ep
 				JOIN master.tipoPregunta tp
 				ON tp.idTipoPregunta = ep.idTipoPregunta
 				{$filtros}
@@ -66,7 +66,7 @@ class M_encuestas extends My_Model
 				order by ep.orden asc
 			";
 
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.encuesta_pregunta' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.encuesta_pregunta" ];
 		return $this->db->query($sql);
 	}
 
@@ -84,7 +84,7 @@ class M_encuestas extends My_Model
 				ep.*
 				,tp.nombre tipo
 				FROM
-				trade.encuesta_pregunta ep
+				{$this->sessBDCuenta}.trade.encuesta_pregunta ep
 				JOIN master.tipoPregunta tp
 				ON tp.idTipoPregunta = ep.idTipoPregunta
 				{$filtros}
@@ -92,7 +92,7 @@ class M_encuestas extends My_Model
 				order by ep.orden asc
 			";
 
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.encuesta_pregunta' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.encuesta_pregunta" ];
 		return $this->db->query($sql);
 	}
 
@@ -326,20 +326,20 @@ class M_encuestas extends My_Model
 				c.razonSocial, 
 				c.nombre cuenta,
 				c.nombreComercial 
-				FROM trade.encuesta e
+				FROM {$this->sessBDCuenta}.trade.encuesta e
 				JOIN trade.cuenta c
 				ON e.idCuenta = c.idCuenta
 				{$filtros}
 				AND c.estado = 1
 			";
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.encuesta' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.encuesta" ];
 		return $this->db->query($sql);
 	}
 
 	public function getIdEncuesta($encuesta){
-		$sql = $this->db->get_where('trade.encuesta',array('nombre'=>$encuesta));
+		$sql = $this->db->get_where("{$this->sessBDCuenta}.trade.encuesta",array('nombre'=>$encuesta));
 
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.encuesta' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.encuesta" ];
 		return ($sql);
 
 	}
@@ -487,7 +487,7 @@ class M_encuestas extends My_Model
 				, ut. nombre as tipo
 				, gc.idGrupoCanal
 				, gc.nombre as grupoCanal
-				FROM trade.list_encuesta lst
+				FROM {$this->sessBDCuenta}.trade.list_encuesta lst
 				JOIN trade.proyecto p ON p.idProyecto  = lst.idProyecto
 				JOIN trade.cuenta cu ON cu.idCuenta=p.idCuenta
 				LEFT JOIN trade.canal c ON c.idCanal = lst.idCanal
@@ -498,7 +498,7 @@ class M_encuestas extends My_Model
 				ORDER BY lst.fecIni DESC
 			";
 
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.list_encuesta' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.list_encuesta" ];
 		return $this->db->query($sql);
 	}
 
@@ -510,12 +510,12 @@ class M_encuestas extends My_Model
 				e.*
 				,lstd.idListEncuestaDet 
 				FROM 
-				trade.encuesta e
-				JOIN trade.list_encuestaDet lstd ON lstd.idEncuesta = e.idEncuesta
+				{$this->sessBDCuenta}.trade.encuesta e
+				JOIN {$this->sessBDCuenta}.trade.list_encuestaDet lstd ON lstd.idEncuesta = e.idEncuesta
 				WHERE lstd.idListEncuesta = ".$post['id'].";
 			";
 
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.list_encuestaDet' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.list_encuestaDet" ];
 		return $this->db->query($sql);
 	}
 
@@ -731,11 +731,11 @@ class M_encuestas extends My_Model
 				SELECT 
 				ep.*
 				FROM
-				trade.encuesta_pregunta ep
+				{$this->sessBDCuenta}.trade.encuesta_pregunta ep
 				$filtros
 			";
 
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.encuesta_pregunta' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.encuesta_pregunta" ];
 		return $this->db->query($sql);
 	}
 
@@ -753,13 +753,13 @@ class M_encuestas extends My_Model
 				ea.*,
 				ep.idEncuesta
 				FROM
-				trade.encuesta_alternativa ea
-				LEFT JOIN trade.encuesta_pregunta ep ON ep.idPregunta=ea.idPregunta
+				{$this->sessBDCuenta}.trade.encuesta_alternativa ea
+				LEFT JOIN {$this->sessBDCuenta}.trade.encuesta_pregunta ep ON ep.idPregunta=ea.idPregunta
 				{$filtros}
 
 			";
 
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.encuesta_alternativa' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.encuesta_alternativa" ];
 		return $this->db->query($sql);
 	}
 
@@ -864,11 +864,11 @@ class M_encuestas extends My_Model
 			,ch.idCuenta
 		FROM 
 			".getClienteHistoricoCuenta()." ch
-			JOIN ImpactTrade_bd.trade.segmentacionNegocio sn
+			JOIN trade.segmentacionNegocio sn
 				ON sn.idSegNegocio = ch.idSegNegocio
-			JOIN ImpactTrade_bd.trade.canal ca
+			JOIN trade.canal ca
 				ON ca.idCanal=sn.idCanal 
-			JOIN ImpactTrade_bd.trade.grupoCanal gc 
+			JOIN trade.grupoCanal gc 
 			    ON gc.idGrupoCanal=ca.idGrupoCanal
 				{$filtros}
 		ORDER BY gc.idGrupoCanal

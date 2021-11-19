@@ -12,15 +12,15 @@ class M_productos extends My_Model
 
 		$this->tablas = [
 			'elemento' => ['tabla' => 'trade.producto', 'id' => 'idProducto'],
-			'lista' => ['tabla' => 'trade.list_productos', 'id' => 'idListProductos'],
-			'listaDet' => ['tabla'=>'trade.list_productosDet','id'=>'idListProductosDet'],
+			'lista' => ['tabla' => "{$this->sessBDCuenta}.trade.list_productos", 'id' => 'idListProductos'],
+			'listaDet' => ['tabla'=>"{$this->sessBDCuenta}.trade.list_productosDet",'id'=>'idListProductosDet'],
 			'marca' => ['tabla'=>'trade.producto_marca','id'=>'idMarca'],
 			'categoria' => ['tabla'=>'trade.producto_categoria','id'=>'idCategoria'],
 			'precio' => ['tabla'=>'trade.producto_precios','id'=>'idPrecio'],
-			'listaPrecio' => ['tabla'=>'trade.list_precios','id'=>'idListPrecio'],
+			'listaPrecio' => ['tabla'=>"{$this->sessBDCuenta}.trade.list_precios",'id'=>'idListPrecio'],
 			'unidadMedidaProducto' => ['tabla'=>'trade.unidadMedidaProducto','id'=>'idUnidadMedidaProducto'],
-			'surtido' => ['tabla'=>'trade.list_surtido','id'=>'idListSurtido'],
-			'surtidoDet' => ['tabla'=>'trade.list_surtidoDet','id'=>'idListSurtidoDet'],
+			'surtido' => ['tabla'=>"{$this->sessBDCuenta}.trade.list_surtido",'id'=>'idListSurtido'],
+			'surtidoDet' => ['tabla'=>"{$this->sessBDCuenta}.trade.list_surtidoDet",'id'=>'idListSurtidoDet'],
 			'motivo' => ['tabla'=>'trade.motivo','id'=>'idMotivo'],
 		];
 
@@ -184,8 +184,8 @@ class M_productos extends My_Model
 	}
 
 	public function getIdEncuesta($encuesta){
-		$sql = $this->db->get_where('trade.encuesta',array('nombre'=>$encuesta));
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.encuesta' ];
+		$sql = $this->db->get_where("{$this->sessBDCuenta}.trade.encuesta",array('nombre'=>$encuesta));
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.encuesta" ];
 		return ($sql);
 
 	}
@@ -878,11 +878,11 @@ class M_productos extends My_Model
 			,ch.idCuenta
 		FROM 
 			".getClienteHistoricoCuenta()." ch
-			JOIN ImpactTrade_bd.trade.segmentacionNegocio sn
+			JOIN trade.segmentacionNegocio sn
 				ON sn.idSegNegocio = ch.idSegNegocio
-			JOIN ImpactTrade_bd.trade.canal ca
+			JOIN trade.canal ca
 				ON ca.idCanal=sn.idCanal 
-			JOIN ImpactTrade_bd.trade.grupoCanal gc 
+			JOIN trade.grupoCanal gc 
 			    ON gc.idGrupoCanal=ca.idGrupoCanal
 			{$filtros}
 		ORDER BY gc.idGrupoCanal
@@ -1162,7 +1162,7 @@ class M_productos extends My_Model
                 p.*
                 FROM
                 ".$this->tablas['categoria']['tabla']." p
-				JOIN  trade.list_categoria_marca cm ON cm.idCategoria = p.idCategoria AND cm.idProyecto = {$idProyecto}
+				JOIN  {$this->sessBDCuenta}.trade.list_categoria_marca cm ON cm.idCategoria = p.idCategoria AND cm.idProyecto = {$idProyecto}
                 {$filtros}
 			";
 

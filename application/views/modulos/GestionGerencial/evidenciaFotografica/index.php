@@ -83,11 +83,6 @@
 							</select>
 						</div>
 						<div class="filtros_secundarios">
-							<div class="mb-2 mr-sm-2 position-relative form-group chk_quiebres">
-								<div class="position-relative form-check form-check-inline">
-									<label class="form-check-label"><input type="checkbox" name="ch-quiebre" value="1" class="form-check-input"> Quiebre</label>
-								</div>
-							</div>
 							<div class="filtros_generados">
 								<h5 class="mt-1 mb-1 text-bold-500"><i class="fal fa-table"></i> Filtros Generados</h5>
 								<div class="filtros_gc filtros_HFS d-none">

@@ -969,7 +969,7 @@ class Visibilidad extends MY_Controller
 					'idElementoVisibilidad' => $row['idLista'],
 					'orden' => $row['orden']
 				);
-				$insert = $this->db->insert('trade.master_listaElementosDet', $insert);
+				$insert = $this->db->insert("{$this->sessBDCuenta}.trade.master_listaElementosDet", $insert);
 			}
 		}
 
@@ -1075,7 +1075,7 @@ class Visibilidad extends MY_Controller
 		if (!empty($post['elementosEliminados'])) {
 			$elementosEliminados = $post['elementosEliminados'];
 			if (!is_array($elementosEliminados)) $elementosEliminados = [$elementosEliminados];
-			$delete = $this->model->deleteMasivo('trade.master_listaElementosDet', 'idListaDet', $elementosEliminados);
+			$delete = $this->model->deleteMasivo("{$this->sessBDCuenta}.trade.master_listaElementosDet", 'idListaDet', $elementosEliminados);
 		}
 		//UPDATE
 		$update = $this->model->actualizarMasivoListaModulacion($multiDataRefactorizada);

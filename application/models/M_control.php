@@ -436,8 +436,8 @@ class M_control extends MY_Model{
 			}
 		$sql = " 
 		SELECT distinct mev.idElementoVis AS id, ele.nombre 
-		FROM trade.iniciativaTradElemento mev 
-		JOIN trade.iniciativaTrad ev ON ev.idIniciativa=mev.idIniciativa
+		FROM {$this->sessBDCuenta}.trade.iniciativaTradElemento mev 
+		JOIN {$this->sessBDCuenta}.trade.iniciativaTrad ev ON ev.idIniciativa=mev.idIniciativa
 		JOIN trade.elementoVisibilidadTrad ele ON ele.idElementoVis=mev.idElementoVis
 		WHERE ev.estado = 1 {$filtro}
 		 ORDER BY ele.nombre ";
@@ -462,7 +462,7 @@ class M_control extends MY_Model{
 			select @idCanal=idCanal FROM trade.canal where nombre like '".$input['canal']."';
 
 			select DISTINCT ch.idCliente from trade.cliente c 
-			JOIN trade.cliente_historico_pg ch ON ch.idCliente=c.idCliente
+			JOIN {$this->sessBDCuenta}.trade.cliente_historico ch ON ch.idCliente=c.idCliente
 			and @fecha BETWEEN ch.fecIni and ISNULL(ch.fecFin,@fecha) AND ch.estado=1
 
 			JOIN trade.segmentacionNegocio sn ON sn.idSegNegocio=ch.idSegNegocio
@@ -622,7 +622,7 @@ class M_control extends MY_Model{
 		$sql = "
 		SELECT TOP 1
 			c.idGrupoCanal
-		FROM trade.data_visita v
+		FROM {$this->sessBDCuenta}.trade.data_visita v
 		JOIN trade.canal c ON v.idCanal = c.idCanal
 		WHERE v.idVisita  = {$params}
 		";
@@ -688,11 +688,11 @@ class M_control extends MY_Model{
 		$sql = "
 			WITH list_visitas AS (
 				SELECT v.idVisita  
-				FROM trade.data_ruta r 
-				JOIN trade.data_visita v ON v.idRuta=r.idRuta
+				FROM {$this->sessBDCuenta}.trade.data_ruta r 
+				JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
 				WHERE r.idProyecto={$post['idProyecto']} and r.fecha='{$post['fecha']}'
 			)
-			UPDATE trade.data_visita
+			UPDATE {$this->sessBDCuenta}.trade.data_visita
 			SET estado=estado
 			where idVisita IN (
 				SELECT  idVisita FROM list_visitas

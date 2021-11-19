@@ -284,7 +284,7 @@ class Premiacion extends MY_Controller
 				if(!empty($value['fecCaducidad'])){
 					$array['fechaCaducidad'] = $value['fecCaducidad'];
 				}
-				$this->db->insert('trade.premiacion',$array);
+				$this->db->insert("{$this->sessBDCuenta}.trade.premiacion",$array);
 			}
 		}
 

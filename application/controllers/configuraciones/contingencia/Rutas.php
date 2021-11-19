@@ -1372,7 +1372,7 @@ class Rutas extends MY_Controller{
 					//VERIFICAMOS LA INFORMACIÓN CABECERA ALMACENADA
 					if ( $insertarVisitaEncuesta) {
 						$insertId = $this->db->insert_id();
-						$this->guardarAuditoria('trade.data_visitaSos');
+						$this->guardarAuditoria("{$this->sessBDCuenta}.trade.data_visitaSos");
 						$rowInsert++;
 
 						//VERIFICACIÓN DE LOS DETALLES
@@ -1575,7 +1575,7 @@ class Rutas extends MY_Controller{
 						if ( $insertarVisitaEncuesta ) {
 							//VISITA ENCUESTA DETALLE
 							$insertId = $this->db->insert_id();
-							$this->guardarAuditoria('trade.data_visitaEncuesta');
+							$this->guardarAuditoria("{$this->sessBDCuenta}.trade.data_visitaEncuesta");
 							$content .= '<div class="alert alert-success" role="alert"><i class="fas fa-info-circle"></i> NO SE LOGRO INGRESAR LA ENCUESTA '.$idEncuesta[$kve].'.</div>';
 
 							//PREGUNTAS TIPO 01
@@ -1994,7 +1994,7 @@ class Rutas extends MY_Controller{
 					if ( $insertarVisitaEncuesta ) {
 						//VISITA ENCUESTA DETALLE
 						$insertId = $this->db->insert_id();
-						$this->guardarAuditoria('trade.data_visitaEncuesta');
+						$this->guardarAuditoria("{$this->sessBDCuenta}.trade.data_visitaEncuesta");
 						$content .= '<div class="alert alert-success" role="alert"><i class="fas fa-check-circle "></i> SE LOGRO INGRESAR LA ENCUESTA '.$idEncuesta.' CORRECTAMENTE.</div>';
 						//PREGUNTAS TIPO 01
 						if ( isset( $data->{'pregunta-tp1-'.$idEncuesta} )) {
@@ -2367,7 +2367,7 @@ class Rutas extends MY_Controller{
 
 							if ( $insertarVisitaIpp) {
 								$insertId = $this->db->insert_id();
-								$this->guardarAuditoria('trade.data_visitaIpp');
+								$this->guardarAuditoria("{$this->sessBDCuenta}.trade.data_visitaIpp");
 								$rowInsert++;
 
 								$arrayInsertIppDetalle = array(
@@ -2422,7 +2422,7 @@ class Rutas extends MY_Controller{
 
 							if ( $insertarVisitaIpp) {
 								$insertId = $this->db->insert_id();
-								$this->guardarAuditoria('trade.data_visitaIpp');
+								$this->guardarAuditoria("{$this->sessBDCuenta}.trade.data_visitaIpp");
 								$rowInsert++;
 
 								$arrayInsertIppDetalle = array(
@@ -2556,7 +2556,7 @@ class Rutas extends MY_Controller{
 							//INSERT DETALLE
 							if ( $insertarVisitaProducto ) {
 								$insertId = $this->db->insert_id();
-								$this->guardarAuditoria('trade.data_visitaProductos');
+								$this->guardarAuditoria("{$this->sessBDCuenta}.trade.data_visitaProductos");
 								$rowInsert++;
 
 								$arrayInsertProductoDet = array(
@@ -2706,7 +2706,7 @@ class Rutas extends MY_Controller{
 							//INSERTAR DETALLE
 							if ( $insertarVisitaPrecio ) {
 								$insertId = $this->db->insert_id();
-								$this->guardarAuditoria('trade.data_visitaPrecios');
+								$this->guardarAuditoria("{$this->sessBDCuenta}.trade.data_visitaPrecios");
 								$rowInsert++;
 
 								$arrayInsertPrecioDet = array(
@@ -2874,7 +2874,7 @@ class Rutas extends MY_Controller{
 						//INSERTAR DETALLE
 						if ( $insertarVisitaPromocion ) {
 							$insertId = $this->db->insert_id();
-							$this->guardarAuditoria('trade.data_visitaPromociones');
+							$this->guardarAuditoria("{$this->sessBDCuenta}.trade.data_visitaPromociones");
 							//$content .= '<div class="alert alert-success" role="alert"><i class="fas fa-info-circle"></i>SE LOGRO INGRESAR LA INFORMACIÓN.</div>';
 							$rowInsert++;
 
@@ -3036,7 +3036,7 @@ class Rutas extends MY_Controller{
 					//VERIFICAMOS LA INFORMACIÓN CABECERA ALMACENADA
 					if ( $insertarVisitaSos) {
 						$insertId = $this->db->insert_id();
-						$this->guardarAuditoria('trade.data_visitaSos');
+						$this->guardarAuditoria("{$this->sessBDCuenta}.trade.data_visitaSos");
 						$rowInsert++;
 
 						//VERIFICAMOS LOS DETALLES
@@ -3114,7 +3114,7 @@ class Rutas extends MY_Controller{
 						//INSERT DETALLE
 						if ( $insertarVisitaSod ) {
 							$insertId = $this->db->insert_id();
-							$this->guardarAuditoria('trade.data_visitaSod');
+							$this->guardarAuditoria("{$this->sessBDCuenta}.trade.data_visitaSod");
 							$rowInsert++;
 
 							if ( !empty($listaMarcaElementos)) {
@@ -3295,7 +3295,7 @@ class Rutas extends MY_Controller{
 						//INSERT DETALLE
 						if ( $insertarVisitaSod ) {
 							$insertId = $this->db->insert_id();
-							$this->guardarAuditoria('trade.data_visitaSod');
+							$this->guardarAuditoria("{$this->sessBDCuenta}.trade.data_visitaSod");
 							$rowInsert++;
 
 							$arrayInsertSodDet = array(
@@ -3405,7 +3405,7 @@ class Rutas extends MY_Controller{
 							//INSERTAR DETALLE
 							if ( $insertarVisitaEncarte ) {
 								$insertId = $this->db->insert_id();
-								$this->guardarAuditoria('trade.data_visitaEncartes');
+								$this->guardarAuditoria("{$this->sessBDCuenta}.trade.data_visitaEncartes");
 								//$content .= '<div class="alert alert-success" role="alert"><i class="fas fa-info-circle"></i>SE LOGRO INGRESAR LA INFORMACIÓN.</div>';
 								$rowInsert++;
 
@@ -3515,7 +3515,7 @@ class Rutas extends MY_Controller{
 							//INSERTAR DETALLE
 							if ( $insertarVisitaSeguimientoPlan) {
 								$insertId = $this->db->insert_id();
-								$this->guardarAuditoria('trade.data_visitaSeguimientoPlan');
+								$this->guardarAuditoria("{$this->sessBDCuenta}.trade.data_visitaSeguimientoPlan");
 								$rowInsert++;
 
 								$arrayInsertSeguimientoPlanDet = array(
@@ -3621,7 +3621,7 @@ class Rutas extends MY_Controller{
 			//INSERTAMOES EL DETALLE
 			if ( $insertarVisitaDespacho) {
 				$insertId = $this->db->insert_id();
-				$this->guardarAuditoria('trade.data_visitaDespachos');
+				$this->guardarAuditoria("{$this->sessBDCuenta}.trade.data_visitaDespachos");
 				$content .= '<div class="alert alert-success" role="alert"><i class="fas fa-info-circle"></i>SE LOGRO INGRESAR LA INFORMACIÓN.</div>';
 
 				$arrayInsertDespachoDet = array(
@@ -3859,7 +3859,7 @@ class Rutas extends MY_Controller{
 							if ( $insertarVisitaInventario ) {
 								//SE INSERTO LA CABECERA
 								$insertId = $this->db->insert_id();
-								$this->guardarAuditoria('trade.data_visitaInventario');
+								$this->guardarAuditoria("{$this->sessBDCuenta}.trade.data_visitaInventario");
 								$rowInsert++;
 								
 
@@ -4087,7 +4087,7 @@ class Rutas extends MY_Controller{
 							//INSERTAR DETALLE
 							if ( $insertarVisitaInteligenciaTrad ) {
 								$insertId = $this->db->insert_id();
-								$this->guardarAuditoria('trade.data_visitaInteligenciaTrad');
+								$this->guardarAuditoria("{$this->sessBDCuenta}.trade.data_visitaInteligenciaTrad");
 								$rowInsert++;
 
 								$arrayInsertInteligenciaTradDet = array(
@@ -4294,7 +4294,7 @@ class Rutas extends MY_Controller{
 							//INSERTAR DETALLE
 							if ( $insertarVisitaVisibilidadTrad) {
 								$insertId = $this->db->insert_id();
-								$this->guardarAuditoria('trade.data_visitaVisibilidadTrad');
+								$this->guardarAuditoria("{$this->sessBDCuenta}.trade.data_visitaVisibilidadTrad");
 								$rowInsert++;
 
 								$arrayInsertVisibilidadTradDet = array(
@@ -4419,7 +4419,7 @@ class Rutas extends MY_Controller{
 							//INSERTAR DETALLE
 							if ( $insertarVisitaIniciativaTrad) {
 								$insertId = $this->db->insert_id();
-								$this->guardarAuditoria('trade.data_visitaIniciativaTrad');
+								$this->guardarAuditoria("{$this->sessBDCuenta}.trade.data_visitaIniciativaTrad");
 								$rowInsert++;
 
 								$arrayInsertIniciativaTradDet = array(
@@ -4547,7 +4547,7 @@ class Rutas extends MY_Controller{
 							//INSERTAR DETALLE
 							if ( $insertarVisitaVisibilidadObligatoria) {
 								$insertId = $this->db->insert_id();
-								$this->guardarAuditoria('trade.data_visitaVisibilidadObligatorio');
+								$this->guardarAuditoria("{$this->sessBDCuenta}.trade.data_visitaVisibilidadObligatorio");
 								$rowInsert++;
 
 								$arrayInsertVisibilidadObligatoriaDet = array(
@@ -4669,7 +4669,7 @@ class Rutas extends MY_Controller{
 							//INSERTAR DETALLE
 							if ( $insertarVisitaVisibilidadIniciativa) {
 								$insertId = $this->db->insert_id();
-								$this->guardarAuditoria('trade.data_visitaVisibilidadIniciativa');
+								$this->guardarAuditoria("{$this->sessBDCuenta}.trade.data_visitaVisibilidadIniciativa");
 								$rowInsert++;
 
 								$arrayInsertVisibilidadIniciativaDet = array(
@@ -4788,7 +4788,7 @@ class Rutas extends MY_Controller{
 							//INSERTAR DETALLE
 							if ( $insertarVisitaVisibilidadAdicional) {
 								$insertId = $this->db->insert_id();
-								$this->guardarAuditoria('trade.data_visitaVisibilidadAdicional');
+								$this->guardarAuditoria("{$this->sessBDCuenta}.trade.data_visitaVisibilidadAdicional");
 								$rowInsert++;
 
 								$arrayInsertVisibilidadAdicionalDet = array(
@@ -4891,7 +4891,7 @@ class Rutas extends MY_Controller{
 					//INSERTAR DETALLE
 					if ( $insertarVisitaEncuestaPremio) {
 						$insertId = $this->db->insert_id();
-						$this->guardarAuditoria('trade.data_visitaEncuestaPremio');
+						$this->guardarAuditoria("{$this->sessBDCuenta}.trade.data_visitaEncuestaPremio");
 						$rowInsert++;
 
 						$arrayInsertEncuestaPremio = array(
@@ -5069,7 +5069,7 @@ class Rutas extends MY_Controller{
 							}
 							//validar 
 							$input=array(
-								'tabla' =>'trade.data_visitaEncuesta ','arrayWhere'=>array('idVisita'=>$idVisita)
+								'tabla' =>"{$this->sessBDCuenta}.trade.data_visitaEncuesta ",'arrayWhere'=>array('idVisita'=>$idVisita)
 							);
 							$rs_=$this->model->validar_existencia_modulo($input);
 							$array_response['visita_encuesta'][$idVisita]['estado']=$rs_;
@@ -5089,7 +5089,7 @@ class Rutas extends MY_Controller{
 							}
 							//validar 
 							$input=array(
-								'tabla' =>'trade.data_visitaIpp ','arrayWhere'=>array('idVisita'=>$idVisita)
+								'tabla' =>"{$this->sessBDCuenta}.trade.data_visitaIpp ",'arrayWhere'=>array('idVisita'=>$idVisita)
 							);
 							$rs_=$this->model->validar_existencia_modulo($input);
 							$array_response['visita_ipp'][$idVisita]['estado']=$rs_;
@@ -5110,7 +5110,7 @@ class Rutas extends MY_Controller{
 							}
 							//validar 
 							$input=array(
-								'tabla' =>'trade.data_visitaProductos ','arrayWhere'=>array('idVisita'=>$idVisita)
+								'tabla' =>"{$this->sessBDCuenta}.trade.data_visitaProductos ",'arrayWhere'=>array('idVisita'=>$idVisita)
 							);
 							$rs_=$this->model->validar_existencia_modulo($input);
 							$array_response['visita_producto'][$idVisita]['estado']=$rs_;
@@ -5130,7 +5130,7 @@ class Rutas extends MY_Controller{
 							}
 							//validar 
 							$input=array(
-								'tabla' =>'trade.data_visitaPrecios ','arrayWhere'=>array('idVisita'=>$idVisita)
+								'tabla' =>"{$this->sessBDCuenta}.trade.data_visitaPrecios ",'arrayWhere'=>array('idVisita'=>$idVisita)
 							);
 							$rs_=$this->model->validar_existencia_modulo($input);
 							$array_response['visita_precio'][$idVisita]['estado']=$rs_;
@@ -5150,7 +5150,7 @@ class Rutas extends MY_Controller{
 							}
 							//validar 
 							$input=array(
-								'tabla' =>'trade.data_visitaPromociones ','arrayWhere'=>array('idVisita'=>$idVisita)
+								'tabla' =>"{$this->sessBDCuenta}.trade.data_visitaPromociones ",'arrayWhere'=>array('idVisita'=>$idVisita)
 							);
 							$rs_=$this->model->validar_existencia_modulo($input);
 							$array_response['visita_promocion'][$idVisita]['estado']=$rs_;
@@ -5170,7 +5170,7 @@ class Rutas extends MY_Controller{
 							}
 							//validar 
 							$input=array(
-								'tabla' =>'trade.data_visitaSos ','arrayWhere'=>array('idVisita'=>$idVisita)
+								'tabla' =>"{$this->sessBDCuenta}.trade.data_visitaSos ",'arrayWhere'=>array('idVisita'=>$idVisita)
 							);
 							$rs_=$this->model->validar_existencia_modulo($input);
 							$array_response['visita_sos'][$idVisita]['estado']=$rs_;
@@ -5191,7 +5191,7 @@ class Rutas extends MY_Controller{
 							}
 							//validar 
 							$input=array(
-								'tabla' =>'trade.data_visitaSod ','arrayWhere'=>array('idVisita'=>$idVisita)
+								'tabla' =>"{$this->sessBDCuenta}.trade.data_visitaSod ",'arrayWhere'=>array('idVisita'=>$idVisita)
 							);
 							$rs_=$this->model->validar_existencia_modulo($input);
 							$array_response['visita_sod'][$idVisita]['estado']=$rs_;
@@ -5212,7 +5212,7 @@ class Rutas extends MY_Controller{
 							}
 							//validar 
 							$input=array(
-								'tabla' =>'trade.data_visitaEncartes','arrayWhere'=>array('idVisita'=>$idVisita)
+								'tabla' =>"{$this->sessBDCuenta}.trade.data_visitaEncartes",'arrayWhere'=>array('idVisita'=>$idVisita)
 							);
 							$rs_=$this->model->validar_existencia_modulo($input);
 							$array_response['visita_encarte'][$idVisita]['estado']=$rs_;
@@ -5232,7 +5232,7 @@ class Rutas extends MY_Controller{
 							}
 							//validar 
 							$input=array(
-								'tabla' =>'trade.data_visitaSeguimientoPlan ','arrayWhere'=>array('idVisita'=>$idVisita)
+								'tabla' =>"{$this->sessBDCuenta}.trade.data_visitaSeguimientoPlan ",'arrayWhere'=>array('idVisita'=>$idVisita)
 							);
 							$rs_=$this->model->validar_existencia_modulo($input);
 							$array_response['visita_seguimiento_plan'][$idVisita]['estado']=$rs_;
@@ -5257,7 +5257,7 @@ class Rutas extends MY_Controller{
 							}
 							//validar 
 							$input=array(
-								'tabla' =>'trade.data_visitaDespachos ','arrayWhere'=>array('idVisita'=>$idVisita)
+								'tabla' =>"{$this->sessBDCuenta}.trade.data_visitaDespachos ",'arrayWhere'=>array('idVisita'=>$idVisita)
 							);
 							$rs_=$this->model->validar_existencia_modulo($input);
 							$array_response['visita_despacho'][$idVisita]['estado']=$rs_;
@@ -5273,7 +5273,7 @@ class Rutas extends MY_Controller{
 							}
 							//validar 
 							$input=array(
-								'tabla' =>'trade.data_visitaModuloFotos ','arrayWhere'=>array('idVisita'=>$idVisita)
+								'tabla' =>"{$this->sessBDCuenta}.trade.data_visitaModuloFotos ",'arrayWhere'=>array('idVisita'=>$idVisita)
 							);
 							$rs_=$this->model->validar_existencia_modulo($input);
 							$array_response['visita_foto'][$idVisita]['estado']=$rs_;
@@ -5295,7 +5295,7 @@ class Rutas extends MY_Controller{
 							}
 							//validar 
 							$input=array(
-								'tabla' =>'trade.data_visitaInventario ','arrayWhere'=>array('idVisita'=>$idVisita)
+								'tabla' =>"{$this->sessBDCuenta}.trade.data_visitaInventario ",'arrayWhere'=>array('idVisita'=>$idVisita)
 							);
 							$rs_=$this->model->validar_existencia_modulo($input);
 							$array_response['visita_inventario'][$idVisita]['estado']=$rs_;
@@ -5316,7 +5316,7 @@ class Rutas extends MY_Controller{
 							}
 							//validar 
 							$input=array(
-								'tabla' =>'trade.data_visitaVisibilidadTrad ','arrayWhere'=>array('idVisita'=>$idVisita)
+								'tabla' =>"{$this->sessBDCuenta}.trade.data_visitaVisibilidadTrad ",'arrayWhere'=>array('idVisita'=>$idVisita)
 							);
 							$rs_=$this->model->validar_existencia_modulo($input);
 							$array_response['visita_visibilidad_trad'][$idVisita]['estado']=$rs_;
@@ -5332,7 +5332,7 @@ class Rutas extends MY_Controller{
 							}
 							//validar 
 							$input=array(
-								'tabla' =>'trade.data_visitaMantenimientoCliente ','arrayWhere'=>array('idVisita'=>$idVisita)
+								'tabla' =>"{$this->sessBDCuenta}.trade.data_visitaMantenimientoCliente ",'arrayWhere'=>array('idVisita'=>$idVisita)
 							);
 							$rs_=$this->model->validar_existencia_modulo($input);
 							$array_response['visita_mantenimiento_cliente'][$idVisita]['estado']=$rs_;
@@ -5352,7 +5352,7 @@ class Rutas extends MY_Controller{
 							}
 							//validar 
 							$input=array(
-								'tabla' =>'trade.data_visitaIniciativaTrad ','arrayWhere'=>array('idVisita'=>$idVisita)
+								'tabla' =>"{$this->sessBDCuenta}.trade.data_visitaIniciativaTrad ",'arrayWhere'=>array('idVisita'=>$idVisita)
 							);
 							$rs_=$this->model->validar_existencia_modulo($input);
 							$array_response['visita_iniciativa'][$idVisita]['estado']=$rs_;
@@ -5373,7 +5373,7 @@ class Rutas extends MY_Controller{
 							}
 							//validar 
 							$input=array(
-								'tabla' =>'trade.data_visitaInteligenciaTrad ','arrayWhere'=>array('idVisita'=>$idVisita)
+								'tabla' =>"{$this->sessBDCuenta}.trade.data_visitaInteligenciaTrad ",'arrayWhere'=>array('idVisita'=>$idVisita)
 							);
 							$rs_=$this->model->validar_existencia_modulo($input);
 							$array_response['visita_inteligencia'][$idVisita]['estado']=$rs_;
@@ -5391,7 +5391,7 @@ class Rutas extends MY_Controller{
 							}
 							//validar 
 							$input=array(
-								'tabla' =>'trade.data_visitaOrden ','arrayWhere'=>array('idVisita'=>$idVisita)
+								'tabla' =>"{$this->sessBDCuenta}.trade.data_visitaOrden ",'arrayWhere'=>array('idVisita'=>$idVisita)
 							);
 							$rs_=$this->model->validar_existencia_modulo($input);
 							$array_response['visita_orden'][$idVisita]['estado']=$rs_;
@@ -5413,7 +5413,7 @@ class Rutas extends MY_Controller{
 							}
 							//validar 
 							$input=array(
-								'tabla' =>'trade.data_visitaVisibilidadObligatorio','arrayWhere'=>array('idVisita'=>$idVisita)
+								'tabla' =>"{$this->sessBDCuenta}.trade.data_visitaVisibilidadObligatorio",'arrayWhere'=>array('idVisita'=>$idVisita)
 							);
 							$rs_=$this->model->validar_existencia_modulo($input);
 							$array_response['visita_visibilidad_obligatorio'][$idVisita]['estado']=$rs_;
@@ -5433,7 +5433,7 @@ class Rutas extends MY_Controller{
 							}
 							//validar 
 							$input=array(
-								'tabla' =>'trade.data_visitaVisibilidadIniciativa','arrayWhere'=>array('idVisita'=>$idVisita)
+								'tabla' =>"{$this->sessBDCuenta}.trade.data_visitaVisibilidadIniciativa",'arrayWhere'=>array('idVisita'=>$idVisita)
 							);
 							$rs_=$this->model->validar_existencia_modulo($input);
 							$array_response['visita_visibilidad_iniciativa'][$idVisita]['estado']=$rs_;
@@ -5455,7 +5455,7 @@ class Rutas extends MY_Controller{
 							}
 							//validar 
 							$input=array(
-								'tabla' =>'trade.data_visitaVisibilidadAdicional','arrayWhere'=>array('idVisita'=>$idVisita)
+								'tabla' =>"{$this->sessBDCuenta}.trade.data_visitaVisibilidadAdicional",'arrayWhere'=>array('idVisita'=>$idVisita)
 							);
 							$rs_=$this->model->validar_existencia_modulo($input);
 							$array_response['visita_visibilidad_adicional'][$idVisita]['estado']=$rs_;
@@ -5630,7 +5630,7 @@ class Rutas extends MY_Controller{
 						if( count($visita_ipp[$idVisita])>0){
 							$insertId=null;
 							foreach ($visita_ipp[$idVisita] as $row) {
-								$tabla="trade.data_visitaIpp";
+								$tabla="{$this->sessBDCuenta}.trade.data_visitaIpp";
 								$arrayInsert = array(
 									'idVisita' => $row['idVisita']
 									,'idIpp' => !empty($row['idIpp']) ? $row['idIpp'] : null
@@ -5644,7 +5644,7 @@ class Rutas extends MY_Controller{
 							//detalle
 							if($insertId!=null){
 								if(isset($visita_ipp_det[$idVisita])){
-									$tabla="trade.data_visitaIppDet";
+									$tabla="{$this->sessBDCuenta}.trade.data_visitaIppDet";
 									foreach ($visita_ipp_det[$idVisita] as $row_) {
 										$arrayInsertDetalle = array(
 											'idVisitaIpp' => $insertId
@@ -5665,7 +5665,7 @@ class Rutas extends MY_Controller{
 						if( count($visita_producto[$idVisita])>0){
 							$insertId=null;
 							foreach ($visita_producto[$idVisita] as $row) {
-								$tabla="trade.data_visitaProductos";
+								$tabla="{$this->sessBDCuenta}.trade.data_visitaProductos";
 								$arrayInsert = array(
 									'idVisita' => $row['idVisita']
 									,'hora' => $row['hora'] 
@@ -5677,7 +5677,7 @@ class Rutas extends MY_Controller{
 							//detalle
 							if($insertId!=null){
 								if(isset($visita_producto_det[$idVisita])){
-									$tabla="trade.data_visitaProductosDet";
+									$tabla="{$this->sessBDCuenta}.trade.data_visitaProductosDet";
 									foreach ($visita_producto_det[$idVisita] as $row_) {
 										$arrayInsertDetalle = array(
 											'idVisitaProductos' => $insertId
@@ -5702,7 +5702,7 @@ class Rutas extends MY_Controller{
 						if( count($visita_precio[$idVisita])>0){
 							$insertId=null;
 							foreach ($visita_precio[$idVisita] as $row) {
-								$tabla="trade.data_visitaPrecios";
+								$tabla="{$this->sessBDCuenta}.trade.data_visitaPrecios";
 								$arrayInsert = array(
 									'idVisita' => $row['idVisita']
 									,'hora' => $row['hora'] 
@@ -5714,7 +5714,7 @@ class Rutas extends MY_Controller{
 							//detalle
 							if($insertId!=null){
 								if(isset($visita_precio_det[$idVisita])){
-									$tabla="trade.data_visitaPreciosDet";
+									$tabla="{$this->sessBDCuenta}.trade.data_visitaPreciosDet";
 									foreach ($visita_precio_det[$idVisita] as $row_) {
 										$arrayInsertDetalle = array(
 											'idVisitaPrecios' => $insertId
@@ -5740,7 +5740,7 @@ class Rutas extends MY_Controller{
 						if( count($visita_promocion[$idVisita])>0){
 							$insertId=null;
 							foreach ($visita_promocion[$idVisita] as $row) {
-								$tabla="trade.data_visitaPromociones";
+								$tabla="{$this->sessBDCuenta}.trade.data_visitaPromociones";
 								$arrayInsert = array(
 									'idVisita' => $row['idVisita']
 									,'hora' => $row['hora'] 
@@ -5751,7 +5751,7 @@ class Rutas extends MY_Controller{
 								//detalle
 								if($insertId!=null){
 									if(isset($visita_promocion_det[$idVisita])){
-										$tabla="trade.data_visitaPromocionesDet";
+										$tabla="{$this->sessBDCuenta}.trade.data_visitaPromocionesDet";
 										foreach ($visita_promocion_det[$idVisita] as $row_) {
 											$arrayInsertDetalle = array(
 												'idVisitaPromociones' => $insertId
@@ -5776,7 +5776,7 @@ class Rutas extends MY_Controller{
 						if( count($visita_sos[$idVisita])>0){
 							$insertId=null;
 							foreach ($visita_sos[$idVisita] as $row) {
-								$tabla="trade.data_visitaSos";
+								$tabla="{$this->sessBDCuenta}.trade.data_visitaSos";
 								$arrayInsert = array(
 									'idVisita' => $row['idVisita']
 									,'idCategoria' => $row['idCategoria'] 
@@ -5791,7 +5791,7 @@ class Rutas extends MY_Controller{
 								//detalle
 								if($insertId!=null){
 									if(isset($visita_sos_det[$idVisita])){
-										$tabla="trade.data_visitaSosDet";
+										$tabla="{$this->sessBDCuenta}.trade.data_visitaSosDet";
 										foreach ($visita_sos_det[$idVisita] as $row_) {
 											$arrayInsertDetalle = array(
 												'idVisitaSos' => $insertId
@@ -5819,7 +5819,7 @@ class Rutas extends MY_Controller{
 						if( count($visita_sod[$idVisita])>0){
 							$insertId=null;
 							foreach ($visita_sod[$idVisita] as $row) {
-								$tabla="trade.data_visitaSod";
+								$tabla="{$this->sessBDCuenta}.trade.data_visitaSod";
 								$arrayInsert = array(
 									'idVisita' => $row['idVisita']
 									,'idCategoria' => $row['idCategoria'] 
@@ -5832,7 +5832,7 @@ class Rutas extends MY_Controller{
 								//detalle
 								if($insertId!=null){
 									if(isset($visita_sos_det[$idVisita])){
-										$tabla="trade.data_visitaSodDet";
+										$tabla="{$this->sessBDCuenta}.trade.data_visitaSodDet";
 										foreach ($visita_sos_det[$idVisita] as $row_) {
 											$arrayInsertDetalle = array(
 												'idVisitaSod' => $insertId
@@ -5855,7 +5855,7 @@ class Rutas extends MY_Controller{
 						if( count($visita_encarte[$idVisita])>0){
 							$insertId=null;
 							foreach ($visita_encarte[$idVisita] as $row) {
-								$tabla="trade.data_visitaEncartes";
+								$tabla="{$this->sessBDCuenta}.trade.data_visitaEncartes";
 								$arrayInsert = array(
 									'idVisita' => $row['idVisita']
 									,'hora' => $row['hora'] 
@@ -5867,7 +5867,7 @@ class Rutas extends MY_Controller{
 								//detalle
 								if($insertId!=null){
 									if(isset($visita_encarte_det[$idVisita])){
-										$tabla="trade.data_visitaEncartesDet";
+										$tabla="{$this->sessBDCuenta}.trade.data_visitaEncartesDet";
 										foreach ($visita_encarte_det[$idVisita] as $row_) {
 											$arrayInsertDetalle = array(
 												'idVisitaEncartes' => $insertId
@@ -5887,7 +5887,7 @@ class Rutas extends MY_Controller{
 						if( count($visita_seguimiento_plan[$idVisita])>0){
 							$insertId=null;
 							foreach ($visita_seguimiento_plan[$idVisita] as $row) {
-								$tabla="trade.data_visitaSeguimientoPlan";
+								$tabla="{$this->sessBDCuenta}.trade.data_visitaSeguimientoPlan";
 								$arrayInsert = array(
 									'idVisita' => $row['idVisita']
 									,'idSeguimientoPlan' => $row['idPlan']
@@ -5900,7 +5900,7 @@ class Rutas extends MY_Controller{
 								//detalle
 								if($insertId!=null){
 									if(isset($visita_seguimiento_plan_det[$idVisita])){
-										$tabla="trade.data_visitaSeguimientoPlanDet";
+										$tabla="{$this->sessBDCuenta}.trade.data_visitaSeguimientoPlanDet";
 										foreach ($visita_seguimiento_plan_det[$idVisita] as $row_) {
 											$arrayInsertDetalle = array(
 												'idVisitaSeguimientoPlan' => $insertId
@@ -5925,7 +5925,7 @@ class Rutas extends MY_Controller{
 						if( count($visita_despacho[$idVisita])>0){
 							$insertId=null;
 							foreach ($visita_despacho[$idVisita] as $row) {
-								$tabla="trade.data_visitaDespachos";
+								$tabla="{$this->sessBDCuenta}.trade.data_visitaDespachos";
 								$arrayInsert = array(
 									'idVisita' => $row['idVisita']
 									,'hora' => $row['hora'] 
@@ -5937,7 +5937,7 @@ class Rutas extends MY_Controller{
 								//detalle
 								if($insertId!=null){
 									if(isset($visita_despacho_det[$idVisita])){
-										$tabla="trade.data_visitaDespachosDet";
+										$tabla="{$this->sessBDCuenta}.trade.data_visitaDespachosDet";
 										foreach ($visita_despacho_det[$idVisita] as $row_) {
 											$arrayInsertDetalle = array(
 												'idVisitaDespachos' => $insertId
@@ -5954,7 +5954,7 @@ class Rutas extends MY_Controller{
 								//detalle dias
 								if($insertId!=null){
 									if(isset($visita_despacho_dias[$idVisita])){
-										$tabla="trade.data_visitaDespachosDias";
+										$tabla="{$this->sessBDCuenta}.trade.data_visitaDespachosDias";
 										foreach ($visita_despacho_dias[$idVisita] as $row_) {
 											$arrayInsertDetalle = array(
 												'idVisitaDespachos' => $insertId
@@ -5975,7 +5975,7 @@ class Rutas extends MY_Controller{
 						if( count($visita_foto[$idVisita])>0){
 							$insertId=null;
 							foreach ($visita_foto[$idVisita] as $row) {
-								$tabla="trade.data_visitaModuloFotos";
+								$tabla="{$this->sessBDCuenta}.trade.data_visitaModuloFotos";
 								$arrayInsert = array(
 									'idVisita' => $row['idVisita']
 									,'idTipoFoto' => !empty($row['idTipoFoto']) ? $row['idTipoFoto'] : null 
@@ -5996,7 +5996,7 @@ class Rutas extends MY_Controller{
 						if( count($visita_inventario[$idVisita])>0){
 							$insertId=null;
 							foreach ($visita_inventario[$idVisita] as $row) {
-								$tabla="trade.data_visitaInventario";
+								$tabla="{$this->sessBDCuenta}.trade.data_visitaInventario";
 								$arrayInsert = array(
 									'idVisita' => $row['idVisita']
 									,'hora' => $row['hora'] 
@@ -6008,7 +6008,7 @@ class Rutas extends MY_Controller{
 								//detalle
 								if($insertId!=null){
 									if(isset($visita_inventario_det[$idVisita])){
-										$tabla="trade.data_visitaInventarioDet";
+										$tabla="{$this->sessBDCuenta}.trade.data_visitaInventarioDet";
 										foreach ($visita_inventario_det[$idVisita] as $row_) {
 											$arrayInsertDetalle = array(
 												'idVisitaInventario' => $insertId
@@ -6035,7 +6035,7 @@ class Rutas extends MY_Controller{
 						if( count($visita_visibilidad_trad[$idVisita])>0){
 							$insertId=null;
 							foreach ($visita_visibilidad_trad[$idVisita] as $row) {
-								$tabla="trade.data_visitaVisibilidadTrad";
+								$tabla="{$this->sessBDCuenta}.trade.data_visitaVisibilidadTrad";
 								$arrayInsert = array(
 									'idVisita' => $row['idVisita']
 									,'hora' => $row['hora'] 
@@ -6047,7 +6047,7 @@ class Rutas extends MY_Controller{
 								//detalle
 								if($insertId!=null){
 									if(isset($visita_visibilidad_trad_det[$idVisita])){
-										$tabla="trade.data_visitaVisibilidadTradDet";
+										$tabla="{$this->sessBDCuenta}.trade.data_visitaVisibilidadTradDet";
 										foreach ($visita_visibilidad_trad_det[$idVisita] as $row_) {
 											$arrayInsertDetalle = array(
 												'idVisitaVisibilidad' => $insertId
@@ -6071,7 +6071,7 @@ class Rutas extends MY_Controller{
 						if( count($visita_mantenimiento_cliente[$idVisita])>0){
 							$insertId=null;
 							foreach ($visita_mantenimiento_cliente[$idVisita] as $row_) {
-								$tabla="trade.data_visitaMantenimientoCliente";
+								$tabla="{$this->sessBDCuenta}.trade.data_visitaMantenimientoCliente";
 								$arrayInsert = array(
 									'idVisita' => $row_['idVisita']
 									,'hora' => $row_['hora'] 
@@ -6098,7 +6098,7 @@ class Rutas extends MY_Controller{
 						if( count($visita_iniciativa[$idVisita])>0){
 							$insertId=null;
 							foreach ($visita_iniciativa[$idVisita] as $row) {
-								$tabla="trade.data_visitaIniciativaTrad";
+								$tabla="{$this->sessBDCuenta}.trade.data_visitaIniciativaTrad";
 								$arrayInsert = array(
 									'idVisita' => $row['idVisita']
 									,'hora' => $row['hora'] 
@@ -6110,7 +6110,7 @@ class Rutas extends MY_Controller{
 								//detalle
 								if($insertId!=null){
 									if(isset($visita_iniciativa_det[$idVisita])){
-										$tabla="trade.data_visitaIniciativaTradDet";
+										$tabla="{$this->sessBDCuenta}.trade.data_visitaIniciativaTradDet";
 										foreach ($visita_iniciativa_det[$idVisita] as $row_) {
 											$arrayInsertDetalle = array(
 												'idVisitaIniciativaTrad' => $insertId
@@ -6135,7 +6135,7 @@ class Rutas extends MY_Controller{
 						if( count($visita_inteligencia[$idVisita])>0){
 							$insertId=null;
 							foreach ($visita_inteligencia[$idVisita] as $row) {
-								$tabla="trade.data_visitaInteligenciaTrad";
+								$tabla="{$this->sessBDCuenta}.trade.data_visitaInteligenciaTrad";
 								$arrayInsert = array(
 									'idVisita' => $row['idVisita']
 									,'hora' => $row['hora'] 
@@ -6147,7 +6147,7 @@ class Rutas extends MY_Controller{
 								//detalle
 								if($insertId!=null){
 									if(isset($visita_inteligencia_det[$idVisita])){
-										$tabla="trade.data_visitaInteligenciaTradDet";
+										$tabla="{$this->sessBDCuenta}.trade.data_visitaInteligenciaTradDet";
 										foreach ($visita_inteligencia_det[$idVisita] as $row_) {
 											$arrayInsertDetalle = array(
 												'idVisitaInteligenciaTrad' => $insertId
@@ -6170,7 +6170,7 @@ class Rutas extends MY_Controller{
 						if( count($visita_orden[$idVisita])>0){
 							$insertId=null;
 							foreach ($visita_orden[$idVisita] as $row) {
-								$tabla="trade.data_visitaOrden";
+								$tabla="{$this->sessBDCuenta}.trade.data_visitaOrden";
 								$arrayInsert = array(
 									'idVisita' => $row['idVisita']
 									,'idOrden' => !empty($row['idOrden']) ? $row['idOrden'] : null
@@ -6190,7 +6190,7 @@ class Rutas extends MY_Controller{
 						if( count($visita_visibilidad_obligatorio[$idVisita])>0){
 							$insertId=null;
 							foreach ($visita_visibilidad_obligatorio[$idVisita] as $row) {
-								$tabla="trade.data_visitaVisibilidadObligatorio";
+								$tabla="{$this->sessBDCuenta}.trade.data_visitaVisibilidadObligatorio";
 								$arrayInsert = array(
 									'idVisita' => $row['idVisita']
 									,'hora' => $row['hora'] 
@@ -6202,7 +6202,7 @@ class Rutas extends MY_Controller{
 								//detalle
 								if($insertId!=null){
 									if(isset($visita_visibilidad_obligatorio_det[$idVisita])){
-										$tabla="trade.data_visitaVisibilidadObligatorioDet";
+										$tabla="{$this->sessBDCuenta}.trade.data_visitaVisibilidadObligatorioDet";
 										foreach ($visita_visibilidad_obligatorio_det[$idVisita] as $row_) {
 
 											$arrayInsertDetalle = array(
@@ -6254,7 +6254,7 @@ class Rutas extends MY_Controller{
 						if( count($visita_visibilidad_iniciativa[$idVisita])>0){
 							$insertId=null;
 							foreach ($visita_visibilidad_iniciativa[$idVisita] as $row) {
-								$tabla="trade.data_visitaVisibilidadIniciativa";
+								$tabla="{$this->sessBDCuenta}.trade.data_visitaVisibilidadIniciativa";
 								$arrayInsert = array(
 									'idVisita' => $row['idVisita']
 									,'hora' => $row['hora'] 
@@ -6267,7 +6267,7 @@ class Rutas extends MY_Controller{
 								//detalle
 								if($insertId!=null){
 									if(isset($visita_visibilidad_iniciativa_det[$idVisita])){
-										$tabla="trade.data_visitaVisibilidadIniciativaDet";
+										$tabla="{$this->sessBDCuenta}.trade.data_visitaVisibilidadIniciativaDet";
 										foreach ($visita_visibilidad_iniciativa_det[$idVisita] as $row_) {
 
 											$arrayInsertDetalle = array(
@@ -6291,7 +6291,7 @@ class Rutas extends MY_Controller{
 						if( count($visita_visibilidad_adicional[$idVisita])>0){
 							$insertId=null;
 							foreach ($visita_visibilidad_adicional[$idVisita] as $row) {
-								$tabla="trade.data_visitaVisibilidadAdicional";
+								$tabla="{$this->sessBDCuenta}.trade.data_visitaVisibilidadAdicional";
 								$arrayInsert = array(
 									'idVisita' => $row['idVisita']
 									,'hora' => $row['hora'] 
@@ -6304,7 +6304,7 @@ class Rutas extends MY_Controller{
 								//detalle
 								if($insertId!=null){
 									if(isset($visita_visibilidad_adicional_det[$idVisita])){
-										$tabla="trade.data_visitaVisibilidadAdicionalDet";
+										$tabla="{$this->sessBDCuenta}.trade.data_visitaVisibilidadAdicionalDet";
 										foreach ($visita_visibilidad_adicional_det[$idVisita] as $row_) {
 
 											$arrayInsertDetalle = array(

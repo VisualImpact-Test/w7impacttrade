@@ -102,7 +102,7 @@ class M_modulacion extends My_Model{
 					AND gc.estado=1
 				JOIN General.dbo.ubigeo ub
 					ON ub.cod_ubigeo=c.cod_ubigeo
-				LEFT JOIN trade.master_modulacion_validaciones v
+				LEFT JOIN {$this->sessBDCuenta}.trade.master_modulacion_validaciones v
 					ON v.idSubCanal = sc.idSubCanal
 			WHERE 
 				1=1
@@ -176,7 +176,7 @@ class M_modulacion extends My_Model{
 			LEFT JOIN trade.usuario_historico uh ON uh.idUsuarioHist=uhds.idUsuarioHist
 				AND uh.estado=1 AND uh.idTipoUsuario IN (2,6) 
 				AND @fecha BETWEEN uh.fecIni AND ISNULL(uh.fecFin,@fecha)
-			LEFT JOIN trade.master_modulacion_validaciones v ON v.idSubCanal = sc.idSubCanal
+			LEFT JOIN {$this->sessBDCuenta}.trade.master_modulacion_validaciones v ON v.idSubCanal = sc.idSubCanal
 		WHERE 
 			1=1
 			{$filtros}";
@@ -229,7 +229,7 @@ class M_modulacion extends My_Model{
 			, ISNULL(v.minCategorias,1) minCategorias
 			, ISNULL(v.minElementosOblig,1) minElementosOblig
 		FROM
-			trade.master_modulacion m
+			{$this->sessBDCuenta}.trade.master_modulacion m
 			JOIN trade.cliente c ON c.idCliente =m.idCliente
 			JOIN ".getClienteHistoricoCuenta()." ch ON ch.idCliente = c.idCliente
 			$filtros_fecha
@@ -242,7 +242,7 @@ class M_modulacion extends My_Model{
 			JOIN trade.grupoCanal gc ON gc.idGrupoCanal = ca.idGrupoCanal
 				AND gc.estado=1
 			JOIN General.dbo.ubigeo ub ON ub.cod_ubigeo=ch.cod_ubigeo
-			LEFT JOIN trade.master_modulacion_validaciones v ON v.idSubCanal = sc.idSubCanal
+			LEFT JOIN {$this->sessBDCuenta}.trade.master_modulacion_validaciones v ON v.idSubCanal = sc.idSubCanal
 		WHERE 
 			1=1
 			{$filtros}";
@@ -262,8 +262,8 @@ class M_modulacion extends My_Model{
 			, m.flagListaGenerada
 			, md.idElementoVis
 			, md.cantidad
-		FROM trade.master_modulacion m
-		JOIN trade.master_modulacionDet md ON md.idModulacion=m.idModulacion
+		FROM {$this->sessBDCuenta}.trade.master_modulacion m
+		JOIN {$this->sessBDCuenta}.trade.master_modulacionDet md ON md.idModulacion=m.idModulacion
 		WHERE 1=1 AND m.estado=1 AND md.estado=1
 		AND m.idPermiso = @idPermiso
 		{$filtros}
@@ -281,7 +281,7 @@ class M_modulacion extends My_Model{
 		)*/";
 
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.master_modulacion' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.master_modulacion" ];
 		return $this->db->query($sql)->result_array();
 	}
 	
@@ -294,8 +294,8 @@ class M_modulacion extends My_Model{
 			, evt.idTipoElementoVisibilidad
 			, ISNULL(evt.idCategoria,0) AS idCategoria
 			, ISNULL(pc.nombre,'SIN CATEGORIA') AS categoria
-		FROM trade.master_listaElementos le
-		JOIN trade.master_listaElementosDet led ON led.idLista=le.idLista
+		FROM {$this->sessBDCuenta}.trade.master_listaElementos le
+		JOIN {$this->sessBDCuenta}.trade.master_listaElementosDet led ON led.idLista=le.idLista
 		JOIN trade.elementoVisibilidadTrad evt ON evt.idElementoVis=led.idElementoVisibilidad
 		LEFT JOIN trade.producto_categoria pc ON pc.idCategoria=evt.idCategoria
 		WHERE 1=1 AND le.estado=1 AND led.estado=1 AND evt.estado=1
@@ -315,7 +315,7 @@ class M_modulacion extends My_Model{
 		--ORDER BY idCategoria, elemento ASC
 		ORDER BY led.orden ";
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.master_listaElementos' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.master_listaElementos" ];
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -348,23 +348,23 @@ class M_modulacion extends My_Model{
 	public function verificar_master_modulacion($input=array()){
 		$query = $this->db->select('idModulacion')
 				->where( $input )
-				->get('trade.master_modulacion');
+				->get("{$this->sessBDCuenta}.trade.master_modulacion");
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.master_modulacion' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.master_modulacion" ];
 		return $query->result_array();
 	}
 
 	public function delete_master_modulacion_detalle($idModulacion){
-		$sql="DELETE FROM trade.master_modulacionDet WHERE idModulacion={$idModulacion}";
+		$sql="DELETE FROM {$this->sessBDCuenta}.trade.master_modulacionDet WHERE idModulacion={$idModulacion}";
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 8, 'tabla' => 'trade.master_modulacionDet', 'id' => $idModulacion ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 8, 'tabla' => "{$this->sessBDCuenta}.trade.master_modulacionDet", 'id' => $idModulacion ];
 		return $this->db->query($sql);
 	}
 
 	public function insertar_master_modulacion_det($input=array()){
 		$aSessTrack = [];
 
-		$table = 'trade.master_modulacionDet';
+		$table = "{$this->sessBDCuenta}.trade.master_modulacionDet";
 		$this->db->trans_begin();
 
 			$insert = $this->db->insert($table, $input);
@@ -384,7 +384,7 @@ class M_modulacion extends My_Model{
 	public function insertar_master_modulacion($input=array()){
 		$aSessTrack = [];
 
-		$table = 'trade.master_modulacion';
+		$table = "{$this->sessBDCuenta}.trade.master_modulacion";
 		$this->db->trans_begin();
 
 			$insert = $this->db->insert($table, $input);
@@ -407,11 +407,11 @@ class M_modulacion extends My_Model{
 		SELECT DISTINCT
 			mm.idModulacion
 			, mm.idCliente
-		FROM trade.master_modulacion mm 
-		JOIN trade.master_modulacionDet mmd ON mmd.idModulacion=mm.idModulacion
+		FROM {$this->sessBDCuenta}.trade.master_modulacion mm 
+		JOIN {$this->sessBDCuenta}.trade.master_modulacionDet mmd ON mmd.idModulacion=mm.idModulacion
 		WHERE mm.estado=1 AND mm.idPermiso=@idPermiso";
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.master_modulacion' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.master_modulacion" ];
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -423,8 +423,8 @@ class M_modulacion extends My_Model{
 			mm.idModulacion
 			, mm.idCliente
 			, mmd.idElementoVis
-		FROM trade.master_modulacion mm
-		JOIN trade.master_modulacionDet mmd ON mmd.idModulacion=mm.idModulacion
+		FROM {$this->sessBDCuenta}.trade.master_modulacion mm
+		JOIN {$this->sessBDCuenta}.trade.master_modulacionDet mmd ON mmd.idModulacion=mm.idModulacion
 		JOIN trade.elementoVisibilidadTrad ev ON ev.idElementoVis=mmd.idElementoVis
 		WHERE mm.estado=1 AND mmd.estado=1
 		AND mm.idPermiso=@idPermiso
@@ -436,10 +436,10 @@ class M_modulacion extends My_Model{
 	}
 
 	public function obtener_cantidad_modulacion_clientes($idPermiso){
-		$sql="SELECT count(idModulacion) AS numClientes FROM trade.master_modulacion
+		$sql="SELECT count(idModulacion) AS numClientes FROM {$this->sessBDCuenta}.trade.master_modulacion
 		WHERE estado=1 AND idPermiso={$idPermiso}";
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.master_modulacion' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.master_modulacion" ];
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -447,23 +447,23 @@ class M_modulacion extends My_Model{
 	public function verificar_lista_tradicional($input=array()){
 		$query = $this->db->select('idListVisibilidad')
 				->where( $input )
-				->get('trade.list_visibilidadTrad');
+				->get("{$this->sessBDCuenta}.trade.list_visibilidadTrad");
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.list_visibilidadTrad' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.list_visibilidadTrad" ];
 		return $query->result_array();
 	}
 
 	public function delete_lista_tradicional_detalle($idListVisibilidad){
-		$sql="DELETE FROM trade.list_visibilidadTradDet WHERE idListVisibilidad={$idListVisibilidad}";
+		$sql="DELETE FROM {$this->sessBDCuenta}.trade.list_visibilidadTradDet WHERE idListVisibilidad={$idListVisibilidad}";
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 8, 'tabla' => 'trade.list_visibilidadTradDet', 'id' => $idListVisibilidad ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 8, 'tabla' => "{$this->sessBDCuenta}.trade.list_visibilidadTradDet", 'id' => $idListVisibilidad ];
 		return $this->db->query($sql);
 	}
 
 	public function insertar_lista_tradicional_detalle($input=array()){
 		$aSessTrack = [];
 
-		$table = 'trade.list_visibilidadTradDet';
+		$table = "{$this->sessBDCuenta}.trade.list_visibilidadTradDet";
 		$this->db->trans_begin();
 			
 			$insert = $this->db->insert($table, $input);
@@ -484,7 +484,7 @@ class M_modulacion extends My_Model{
 	public function insertar_lista_tradicional($input=array()){
 		$aSessTrack = [];
 
-		$table = 'trade.list_visibilidadTrad';
+		$table = "{$this->sessBDCuenta}.trade.list_visibilidadTrad";
 		$this->db->trans_begin();
 
 			$insert = $this->db->insert($table, $input);
@@ -506,23 +506,23 @@ class M_modulacion extends My_Model{
 	public function verificar_lista_obligatoria($input=array()){
 		$query = $this->db->select('idListVisibilidadObl')
 				->where( $input )
-				->get('trade.list_visibilidadTradObl');
+				->get("{$this->sessBDCuenta}.trade.list_visibilidadTradObl");
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.list_visibilidadTradObl' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.list_visibilidadTradObl" ];
 		return $query->result_array();
 	}
 
 	public function delete_lista_obligatoria_detallle($idListVisibilidadObl){
-		$sql="DELETE FROM trade.list_visibilidadTradOblDet WHERE idListVisibilidadObl={$idListVisibilidadObl}";
+		$sql="DELETE FROM {$this->sessBDCuenta}.trade.list_visibilidadTradOblDet WHERE idListVisibilidadObl={$idListVisibilidadObl}";
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 8, 'tabla' => 'trade.list_visibilidadTradOblDet', 'id' => $idListVisibilidadObl ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 8, 'tabla' => "{$this->sessBDCuenta}.trade.list_visibilidadTradOblDet", 'id' => $idListVisibilidadObl ];
 		return $this->db->query($sql);
 	}
 
 	public function insertar_lista_obligatoria_detalle($input=array()){
 		$aSessTrack = [];
 
-		$table = 'trade.list_visibilidadTradOblDet';
+		$table = "{$this->sessBDCuenta}.trade.list_visibilidadTradOblDet";
 		$this->db->trans_begin();
 
 			$insert = $this->db->insert($table, $input);
@@ -542,7 +542,7 @@ class M_modulacion extends My_Model{
 	public function insertar_lista_obligatoria($input=array()){
 		$aSessTrack = [];
 
-		$table = 'trade.list_visibilidadTradObl';
+		$table = "{$this->sessBDCuenta}.trade.list_visibilidadTradObl";
 		$this->db->trans_begin();
 
 			$insert = $this->db->insert($table, $input);
@@ -563,34 +563,34 @@ class M_modulacion extends My_Model{
 	public function verificar_lista_iniciativa( $input = [] ){
 		$this->db->select('idListVisibilidadIni');
 		$this->db->where($input);
-		$query = $this->db->get('trade.list_visibilidadTradIni');
+		$query = $this->db->get("{$this->sessBDCuenta}.trade.list_visibilidadTradIni");
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.list_visibilidadTradIni' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.list_visibilidadTradIni" ];
 		return $query->result_array();
 	}
 
 	public function delete_lista_iniciativa_detalle_elementos($idListVisibilidadIni){
 		$sql = "
-			DELETE trade.list_visibilidadTradIniDetElemento 
+			DELETE {$this->sessBDCuenta}.trade.list_visibilidadTradIniDetElemento 
 			WHERE idListVisibilidadIniDet IN ( 
 				SELECT idListVisibilidadIniDet
-				FROM trade.list_visibilidadTradIniDet 
+				FROM {$this->sessBDCuenta}.trade.list_visibilidadTradIniDet 
 				WHERE idListVisibilidadIni = {$idListVisibilidadIni}
 			)
 		";
 
 		$this->CI->aSessTrack[] = [ 'idAccion' => 8,
-				'tabla' => 'trade.list_visibilidadTradIniDetElemento',
+				'tabla' => "{$this->sessBDCuenta}.trade.list_visibilidadTradIniDetElemento",
 				'id' => arrayToString([ 'idListVisibilidadIni' => $idListVisibilidadIni])
 			];
 		return $this->db->query($sql);
 	}
 
 	public function delete_lista_iniciativa_detalle($idListVisibilidadIni){
-		$sql = "DELETE FROM trade.list_visibilidadTradIniDet WHERE idListVisibilidadIni = {$idListVisibilidadIni}";
+		$sql = "DELETE FROM {$this->sessBDCuenta}.trade.list_visibilidadTradIniDet WHERE idListVisibilidadIni = {$idListVisibilidadIni}";
 
 		$this->CI->aSessTrack[] = [ 'idAccion' => 8,
-				'tabla' => 'trade.list_visibilidadTradIniDet',
+				'tabla' => "{$this->sessBDCuenta}.trade.list_visibilidadTradIniDet",
 				'id' => arrayToString([ 'idListVisibilidadIni' => $idListVisibilidadIni])
 			];
 		return $this->db->query($sql);
@@ -607,7 +607,7 @@ class M_modulacion extends My_Model{
 		$arrayDetalle['estado'] = 1;
 
 		//validar existencia
-		$rs = $this->db->get_where('trade.list_visibilidadTradIniDet',$arrayDetalle)->result_array();
+		$rs = $this->db->get_where("{$this->sessBDCuenta}.trade.list_visibilidadTradIniDet",$arrayDetalle)->result_array();
 		if($rs!=null){
 			if(count($rs) >=1){
 				//si existe iniciativa agregar detalle elemento
@@ -618,7 +618,7 @@ class M_modulacion extends My_Model{
 				$arrayDetalleElemento['estado']=1;
 
 				$aSessTrack = [];
-				$table = 'trade.list_visibilidadTradIniDetElemento';
+				$table = "{$this->sessBDCuenta}.trade.list_visibilidadTradIniDetElemento";
 				$this->db->trans_begin();
 
 					$insert = $this->db->insert($table, $arrayDetalleElemento);
@@ -635,7 +635,7 @@ class M_modulacion extends My_Model{
 			}else{
 				//insertar la iniciativa
 				$aSessTrack = [];
-				$table = 'trade.list_visibilidadTradIniDet';
+				$table = "{$this->sessBDCuenta}.trade.list_visibilidadTradIniDet";
 				$this->db->trans_begin();
 
 					$insert = $this->db->insert($table, $arrayDetalle);
@@ -657,7 +657,7 @@ class M_modulacion extends My_Model{
 					$arrayDetalleElemento['estado']=1;
 
 					$aSessTrack = [];
-					$table = 'trade.list_visibilidadTradIniDetElemento';
+					$table = "{$this->sessBDCuenta}.trade.list_visibilidadTradIniDetElemento";
 					$this->db->trans_begin();
 
 						$insert = $this->db->insert($table, $arrayDetalleElemento);
@@ -676,7 +676,7 @@ class M_modulacion extends My_Model{
 		}else{
 			//insertar la iniciativa
 			$aSessTrack = [];
-			$table = 'trade.list_visibilidadTradIniDet';
+			$table = "{$this->sessBDCuenta}.trade.list_visibilidadTradIniDet";
 			$this->db->trans_begin();
 
 				$insert = $this->db->insert($table, $arrayDetalle);
@@ -698,7 +698,7 @@ class M_modulacion extends My_Model{
 				$arrayDetalleElemento['estado']=1;
 
 				$aSessTrack = [];
-				$table = 'trade.list_visibilidadTradIniDetElemento';
+				$table = "{$this->sessBDCuenta}.trade.list_visibilidadTradIniDetElemento";
 				$this->db->trans_begin();
 
 					$insert = $this->db->insert($table, $arrayDetalleElemento);
@@ -720,7 +720,7 @@ class M_modulacion extends My_Model{
 	public function insertar_lista_iniciativa($input=array()){
 		$aSessTrack = [];
 
-		$table = 'trade.list_visibilidadTradIni';
+		$table = "{$this->sessBDCuenta}.trade.list_visibilidadTradIni";
 		$this->db->trans_begin();
 
 			$insert = $this->db->insert($table, $input);
@@ -741,18 +741,18 @@ class M_modulacion extends My_Model{
 	public function verificar_lista_adicional($input=array()){
 		$query = $this->db->select('idListVisibilidadAdc')
 				->where( $input )
-				->get('trade.list_visibilidadTradAdc');
+				->get("{$this->sessBDCuenta}.trade.list_visibilidadTradAdc");
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.list_visibilidadTradAdc' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.list_visibilidadTradAdc" ];
 		return $query->result_array();
 	}
 
 	public function delete_lista_adicional_detallle($idListVisibilidadAdc){
-		$sql="DELETE FROM trade.list_visibilidadTradAdcDet WHERE idListVisibilidadAdc={$idListVisibilidadAdc}";
+		$sql="DELETE FROM {$this->sessBDCuenta}.trade.list_visibilidadTradAdcDet WHERE idListVisibilidadAdc={$idListVisibilidadAdc}";
 
 		$this->CI->aSessTrack[] = [
 				'idAccion' => 8,
-				'tabla' => 'trade.list_visibilidadTradAdcDet',
+				'tabla' => "{$this->sessBDCuenta}.trade.list_visibilidadTradAdcDet",
 				'id' => arrayToString([ 'idListVisibilidadAdc' => $idListVisibilidadAdc ])
 			];
 		return $this->db->query($sql);
@@ -761,7 +761,7 @@ class M_modulacion extends My_Model{
 	public function insertar_lista_adicional_detalle($input=array()){
 		$aSessTrack = [];
 
-		$table = 'trade.list_visibilidadTradAdcDet';
+		$table = "{$this->sessBDCuenta}.trade.list_visibilidadTradAdcDet";
 		$this->db->trans_begin();
 
 			$insert = $this->db->insert($table, $input);
@@ -781,7 +781,7 @@ class M_modulacion extends My_Model{
 	public function insertar_lista_adicional($input=array()){
 		$aSessTrack = [];
 
-		$table = 'trade.list_visibilidadTradAdc';
+		$table = "{$this->sessBDCuenta}.trade.list_visibilidadTradAdc";
 		$this->db->trans_begin();
 
 			$insert = $this->db->insert($table, $input);
@@ -801,7 +801,7 @@ class M_modulacion extends My_Model{
 	public function update_modulacion_listaGenerada($where=array(), $params=array()){
 		$aSessTrack = [];
 
-		$table = 'trade.master_modulacion';
+		$table = "{$this->sessBDCuenta}.trade.master_modulacion";
 		$this->db->trans_begin();
 
 			$this->db->where($where);
@@ -825,8 +825,8 @@ class M_modulacion extends My_Model{
 		SELECT
 			mmd.idElementoVis, UPPER(el.nombre) AS elementoVisibilidad, mmd.cantidad
 		FROM trade.master_permisos mp
-		JOIN trade.master_modulacion mm ON mm.idPermiso=mp.idPermiso
-		JOIN trade.master_modulacionDet mmd ON mmd.idModulacion=mm.idModulacion
+		JOIN {$this->sessBDCuenta}.trade.master_modulacion mm ON mm.idPermiso=mp.idPermiso
+		JOIN {$this->sessBDCuenta}.trade.master_modulacionDet mmd ON mmd.idModulacion=mm.idModulacion
 		JOIN trade.elementoVisibilidadTrad el ON el.idElementoVis=mmd.idElementoVis
 		WHERE mp.estado=1 AND mm.estado=1 AND mmd.estado=1
 		AND mp.idPermiso IN (@idPermiso)
@@ -844,17 +844,17 @@ class M_modulacion extends My_Model{
 				, convert(varchar,fechaRegistro,103) fecRegistro
 				, convert(varchar,fechaRegistro,108) horaRegistro 
 				, convert(varchar,finRegistro,108) horaFin
-				, (SELECT COUNT(*) FROM  trade.cargaModulacionClientesNoProcesados WHERE elemento IS NULL AND idCarga=cm.idCarga  ) noProcesados
-				, (SELECT COUNT(*) FROM  trade.cargaModulacionClientesNoProcesados WHERE elemento IS NULL AND idCarga=cm.idCarga  ) noProcesados
+				, (SELECT COUNT(*) FROM  {$this->sessBDCuenta}.trade.cargaModulacionClientesNoProcesados WHERE elemento IS NULL AND idCarga=cm.idCarga  ) noProcesados
+				, (SELECT COUNT(*) FROM  {$this->sessBDCuenta}.trade.cargaModulacionClientesNoProcesados WHERE elemento IS NULL AND idCarga=cm.idCarga  ) noProcesados
 				,(
 					SELECT count(*) FROM (
-						SELECT idCarga FROM trade.cargaModulacionClientesNoProcesados WHERE idCarga=cm.idCarga
+						SELECT idCarga FROM {$this->sessBDCuenta}.trade.cargaModulacionClientesNoProcesados WHERE idCarga=cm.idCarga
 						UNION
-						SELECT idCarga FROM trade.cargaModulacionElementosError  WHERE idCarga=cm.idCarga
+						SELECT idCarga FROM {$this->sessBDCuenta}.trade.cargaModulacionElementosError  WHERE idCarga=cm.idCarga
 					)a
 				) error
 			FROM 
-				trade.cargaModulacion cm
+				{$this->sessBDCuenta}.trade.cargaModulacion cm
 
 			 WHERE cm.idPermiso='".$idPermiso."'
 		";
@@ -868,17 +868,17 @@ class M_modulacion extends My_Model{
 				, convert(varchar,fechaRegistro,103) fecRegistro
 				, convert(varchar,fechaRegistro,108) horaRegistro 
 				, convert(varchar,finRegistro,108) horaFin
-				, (SELECT COUNT(*) FROM  trade.cargaModulacionClientesNoProcesados WHERE elemento IS NULL AND idCarga=cm.idCarga  ) noProcesados
-				, (SELECT COUNT(*) FROM  trade.cargaModulacionClientesNoProcesados WHERE elemento IS NULL AND idCarga=cm.idCarga  ) noProcesados
+				, (SELECT COUNT(*) FROM  {$this->sessBDCuenta}.trade.cargaModulacionClientesNoProcesados WHERE elemento IS NULL AND idCarga=cm.idCarga  ) noProcesados
+				, (SELECT COUNT(*) FROM  {$this->sessBDCuenta}.trade.cargaModulacionClientesNoProcesados WHERE elemento IS NULL AND idCarga=cm.idCarga  ) noProcesados
 				,(
 					SELECT count(*) FROM (
-						SELECT idCarga FROM trade.cargaModulacionClientesNoProcesados WHERE idCarga=cm.idCarga
+						SELECT idCarga FROM {$this->sessBDCuenta}.trade.cargaModulacionClientesNoProcesados WHERE idCarga=cm.idCarga
 						UNION
-						SELECT idCarga FROM trade.cargaModulacionElementosError  WHERE idCarga=cm.idCarga
+						SELECT idCarga FROM {$this->sessBDCuenta}.trade.cargaModulacionElementosError  WHERE idCarga=cm.idCarga
 					)a
 				) error
 			FROM 
-				trade.cargaModulacion cm
+				{$this->sessBDCuenta}.trade.cargaModulacion cm
 
 		";
 		return $this->db->query($sql)->result_array();
@@ -886,12 +886,12 @@ class M_modulacion extends My_Model{
 	
 	////ERRORES
 	public function obtener_elementos_error($id){
-		$sql="SELECT * FROM trade.cargaModulacionElementosError where idCarga= $id";
+		$sql="SELECT * FROM {$this->sessBDCuenta}.trade.cargaModulacionElementosError where idCarga= $id";
 		return $this->db->query($sql)->result_array();
 	}
 	
 	public function obtener_clientes_no_procesados($id){
-		$sql="SELECT * FROM trade.cargaModulacionClientesNoProcesados where tipoError='Cliente sin elementos.' OR tipoError='Cliente no registrado en base de datos.' AND idCarga= $id";
+		$sql="SELECT * FROM {$this->sessBDCuenta}.trade.cargaModulacionClientesNoProcesados where tipoError='Cliente sin elementos.' OR tipoError='Cliente no registrado en base de datos.' AND idCarga= $id";
 		return $this->db->query($sql)->result_array();
 	}
 	
@@ -902,7 +902,7 @@ class M_modulacion extends My_Model{
 				,e.nombre
 				,p.datoIngresado
 			FROM 
-				trade.cargaModulacionClientesNoProcesados p 
+				{$this->sessBDCuenta}.trade.cargaModulacionClientesNoProcesados p 
 				JOIN trade.elementoVisibilidadTrad e
 					ON e.idElementoVis=p.elemento where p.idCarga= $id";
 		return $this->db->query($sql)->result_array();
@@ -910,21 +910,21 @@ class M_modulacion extends My_Model{
 	
 	public function limpiar_tablas_modulacion ($idPermiso){
 		$sql = "
-			DELETE FROM trade.master_modulacionDet WHERE idModulacion IN (
-				SELECT idModulacion FROM trade.master_modulacion WHERE idPermiso=$idPermiso
+			DELETE FROM {$this->sessBDCuenta}.trade.master_modulacionDet WHERE idModulacion IN (
+				SELECT idModulacion FROM {$this->sessBDCuenta}.trade.master_modulacion WHERE idPermiso=$idPermiso
 			)
 		"; 
 		$this->db->query($sql);
-		$sql = "DELETE FROM trade.master_modulacion WHERE idPermiso=$idPermiso ";
+		$sql = "DELETE FROM {$this->sessBDCuenta}.trade.master_modulacion WHERE idPermiso=$idPermiso ";
 		$this->db->query($sql);
 		
-		$sql = "DELETE FROM trade.cargaModulacionDet WHERE idCarga IN (SELECT idCarga FROM trade.cargaModulacion WHERE idPermiso=$idPermiso) ";
+		$sql = "DELETE FROM {$this->sessBDCuenta}.trade.cargaModulacionDet WHERE idCarga IN (SELECT idCarga FROM {$this->sessBDCuenta}.trade.cargaModulacion WHERE idPermiso=$idPermiso) ";
 		$this->db->query($sql);
-		$sql = "DELETE FROM trade.cargaModulacionElementosError WHERE idCarga IN (SELECT idCarga FROM trade.cargaModulacion WHERE idPermiso=$idPermiso) ";
+		$sql = "DELETE FROM {$this->sessBDCuenta}.trade.cargaModulacionElementosError WHERE idCarga IN (SELECT idCarga FROM {$this->sessBDCuenta}.trade.cargaModulacion WHERE idPermiso=$idPermiso) ";
 		$this->db->query($sql);
-		$sql = "DELETE FROM trade.cargaModulacionClientesNoProcesados WHERE idCarga IN (SELECT idCarga FROM trade.cargaModulacion WHERE idPermiso=$idPermiso) ";
+		$sql = "DELETE FROM {$this->sessBDCuenta}.trade.cargaModulacionClientesNoProcesados WHERE idCarga IN (SELECT idCarga FROM {$this->sessBDCuenta}.trade.cargaModulacion WHERE idPermiso=$idPermiso) ";
 		$this->db->query($sql);
-		$sql = "DELETE FROM trade.cargaModulacion WHERE idPermiso=$idPermiso ";
+		$sql = "DELETE FROM {$this->sessBDCuenta}.trade.cargaModulacion WHERE idPermiso=$idPermiso ";
 		$this->db->query($sql);
 		
 	}
@@ -937,7 +937,7 @@ class M_modulacion extends My_Model{
 	}
 	
 	public function obtener_permisos_modulo($idPermiso){
-		$sql="select * from ImpactTrade_bd.trade.master_permiso_modulo where idPermiso=$idPermiso";
+		$sql="select * from trade.master_permiso_modulo where idPermiso=$idPermiso";
 
 		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.master_permiso_modulo' ];
 		return $this->db->query($sql)->result_array();
@@ -981,13 +981,13 @@ class M_modulacion extends My_Model{
 				, convert(varchar,finRegistro,108) horaFin
 				,(
 					SELECT count(*) FROM (
-						SELECT idCarga FROM trade.cargaPermisoClienteNoProcesados WHERE idCarga=cm.idCarga
+						SELECT idCarga FROM {$this->sessBDCuenta}.trade.cargaPermisoClienteNoProcesados WHERE idCarga=cm.idCarga
 						UNION
-						SELECT idCarga FROM trade.cargaPermisoElementoNoProcesados  WHERE idCarga=cm.idCarga
+						SELECT idCarga FROM {$this->sessBDCuenta}.trade.cargaPermisoElementoNoProcesados  WHERE idCarga=cm.idCarga
 					)a
 				) error
 			FROM 
-				trade.cargaPermiso cm
+				{$this->sessBDCuenta}.trade.cargaPermiso cm
 			 WHERE 1=1 ".$filtros."
 			 ORDER BY cm.idCarga DESC
 			 ";
@@ -997,12 +997,12 @@ class M_modulacion extends My_Model{
 
 	////ERRORES
 	public function obtener_permisos_cliente_no_procesado($id){
-		$sql="SELECT * FROM trade.cargaPermisoClienteNoProcesados where idCarga= $id";
+		$sql="SELECT * FROM {$this->sessBDCuenta}.trade.cargaPermisoClienteNoProcesados where idCarga= $id";
 		return $this->db->query($sql)->result_array();
 	}
 
 	public function obtener_permisos_elementos_no_procesado($id){
-		$sql="SELECT * FROM trade.cargaPermisoElementoNoProcesados where idCarga= $id";
+		$sql="SELECT * FROM {$this->sessBDCuenta}.trade.cargaPermisoElementoNoProcesados where idCarga= $id";
 		return $this->db->query($sql)->result_array();
 	}
 

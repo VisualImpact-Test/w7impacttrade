@@ -137,7 +137,6 @@
 										<td class="text-center" rowspan="1"> - </td>
 										<td class="text-center" rowspan="1"> - </td>
 										<td class="text-center" rowspan="1"> - </td>
-										<td class="text-center" rowspan="1"> - </td>
 										<?
 									}
 								}

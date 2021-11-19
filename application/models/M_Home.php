@@ -9,7 +9,7 @@ class M_Home extends MY_Model{
 	
 	public function find_data(){
 		$sql = "
-			SELECT TOP 1000 * FROM trade.data_asistencia
+			SELECT TOP 1000 * FROM {$this->sessBDCuenta}.trade.data_asistencia
 		";
 		return $this->db->query($sql);
 	}
@@ -41,9 +41,9 @@ class M_Home extends MY_Model{
                 , vf.hora
                 , ROW_NUMBER() OVER ( PARTITION BY v.idVisita ORDER BY ISNULL(vf.hora, v.horaFin) DESC ) fila
             FROM 
-                trade.data_visita v
-                JOIN trade.data_ruta r ON v.idRuta = r.idRuta
-                JOIN trade.data_visitaFotos vf ON v.idVisita  = vf.idVisita
+                {$this->sessBDCuenta}.trade.data_visita v
+                JOIN {$this->sessBDCuenta}.trade.data_ruta r ON v.idRuta = r.idRuta
+                JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON v.idVisita  = vf.idVisita
             WHERE 
                 r.fecha = @fecha
                 AND r.estado = 1 AND v.estado = 1 
@@ -67,10 +67,10 @@ class M_Home extends MY_Model{
             , ISNULL(c.longitud,0) longitud
             , CONVERT(VARCHAR(8), v.horaIni) hora_ini
             , CONVERT(VARCHAR(8), v.horaFin) hora_fin
-        FROM trade.data_visita v
-            JOIN trade.data_ruta r ON v.idRuta = r.idRuta
-            JOIN trade.data_visitaFotos vf ON v.idVisita = vf.idVisita
-            LEFT JOIN trade.data_visitaModuloFotos vmf ON vmf.idVisita = v.idVisita AND vf.idVisitaFoto = vmf.idVisitaFoto
+        FROM {$this->sessBDCuenta}.trade.data_visita v
+            JOIN {$this->sessBDCuenta}.trade.data_ruta r ON v.idRuta = r.idRuta
+            JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON v.idVisita = vf.idVisita
+            LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaModuloFotos vmf ON vmf.idVisita = v.idVisita AND vf.idVisitaFoto = vmf.idVisitaFoto
             LEFT JOIN trade.aplicacion_modulo am ON am.idModulo = vf.idModulo
             JOIN trade.cliente c ON c.idCliente = v.idCliente
 
@@ -151,8 +151,8 @@ class M_Home extends MY_Model{
                 END
             END condicion
     FROM 
-        trade.data_ruta r WITH(NOLOCK)
-        JOIN trade.data_visita v ON r.idRuta = v.idRuta
+        {$this->sessBDCuenta}.trade.data_ruta r WITH(NOLOCK)
+        JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta
         JOIN ".getClienteHistoricoCuenta()." ch ON ch.idCliente = v.idCliente
             AND r.fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin,r.fecha)
             AND ch.idProyecto = r.idProyecto
@@ -257,8 +257,8 @@ class M_Home extends MY_Model{
                     END
                 END condicion
         FROM 
-            trade.data_ruta r WITH(NOLOCK)
-            JOIN trade.data_visita v ON r.idRuta = v.idRuta
+            {$this->sessBDCuenta}.trade.data_ruta r WITH(NOLOCK)
+            JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta
             JOIN ".getClienteHistoricoCuenta()." ch ON ch.idCliente = v.idCliente
                 AND r.fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin,r.fecha)
                 AND ch.idProyecto = r.idProyecto
@@ -322,8 +322,8 @@ class M_Home extends MY_Model{
 					, row_number() OVER (PARTITION BY r.idUsuario, r.fecha ORDER BY v.horaIni ASC ) row
 					
 				FROM 
-					trade.data_ruta r
-					JOIN trade.data_visita v ON r.idRuta = v.idRuta 
+					{$this->sessBDCuenta}.trade.data_ruta r
+					JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta 
 					JOIN trade.cliente c ON c.idCliente = v.idCliente
 				WHERE
 					r.fecha BETWEEN @fecIni AND @fecFin
@@ -338,8 +338,8 @@ class M_Home extends MY_Model{
 				, c.longitud
 				, row_number() OVER (PARTITION BY r.idUsuario, r.fecha ORDER BY v.horaFin DESC ) row
 			FROM 
-				trade.data_ruta r
-				JOIN trade.data_visita v ON r.idRuta = v.idRuta 
+				{$this->sessBDCuenta}.trade.data_ruta r
+				JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta 
 				JOIN trade.cliente c ON c.idCliente = v.idCliente
 			WHERE
 				r.fecha BETWEEN @fecIni AND @fecFin
@@ -485,7 +485,7 @@ class M_Home extends MY_Model{
             , oc.idOcurrencia
             , oc.nombre ocurrencia
         FROM 
-            trade.data_asistencia a
+            {$this->sessBDCuenta}.trade.data_asistencia a
             JOIN master.tipoAsistencia tia ON a.idTipoAsistencia=tia.idTipoAsistencia
             LEFT JOIN master.ocurrencias oc ON oc.idOcurrencia=a.idOcurrencia AND oc.estado=1 AND oc.flagAsistencia=1
         WHERE
@@ -569,8 +569,8 @@ class M_Home extends MY_Model{
                 , v.idListProductos
                 , v.productos
                 , v.moduloFotos
-            FROM trade.data_ruta r
-            JOIN trade.data_visita v ON r.idRuta = v.idRuta
+            FROM {$this->sessBDCuenta}.trade.data_ruta r
+            JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta
             JOIN trade.canal c ON c.idCanal = v.idCanal
             JOIN trade.grupoCanal gc ON gc.idGrupoCanal = c.idGrupoCanal
             WHERE r.fecha = @fechaHoy

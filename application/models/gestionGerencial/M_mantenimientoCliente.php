@@ -55,9 +55,9 @@ class M_mantenimientoCliente extends MY_Model{
 				, ubi1.distrito AS ciudadDistribuidoraSuc
 				, ubi1.cod_ubigeo AS codUbigeoDistrito
 				,dvm.validado
-			FROM trade.data_ruta r
-			JOIN trade.data_visita v ON v.idRuta=r.idRuta
-			JOIN trade.data_visitaMantenimientoCliente dvm ON dvm.idVisita=v.idVisita
+			FROM {$this->sessBDCuenta}.trade.data_ruta r
+			JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
+			JOIN {$this->sessBDCuenta}.trade.data_visitaMantenimientoCliente dvm ON dvm.idVisita=v.idVisita
 			JOIN trade.cuenta cu ON cu.idCuenta=r.idCuenta
 			JOIN trade.canal ca ON ca.idCanal=v.idCanal
 			LEFT JOIN General.dbo.ubigeo ubi ON ubi.cod_ubigeo=dvm.cod_ubigeo
@@ -123,9 +123,9 @@ class M_mantenimientoCliente extends MY_Model{
 				, ubi1.distrito as distritoH
 				, ch.direccion AS direccionH
 
-			FROM trade.data_ruta r
-			JOIN trade.data_visita v ON v.idRuta=r.idRuta
-			JOIN trade.data_visitaMantenimientoCliente dvm ON dvm.idVisita=v.idVisita
+			FROM {$this->sessBDCuenta}.trade.data_ruta r
+			JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
+			JOIN {$this->sessBDCuenta}.trade.data_visitaMantenimientoCliente dvm ON dvm.idVisita=v.idVisita
 
 			JOIN ".getClienteHistoricoCuenta()." ch ON ch.idCliente=v.idCliente
 			JOIN trade.cliente c ON c.idCliente=v.idCliente
@@ -150,9 +150,9 @@ class M_mantenimientoCliente extends MY_Model{
 		];
 
 		$this->db->where($where);
-		$update = $this->db->update("trade.data_visitaMantenimientoCliente", $update);
+		$update = $this->db->update("{$this->sessBDCuenta}.trade.data_visitaMantenimientoCliente", $update);
 
-		$this->aSessTrack[] = [ 'idAccion' => 7, 'tabla' => "trade.data_visitaMantenimientoCliente", 'id' => "idVisitaMantCliente"];
+		$this->aSessTrack[] = [ 'idAccion' => 7, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaMantenimientoCliente", 'id' => "idVisitaMantCliente"];
 		return $update;
 	}
 

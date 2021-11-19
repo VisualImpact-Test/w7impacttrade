@@ -316,7 +316,7 @@ class M_Aplicaciones extends My_Model
                 lam.idTipoUsuario,
                 tu.nombre as tipoUsuario,
                 lam.estado
-            from trade.list_aplicacion_menu lam
+            from {$this->sessBDCuenta}.trade.list_aplicacion_menu lam
             JOIN trade.aplicacion_menu am ON am.idMenu=lam.idMenu
             JOIN trade.aplicacion a ON a.idAplicacion=lam.idAplicacion
             LEFT JOIN trade.cuenta c ON c.idCuenta=lam.idCuenta
@@ -327,7 +327,7 @@ class M_Aplicaciones extends My_Model
                 ORDER BY lam.idCuenta DESC, lam.idProyecto DESC ,lam.idGrupoCanal DESC, lam.idTipoUsuario DESC
 			";
 
-        $this->CI->aSessTrack[] = ['idAccion' => 5, 'tabla' => 'trade.list_aplicacion_menu'];
+        $this->CI->aSessTrack[] = ['idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.list_aplicacion_menu"];
         return $this->db->query($sql);
     }
 
@@ -343,7 +343,7 @@ class M_Aplicaciones extends My_Model
         if (!empty($post['idGrupoCanal'])) $insert['idGrupoCanal'] = $post['idGrupoCanal'];
         if (!empty($post['idTipoUsuario'])) $insert['idTipoUsuario'] = $post['idTipoUsuario'];
 
-        $insert = $this->db->insert('trade.list_aplicacion_menu', $insert);
+        $insert = $this->db->insert("{$this->sessBDCuenta}.trade.list_aplicacion_menu", $insert);
         $this->insertId = $this->db->insert_id();
         return $insert;
     }
@@ -372,7 +372,7 @@ class M_Aplicaciones extends My_Model
         ];
 
         $this->db->where($where);
-        $update = $this->db->update('trade.list_aplicacion_menu', $update);
+        $update = $this->db->update("{$this->sessBDCuenta}.trade.list_aplicacion_menu", $update);
         return $update;
     }
 
@@ -450,7 +450,7 @@ class M_Aplicaciones extends My_Model
             $where .= " AND idListAplicacionMenu != " . $post['idListAplicacionMenu'];
         }
         
-        return $this->verificarRepetido('trade.list_aplicacion_menu', $where);
+        return $this->verificarRepetido("{$this->sessBDCuenta}.trade.list_aplicacion_menu", $where);
     }
 
 }

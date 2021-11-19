@@ -75,7 +75,7 @@ class Validaciones extends MY_Controller{
 			SELECT 
 	*
 FROM 
-	trade.master_modulacion_validaciones v
+	{$this->sessBDCuenta}.trade.master_modulacion_validaciones v
 	JOIN trade.subCanal sc
 		ON sc.idSubCanal = v.idClienteTipo
 		WHERE idValidacion=$idValidacion
@@ -101,7 +101,7 @@ FROM
 			SELECT 
 	*
 FROM 
-	trade.master_modulacion_validaciones v
+	{$this->sessBDCuenta}.trade.master_modulacion_validaciones v
 	JOIN trade.subCanal sc
 		ON sc.idSubCanal = v.idClienteTipo
 		";
@@ -140,7 +140,7 @@ FROM
 			'fecIni'=> date("d/m/Y")
 		);
 		
-		$this->db->insert('trade.master_modulacion_validaciones',$insert_permiso);
+		$this->db->insert("{$this->sessBDCuenta}.trade.master_modulacion_validaciones",$insert_permiso);
 		$mensaje = 'SE REGISTRO CON EXITO.';
 		}else{
 			$data = array(
@@ -150,7 +150,7 @@ FROM
 			);
 
 			$this->db->where('idValidacion', $idValidacion);
-			$this->db->update('trade.master_modulacion_validaciones', $data);
+			$this->db->update("{$this->sessBDCuenta}.trade.master_modulacion_validaciones", $data);
 			$mensaje = 'SE ACTUALIZO CON EXITO.';
 		}
 		
@@ -200,7 +200,7 @@ FROM
 					$clientes=$this->model->obtener_clientes($params);
 					$idClienteTipo =$clientes[0]['subcanal'];
 			
-				$sql = "SELECT DISTINCT ISNULL(minCategorias,0) minCategorias, ISNULL(minElementosOblig,0) minElementosOblig FROM trade.master_modulacion_validaciones WHERE idClienteTipo = 1 AND General.dbo.fn_fechaVigente(fecIni,fecFin,'$fecIni','$fecFin')=1";
+				$sql = "SELECT DISTINCT ISNULL(minCategorias,0) minCategorias, ISNULL(minElementosOblig,0) minElementosOblig FROM {$this->sessBDCuenta}.trade.master_modulacion_validaciones WHERE idClienteTipo = 1 AND General.dbo.fn_fechaVigente(fecIni,fecFin,'$fecIni','$fecFin')=1";
 				$validaciones_carga = $this->db->query($sql)->result_array();
 
 				$minCategorias=0;
@@ -233,7 +233,7 @@ FROM
 					
 					$data_cliente = $this->db->query($sql)->row_array();
 					$idCanal = $data_cliente['idCanal'];
-					$validar_lista = "SELECT idListVisibilidad,count(*) OVER () total FROM trade.list_visibilidadTrad WHERE idCliente= $idCliente AND fecIni='".$fecIni."' AND fecFin = '".$fecFin."' ";
+					$validar_lista = "SELECT idListVisibilidad,count(*) OVER () total FROM {$this->sessBDCuenta}.trade.list_visibilidadTrad WHERE idCliente= $idCliente AND fecIni='".$fecIni."' AND fecFin = '".$fecFin."' ";
 					$res_validacion = $this->db->query($validar_lista)->row_array();
 					$total =$res_validacion['total'];
 					if($total==0){
@@ -243,7 +243,7 @@ FROM
 							, 'fecFin' 			=> $fecFin
 							, 'idProyecto'		=> 2 
 						);
-						$this->db->insert('trade.list_visibilidadTrad',$insert);
+						$this->db->insert("{$this->sessBDCuenta}.trade.list_visibilidadTrad",$insert);
 						$id = $this->db->insert_id();
 						for($j=0;$j<$total_elementos;$j++){
 							$idElemento = $post[$i]['modulacion'][$j];
@@ -252,11 +252,11 @@ FROM
 								, 'idElementoVis' => $idElemento
 								, 'estado' => 2
 							);
-							$this->db->insert('trade.list_visibilidadTradDet',$insert_elementos);
+							$this->db->insert("{$this->sessBDCuenta}.trade.list_visibilidadTradDet",$insert_elementos);
 						}
 					}else{
 						$id =$res_validacion['idListVisibilidad'];
-						$delete = "delete from  trade.list_visibilidadTradDet WHERE idListVisibilidad=".$id;
+						$delete = "delete from  {$this->sessBDCuenta}.trade.list_visibilidadTradDet WHERE idListVisibilidad=".$id;
 						$this->db->query($delete);
 						for($j=0;$j<$total_elementos;$j++){
 							
@@ -266,7 +266,7 @@ FROM
 								, 'idElementoVis' => $idElemento
 								, 'estado' => 1
 							);
-							$this->db->insert('trade.list_visibilidadTradDet',$insert_elementos);
+							$this->db->insert("{$this->sessBDCuenta}.trade.list_visibilidadTradDet",$insert_elementos);
 						}
 						
 					}

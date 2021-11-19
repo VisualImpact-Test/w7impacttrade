@@ -14,7 +14,7 @@ class VerArchivos extends MY_Controller
 	public function index()
 	{
 		$this->aSessTrack[] = [ 'idAccion' => 4 ];
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.gestorArchivos_archivo' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.gestorArchivos_archivo" ];
 
 		$config = array();
 		$config['css']['style'] = [
@@ -56,7 +56,7 @@ class VerArchivos extends MY_Controller
 
 	public function getRoot()
 	{
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.gestorArchivos_archivo' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.gestorArchivos_archivo" ];
 
 		$result = $this->result;
 
@@ -90,7 +90,7 @@ class VerArchivos extends MY_Controller
 
 	public function getFolder()
 	{
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.gestorArchivos_archivo' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.gestorArchivos_archivo" ];
 
 		$result = $this->result;
 
@@ -120,7 +120,7 @@ class VerArchivos extends MY_Controller
 
 	public function getFiles()
 	{
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.gestorArchivos_archivo' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.gestorArchivos_archivo" ];
 
 		$result = $this->result;
 		$post = json_decode($this->input->post('data'));

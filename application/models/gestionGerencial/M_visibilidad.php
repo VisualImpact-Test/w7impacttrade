@@ -66,12 +66,12 @@ class M_visibilidad extends MY_Model{
 			, subca.nombre subCanal
 			{$segmentacion['columnas_bd']}
 
-		FROM trade.data_ruta r
-		JOIN trade.data_visita v ON v.idRuta=r.idRuta
+		FROM {$this->sessBDCuenta}.trade.data_ruta r
+		JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
 		JOIN trade.usuario_historico uh On uh.idUsuario=r.idUsuario
 				and General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,@fecIni,@fecFin)=1
 				and uh.idProyecto=r.idProyecto
-		JOIN trade.data_visitaVisibilidadTrad dvv ON dvv.idVisita=v.idVisita
+		JOIN {$this->sessBDCuenta}.trade.data_visitaVisibilidadTrad dvv ON dvv.idVisita=v.idVisita
 		JOIN trade.cuenta cu ON cu.idCuenta=r.idCuenta
 		JOIN trade.canal ca ON ca.idCanal=v.idCanal
 		JOIN trade.grupoCanal gc ON gc.idGrupoCanal = ca.idGrupoCanal
@@ -131,16 +131,16 @@ class M_visibilidad extends MY_Model{
 				, dvd.idEstadoElemento
 				, eev.nombre 'estado'
 				, vf.fotoUrl 'foto'
-			FROM trade.data_ruta r
-			JOIN trade.data_visita v ON v.idRuta=r.idRuta
+			FROM {$this->sessBDCuenta}.trade.data_ruta r
+			JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
 			JOIN trade.cuenta cu ON cu.idCuenta=r.idCuenta
 			JOIN trade.canal ca ON ca.idCanal=v.idCanal
-			JOIN trade.data_visitaVisibilidadTrad dvv ON dvv.idVisita=v.idVisita
-			JOIN trade.data_visitaVisibilidadTradDet dvd ON dvd.idVisitaVisibilidad=dvv.idVisitaVisibilidad
+			JOIN {$this->sessBDCuenta}.trade.data_visitaVisibilidadTrad dvv ON dvv.idVisita=v.idVisita
+			JOIN {$this->sessBDCuenta}.trade.data_visitaVisibilidadTradDet dvd ON dvd.idVisitaVisibilidad=dvv.idVisitaVisibilidad
 			JOIN trade.elementoVisibilidadTrad ele ON ele.idElementoVis=dvd.idElementoVis
 			JOIN trade.producto_categoria pc ON pc.idCategoria=ele.idCategoria
 			LEFT JOIN trade.estadoElementoVisibilidad eev ON eev.idEstadoElemento=dvd.idEstadoElemento
-			LEFT JOIN trade.data_visitaFotos vf ON vf.idVisitaFoto=dvd.idVisitaFoto
+			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisitaFoto=dvd.idVisitaFoto
 			WHERE r.estado=1 AND v.estado=1 
 			AND r.fecha BETWEEN @fecIni AND @fecFin
 			{$filtros}
@@ -171,11 +171,11 @@ class M_visibilidad extends MY_Model{
 			SELECT DISTINCT 
 				v.idVisita 
 				, lstd.idElementoVis
-			FROM trade.data_ruta r
-			JOIN trade.data_visita v ON v.idRuta=r.idRuta
-			JOIN trade.data_visitaVisibilidadTrad vi ON vi.idVisita=v.idVisita
-			JOIN trade.list_visibilidadTradObl lst ON lst.idListVisibilidadObl=v.idListVisibilidadTradObl
-			JOIN trade.list_visibilidadTradOblDet lstd ON lstd.idListVisibilidadObl=lst.idListVisibilidadObl
+			FROM {$this->sessBDCuenta}.trade.data_ruta r
+			JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
+			JOIN {$this->sessBDCuenta}.trade.data_visitaVisibilidadTrad vi ON vi.idVisita=v.idVisita
+			JOIN {$this->sessBDCuenta}.trade.list_visibilidadTradObl lst ON lst.idListVisibilidadObl=v.idListVisibilidadTradObl
+			JOIN {$this->sessBDCuenta}.trade.list_visibilidadTradOblDet lstd ON lstd.idListVisibilidadObl=lst.idListVisibilidadObl
 	
 			JOIN trade.cuenta cu ON cu.idCuenta=r.idCuenta
 			JOIN trade.canal ca ON ca.idCanal=v.idCanal
@@ -222,7 +222,7 @@ class M_visibilidad extends MY_Model{
 				, CONVERT(VARCHAR(8),vf.hora)hora
 				, vf.fotoUrl foto
 			FROM 
-				trade.data_visitaFotos vf
+				{$this->sessBDCuenta}.trade.data_visitaFotos vf
 				JOIN trade.aplicacion_modulo m ON vf.idModulo = m.idModulo
 			WHERE 
 				idVisita = $idVisita";
@@ -248,17 +248,17 @@ class M_visibilidad extends MY_Model{
 				, ved.idAlternativa
 				, CASE WHEN ved.idAlternativa IS NULL THEN respuesta ELSE ea.nombre END respuesta
 			FROM
-				trade.data_visitaEncuesta ve
-				JOIN trade.data_visitaEncuestaDet ved
+				{$this->sessBDCuenta}.trade.data_visitaEncuesta ve
+				JOIN {$this->sessBDCuenta}.trade.data_visitaEncuestaDet ved
 					ON ved.idVisitaEncuesta = ve.idVisitaEncuesta
-				JOIN trade.encuesta e
+				JOIN {$this->sessBDCuenta}.trade.encuesta e
 					ON e.idEncuesta = ve.idEncuesta
-				JOIN trade.encuesta_pregunta ep
+				JOIN {$this->sessBDCuenta}.trade.encuesta_pregunta ep
 					ON ep.idEncuesta = e.idEncuesta
 					AND ved.idPregunta=ep.idPregunta
-				LEFT JOIN trade.encuesta_alternativa ea
+				LEFT JOIN {$this->sessBDCuenta}.trade.encuesta_alternativa ea
 					ON ea.idAlternativa = ved.idAlternativa
-				LEFT JOIN trade.data_visitaFotos vf ON vf.idVisitaFoto = ve.idVisitaFoto
+				LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisitaFoto = ve.idVisitaFoto
 			WHERE
 				ve.idVisita=$idVisita	
 			ORDER BY encuesta, pregunta, respuesta 
@@ -287,17 +287,17 @@ class M_visibilidad extends MY_Model{
 				, SUM(ved.puntaje) OVER (PARTITION BY ved.idPregunta) puntaje
 				, ep.orden
 			FROM
-				trade.data_visitaIpp ve
-				JOIN trade.data_visitaIppDet ved
+				{$this->sessBDCuenta}.trade.data_visitaIpp ve
+				JOIN {$this->sessBDCuenta}.trade.data_visitaIppDet ved
 					ON ved.idVisitaIpp = ve.idVisitaIpp
-				JOIN trade.ipp e
+				JOIN {$this->sessBDCuenta}.trade.ipp e
 					ON e.idIpp = ve.idIpp
-				JOIN trade.ipp_pregunta ep
+				JOIN {$this->sessBDCuenta}.trade.ipp_pregunta ep
 					ON ep.idIpp = e.idIpp
 					AND ved.idPregunta=ep.idPregunta
-				JOIN trade.ipp_alternativa ea
+				JOIN {$this->sessBDCuenta}.trade.ipp_alternativa ea
 					ON ea.idAlternativa = ved.idAlternativa
-				LEFT JOIN trade.data_visitaFotos vf ON vf.idVisitaFoto = ve.idVisitaFoto
+				LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisitaFoto = ve.idVisitaFoto
 			WHERE
 				ve.idVisita=$idVisita	
 			ORDER BY encuesta, ep.orden ASC
@@ -325,10 +325,10 @@ class M_visibilidad extends MY_Model{
 				,dvpd.stock
 				,dvpd.idVisitaFoto
 				,vf.fotoUrl foto
-			FROM trade.data_visitaProductosDet dvpd
-				JOIN trade.data_visitaProductos dvp ON dvpd.idVisitaProductos= dvp.idVisitaProductos
+			FROM {$this->sessBDCuenta}.trade.data_visitaProductosDet dvpd
+				JOIN {$this->sessBDCuenta}.trade.data_visitaProductos dvp ON dvpd.idVisitaProductos= dvp.idVisitaProductos
 				JOIN trade.producto p ON p.idProducto = dvpd.idProducto
-				LEFT JOIN trade.data_visitaFotos vf ON vf.idVisitaFoto = dvpd.idVisitaFoto
+				LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisitaFoto = dvpd.idVisitaFoto
 			WHERE 
 				dvp.idVisita=$idVisita
 			ORDER BY producto ASC		
@@ -355,8 +355,8 @@ class M_visibilidad extends MY_Model{
 				,dvpd.precioRegular
 				,dvpd.precioOferta
 			FROM 
-				trade.data_visitaPreciosDet dvpd
-				JOIN trade.data_visitaPrecios dvp ON dvpd.idVisitaPrecios= dvp.idVisitaPrecios
+				{$this->sessBDCuenta}.trade.data_visitaPreciosDet dvpd
+				JOIN {$this->sessBDCuenta}.trade.data_visitaPrecios dvp ON dvpd.idVisitaPrecios= dvp.idVisitaPrecios
 				JOIN trade.producto p ON p.idProducto = dvpd.idProducto
 			WHERE 
 				dvp.idVisita=$idVisita
@@ -384,11 +384,11 @@ class M_visibilidad extends MY_Model{
 				, dvpd.idVisitaFoto
 				, vf.fotoUrl foto 
 			FROM 
-				trade.data_visitaPromocionesDet dvpd
-				LEFT JOIN trade.data_visitaPromociones dvp ON dvpd.idVisitaPromociones= dvp.idVisitaPromociones
+				{$this->sessBDCuenta}.trade.data_visitaPromocionesDet dvpd
+				LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaPromociones dvp ON dvpd.idVisitaPromociones= dvp.idVisitaPromociones
 				LEFT JOIN trade.promocion p ON p.idPromocion = dvpd.idPromocion
 				left JOIN trade.tipoPromocion tp ON tp.idTipoPromocion = dvpd.idTipoPromocion OR tp.idTipoPromocion = p.idTipoPromocion
-				LEFT JOIN trade.data_visitaFotos vf ON vf.idVisitaFoto = dvpd.idVisitaFoto
+				LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisitaFoto = dvpd.idVisitaFoto
 			WHERE
 				dvp.idVisita=$idVisita
 				AND nombrePromocion IS NOT NULL
@@ -419,11 +419,11 @@ class M_visibilidad extends MY_Model{
 				,dvpd.frentes
 				,dvpd.flagCompetencia
 				,vf.fotoUrl  foto 
-			FROM trade.data_visitaSosDet dvpd
-				JOIN trade.data_visitaSoS dvp ON dvpd.idVisitaSos= dvp.idVisitaSos
+			FROM {$this->sessBDCuenta}.trade.data_visitaSosDet dvpd
+				JOIN {$this->sessBDCuenta}.trade.data_visitaSoS dvp ON dvpd.idVisitaSos= dvp.idVisitaSos
 				JOIN trade.producto_categoria pc ON pc.idCategoria = dvpd.idCategoria
 				JOIN trade.producto_marca pm ON pm.idMarca = dvpd.idMarca
-				LEFT JOIN trade.data_visitaFotos vf ON vf.idVisitaFoto = dvp.idVisitaFoto
+				LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisitaFoto = dvp.idVisitaFoto
 			WHERE
 				dvp.idVisita=$idVisita
 			ORDER BY idVisita,categoria,marca ASC	
@@ -453,13 +453,13 @@ class M_visibilidad extends MY_Model{
 			, dsf.idVisitaFoto
 			, vf.fotoUrl foto 
 		FROM
-			trade.data_visitaSod ds
-			JOIN trade.data_visitaSodDet dsd ON dsd.idVisitaSod= ds.idVisitaSod
+			{$this->sessBDCuenta}.trade.data_visitaSod ds
+			JOIN {$this->sessBDCuenta}.trade.data_visitaSodDet dsd ON dsd.idVisitaSod= ds.idVisitaSod
 			JOIN trade.producto_categoria pc ON pc.idCategoria = dsd.idCategoria
 			JOIN trade.producto_marca pm ON pm.idMarca = dsd.idMarca
 			JOIN trade.tipoElementoVisibilidad te ON te.idTipoElementoVisibilidad = dsd.idTipoElementoVisibilidad
-			LEFT JOIN trade.data_visitaSodDetFotos dsf ON dsf.idVisitaSod = ds.idVisitaSod AND dsf.idCategoria = pc.idCategoria AND dsf.idMarca = pm.idMarca AND dsf.idTipoElementoVisibilidad = dsd.idTipoElementoVisibilidad
-			LEFT JOIN trade.data_visitaFotos vf ON vf.idVisitaFoto = dsf.idVisitaFoto 
+			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaSodDetFotos dsf ON dsf.idVisitaSod = ds.idVisitaSod AND dsf.idCategoria = pc.idCategoria AND dsf.idMarca = pm.idMarca AND dsf.idTipoElementoVisibilidad = dsd.idTipoElementoVisibilidad
+			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisitaFoto = dsf.idVisitaFoto 
 		WHERE
 			ds.idVisita=$idVisita
 		ORDER BY categoria,tipoElemento,marca ASC 
@@ -483,10 +483,10 @@ class M_visibilidad extends MY_Model{
 				,dvpd.idCategoria
 				,pc.nombre categoria
 				,vf.fotoUrl foto 
-			FROM trade.data_visitaEncartesDet dvpd
-				JOIN trade.data_visitaEncartes dvp ON dvpd.idVisitaEncartes= dvp.idVisitaEncartes
+			FROM {$this->sessBDCuenta}.trade.data_visitaEncartesDet dvpd
+				JOIN {$this->sessBDCuenta}.trade.data_visitaEncartes dvp ON dvpd.idVisitaEncartes= dvp.idVisitaEncartes
 				JOIN trade.producto_categoria pc ON pc.idCategoria = dvpd.idCategoria
-				LEFT JOIN trade.data_visitaFotos vf ON vf.idVisitaFoto = dvpd.idVisitaFoto
+				LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisitaFoto = dvpd.idVisitaFoto
 			WHERE
 				dvp.idVisita=$idVisita
 		";
@@ -517,11 +517,11 @@ class M_visibilidad extends MY_Model{
 				,dvpd.comentario
 				,vf.fotoUrl foto 
 			FROM
-				trade.data_visitaSeguimientoPlanDet dvpd
-				JOIN trade.data_visitaSeguimientoPlan dvp ON dvpd.idVisitaSeguimientoPlan= dvp.idVisitaSeguimientoPlan
+				{$this->sessBDCuenta}.trade.data_visitaSeguimientoPlanDet dvpd
+				JOIN {$this->sessBDCuenta}.trade.data_visitaSeguimientoPlan dvp ON dvpd.idVisitaSeguimientoPlan= dvp.idVisitaSeguimientoPlan
 				JOIN trade.tipoElementoVisibilidad te ON te.idTipoElementoVisibilidad = dvpd.idTipoElementoVisibilidad
-				JOIN trade.seguimientoPlan sp ON sp.idSeguimientoPlan = dvp.idSeguimientoPlan
-				LEFT JOIN trade.data_visitaFotos vf ON vf.idVisitaFoto = dvp.idVisitaFoto
+				JOIN {$this->sessBDCuenta}.trade.seguimientoPlan sp ON sp.idSeguimientoPlan = dvp.idSeguimientoPlan
+				LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisitaFoto = dvp.idVisitaFoto
 				LEFT JOIN master.motivos mo ON mo.idMotivo = dvpd.idMotivo
 			WHERE
 				dvp.idVisita=$idVisita
@@ -560,9 +560,9 @@ class M_visibilidad extends MY_Model{
 					WHEN dvdd.idDia = 7 THEN 'DOMINGO'
 					END diaDespacho
 				, dvdd.presencia
-			FROM trade.data_visitaDespachos dvp
-				JOIN trade.data_visitaDespachosDet dvpd  ON dvpd.idVisitaDespachos= dvp.idVisitaDespachos
-				JOIN trade.data_visitaDespachosDias dvdd ON dvdd.idVisitaDespachos = dvp.idVisitaDespachos
+			FROM {$this->sessBDCuenta}.trade.data_visitaDespachos dvp
+				JOIN {$this->sessBDCuenta}.trade.data_visitaDespachosDet dvpd  ON dvpd.idVisitaDespachos= dvp.idVisitaDespachos
+				JOIN {$this->sessBDCuenta}.trade.data_visitaDespachosDias dvdd ON dvdd.idVisitaDespachos = dvp.idVisitaDespachos
 				LEFT JOIN master.incidencias mo ON mo.idIncidencia = dvpd.idIncidencia
 			WHERE
 				dvp.idVisita=$idVisita
@@ -591,8 +591,8 @@ class M_visibilidad extends MY_Model{
 				, vid.obs AS observacion
 				, vid.comentario
 				, CONVERT(VARCHAR,vid.fecVenc,103) AS fechaVencimiento
-			FROM trade.data_visitaInventarioDet vid
-			JOIN trade.data_visitaInventario vi ON vi.idVisitaInventario=vid.idVisitaInventario
+			FROM {$this->sessBDCuenta}.trade.data_visitaInventarioDet vid
+			JOIN {$this->sessBDCuenta}.trade.data_visitaInventario vi ON vi.idVisitaInventario=vid.idVisitaInventario
 			LEFT JOIN trade.producto p ON p.idProducto = vid.idProducto
 			WHERE vi.idVisita=$idVisita
 		";
@@ -619,11 +619,11 @@ class M_visibilidad extends MY_Model{
 				, vvtd.idVisitaFoto
 				, vf.fotoUrl AS foto
 				, vvtd.condicion_elemento
-			FROM trade.data_visitaVisibilidadTradDet vvtd
-			JOIN trade.data_visitaVisibilidadTrad vvt ON vvt.idVisitaVisibilidad=vvtd.idVisitaVisibilidad
+			FROM {$this->sessBDCuenta}.trade.data_visitaVisibilidadTradDet vvtd
+			JOIN {$this->sessBDCuenta}.trade.data_visitaVisibilidadTrad vvt ON vvt.idVisitaVisibilidad=vvtd.idVisitaVisibilidad
 			LEFT JOIN trade.elementoVisibilidadTrad evt ON evt.idElementoVis=vvtd.idElementoVis
 			LEFT JOIN trade.estadoElementoVisibilidad eev ON eev.idEstadoElemento=vvtd.idEstadoElemento
-			LEFT JOIN trade.data_visitaFotos vf ON vf.idVisitaFoto=vvtd.idVisitaFoto
+			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisitaFoto=vvtd.idVisitaFoto
 			
 		";
 
@@ -650,7 +650,7 @@ class M_visibilidad extends MY_Model{
 				, direccion
 				, latitud
 				, longitud
-			FROM trade.data_visitaMantenimientoCliente
+			FROM {$this->sessBDCuenta}.trade.data_visitaMantenimientoCliente
 			WHERE idVisita=$idVisita
 		";
 
@@ -680,10 +680,10 @@ class M_visibilidad extends MY_Model{
 				, p.nombre AS producto
 				, vitd.idVisitaFoto
 				, vf.fotoUrl AS foto
-			FROM trade.data_visitaIniciativaTradDet vitd
-			JOIN trade.data_visitaIniciativaTrad vit ON vit.idVisitaIniciativaTrad=vitd.idVisitaIniciativaTrad
-			LEFT JOIN trade.data_visitaFotos vf ON vf.idVisitaFoto=vitd.idVisitaFoto
-			LEFT JOIN trade.iniciativatrad it ON it.idIniciativa=vitd.idIniciativa
+			FROM {$this->sessBDCuenta}.trade.data_visitaIniciativaTradDet vitd
+			JOIN {$this->sessBDCuenta}.trade.data_visitaIniciativaTrad vit ON vit.idVisitaIniciativaTrad=vitd.idVisitaIniciativaTrad
+			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisitaFoto=vitd.idVisitaFoto
+			LEFT JOIN {$this->sessBDCuenta}.trade.iniciativatrad it ON it.idIniciativa=vitd.idIniciativa
 			LEFT JOIN trade.elementovisibilidadTrad eit ON eit.idElementoVis=vitd.idElementoIniciativa
 			LEFT JOIN trade.estadoIniciativaTrad esit ON esit.idEstadoIniciativa=vitd.idEstadoIniciativa
 			LEFT JOIN trade.producto p ON p.idProducto=vitd.producto
@@ -713,9 +713,9 @@ class M_visibilidad extends MY_Model{
 				, vitd.comentario
 				, vitd.idVisitaFoto
 				, vf.fotoUrl AS foto
-			FROM trade.data_visitaInteligenciaTradDet vitd
-			JOIN trade.data_visitaInteligenciaTrad vit ON vit.idVisitaInteligenciaTrad=vitd.idVisitaInteligenciaTrad
-			LEFT JOIN trade.data_visitaFotos vf ON vf.idVisitaFoto=vitd.idVisitaFoto
+			FROM {$this->sessBDCuenta}.trade.data_visitaInteligenciaTradDet vitd
+			JOIN {$this->sessBDCuenta}.trade.data_visitaInteligenciaTrad vit ON vit.idVisitaInteligenciaTrad=vitd.idVisitaInteligenciaTrad
+			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisitaFoto=vitd.idVisitaFoto
 			LEFT JOIN trade.producto_categoria pc ON pc.idCategoria=vitd.idCategoria
 			LEFT JOIN trade.producto_marca pm ON pm.idMarca=vitd.idMarca
 			LEFT JOIN trade.competencia_tipo ct ON ct.idTipoCompetencia=vitd.idTipoCompetencia
@@ -743,10 +743,10 @@ class M_visibilidad extends MY_Model{
 				, vo.flagOtro
 				, vf.fotoUrl AS foto
 				, CONVERT(VARCHAR(8),vf.hora) AS hora
-			FROM trade.data_visitaOrden vo
+			FROM {$this->sessBDCuenta}.trade.data_visitaOrden vo
 			JOIN trade.orden o ON vo.idOrden=o.idOrden
 			JOIN trade.orden_estado oe ON oe.idOrdenEstado=vo.idOrdenEstado
-			LEFT JOIN trade.data_visitaFotos vf ON vf.idVisitaFoto=vo.idVisitaFoto
+			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisitaFoto=vo.idVisitaFoto
 			WHERE vo.idVisita=$idVisita
 		";
 
@@ -776,8 +776,8 @@ class M_visibilidad extends MY_Model{
 				, oevo.descripcion AS observacion
 				, vvod.comentario
 				, vvod.cantidad
-			FROM trade.data_visitaVisibilidadObligatorioDet vvod
-			JOIN trade.data_visitaVisibilidadObligatorio vvo ON vvo.idVisitaVisibilidad=vvod.idVisitaVisibilidad
+			FROM {$this->sessBDCuenta}.trade.data_visitaVisibilidadObligatorioDet vvod
+			JOIN {$this->sessBDCuenta}.trade.data_visitaVisibilidadObligatorio vvo ON vvo.idVisitaVisibilidad=vvod.idVisitaVisibilidad
 			LEFT JOIN trade.elementoVisibilidadTrad evt ON evt.idElementoVis=vvod.idElementoVis
 			LEFT JOIN trade.variableVisibilidad vv ON vv.idVariable=vvod.idVariable
 			LEFT JOIN trade.observacionElementoVisibilidadObligatorio oevo ON oevo.idObservacion=vvod.idObservacion
@@ -807,10 +807,10 @@ class M_visibilidad extends MY_Model{
 				, vvid.comentario
 				, vvid.idObservacion
 				, oevi.descripcion AS observacion
-			FROM trade.data_visitaVisibilidadIniciativaDet vvid
-			JOIN trade.data_visitaVisibilidadIniciativa vvi ON vvi.idVisitaVisibilidad=vvid.idVisitaVisibilidad
+			FROM {$this->sessBDCuenta}.trade.data_visitaVisibilidadIniciativaDet vvid
+			JOIN {$this->sessBDCuenta}.trade.data_visitaVisibilidadIniciativa vvi ON vvi.idVisitaVisibilidad=vvid.idVisitaVisibilidad
 			LEFT JOIN trade.elementoVisibilidadTrad evt ON evt.idElementoVis=vvid.idElementoVis
-			LEFT JOIN trade.iniciativaTrad ini ON ini.idIniciativa=evt.idIniciativa
+			LEFT JOIN {$this->sessBDCuenta}.trade.iniciativaTrad ini ON ini.idIniciativa=evt.idIniciativa
 			LEFT JOIN trade.observacionElementoVisibilidadIniciativa oevi ON oevi.idObservacion=vvid.idObservacion
 			WHERE vvi.idVisita=$idVisita
 			ORDER BY ini.idIniciativa,evt.idElementoVis
@@ -836,8 +836,8 @@ class M_visibilidad extends MY_Model{
 				, vvad.presencia
 				, vvad.cant AS cantidad
 				, vvad.comentario
-			FROM trade.data_visitaVisibilidadAdicionalDet vvad
-			JOIN trade.data_visitaVisibilidadAdicional vva ON vva.idVisitaVisibilidad=vvad.idVisitaVisibilidad
+			FROM {$this->sessBDCuenta}.trade.data_visitaVisibilidadAdicionalDet vvad
+			JOIN {$this->sessBDCuenta}.trade.data_visitaVisibilidadAdicional vva ON vva.idVisitaVisibilidad=vvad.idVisitaVisibilidad
 			LEFT JOIN trade.elementoVisibilidadTrad evt ON evt.idElementoVis=vvad.idElementoVis
 			WHERE vva.idVisita=$idVisita
 		";
@@ -861,10 +861,10 @@ class M_visibilidad extends MY_Model{
 				, vepd.idPregunta
 				, ep.nombre AS pregunta
 				, vepd.respuesta
-			FROM trade.data_visitaEncuestaPremioDet vepd
-			JOIN trade.data_visitaEncuestaPremio vep ON vep.idVisitaEncuesta=vepd.idVisitaEncuesta
-			LEFT JOIN trade.encuesta e On e.idEncuesta=vep.idEncuesta
-			LEFT JOIN trade.encuesta_pregunta ep On ep.idPregunta=vepd.idPregunta
+			FROM {$this->sessBDCuenta}.trade.data_visitaEncuestaPremioDet vepd
+			JOIN {$this->sessBDCuenta}.trade.data_visitaEncuestaPremio vep ON vep.idVisitaEncuesta=vepd.idVisitaEncuesta
+			LEFT JOIN {$this->sessBDCuenta}.trade.encuesta e On e.idEncuesta=vep.idEncuesta
+			LEFT JOIN {$this->sessBDCuenta}.trade.encuesta_pregunta ep On ep.idPregunta=vepd.idPregunta
 			WHERE vep.idVisita=$idVisita
 		";
 
@@ -884,8 +884,8 @@ class M_visibilidad extends MY_Model{
 				v.idVisitaObservacion,
 				v.idVisita,
 				vd.comentario
-			from trade.data_visitaObservacion v
-			JOIN trade.data_visitaObservacionDet vd ON vd.idVisitaObservacion=v.idVisitaObservacion
+			from {$this->sessBDCuenta}.trade.data_visitaObservacion v
+			JOIN {$this->sessBDCuenta}.trade.data_visitaObservacionDet vd ON vd.idVisitaObservacion=v.idVisitaObservacion
 			WHERE
 				v.idVisita=$idVisita		 
 		";
@@ -967,11 +967,11 @@ class M_visibilidad extends MY_Model{
 			dvf.fotoUrl
 			{$segmentacion['columnas_bd']}
 
-		from  trade.data_visitaVisibilidadTrad vi
+		from  {$this->sessBDCuenta}.trade.data_visitaVisibilidadTrad vi
 
-		JOIN trade.data_visitaVisibilidadTradDet vit  ON vi.idVisitaVisibilidad=vit.idVisitaVisibilidad
-		JOIN trade.data_visita v ON v.idVisita=vi.idVisita
-		JOIN trade.data_ruta r ON r.idRuta=v.idRuta 
+		JOIN {$this->sessBDCuenta}.trade.data_visitaVisibilidadTradDet vit  ON vi.idVisitaVisibilidad=vit.idVisitaVisibilidad
+		JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idVisita=vi.idVisita
+		JOIN {$this->sessBDCuenta}.trade.data_ruta r ON r.idRuta=v.idRuta 
 		JOIN trade.usuario_historico uh On uh.idUsuario=r.idUsuario
 				and General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,@fecIni,@fecFin)=1
 				and uh.idProyecto=r.idProyecto
@@ -995,7 +995,7 @@ class M_visibilidad extends MY_Model{
 		JOIN trade.grupoCanal gc ON gc.idGrupoCanal =  c.idGrupoCanal
 		JOIN trade.elementoVisibilidadTrad evt ON evt.idElementoVis=vit.idElementoVis
 		LEFT JOIN trade.estadoElementoVisibilidad esit ON esit.idEstadoElemento=vit.idEstadoElemento
-		LEFT JOIN trade.data_visitaFotos dvf ON dvf.idVisitaFoto=vit.idVisitaFoto
+		LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos dvf ON dvf.idVisitaFoto=vit.idVisitaFoto
 
 		LEFT JOIN General.dbo.ubigeo ubi ON ubi.cod_ubigeo=v.cod_ubigeo
 		{$segmentacion['join']}

@@ -56,9 +56,9 @@ class M_materialpop extends MY_Model{
 			, gca.nombre grupoCanal
 
 			{$segmentacion['columnas_bd']}
-		FROM trade.data_ruta r
-		JOIN trade.data_visita v ON v.idRuta=r.idRuta
-		JOIN trade.data_visitaMaterialesPop dvv ON dvv.idVisita=v.idVisita
+		FROM {$this->sessBDCuenta}.trade.data_ruta r
+		JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
+		JOIN {$this->sessBDCuenta}.trade.data_visitaMaterialesPop dvv ON dvv.idVisita=v.idVisita
 		JOIN trade.cuenta cu ON cu.idCuenta=r.idCuenta
 		JOIN trade.canal ca ON ca.idCanal=v.idCanal
 		JOIN trade.grupoCanal gca ON ca.idGrupoCanal=gca.idGrupoCanal
@@ -123,15 +123,15 @@ class M_materialpop extends MY_Model{
                 , UPPER(tm.nombre) tipoMaterial
                 , vf.fotoUrl foto
                 , amg.carpetaFoto carpeta
-            FROM trade.data_ruta r
-            JOIN trade.data_visita v ON v.idRuta=r.idRuta
+            FROM {$this->sessBDCuenta}.trade.data_ruta r
+            JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
             JOIN trade.cuenta cu ON cu.idCuenta=r.idCuenta
             JOIN trade.canal ca ON ca.idCanal=v.idCanal
-            JOIN trade.data_visitaMaterialesPop dvv ON dvv.idVisita=v.idVisita
-            JOIN trade.data_visitaMaterialesPopDet dvd ON dvd.idVisitaMaterialPop=dvv.idVisitaMaterialPop
+            JOIN {$this->sessBDCuenta}.trade.data_visitaMaterialesPop dvv ON dvv.idVisita=v.idVisita
+            JOIN {$this->sessBDCuenta}.trade.data_visitaMaterialesPopDet dvd ON dvd.idVisitaMaterialPop=dvv.idVisitaMaterialPop
             JOIN trade.tipo_material tm ON tm.idTipoMaterial = dvd.idTipoMaterial
             JOIN trade.producto_marca m ON m.idMarca = dvd.idMarca
-            LEFT JOIN trade.data_visitaFotos vf ON vf.idVisitaFoto=dvd.idVisitaFoto
+            LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisitaFoto=dvd.idVisitaFoto
             LEFT JOIN trade.aplicacion_modulo am ON am.idModulo = vf.idModulo
 			LEFT JOIN trade.aplicacion_modulo_grupo amg ON amg.idModuloGrupo = am.idModuloGrupo
 			WHERE r.estado=1 AND v.estado=1 
@@ -165,11 +165,11 @@ class M_materialpop extends MY_Model{
 			SELECT DISTINCT 
 				v.idVisita 
 				, lstd.idMarca
-			FROM trade.data_ruta r
-			JOIN trade.data_visita v ON v.idRuta=r.idRuta
-			JOIN trade.data_visitaMaterialesPop vi ON vi.idVisita=v.idVisita
-			JOIN trade.list_material_pop_marca lst ON lst.idListMaterialesPopMarca=v.idListMaterialesPopMarca
-			JOIN trade.list_material_pop_marca_det lstd ON lstd.idListMaterialesPopMarca=lst.idListMaterialesPopMarca
+			FROM {$this->sessBDCuenta}.trade.data_ruta r
+			JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
+			JOIN {$this->sessBDCuenta}.trade.data_visitaMaterialesPop vi ON vi.idVisita=v.idVisita
+			JOIN {$this->sessBDCuenta}.trade.list_material_pop_marca lst ON lst.idListMaterialesPopMarca=v.idListMaterialesPopMarca
+			JOIN {$this->sessBDCuenta}.trade.list_material_pop_marca_det lstd ON lstd.idListMaterialesPopMarca=lst.idListMaterialesPopMarca
 	
 			JOIN trade.cuenta cu ON cu.idCuenta=r.idCuenta
 			JOIN trade.canal ca ON ca.idCanal=v.idCanal

@@ -14,7 +14,7 @@ class M_Archivos extends MY_Model
 		parent::__construct();
 
 		$this->tablas = [
-			'archivos' => ['tabla' => 'trade.gestorArchivos_archivo', 'id' => 'idArchivo'],
+			'archivos' => ['tabla' => "{$this->sessBDCuenta}.trade.gestorArchivos_archivo", 'id' => 'idArchivo'],
 		];
 	}
 
@@ -45,19 +45,19 @@ class M_Archivos extends MY_Model
 				u.nombres + ' ' + u.apePaterno + ' ' + u.apeMaterno nombreUsuarioCreador, 
 				u2.idUsuario idUsuarioEditor, 
 				u2.nombres + ' ' + u2.apePaterno + ' ' + u2.apeMaterno nombreUsuarioEditor
-			FROM trade.gestorArchivos_archivo a
-				JOIN trade.gestorArchivos_carpeta c ON a.idCarpeta = c.idCarpeta
-				JOIN trade.gestorArchivos_permisoCarpeta pc ON pc.idCarpeta = c.idCarpeta
-				JOIN trade.gestorArchivos_grupo g ON c.idGrupo = g.idGrupo
+			FROM {$this->sessBDCuenta}.trade.gestorArchivos_archivo a
+				JOIN {$this->sessBDCuenta}.trade.gestorArchivos_carpeta c ON a.idCarpeta = c.idCarpeta
+				JOIN {$this->sessBDCuenta}.trade.gestorArchivos_permisoCarpeta pc ON pc.idCarpeta = c.idCarpeta
+				JOIN {$this->sessBDCuenta}.trade.gestorArchivos_grupo g ON c.idGrupo = g.idGrupo
 				JOIN trade.usuario u ON a.idUsuarioCreador = u.idUsuario
-				JOIN trade.gestorArchivos_tipoArchivo ta ON a.idTipoArchivo = ta.idTipoArchivo
+				JOIN {$this->sessBDCuenta}.trade.gestorArchivos_tipoArchivo ta ON a.idTipoArchivo = ta.idTipoArchivo
 				LEFT JOIN trade.usuario u2 ON a.idUsuarioEditor = u2.idUsuario
 			WHERE pc.estado = 1
 				AND a.eliminado = 0
 				AND c.estado = 1
 				{$filtros}
 		";
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.gestorArchivos_archivo' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.gestorArchivos_archivo" ];
 		return $this->db->query($sql);
 	}
 
@@ -83,10 +83,10 @@ class M_Archivos extends MY_Model
 														ELSE 0
 													END) OVER(PARTITION BY g.idGrupo) espacioRestante, 
 							a.eliminado
-					FROM trade.gestorArchivos_permisoCarpeta pc
-						JOIN trade.gestorArchivos_carpeta c ON pc.idCarpeta = c.idCarpeta
-						JOIN trade.gestorArchivos_grupo g ON g.idGrupo = c.idGrupo
-						LEFT JOIN trade.gestorArchivos_archivo a ON c.idCarpeta = a.idCarpeta)
+					FROM {$this->sessBDCuenta}.trade.gestorArchivos_permisoCarpeta pc
+						JOIN {$this->sessBDCuenta}.trade.gestorArchivos_carpeta c ON pc.idCarpeta = c.idCarpeta
+						JOIN {$this->sessBDCuenta}.trade.gestorArchivos_grupo g ON g.idGrupo = c.idGrupo
+						LEFT JOIN {$this->sessBDCuenta}.trade.gestorArchivos_archivo a ON c.idCarpeta = a.idCarpeta)
 				SELECT idUsuario, 
 						idGrupo, 
 						nombreGrupo, 
@@ -114,12 +114,12 @@ class M_Archivos extends MY_Model
 				g.nombre nombreGrupo, 
 				c.idCarpeta, 
 				c.nombre nombreCarpeta
-			FROM trade.gestorArchivos_permisoCarpeta pc
-				JOIN trade.gestorArchivos_carpeta c ON c.idCarpeta = pc.idCarpeta AND pc.estado = 1
-				JOIN trade.gestorArchivos_grupo g ON g.idGrupo = c.idGrupo
+			FROM {$this->sessBDCuenta}.trade.gestorArchivos_permisoCarpeta pc
+				JOIN {$this->sessBDCuenta}.trade.gestorArchivos_carpeta c ON c.idCarpeta = pc.idCarpeta AND pc.estado = 1
+				JOIN {$this->sessBDCuenta}.trade.gestorArchivos_grupo g ON g.idGrupo = c.idGrupo
 			WHERE pc.idUsuario = $idUsuario {$filtros}
 		";
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.gestorArchivos_permisoCarpeta' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.gestorArchivos_permisoCarpeta" ];
 		return $this->db->query($sql);
 	}
 
@@ -127,10 +127,10 @@ class M_Archivos extends MY_Model
 	{
 		$sql = "
 			SELECT *
-			FROM trade.gestorArchivos_tipoArchivo
+			FROM {$this->sessBDCuenta}.trade.gestorArchivos_tipoArchivo
 			WHERE estado = 1;
 		";
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.gestorArchivos_tipoArchivo' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.gestorArchivos_tipoArchivo" ];
 		return $this->db->query($sql);
 	}
 
@@ -139,13 +139,13 @@ class M_Archivos extends MY_Model
 		$sql = "
             SELECT
                 TOP 1 idArchivo
-            FROM trade.gestorArchivos_archivo
+            FROM {$this->sessBDCuenta}.trade.gestorArchivos_archivo
             ORDER BY
                 idArchivo DESC;
         ";
 		$lastIdArchivo = $this->db->query($sql);
 
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.gestorArchivos_archivo' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.gestorArchivos_archivo" ];
 		return $lastIdArchivo;
 	}
 
@@ -182,13 +182,13 @@ class M_Archivos extends MY_Model
         SELECT
             idTipoArchivo
         FROM
-            trade.gestorArchivos_extension
+            {$this->sessBDCuenta}.trade.gestorArchivos_extension
         WHERE extension = '" . $extension . "';
                 ";
 
 		$idTipoArchivo = $this->db->query($sql);
 
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.gestorArchivos_extension' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.gestorArchivos_extension" ];
 		return $idTipoArchivo;
 	}
 
@@ -214,15 +214,15 @@ class M_Archivos extends MY_Model
             ELSE 0
           END
         ) OVER(PARTITION BY g.idGrupo) espacioRestante
-        FROM trade.gestorArchivos_grupo g
-        LEFT JOIN trade.gestorArchivos_carpeta c ON g.idGrupo = c.idGrupo
-        LEFT JOIN trade.gestorArchivos_archivo a ON a.idCarpeta = c.idCarpeta
+        FROM {$this->sessBDCuenta}.trade.gestorArchivos_grupo g
+        LEFT JOIN {$this->sessBDCuenta}.trade.gestorArchivos_carpeta c ON g.idGrupo = c.idGrupo
+        LEFT JOIN {$this->sessBDCuenta}.trade.gestorArchivos_archivo a ON a.idCarpeta = c.idCarpeta
         WHERE
         g.idGrupo = $idGrupo
         ";
 
 		$espacioGrupo = $this->db->query($sql);
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.gestorArchivos_grupo' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.gestorArchivos_grupo" ];
 		return $espacioGrupo;
 	}
 
@@ -230,11 +230,11 @@ class M_Archivos extends MY_Model
 	{
 		$sql = "
         SELECT *
-        FROM trade.gestorArchivos_archivo WHERE idArchivo = $idArchivo
+        FROM {$this->sessBDCuenta}.trade.gestorArchivos_archivo WHERE idArchivo = $idArchivo
         ";
 
 		$archivo = $this->db->query($sql);
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.gestorArchivos_archivo' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.gestorArchivos_archivo" ];
 		return $archivo;
 	}
 
@@ -243,7 +243,7 @@ class M_Archivos extends MY_Model
 		$aSessTrack = [];
 		$this->db->trans_begin();
 
-		$tabla = "trade.gestorArchivos_archivo";
+		$tabla = "{$this->sessBDCuenta}.trade.gestorArchivos_archivo";
 		$columna = "idArchivo";
 
 		$data = array(
@@ -275,9 +275,9 @@ class M_Archivos extends MY_Model
 
         $sql = "
 		SELECT DISTINCT g.orden, c.idCarpeta, c.idGrupo, c.nombre nombreCategoria, c.estado, c.fechaCreacion, c.fechaModificacion, g.nombre nombreGrupo, SUM(a.peso) OVER (PARTITION BY c.idCarpeta) espacioOcupado
-		FROM trade.gestorArchivos_carpeta c
-        JOIN trade.gestorArchivos_grupo g ON c.idGrupo = g.idGrupo
-        LEFT JOIN trade.gestorArchivos_archivo a ON c.idCarpeta = a.idCarpeta
+		FROM {$this->sessBDCuenta}.trade.gestorArchivos_carpeta c
+        JOIN {$this->sessBDCuenta}.trade.gestorArchivos_grupo g ON c.idGrupo = g.idGrupo
+        LEFT JOIN {$this->sessBDCuenta}.trade.gestorArchivos_archivo a ON c.idCarpeta = a.idCarpeta
         $filtros
 		ORDER by c.estado DESC , c.nombre;
 		";
@@ -302,7 +302,7 @@ class M_Archivos extends MY_Model
 		,g.espacioConcedido
 		,g.estado
 		FROM 
-		trade.gestorArchivos_grupo g
+		{$this->sessBDCuenta}.trade.gestorArchivos_grupo g
 		{$filtros}
 		";
 
@@ -315,7 +315,7 @@ class M_Archivos extends MY_Model
 			'nombre' => $params['nombre']
 		];
 		if(!empty($params['idx'])) $this->db->where_not_in('idCarpeta',$params['idx']);
-		$carpetas = $this->db->get_where('trade.gestorArchivos_carpeta',$where)->result_array();
+		$carpetas = $this->db->get_where("{$this->sessBDCuenta}.trade.gestorArchivos_carpeta",$where)->result_array();
 
 
 		if(!empty($carpetas)){
@@ -337,7 +337,7 @@ class M_Archivos extends MY_Model
             "estado" => 1,
         ];
 
-		$insert = $this->db->insert('trade.gestorArchivos_carpeta', $insert);
+		$insert = $this->db->insert("{$this->sessBDCuenta}.trade.gestorArchivos_carpeta", $insert);
 		$this->insertId = $this->db->insert_id();
 		return $insert;
     }
@@ -354,7 +354,7 @@ class M_Archivos extends MY_Model
 		];
 
 		$this->db->where($where);
-		$update = $this->db->update('trade.gestorArchivos_carpeta', $update);
+		$update = $this->db->update("{$this->sessBDCuenta}.trade.gestorArchivos_carpeta", $update);
 		return $update;
     }
 	public function getUsuarios($params = array())
@@ -401,8 +401,8 @@ class M_Archivos extends MY_Model
     {
         $sql = "
 		SELECT *
-		FROM trade.gestorArchivos_permisoCarpeta pc
-			JOIN trade.gestorArchivos_carpeta c ON pc.idCarpeta = c.idCarpeta
+		FROM {$this->sessBDCuenta}.trade.gestorArchivos_permisoCarpeta pc
+			JOIN {$this->sessBDCuenta}.trade.gestorArchivos_carpeta c ON pc.idCarpeta = c.idCarpeta
 		WHERE idUsuario = $idUsuario AND pc.estado = 1
 		";
 
@@ -427,7 +427,7 @@ class M_Archivos extends MY_Model
                 $this->db->where('idUsuario', $permiso['idUsuario']);
                 $this->db->where('idCarpeta', $permiso['idCarpeta']);
                 $this->db->where('estado', '1');
-                $updateResult = $this->db->update('trade.gestorArchivos_permisoCarpeta');
+                $updateResult = $this->db->update("{$this->sessBDCuenta}.trade.gestorArchivos_permisoCarpeta");
 
                 if ($this->db->trans_status() === false || !$updateResult) {
                     $this->db->trans_rollback();
@@ -438,7 +438,7 @@ class M_Archivos extends MY_Model
 
         $insertDatos = true;
         if (count($permisosAgregados) > 0) {
-            $insertDatos = $this->db->insert_batch('trade.gestorArchivos_permisoCarpeta', $permisosAgregados);
+            $insertDatos = $this->db->insert_batch("{$this->sessBDCuenta}.trade.gestorArchivos_permisoCarpeta", $permisosAgregados);
         }
 
         if ($this->db->trans_status() === false || !$insertDatos) {

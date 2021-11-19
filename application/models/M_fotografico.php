@@ -60,8 +60,8 @@ class M_fotografico extends MY_Model{
 				, af.resultado
 				{$segmentacion['columnas_bd']}
 			FROM 
-				trade.data_visita v
-				JOIN trade.data_ruta r
+				{$this->sessBDCuenta}.trade.data_visita v
+				JOIN {$this->sessBDCuenta}.trade.data_ruta r
 					ON r.idRuta = v.idRuta
 				JOIN trade.usuario_historico uh On uh.idUsuario=r.idUsuario
 					and General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,@fecIni,@fecFin)=1
@@ -108,8 +108,8 @@ class M_fotografico extends MY_Model{
 				, zp.descripcion zonaPeligrosa
 				, af.resultado
 			FROM 
-				trade.data_visita v
-				JOIN trade.data_ruta r
+				{$this->sessBDCuenta}.trade.data_visita v
+				JOIN {$this->sessBDCuenta}.trade.data_ruta r
 					ON r.idRuta = v.idRuta
 				JOIN ".getClienteHistoricoCuenta()." ch
 					ON ch.idCliente = v.idCliente
@@ -159,8 +159,8 @@ class M_fotografico extends MY_Model{
 				, vf.idModulo
 				, am.nombre modulo
 			FROM 
-				trade.data_visita v
-				JOIN trade.data_ruta r
+				{$this->sessBDCuenta}.trade.data_visita v
+				JOIN {$this->sessBDCuenta}.trade.data_ruta r
 					ON r.idRuta = v.idRuta
 				JOIN ".getClienteHistoricoCuenta()." ch
 					ON ch.idCliente = v.idCliente
@@ -188,7 +188,7 @@ class M_fotografico extends MY_Model{
 					ON zp.idZonaPeligrosa=v.idZonaPeligrosa
 				LEFT JOIN  {$this->sessBDCuenta}.trade.auditoriaFotografica af
 					ON af.idVisita = v.idVisita
-				JOIN trade.data_visitaFotos vf
+				JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf
 					ON vf.idVisita = v.idVisita
 				JOIN trade.aplicacion_modulo am
 					ON am.idModulo = vf.idModulo
@@ -210,8 +210,8 @@ class M_fotografico extends MY_Model{
 			, vdd.pl
 			, vdd.idVisitaVisibilidadDet
 		FROM 
-			trade.data_visitaVisibilidadTrad vd
-			JOIN trade.data_visitaVisibilidadTradDet vdd
+			{$this->sessBDCuenta}.trade.data_visitaVisibilidadTrad vd
+			JOIN {$this->sessBDCuenta}.trade.data_visitaVisibilidadTradDet vdd
 				ON vdd.idVisitaVisibilidad = vd.idVisitaVisibilidad
 			JOIN trade.elementoVisibilidadTrad evt
 				ON evt.idElementoVis = vdd.idElementoVis

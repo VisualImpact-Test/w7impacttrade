@@ -12,8 +12,8 @@ class M_icompetitiva extends My_Model
 
 		$this->tablas = [
 			'elemento' => ['tabla' => 'trade.producto_categoria', 'id' => 'idCategoria'],
-			'lista' => ['tabla' => 'trade.list_categoria_marca_competenciaTrad', 'id' => 'idListCategoriaMarcaComp'],
-			'listaDet' => ['tabla'=>'trade.list_categoria_marca_competenciaTradDet','id'=>'idListCategoriaMarcaCompDet'],
+			'lista' => ['tabla' => "{$this->sessBDCuenta}.trade.list_categoria_marca_competenciaTrad", 'id' => 'idListCategoriaMarcaComp'],
+			'listaDet' => ['tabla'=>"{$this->sessBDCuenta}.trade.list_categoria_marca_competenciaTradDet",'id'=>'idListCategoriaMarcaCompDet'],
 			'tipoElemento' => ['tabla'=>'trade.competencia_tipo','id'=>'idTipoCompetencia'],
 			
 		];
@@ -60,7 +60,7 @@ class M_icompetitiva extends My_Model
                 p.*
                 FROM
                 ".$this->tablas['elemento']['tabla']." p
-				JOIN trade.list_categoria_marca cm ON cm.idCategoria = p.idCategoria AND cm.idProyecto = {$idProyecto}
+				JOIN {$this->sessBDCuenta}.trade.list_categoria_marca cm ON cm.idCategoria = p.idCategoria AND cm.idProyecto = {$idProyecto}
                 {$filtros}
 			";
 
@@ -90,9 +90,9 @@ class M_icompetitiva extends My_Model
 	}
 
 	public function getIdEncuesta($encuesta){
-		$sql = $this->db->get_where('trade.encuesta',array('nombre'=>$encuesta));
+		$sql = $this->db->get_where("{$this->sessBDCuenta}.trade.encuesta",array('nombre'=>$encuesta));
 
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.encuesta' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.encuesta" ];
 		return ($sql);
 
 	}
@@ -264,7 +264,7 @@ class M_icompetitiva extends My_Model
 				'idListCategoriaMarcaComp' => $idLista,
 			];
 
-			$listDet = $this->db->get_where('trade.list_categoria_marca_competenciaTradDet',$where)->result_array(); 
+			$listDet = $this->db->get_where("{$this->sessBDCuenta}.trade.list_categoria_marca_competenciaTradDet",$where)->result_array(); 
 			$lista = [];
 			foreach($listDet as $r){
 				$lista[$r['idCategoria']] = $r['idListCategoriaMarcaCompDet'];
@@ -280,7 +280,7 @@ class M_icompetitiva extends My_Model
 				}
 			}
 			if (empty($input)) return true;
-			$insert = $this->db->insert_batch('trade.list_categoria_marca_competenciaTradDet_elemento', $input);
+			$insert = $this->db->insert_batch("{$this->sessBDCuenta}.trade.list_categoria_marca_competenciaTradDet_elemento", $input);
 			$this->aSessTrack[] = [ 'idAccion' => 11, 'tabla' => $this->model->tablas['listaDet']['tabla'] ];
 		}else{
             $insert = 'repetido';
@@ -348,7 +348,7 @@ class M_icompetitiva extends My_Model
 				FROM 
 				".$this->tablas['elemento']['tabla']." e
 				JOIN ".$this->tablas['listaDet']['tabla']." lstd ON lstd.".$this->tablas['elemento']['id']." = e.".$this->tablas['elemento']['id']."
-				JOIN trade.list_categoria_marca_competenciaTradDet_elemento lstde ON lstde.idListCategoriaMarcaCompDet = lstd.idListCategoriaMarcaCompDet
+				JOIN {$this->sessBDCuenta}.trade.list_categoria_marca_competenciaTradDet_elemento lstde ON lstde.idListCategoriaMarcaCompDet = lstd.idListCategoriaMarcaCompDet
 				JOIN trade.producto_marca m ON m.idMarca = lstde.idMarca
 				WHERE lstd.".$this->tablas['lista']['id']." = ".$post['id'].";
 			";
@@ -502,11 +502,11 @@ class M_icompetitiva extends My_Model
 			,ch.idCuenta
 		FROM 
 			".getClienteHistoricoCuenta()." ch
-			JOIN ImpactTrade_bd.trade.segmentacionNegocio sn
+			JOIN trade.segmentacionNegocio sn
 				ON sn.idSegNegocio = ch.idSegNegocio
-			JOIN ImpactTrade_bd.trade.canal ca
+			JOIN trade.canal ca
 				ON ca.idCanal=sn.idCanal 
-			JOIN ImpactTrade_bd.trade.grupoCanal gc 
+			JOIN trade.grupoCanal gc 
 			    ON gc.idGrupoCanal=ca.idGrupoCanal
 			{$filtros}
 		ORDER BY gc.idGrupoCanal
@@ -577,7 +577,7 @@ class M_icompetitiva extends My_Model
 			,c.idCategoria
 			,c.nombre categoria
 			FROM trade.producto_marca m
-			JOIN trade.list_categoria_marca cm ON cm.idMarca = m.idMarca AND cm.estado = 1 
+			JOIN {$this->sessBDCuenta}.trade.list_categoria_marca cm ON cm.idMarca = m.idMarca AND cm.estado = 1 
 			JOIN trade.producto_categoria c ON c.idCategoria = cm.idCategoria AND c.estado = 1
 
 			{$filtros}

@@ -1627,7 +1627,7 @@ class Visitas extends MY_Controller{
 			'totalRegistros' => $total
 		);
 
-		$this->db->insert('impactTrade_bd.trade.cargaProgramacionRutas',$carga);
+		$this->db->insert("{$this->sessBDCuenta}.trade.cargaProgramacionRutas",$carga);
  
 		$result=array();
 		$result['data']= '1';
@@ -1764,7 +1764,7 @@ class Visitas extends MY_Controller{
 			'totalRegistros' => $total
 		);
 
-		$this->db->insert('impactTrade_bd.trade.cargaExclusionesRutas',$carga);
+		$this->db->insert("{$this->sessBDCuenta}.trade.cargaExclusionesRutas",$carga);
  
 		$result=array();
 		$result['data']= '1';

@@ -11,9 +11,9 @@ class M_Reprogramacion extends MY_Model
 		parent::__construct();
 
 		$this->tablas = [
-			'reprogramacion' => ['tabla' => 'trade.data_visitaReprogramacion', 'id' => 'idVisitaReprogramacion'],
-			'ruta' => ['tabla' => 'trade.data_ruta', 'id' => 'idRuta'],
-			'visita' => ['tabla' => 'trade.data_visita', 'id' => 'idVisita'],
+			'reprogramacion' => ['tabla' => "{$this->sessBDCuenta}.trade.data_visitaReprogramacion", 'id' => 'idVisitaReprogramacion'],
+			'ruta' => ['tabla' => "{$this->sessBDCuenta}.trade.data_ruta", 'id' => 'idRuta'],
+			'visita' => ['tabla' => "{$this->sessBDCuenta}.trade.data_visita", 'id' => 'idVisita'],
 		];
 	}
 
@@ -76,24 +76,24 @@ class M_Reprogramacion extends MY_Model
 				dvr.comentario,
 				dvr.idEstadoReprogramacion,
 				u2.nombres + ' ' + u2.apePaterno + ' ' + u2.apeMaterno nombreCompletoUsuarioReprogramo
-			FROM trade.data_visitaReprogramacion dvr
+			FROM {$this->sessBDCuenta}.trade.data_visitaReprogramacion dvr
 				LEFT JOIN trade.motivo_reprogramacion mr ON mr.idMotivoReprogramacion = dvr.idMotivo
 				LEFT JOIN trade.estadoReprogramacion er ON er.idEstadoReprogramacion = dvr.idEstadoReprogramacion
-				INNER JOIN trade.data_visita dv ON dv.idVisita = dvr.idVisita
-				INNER JOIN trade.data_ruta dr ON dr.idRuta = dv.idRuta
+				INNER JOIN {$this->sessBDCuenta}.trade.data_visita dv ON dv.idVisita = dvr.idVisita
+				INNER JOIN {$this->sessBDCuenta}.trade.data_ruta dr ON dr.idRuta = dv.idRuta
 				INNER JOIN trade.usuario u ON u.idUsuario = dr.idUsuario
 				INNER JOIN trade.usuario_tipoDocumento utd ON utd.idTipoDocumento = u.idTipoDocumento
 				INNER JOIN trade.usuario_tipo ut ON ut.idTipoUsuario = dr.idTipoUsuario
 				INNER JOIN trade.cliente c ON c.idCliente = dv.idCliente
 				INNER JOIN General.dbo.ubigeo ubi ON ubi.cod_ubigeo = c.cod_ubigeo
 				LEFT JOIN trade.frecuencia f ON f.idFrecuencia = dv.idFrecuencia
-				LEFT JOIN trade.data_visita dv2 ON dv2.idVisita = dvr.idNuevaVisita
-				LEFT JOIN trade.data_ruta dr2 ON dr2.idRuta = dv2.idRuta
+				LEFT JOIN {$this->sessBDCuenta}.trade.data_visita dv2 ON dv2.idVisita = dvr.idNuevaVisita
+				LEFT JOIN {$this->sessBDCuenta}.trade.data_ruta dr2 ON dr2.idRuta = dv2.idRuta
 				LEFT JOIN trade.usuario u2 ON u2.idUsuario = dvr.idUsuarioReprogramo
 			$filtros
 		";
 
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visitaReprogramacion' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaReprogramacion" ];
 		return $this->db->query($sql);
 	}
 
@@ -111,8 +111,8 @@ class M_Reprogramacion extends MY_Model
 				dr.idCuenta,
 				dr.idProyecto,
 				dv.estado
-			FROM trade.data_visita dv
-				INNER JOIN trade.data_ruta dr ON dv.idRuta = dr.idRuta
+			FROM {$this->sessBDCuenta}.trade.data_visita dv
+				INNER JOIN {$this->sessBDCuenta}.trade.data_ruta dr ON dv.idRuta = dr.idRuta
 			WHERE dv.idCliente = {$idCliente}
 				AND dr.idCuenta = {$idCuenta}
 				AND dr.idProyecto = {$idProyecto}
@@ -120,7 +120,7 @@ class M_Reprogramacion extends MY_Model
 				AND dr.fecha BETWEEN @primerDia AND @ultimoDia;
 		";
 
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visita' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visita" ];
 		return $this->db->query($sql);
 	}
 
@@ -141,7 +141,7 @@ class M_Reprogramacion extends MY_Model
 				AS (SELECT dr.idRuta, 
 							dr.fecha, 
 							dr.idUsuario
-					FROM trade.data_ruta dr
+					FROM {$this->sessBDCuenta}.trade.data_ruta dr
 					WHERE dr.idUsuario = {$idUsuario}
 						AND dr.idCuenta = {$idCuenta}
 						AND dr.idProyecto = {$idProyecto}
@@ -159,7 +159,7 @@ class M_Reprogramacion extends MY_Model
 					LEFT JOIN rutas r ON r.fecha = dr.Date;
 		";
 
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_ruta' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_ruta" ];
 		return $this->db->query($sql);
 	}
 
@@ -211,12 +211,12 @@ class M_Reprogramacion extends MY_Model
 	{
 		$sql = "
 			SELECT dr.*
-			FROM trade.data_visita dv
-				INNER JOIN trade.data_ruta dr ON dr.idRuta = dv.idRuta
+			FROM {$this->sessBDCuenta}.trade.data_visita dv
+				INNER JOIN {$this->sessBDCuenta}.trade.data_ruta dr ON dr.idRuta = dv.idRuta
 			WHERE idVisita = {$idVisita}
 		";
 
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visita' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visita" ];
 		return $this->db->query($sql);
 	}
 
@@ -257,7 +257,7 @@ class M_Reprogramacion extends MY_Model
 	{
 		$sql = "
 			SELECT *
-			FROM trade.data_visita
+			FROM {$this->sessBDCuenta}.trade.data_visita
 			WHERE idVisita = {$idVisita}
 		";
 

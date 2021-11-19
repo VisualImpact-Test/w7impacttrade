@@ -56,7 +56,7 @@ class Carga_masiva extends CI_Controller
 												  'idCarga'		=>$row['idCarga']
 												, 'descripcion'	=>utf8_encode($data[$m])
 											);
-											$this->db->insert('trade.cargaModulacionElementosError',$error);
+											$this->db->insert("{$this->sessBDCuenta}.trade.cargaModulacionElementosError",$error);
 										}
 									}
 									$m++;
@@ -81,7 +81,7 @@ class Carga_masiva extends CI_Controller
 												$cont++;
 											}else if(!empty($data[$m])){
 												if(!is_numeric()){
-													$insert = "insert into trade.cargaModulacionClientesNoProcesados(idCarga,idCliente,tipoError,elemento,datoIngresado) VALUES (
+													$insert = "INSERT INTO {$this->sessBDCuenta}.trade.cargaModulacionClientesNoProcesados(idCarga,idCliente,tipoError,elemento,datoIngresado) VALUES (
 														'".$row['idCarga']."' ,
 														'".$data[1]."' ,
 														'Dato no valido.',
@@ -94,11 +94,11 @@ class Carga_masiva extends CI_Controller
 												}
 											}
 										}else{
-											$select = "SELECT * FROM trade.cargaModulacionClientesNoProcesados WHERE idCarga= '".$row['idCarga']."'
+											$select = "SELECT * FROM {$this->sessBDCuenta}.trade.cargaModulacionClientesNoProcesados WHERE idCarga= '".$row['idCarga']."'
 											AND idCliente= '".$data[1]."' ";
 											$validar = $this->db->query($select)->result_array();
 											if(count($validar)==0){
-											$insert = "insert into trade.cargaModulacionClientesNoProcesados(idCarga,idCliente,tipoError) VALUES (
+											$insert = "insert into {$this->sessBDCuenta}.trade.cargaModulacionClientesNoProcesados(idCarga,idCliente,tipoError) VALUES (
 												'".$row['idCarga']."' ,
 												'".$data[1]."' ,
 												'Cliente no registrado en base de datos.' )
@@ -112,7 +112,7 @@ class Carga_masiva extends CI_Controller
 									
 								}
 								if($cont==0){
-									$insert = "insert into trade.cargaModulacionClientesNoProcesados(idCarga,idCliente,tipoError) VALUES (
+									$insert = "insert into {$this->sessBDCuenta}.trade.cargaModulacionClientesNoProcesados(idCarga,idCliente,tipoError) VALUES (
 												'".$row['idCarga']."' ,
 												'".$data[1]."' ,
 												'Cliente sin elementos.' )
@@ -124,7 +124,7 @@ class Carga_masiva extends CI_Controller
 							}
 						}
 						if(count($arrayBody)>0){
-							$insert = $this->db->insert_batch('trade.cargaModulacionDet', $arrayBody); 
+							$insert = $this->db->insert_batch("{$this->sessBDCuenta}.trade.cargaModulacionDet", $arrayBody); 
 						}
 						fclose($handle_body);
 					}
@@ -160,14 +160,14 @@ class Carga_masiva extends CI_Controller
 			FROM 
 				( 
 
-			select DISTINCT idCliente from trade.cargaModulacionClientesNoProcesados WHERE elemento IS NULL AND idCarga= $idCarga 
+			select DISTINCT idCliente from {$this->sessBDCuenta}.trade.cargaModulacionClientesNoProcesados WHERE elemento IS NULL AND idCarga= $idCarga 
 			UNION
-			select DISTINCT idCliente from trade.cargaModulacionDet WHERE idCarga=$idCarga 
+			select DISTINCT idCliente from {$this->sessBDCuenta}.trade.cargaModulacionDet WHERE idCarga=$idCarga 
 
 			)a
 		";
 		$res = $this->db->query($total_clientes_)->row_array();
-		$update_clientes = "UPDATE trade.cargaModulacion SET totalClientes='".$res['total']."',finRegistro=getdate() WHERE idCarga= $idCarga ";
+		$update_clientes = "UPDATE {$this->sessBDCuenta}.trade.cargaModulacion SET totalClientes='".$res['total']."',finRegistro=getdate() WHERE idCarga= $idCarga ";
 		$this->db->query($update_clientes);
 		foreach($array_cabecera as $row => $value){
 			$array = array(
@@ -176,7 +176,7 @@ class Carga_masiva extends CI_Controller
 				'fecIni'=>$value['fecIni'],
 				'fecFin'=>$value['fecFin'],
 			);
-			$this->db->insert('trade.master_modulacion', $array);
+			$this->db->insert("{$this->sessBDCuenta}.trade.master_modulacion", $array);
 			$id = $this->db->insert_id();
 			foreach($array_detalle[$row] as $row_d => $value_d){
 				$array_d = array(
@@ -184,19 +184,19 @@ class Carga_masiva extends CI_Controller
 					'idElementoVis'=>$value_d['idElementoVis'],
 					'cantidad'=>$value_d['cantidad']
 				);
-				$this->db->insert('trade.master_modulacionDet', $array_d);
+				$this->db->insert("{$this->sessBDCuenta}.trade.master_modulacionDet", $array_d);
 				$total_clientes = "SELECT count(*) total FROM (
-								select DISTINCT idCliente from trade.cargaModulacionDet WHERE estado=0 AND idCarga= $idCarga 
+								select DISTINCT idCliente from {$this->sessBDCuenta}.trade.cargaModulacionDet WHERE estado=0 AND idCarga= $idCarga 
 								)a";
 				$res = $this->db->query($total_clientes)->row_array();
-				$update_det = "UPDATE trade.cargaModulacionDet SET estado=0 WHERE idCargaDet= ".$value_d['idCargaDet']." ";
+				$update_det = "UPDATE {$this->sessBDCuenta}.trade.cargaModulacionDet SET estado=0 WHERE idCargaDet= ".$value_d['idCargaDet']." ";
 				$this->db->query($update_det);
-				$update = "UPDATE trade.cargaModulacion SET total_procesados='".$res['total']."',finRegistro=getdate() WHERE idCarga= $idCarga ";
+				$update = "UPDATE {$this->sessBDCuenta}.trade.cargaModulacion SET total_procesados='".$res['total']."',finRegistro=getdate() WHERE idCarga= $idCarga ";
 				$this->db->query($update);
 				
 			}
 		}
-		$update = "UPDATE trade.cargaModulacion SET estado=0  WHERE idCarga= $idCarga ";
+		$update = "UPDATE {$this->sessBDCuenta}.trade.cargaModulacion SET estado=0  WHERE idCarga= $idCarga ";
 		
 		$this->db->query($update); 
 		
@@ -419,7 +419,7 @@ class Carga_masiva extends CI_Controller
 									}
 
 									if(count($arrayBody)>0){
-										$insert = $this->db->insert_batch('trade.cargaRutaDet', $arrayBody); 
+										$insert = $this->db->insert_batch("{$this->sessBDCuenta}.trade.cargaRutaDet", $arrayBody); 
 		
 										$params =array();
 										$params['idCarga']=$row['idCarga'];
@@ -546,7 +546,7 @@ class Carga_masiva extends CI_Controller
 							if(!empty($row['fecFin'])){
 								$insert_ruta['fecFin'] = $row['fecFin'];
 							}
-							$this->db->insert('trade.master_rutaProgramada',$insert_ruta);
+							$this->db->insert("{$this->sessBDCuenta}.trade.master_rutaProgramada",$insert_ruta);
 							$idRutaProg = $this->db->insert_id();
 
 							//insert master_rutaProgramadaDet
@@ -561,7 +561,7 @@ class Carga_masiva extends CI_Controller
 								if(!empty($row['fecFin'])){
 									$insert_gtm['fecFin'] = $row['fecFin'];
 								}
-								$this->db->insert('trade.master_rutaProgramadaDet',$insert_gtm);
+								$this->db->insert("{$this->sessBDCuenta}.trade.master_rutaProgramadaDet",$insert_gtm);
 								$idRutaProgDet = $this->db->insert_id();
 
 								
@@ -572,7 +572,7 @@ class Carga_masiva extends CI_Controller
 										'idRutaProg' => $idRutaProgDet
 										, 'idCliente' => $value_idCliente
 									);
-									$this->db->insert('trade.master_visitaProgramada', $insert_visita);
+									$this->db->insert("{$this->sessBDCuenta}.trade.master_visitaProgramada", $insert_visita);
 									$idVisitaProg = $this->db->insert_id();
 
 										$lunes = isset($row_dc['lunes'])? $row_dc['lunes'] : '';
@@ -589,7 +589,7 @@ class Carga_masiva extends CI_Controller
 												'idVisitaProg' => $idVisitaProg
 												, 'idDia' => 1
 											);
-											$this->db->insert('trade.master_visitaProgramadaDet',$insert_visitaDet);
+											$this->db->insert("{$this->sessBDCuenta}.trade.master_visitaProgramadaDet",$insert_visitaDet);
 										}
 
 										if(!empty($martes) && $martes==1){
@@ -597,7 +597,7 @@ class Carga_masiva extends CI_Controller
 												'idVisitaProg' => $idVisitaProg
 												, 'idDia' => 2
 											);
-											$this->db->insert('trade.master_visitaProgramadaDet',$insert_visitaDet);
+											$this->db->insert("{$this->sessBDCuenta}.trade.master_visitaProgramadaDet",$insert_visitaDet);
 										}
 							
 										if(!empty($miercoles) && $miercoles==1 ){
@@ -605,7 +605,7 @@ class Carga_masiva extends CI_Controller
 												'idVisitaProg' => $idVisitaProg
 												, 'idDia' => 3
 											);
-											$this->db->insert('trade.master_visitaProgramadaDet',$insert_visitaDet);
+											$this->db->insert("{$this->sessBDCuenta}.trade.master_visitaProgramadaDet",$insert_visitaDet);
 										}
 									
 										if(!empty($jueves) && $jueves==1 ){
@@ -613,7 +613,7 @@ class Carga_masiva extends CI_Controller
 												'idVisitaProg' => $idVisitaProg
 												, 'idDia' => 4
 											);
-											$this->db->insert('trade.master_visitaProgramadaDet',$insert_visitaDet);
+											$this->db->insert("{$this->sessBDCuenta}.trade.master_visitaProgramadaDet",$insert_visitaDet);
 										}
 									
 										if(!empty($viernes ) && $viernes==1){
@@ -621,7 +621,7 @@ class Carga_masiva extends CI_Controller
 												'idVisitaProg' => $idVisitaProg
 												, 'idDia' => 5
 											);
-											$this->db->insert('trade.master_visitaProgramadaDet',$insert_visitaDet);
+											$this->db->insert("{$this->sessBDCuenta}.trade.master_visitaProgramadaDet",$insert_visitaDet);
 										}
 
 										if(!empty($sabado) && $sabado==1){
@@ -629,7 +629,7 @@ class Carga_masiva extends CI_Controller
 												'idVisitaProg' => $idVisitaProg
 												, 'idDia' => 6
 											);
-											$this->db->insert('trade.master_visitaProgramadaDet',$insert_visitaDet);
+											$this->db->insert("{$this->sessBDCuenta}.trade.master_visitaProgramadaDet",$insert_visitaDet);
 										}
 
 										if(!empty($domingo) && $domingo==1 ){
@@ -637,7 +637,7 @@ class Carga_masiva extends CI_Controller
 												'idVisitaProg' => $idVisitaProg
 												, 'idDia' =>7
 											);
-											$this->db->insert('trade.master_visitaProgramadaDet',$insert_visitaDet);
+											$this->db->insert("{$this->sessBDCuenta}.trade.master_visitaProgramadaDet",$insert_visitaDet);
 										}
 
 										$cont_visitas++;
@@ -740,7 +740,7 @@ class Carga_masiva extends CI_Controller
 														  'idCarga'		=>$row['idCarga']
 														, 'tipoError'	=>$data[$m]
 													);
-													$this->db->insert('trade.cargaPermisoElementoNoProcesados',$error);
+													$this->db->insert("{$this->sessBDCuenta}.trade.cargaPermisoElementoNoProcesados",$error);
 												}
 											}
 											$m++;
@@ -765,7 +765,7 @@ class Carga_masiva extends CI_Controller
 														$cont++;
 													}else if(!empty($data[$m])){
 														if(!is_numeric()){
-															$insert = "insert into trade.cargaPermisoClienteNoProcesados(idCarga,idCliente,tipoError,elemento,datoIngresado) VALUES (
+															$insert = "insert into {$this->sessBDCuenta}.trade.cargaPermisoClienteNoProcesados(idCarga,idCliente,tipoError,elemento,datoIngresado) VALUES (
 																'".$row['idCarga']."' ,
 																'".$data[0]."' ,
 																'Dato no valido.',
@@ -778,11 +778,11 @@ class Carga_masiva extends CI_Controller
 														}
 													}
 												}else{
-													$select = "SELECT * FROM trade.cargaPermisoClienteNoProcesados WHERE idCarga= '".$row['idCarga']."'
+													$select = "SELECT * FROM {$this->sessBDCuenta}.trade.cargaPermisoClienteNoProcesados WHERE idCarga= '".$row['idCarga']."'
 													AND idCliente= '".$data[0]."' ";
 													$validar = $this->db->query($select)->result_array();
 													if(count($validar)==0){
-													$insert = "insert into trade.cargaPermisoClienteNoProcesados(idCarga,idCliente,tipoError) VALUES (
+													$insert = "insert into {$this->sessBDCuenta}.trade.cargaPermisoClienteNoProcesados(idCarga,idCliente,tipoError) VALUES (
 														'".$row['idCarga']."' ,
 														'".$data[0]."' ,
 														'Cliente no registrado en base de datos.' )
@@ -796,7 +796,7 @@ class Carga_masiva extends CI_Controller
 											
 										}
 										if($cont==0){
-											$insert = "insert into trade.cargaPermisoClienteNoProcesados(idCarga,idCliente,tipoError) VALUES (
+											$insert = "insert into {$this->sessBDCuenta}.trade.cargaPermisoClienteNoProcesados(idCarga,idCliente,tipoError) VALUES (
 														'".$row['idCarga']."' ,
 														'".$data[0]."' ,
 														'Cliente sin elementos.' )
@@ -808,7 +808,7 @@ class Carga_masiva extends CI_Controller
 									}
 
 									if(count($arrayBody)>0){
-										$insert = $this->db->insert_batch('trade.cargaPermisoDet', $arrayBody); 
+										$insert = $this->db->insert_batch("{$this->sessBDCuenta}.trade.cargaPermisoDet", $arrayBody); 
 	
 										$params =array();
 										$params['idCarga']=$row['idCarga'];
@@ -920,7 +920,7 @@ class Carga_masiva extends CI_Controller
 												$arrayBody[$j]['idElementoVis']=$elemento['idElemento'];
 												$j++;
 											}
-											$insert = $this->db->insert_batch('trade.list_visibilidadTradOblDet', $arrayBody); 
+											$insert = $this->db->insert_batch("{$this->sessBDCuenta}.trade.list_visibilidadTradOblDet", $arrayBody); 
 										
 										} 
 									} else {
@@ -938,7 +938,7 @@ class Carga_masiva extends CI_Controller
 												$j++;
 												
 											}
-											$insert = $this->db->insert_batch('trade.list_visibilidadTradOblDet', $arrayBody); 
+											$insert = $this->db->insert_batch("{$this->sessBDCuenta}.trade.list_visibilidadTradOblDet", $arrayBody); 
 										}
 									}
 								}
@@ -973,7 +973,7 @@ class Carga_masiva extends CI_Controller
 										$arrayBody[$j]['idElementoVis']=$elemento['idElemento'];
 										$j++;
 									}
-									$insert = $this->db->insert_batch('trade.list_visibilidadTradDet', $arrayBody); 
+									$insert = $this->db->insert_batch("{$this->sessBDCuenta}.trade.list_visibilidadTradDet", $arrayBody); 
 								
 								} 
 							} else {
@@ -991,7 +991,7 @@ class Carga_masiva extends CI_Controller
 										$j++;
 										
 									}
-									$insert = $this->db->insert_batch('trade.list_visibilidadTradDet', $arrayBody); 
+									$insert = $this->db->insert_batch("{$this->sessBDCuenta}.trade.list_visibilidadTradDet", $arrayBody); 
 								}
 							}
 						}
@@ -1443,7 +1443,7 @@ class Carga_masiva extends CI_Controller
 									$j++;
 
 									if(count($arrayBatch)>0){
-										$insert = $this->db->insert_batch('trade.cargaClienteDet', $arrayBatch); 
+										$insert = $this->db->insert_batch("{$this->sessBDCuenta}.trade.cargaClienteDet", $arrayBatch); 
 		
 										$params =array();
 										$params['idCarga']=$row['idCarga'];
@@ -1638,13 +1638,13 @@ class Carga_masiva extends CI_Controller
 					
 
 						if($row['idCuenta']=="2"){
-							$insert = $this->db->insert_batch('trade.cliente_historico_aje', $arrayBatch); 
+							$insert = $this->db->insert_batch("{$this->sessBDCuenta}.trade.cliente_historico", $arrayBatch); 
 						}else if($row['idCuenta']=="3"){
-							$insert = $this->db->insert_batch('trade.cliente_historico_pg', $arrayBatch); 
+							$insert = $this->db->insert_batch("{$this->sessBDCuenta}.trade.cliente_historico", $arrayBatch); 
 						}else if($row['idCuenta']=="13"){
-							$insert = $this->db->insert_batch('trade.cliente_historico_visualimpact', $arrayBatch); 
+							$insert = $this->db->insert_batch("{$this->sessBDCuenta}.trade.cliente_historico", $arrayBatch); 
 						}else{
-							$insert = $this->db->insert_batch('trade.cliente_historico', $arrayBatch); 
+							$insert = $this->db->insert_batch("{$this->sessBDCuenta}.trade.cliente_historico", $arrayBatch); 
 						}
 						
 	
@@ -1734,7 +1734,7 @@ class Carga_masiva extends CI_Controller
 														
 														if(!empty($data[1]) && is_numeric($data[1]) ){
 
-															$validar_iniciativa="SELECT * FROM trade.iniciativaTrad WHERE idIniciativa = ".$data[1];
+															$validar_iniciativa="SELECT * FROM {$this->sessBDCuenta}.trade.iniciativaTrad WHERE idIniciativa = ".$data[1];
 															$res_iniciativa = $this->db->query($validar_iniciativa)->row_array();
 
 															if($res_iniciativa!=null){
@@ -1752,7 +1752,7 @@ class Carga_masiva extends CI_Controller
 																		$j++;
 																		$cont++;
 																	}else{
-																		$insert = "insert into trade.cargaIniciativaNoProcesados(idCarga,idCliente,tipoError,datoIngresado) VALUES (
+																		$insert = "insert into {$this->sessBDCuenta}.trade.cargaIniciativaNoProcesados(idCarga,idCliente,tipoError,datoIngresado) VALUES (
 																			'".$row['idCarga']."' ,
 																			'".( ($data[0]!=null )? $data[0] : '' )."' ,
 																			'Elemento visiblidad no existente.',
@@ -1764,7 +1764,7 @@ class Carga_masiva extends CI_Controller
 																	}
 																}else{
 
-																	$insert = "insert into trade.cargaIniciativaNoProcesados(idCarga,idCliente,tipoError,datoIngresado) VALUES (
+																	$insert = "insert into {$this->sessBDCuenta}.trade.cargaIniciativaNoProcesados(idCarga,idCliente,tipoError,datoIngresado) VALUES (
 																		'".$row['idCarga']."' ,
 																		'".( ($data[0]!=null )? $data[0] : '' )."' ,
 																		'Elemento visiblidad no valido.',
@@ -1779,7 +1779,7 @@ class Carga_masiva extends CI_Controller
 
 															}
 															else{
-																$insert = "insert into trade.cargaIniciativaNoProcesados(idCarga,idCliente,tipoError,datoIngresado) VALUES (
+																$insert = "insert into {$this->sessBDCuenta}.trade.cargaIniciativaNoProcesados(idCarga,idCliente,tipoError,datoIngresado) VALUES (
 																	'".$row['idCarga']."' ,
 																	'".( ($data[0]!=null )? $data[0] : '' )."' ,
 																	'Iniciativa no existente.',
@@ -1793,7 +1793,7 @@ class Carga_masiva extends CI_Controller
 
 																
 														}else{
-															$insert = "insert into trade.cargaIniciativaNoProcesados(idCarga,idCliente,tipoError,datoIngresado) VALUES (
+															$insert = "insert into {$this->sessBDCuenta}.trade.cargaIniciativaNoProcesados(idCarga,idCliente,tipoError,datoIngresado) VALUES (
 																'".$row['idCarga']."' ,
 																'".( ($data[0]!=null )? $data[0] : '' )."' ,
 																'Iniciativa no valida.',
@@ -1804,11 +1804,11 @@ class Carga_masiva extends CI_Controller
 															$cont++;
 														}
 													}else{
-														$select = "SELECT * FROM trade.cargaIniciativaNoProcesados WHERE idCarga= '".$row['idCarga']."'
+														$select = "SELECT * FROM {$this->sessBDCuenta}.trade.cargaIniciativaNoProcesados WHERE idCarga= '".$row['idCarga']."'
 														AND idCliente= '".$data[0]."' ";
 														$validar = $this->db->query($select)->result_array();
 														if(count($validar)==0){
-														$insert = "insert into trade.cargaIniciativaNoProcesados(idCarga,tipoError,datoIngresado) VALUES (
+														$insert = "insert into {$this->sessBDCuenta}.trade.cargaIniciativaNoProcesados(idCarga,tipoError,datoIngresado) VALUES (
 															'".$row['idCarga']."' ,
 															'Cliente no registrado en base de datos.',
 															'".$data[0]."' )
@@ -1821,7 +1821,7 @@ class Carga_masiva extends CI_Controller
 
 												}
 												else{
-													$insert = "insert into trade.cargaIniciativaNoProcesados(idCarga,tipoError,datoIngresado) VALUES (
+													$insert = "insert into {$this->sessBDCuenta}.trade.cargaIniciativaNoProcesados(idCarga,tipoError,datoIngresado) VALUES (
 														'".$row['idCarga']."' ,
 														'Cliente no valido.',
 														'".$data[0]."' )
@@ -1833,7 +1833,7 @@ class Carga_masiva extends CI_Controller
 									
 
 									if(count($arrayBody)>0){
-										$insert = $this->db->insert_batch('trade.cargaIniciativaDet', $arrayBody); 
+										$insert = $this->db->insert_batch("{$this->sessBDCuenta}.trade.cargaIniciativaDet", $arrayBody); 
 	
 										$params =array();
 										$params['idCarga']=$row['idCarga'];
@@ -1938,7 +1938,7 @@ class Carga_masiva extends CI_Controller
 								$arrayBody=array();
 								$j=0;
 								
-									$validar_lista_iniciativaDet="SELECT * FROM trade.list_iniciativaTradDet WHERE idListIniciativaTrad = ".$idListVisibilidadIniInserted." AND idIniciativa=".$row_det_iniciativa['idIniciativa'];
+									$validar_lista_iniciativaDet="SELECT * FROM {$this->sessBDCuenta}.trade.list_iniciativaTradDet WHERE idListIniciativaTrad = ".$idListVisibilidadIniInserted." AND idIniciativa=".$row_det_iniciativa['idIniciativa'];
 									$res_lista_iniciativaDet = $this->db->query($validar_lista_iniciativaDet)->row_array();
 
 									$idListVisibilidadDet=null;
@@ -1952,7 +1952,7 @@ class Carga_masiva extends CI_Controller
 										$idListVisibilidadDet = $this->db->insert_id();
 									}
 
-									$validar_lista_iniciativaDetElemento="SELECT * FROM trade.list_iniciativaTradDetElemento WHERE idListIniciativaTradDet = ".$idListVisibilidadDet." AND idElementoVis=".$row_det_iniciativa['idElementoVis'];
+									$validar_lista_iniciativaDetElemento="SELECT * FROM {$this->sessBDCuenta}.trade.list_iniciativaTradDetElemento WHERE idListIniciativaTradDet = ".$idListVisibilidadDet." AND idElementoVis=".$row_det_iniciativa['idElementoVis'];
 									$res_lista_iniciativaDetElemento = $this->db->query($validar_lista_iniciativaDetElemento)->row_array();
 									
 									if($res_lista_iniciativaDetElemento==null){
@@ -1964,7 +1964,7 @@ class Carga_masiva extends CI_Controller
 									}
 
 									if(count($arrayBody)>0){
-										$insert = $this->db->insert_batch('trade.list_iniciativaTradDetElemento', $arrayBody); 
+										$insert = $this->db->insert_batch("{$this->sessBDCuenta}.trade.list_iniciativaTradDetElemento", $arrayBody); 
 									}
 									
 								$filas++;
@@ -2037,16 +2037,16 @@ class Carga_masiva extends CI_Controller
 	
 								$codigoElemento=array();
 
-								$tablaHistorico="trade.cliente_historico";
+								$tablaHistorico="{$this->sessBDCuenta}.trade.cliente_historico";
 								if( !empty($row['idCuenta']) ){
 									if($row['idCuenta']=="2"){
-										$tablaHistorico="trade.cliente_historico_aje";
+										$tablaHistorico="{$this->sessBDCuenta}.trade.cliente_historico";
 									}else if($row['idCuenta']=="3"){
-										$tablaHistorico="trade.cliente_historico_pg";
+										$tablaHistorico="{$this->sessBDCuenta}.trade.cliente_historico";
 									}else if($row['idCuenta']=="13"){
-										$tablaHistorico="trade.cliente_historico_visualimpact";
+										$tablaHistorico="{$this->sessBDCuenta}.trade.cliente_historico";
 									}else{
-										$tablaHistorico="trade.cliente_historico";
+										$tablaHistorico="{$this->sessBDCuenta}.trade.cliente_historico";
 									}
 								}
 								
@@ -2177,16 +2177,16 @@ class Carga_masiva extends CI_Controller
 					$params=array();
 					$params['idCarga']=$row['idCarga'];
 
-					$tablaHistorico="trade.cliente_historico";
+					$tablaHistorico="{$this->sessBDCuenta}.trade.cliente_historico";
 					if( !empty($row['idCuenta']) ){
 						if($row['idCuenta']=="2"){
-							$tablaHistorico="trade.cliente_historico_aje";
+							$tablaHistorico="{$this->sessBDCuenta}.trade.cliente_historico";
 						}else if($row['idCuenta']=="3"){
-							$tablaHistorico="trade.cliente_historico_pg";
+							$tablaHistorico="{$this->sessBDCuenta}.trade.cliente_historico";
 						}else if($row['idCuenta']=="13"){
-							$tablaHistorico="trade.cliente_historico_visualimpact";
+							$tablaHistorico="{$this->sessBDCuenta}.trade.cliente_historico";
 						}else{
-							$tablaHistorico="trade.cliente_historico";
+							$tablaHistorico="{$this->sessBDCuenta}.trade.cliente_historico";
 						}
 					}
 					
@@ -2223,13 +2223,13 @@ class Carga_masiva extends CI_Controller
 
 						if( count($arrayBatch)>100){
 							if($row['idCuenta']=="2"){
-								$insert = $this->db->insert_batch('trade.cliente_historico_aje', $arrayBatch); 
+								$insert = $this->db->insert_batch("{$this->sessBDCuenta}.trade.cliente_historico", $arrayBatch); 
 							}else if($row['idCuenta']=="3"){
-								$insert = $this->db->insert_batch('trade.cliente_historico_pg', $arrayBatch); 
+								$insert = $this->db->insert_batch("{$this->sessBDCuenta}.trade.cliente_historico", $arrayBatch); 
 							}else if($row['idCuenta']=="13"){
-								$insert = $this->db->insert_batch('trade.cliente_historico_visualimpact', $arrayBatch); 
+								$insert = $this->db->insert_batch("{$this->sessBDCuenta}.trade.cliente_historico", $arrayBatch); 
 							}else{
-								$insert = $this->db->insert_batch('trade.cliente_historico', $arrayBatch); 
+								$insert = $this->db->insert_batch("{$this->sessBDCuenta}.trade.cliente_historico", $arrayBatch); 
 							}
 							$where =array();
 							$where['idCarga']=$row['idCarga'];
@@ -2245,13 +2245,13 @@ class Carga_masiva extends CI_Controller
 
 					if( count($arrayBatch)>0){
 						if($row['idCuenta']=="2"){
-							$insert = $this->db->insert_batch('trade.cliente_historico_aje', $arrayBatch); 
+							$insert = $this->db->insert_batch("{$this->sessBDCuenta}.trade.cliente_historico", $arrayBatch); 
 						}else if($row['idCuenta']=="3"){
-							$insert = $this->db->insert_batch('trade.cliente_historico_pg', $arrayBatch); 
+							$insert = $this->db->insert_batch("{$this->sessBDCuenta}.trade.cliente_historico", $arrayBatch); 
 						}else if($row['idCuenta']=="13"){
-							$insert = $this->db->insert_batch('trade.cliente_historico_visualimpact', $arrayBatch); 
+							$insert = $this->db->insert_batch("{$this->sessBDCuenta}.trade.cliente_historico", $arrayBatch); 
 						}else{
-							$insert = $this->db->insert_batch('trade.cliente_historico', $arrayBatch); 
+							$insert = $this->db->insert_batch("{$this->sessBDCuenta}.trade.cliente_historico", $arrayBatch); 
 						}
 						$where =array();
 						$where['idCarga']=$row['idCarga'];

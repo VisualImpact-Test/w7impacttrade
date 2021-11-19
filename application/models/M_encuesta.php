@@ -27,9 +27,9 @@ class M_encuesta extends MY_Model
 			SELECT DISTINCT 
 				e.idEncuesta, 
 				e.nombre 'encuesta'
-			FROM trade.list_encuesta le
-				JOIN trade.list_encuestaDet led ON le.idListEncuesta = led.idListEncuesta
-				JOIN trade.encuesta e ON led.idEncuesta = e.idEncuesta
+			FROM {$this->sessBDCuenta}.trade.list_encuesta le
+				JOIN {$this->sessBDCuenta}.trade.list_encuestaDet led ON le.idListEncuesta = led.idListEncuesta
+				JOIN {$this->sessBDCuenta}.trade.encuesta e ON led.idEncuesta = e.idEncuesta
 			
 			WHERE 1=1
 				$filtros
@@ -104,17 +104,17 @@ class M_encuesta extends MY_Model
 				--, e.idEncuesta
 				--, e.nombre encuesta
 				{$segmentacion['columnas_bd']}
-			FROM trade.data_ruta r
-			JOIN trade.data_visita v ON r.idRuta=v.idRuta
-			JOIN trade.data_visitaEncuesta ve ON v.idVisita=ve.idVisita
+			FROM {$this->sessBDCuenta}.trade.data_ruta r
+			JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta=v.idRuta
+			JOIN {$this->sessBDCuenta}.trade.data_visitaEncuesta ve ON v.idVisita=ve.idVisita
 			
-			JOIN trade.encuesta e ON e.idEncuesta=ve.idEncuesta
+			JOIN {$this->sessBDCuenta}.trade.encuesta e ON e.idEncuesta=ve.idEncuesta
 
 			JOIN trade.cliente c ON v.idCliente=c.idCliente
 			LEFT JOIN General.dbo.ubigeo ubi01 ON c.cod_ubigeo=ubi01.cod_ubigeo
 			JOIN trade.canal ca ON ca.idCanal = v.idCanal
 			LEFT JOIN trade.grupoCanal gc ON ca.idGrupoCanal = gc.idGrupoCanal
-			LEFT JOIN trade.data_visitaIncidencia vi ON  vi.idVisita = v.idVisita
+			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaIncidencia vi ON  vi.idVisita = v.idVisita
 			LEFT JOIN master.incidencias ti ON ti.idIncidencia = vi.idIncidencia
 
 			JOIN trade.usuario_historico uh ON uh.idUsuario=r.idUsuario
@@ -155,11 +155,11 @@ class M_encuesta extends MY_Model
 					e.idEncuesta,e.nombre 'encuesta',e.foto,
 					ep.idPregunta,ep.nombre 'pregunta',ep.idTipoPregunta,ep.orden,
 					ea.idAlternativa,ea.nombre 'alternativa'
-				FROM trade.list_encuesta le
-				JOIN trade.list_encuestaDet led ON le.idListEncuesta=led.idListEncuesta
-				LEFT JOIN trade.encuesta e ON led.idEncuesta=e.idEncuesta
-				JOIN trade.encuesta_pregunta ep ON e.idEncuesta=ep.idEncuesta
-				LEFT JOIN trade.encuesta_alternativa ea ON ep.idPregunta=ea.idPregunta
+				FROM {$this->sessBDCuenta}.trade.list_encuesta le
+				JOIN {$this->sessBDCuenta}.trade.list_encuestaDet led ON le.idListEncuesta=led.idListEncuesta
+				LEFT JOIN {$this->sessBDCuenta}.trade.encuesta e ON led.idEncuesta=e.idEncuesta
+				JOIN {$this->sessBDCuenta}.trade.encuesta_pregunta ep ON e.idEncuesta=ep.idEncuesta
+				LEFT JOIN {$this->sessBDCuenta}.trade.encuesta_alternativa ea ON ep.idPregunta=ea.idPregunta
 				LEFT JOIN trade.canal ca ON ca.idCanal = le.idCanal
 				WHERE 
 					le.fecIni<=isnull(le.fecFin,@fecFin)
@@ -207,16 +207,16 @@ class M_encuesta extends MY_Model
 				, c.codCliente
 				, c.razonSocial
 				, CONVERT(varchar,r.fecha,103) fecha
-			FROM trade.data_ruta r
-			JOIN trade.data_visita v ON r.idRuta=v.idRuta
+			FROM {$this->sessBDCuenta}.trade.data_ruta r
+			JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta=v.idRuta
 			JOIN trade.cliente c ON v.idCliente=c.idCliente
 			LEFT JOIN General.dbo.ubigeo ubi01 ON c.cod_ubigeo=ubi01.cod_ubigeo
-			JOIN trade.data_visitaEncuesta ve ON v.idVisita=ve.idVisita
-			JOIN trade.data_visitaEncuestaDet ved ON ve.idVisitaEncuesta=ved.idVisitaEncuesta
-			JOIN trade.encuesta e ON e.idEncuesta = ve.idEncuesta
-			JOIN trade.encuesta_pregunta ep ON ved.idPregunta=ep.idPregunta
-			left JOIN trade.encuesta_alternativa ea ON ved.idAlternativa=ea.idAlternativa
-			LEFT JOIN trade.data_visitaFotos vf ON vf.idVisitaFoto = ve.idVisitaFoto
+			JOIN {$this->sessBDCuenta}.trade.data_visitaEncuesta ve ON v.idVisita=ve.idVisita
+			JOIN {$this->sessBDCuenta}.trade.data_visitaEncuestaDet ved ON ve.idVisitaEncuesta=ved.idVisitaEncuesta
+			JOIN {$this->sessBDCuenta}.trade.encuesta e ON e.idEncuesta = ve.idEncuesta
+			JOIN {$this->sessBDCuenta}.trade.encuesta_pregunta ep ON ved.idPregunta=ep.idPregunta
+			left JOIN {$this->sessBDCuenta}.trade.encuesta_alternativa ea ON ved.idAlternativa=ea.idAlternativa
+			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisitaFoto = ve.idVisitaFoto
 			LEFT JOIN trade.canal ca ON ca.idCanal = v.idCanal
 			
 			JOIN ".getClienteHistoricoCuenta()." ch ON ch.idCliente = c.idCliente
@@ -278,19 +278,19 @@ class M_encuesta extends MY_Model
 
 				,vfAlt.idVisitaFoto idVisitaFotoAlt,vfAlt.fotoUrl imgRefAlt
 
-			FROM trade.data_ruta r
-			JOIN trade.data_visita v ON r.idRuta=v.idRuta
+			FROM {$this->sessBDCuenta}.trade.data_ruta r
+			JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta=v.idRuta
 			JOIN trade.cliente c ON v.idCliente=c.idCliente
 			LEFT JOIN General.dbo.ubigeo ubi01 ON c.cod_ubigeo=ubi01.cod_ubigeo
-			JOIN trade.data_visitaEncuesta ve ON v.idVisita=ve.idVisita
-			JOIN trade.data_visitaEncuestaDet ved ON ve.idVisitaEncuesta=ved.idVisitaEncuesta
-			JOIN trade.encuesta e ON e.idEncuesta = ve.idEncuesta
-			JOIN trade.encuesta_pregunta ep ON ved.idPregunta=ep.idPregunta
-			left JOIN trade.encuesta_alternativa ea ON ved.idAlternativa=ea.idAlternativa
-			LEFT JOIN trade.data_visitaFotos vf ON vf.idVisitaFoto = ve.idVisitaFoto
+			JOIN {$this->sessBDCuenta}.trade.data_visitaEncuesta ve ON v.idVisita=ve.idVisita
+			JOIN {$this->sessBDCuenta}.trade.data_visitaEncuestaDet ved ON ve.idVisitaEncuesta=ved.idVisitaEncuesta
+			JOIN {$this->sessBDCuenta}.trade.encuesta e ON e.idEncuesta = ve.idEncuesta
+			JOIN {$this->sessBDCuenta}.trade.encuesta_pregunta ep ON ved.idPregunta=ep.idPregunta
+			left JOIN {$this->sessBDCuenta}.trade.encuesta_alternativa ea ON ved.idAlternativa=ea.idAlternativa
+			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisitaFoto = ve.idVisitaFoto
 			LEFT JOIN trade.canal ca ON ca.idCanal = v.idCanal
 
-			LEFT JOIN trade.data_visitaFotos vfAlt ON vfAlt.idVisitaFoto = ved.idVisitaFoto
+			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vfAlt ON vfAlt.idVisitaFoto = ved.idVisitaFoto
 			
 			JOIN ".getClienteHistoricoCuenta()." ch ON ch.idCliente = c.idCliente
 			AND r.fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin,r.fecha) AND ch.flagCartera=1 
@@ -378,17 +378,17 @@ class M_encuesta extends MY_Model
 				, e.idEncuesta
 				, e.nombre encuesta
 				{$segmentacion['columnas_bd']}
-			FROM trade.data_ruta r
-			JOIN trade.data_visita v ON r.idRuta=v.idRuta
-			JOIN trade.data_visitaEncuesta ve ON v.idVisita=ve.idVisita
+			FROM {$this->sessBDCuenta}.trade.data_ruta r
+			JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta=v.idRuta
+			JOIN {$this->sessBDCuenta}.trade.data_visitaEncuesta ve ON v.idVisita=ve.idVisita
 			
-			JOIN trade.encuesta e ON e.idEncuesta=ve.idEncuesta
+			JOIN {$this->sessBDCuenta}.trade.encuesta e ON e.idEncuesta=ve.idEncuesta
 
 			JOIN trade.cliente c ON v.idCliente=c.idCliente
 			LEFT JOIN General.dbo.ubigeo ubi01 ON c.cod_ubigeo=ubi01.cod_ubigeo
 			JOIN trade.canal ca ON ca.idCanal = v.idCanal
 			LEFT JOIN trade.grupoCanal gc ON ca.idGrupoCanal = gc.idGrupoCanal
-			LEFT JOIN trade.data_visitaIncidencia vi ON  vi.idVisita = v.idVisita
+			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaIncidencia vi ON  vi.idVisita = v.idVisita
 			LEFT JOIN master.incidencias ti ON ti.idIncidencia = vi.idIncidencia
 
 			JOIN trade.usuario_historico uh ON uh.idUsuario=r.idUsuario

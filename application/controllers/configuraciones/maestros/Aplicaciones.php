@@ -91,7 +91,7 @@ class Aplicaciones extends MY_Controller
                 $idTabla = 'idMenu';
                 break;
             case 'MenuCuenta':
-                $tabla = 'trade.list_aplicacion_menu';
+                $tabla = "{$this->sessBDCuenta}.trade.list_aplicacion_menu";
                 $idTabla = 'idListAplicacionMenu';
                 break;
         }

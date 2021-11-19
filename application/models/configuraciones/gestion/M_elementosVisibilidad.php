@@ -119,7 +119,7 @@ class M_elementosVisibilidad extends My_Model{
 			, vo.idCliente, c.nombreComercial AS cliente
 			, CONVERT(VARCHAR,vo.fechaCreacion,103) AS fechaCreacion
 			, vo.estado
-		FROM trade.list_visibilidadTradObl vo
+		FROM {$this->sessBDCuenta}.trade.list_visibilidadTradObl vo
 		LEFT JOIN trade.proyecto p ON p.idProyecto=vo.idProyecto
 		LEFT JOIN trade.grupoCanal gc ON gc.idGrupoCanal=vo.idGrupoCanal
 		LEFT JOIN trade.canal cn ON cn.idCanal=vo.idCanal
@@ -160,7 +160,7 @@ class M_elementosVisibilidad extends My_Model{
 			, vi.idCliente, c.nombreComercial AS cliente
 			, CONVERT(VARCHAR,vi.fechaCreacion,103) AS fechaCreacion
 			, vi.estado
-		FROM trade.list_visibilidadTradIni vi
+		FROM {$this->sessBDCuenta}.trade.list_visibilidadTradIni vi
 		LEFT JOIN trade.proyecto p ON p.idProyecto=vi.idProyecto
 		LEFT JOIN trade.grupoCanal gc ON gc.idGrupoCanal=vi.idGrupoCanal
 		LEFT JOIN trade.canal cn ON cn.idCanal=vi.idCanal
@@ -201,7 +201,7 @@ class M_elementosVisibilidad extends My_Model{
 			, va.idCliente, c.nombreComercial AS cliente
 			, CONVERT(VARCHAR,va.fechaCreacion,103) AS fechaCreacion
 			, va.estado
-		FROM trade.list_visibilidadTradAdc va
+		FROM {$this->sessBDCuenta}.trade.list_visibilidadTradAdc va
 		LEFT JOIN trade.proyecto p ON p.idProyecto=va.idProyecto
 		LEFT JOIN trade.grupoCanal gc ON gc.idGrupoCanal=va.idGrupoCanal
 		LEFT JOIN trade.canal cn ON cn.idCanal=va.idCanal

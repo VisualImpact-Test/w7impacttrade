@@ -35,12 +35,12 @@ class M_VerArchivos extends MY_Model{
 			u.nombres + ' ' + u.apePaterno nombreUsuarioCreador,
 			u2.idUsuario idUsuarioEditor,
 			u2.nombres + ' ' + u2.apePaterno nombreUsuarioEditor
-			FROM trade.gestorArchivos_archivo a
-			JOIN trade.gestorArchivos_carpeta c ON a.idCarpeta = c.idCarpeta
-			JOIN trade.gestorArchivos_permisoCarpeta pc ON pc.idCarpeta = c.idCarpeta
-			JOIN trade.gestorArchivos_grupo g ON c.idGrupo = g.idGrupo
+			FROM {$this->sessBDCuenta}.trade.gestorArchivos_archivo a
+			JOIN {$this->sessBDCuenta}.trade.gestorArchivos_carpeta c ON a.idCarpeta = c.idCarpeta
+			JOIN {$this->sessBDCuenta}.trade.gestorArchivos_permisoCarpeta pc ON pc.idCarpeta = c.idCarpeta
+			JOIN {$this->sessBDCuenta}.trade.gestorArchivos_grupo g ON c.idGrupo = g.idGrupo
 			JOIN trade.usuario u on a.idUsuarioCreador = u.idUsuario
-			JOIN trade.gestorArchivos_tipoArchivo ta ON a.idTipoArchivo = ta.idTipoArchivo
+			JOIN {$this->sessBDCuenta}.trade.gestorArchivos_tipoArchivo ta ON a.idTipoArchivo = ta.idTipoArchivo
 			LEFT JOIN trade.usuario u2 on a.idUsuarioEditor = u2.idUsuario
 		WHERE
 			pc.estado = 1

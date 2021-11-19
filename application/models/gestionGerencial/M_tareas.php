@@ -75,9 +75,9 @@ class M_tareas extends MY_Model{
 			, subca.nombre subCanal
 			, gca.nombre grupoCanal
 			{$segmentacion['columnas_bd']}
-		FROM trade.data_ruta r
-		JOIN trade.data_visita v ON v.idRuta=r.idRuta
-		JOIN trade.data_visitaTarea dvv ON dvv.idVisita=v.idVisita
+		FROM {$this->sessBDCuenta}.trade.data_ruta r
+		JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
+		JOIN {$this->sessBDCuenta}.trade.data_visitaTarea dvv ON dvv.idVisita=v.idVisita
 		JOIN trade.cuenta cu ON cu.idCuenta=r.idCuenta
 		JOIN trade.canal ca ON ca.idCanal=v.idCanal
 		JOIN trade.grupoCanal gca ON ca.idGrupoCanal=gca.idGrupoCanal
@@ -140,15 +140,15 @@ class M_tareas extends MY_Model{
 				, vf.idVisitaFoto
 				, dvd.comentario
 				, dvd.estado
-			FROM trade.data_ruta r
-			JOIN trade.data_visita v ON v.idRuta=r.idRuta
+			FROM {$this->sessBDCuenta}.trade.data_ruta r
+			JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
 			JOIN trade.cuenta cu ON cu.idCuenta=r.idCuenta
 			JOIN trade.canal ca ON ca.idCanal=v.idCanal
-			JOIN trade.data_visitaTarea dvv ON dvv.idVisita=v.idVisita
-			JOIN trade.data_visitaTareaDet dvd ON dvd.idVisitaTarea=dvv.idVisitaTarea
-			JOIN trade.tarea ele ON ele.idTarea=dvd.idTarea
-			LEFT JOIN trade.data_visitaTareaDetFoto vft ON vft.idVisitaTareaDet = dvd.idVisitaTareaDet
-			LEFT JOIN trade.data_visitaFotos vf ON vf.idVisitaFoto=vft.idVisitaFoto
+			JOIN {$this->sessBDCuenta}.trade.data_visitaTarea dvv ON dvv.idVisita=v.idVisita
+			JOIN {$this->sessBDCuenta}.trade.data_visitaTareaDet dvd ON dvd.idVisitaTarea=dvv.idVisitaTarea
+			JOIN {$this->sessBDCuenta}.trade.tarea ele ON ele.idTarea=dvd.idTarea
+			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaTareaDetFoto vft ON vft.idVisitaTareaDet = dvd.idVisitaTareaDet
+			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisitaFoto=vft.idVisitaFoto
 			WHERE r.estado=1 AND v.estado=1 
 			AND r.fecha BETWEEN @fecIni AND @fecFin
 			$filtros
@@ -182,11 +182,11 @@ class M_tareas extends MY_Model{
 			SELECT DISTINCT 
 				v.idVisita 
 				, lstd.idTarea
-			FROM trade.data_ruta r
-			JOIN trade.data_visita v ON v.idRuta=r.idRuta
-			JOIN trade.data_visitaTarea vi ON vi.idVisita=v.idVisita
-			JOIN trade.list_tarea lst ON lst.idListTarea=v.idListTarea
-			JOIN trade.list_tareaDet lstd ON lstd.idListTarea=lst.idListTarea
+			FROM {$this->sessBDCuenta}.trade.data_ruta r
+			JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
+			JOIN {$this->sessBDCuenta}.trade.data_visitaTarea vi ON vi.idVisita=v.idVisita
+			JOIN {$this->sessBDCuenta}.trade.list_tarea lst ON lst.idListTarea=v.idListTarea
+			JOIN {$this->sessBDCuenta}.trade.list_tareaDet lstd ON lstd.idListTarea=lst.idListTarea
 			JOIN trade.cuenta cu ON cu.idCuenta=r.idCuenta
 			JOIN trade.canal ca ON ca.idCanal=v.idCanal
 	
@@ -211,7 +211,7 @@ class M_tareas extends MY_Model{
 				, CONVERT(VARCHAR(8),vf.hora)hora
 				, vf.fotoUrl foto
 			FROM 
-				trade.data_visitaFotos vf
+				{$this->sessBDCuenta}.trade.data_visitaFotos vf
 				JOIN trade.aplicacion_modulo m ON vf.idModulo = m.idModulo
 			WHERE 
 				vf.idVisitaFoto IN({$fotos})";

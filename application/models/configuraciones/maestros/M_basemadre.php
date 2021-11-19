@@ -928,9 +928,9 @@ class M_basemadre extends My_Model{
 	public function obtener_verificacion_existente_pg_v1($input=array()){
 		$query = $this->db->select('idClientePg')
 			->where( $input )
-			->get('trade.cliente_pg_v1');
+			->get("{$this->sessBDCuenta}.trade.cliente_pg_v1");
 
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.cliente_pg_v1' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.cliente_pg_v1" ];
 		return $query->result_array();
 	}
 
@@ -939,16 +939,16 @@ class M_basemadre extends My_Model{
 			->where( $input )
 			->where( 'fecIni <=', DATE('d/m/Y') )
 			->where( "ISNULL(fecFin,'".DATE('d/m/Y')."') >= ", DATE('d/m/Y') )
-			->get( 'trade.cliente_pg_historico_v1' );
+			->get( "{$this->sessBDCuenta}.trade.cliente_pg_historico_v1" );
 
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.cliente_pg_historico_v1' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.cliente_pg_historico_v1" ];
 		return $query->result_array();
 	}
 
 	public function insertar_cliente_pg_v1($input=array()){
 		$aSessTrack = [];
 
-		$table = 'trade.cliente_pg_v1';
+		$table = "{$this->sessBDCuenta}.trade.cliente_pg_v1";
 		$this->db->trans_begin();
 
 			$insert = $this->db->insert($table, $input);
@@ -965,10 +965,10 @@ class M_basemadre extends My_Model{
 		return $insert;
 	}
 
-	public function insertar_cliente_historico_pg_v1($input=array()){
+	public function insertar_cliente_historico_v1($input=array()){
 		$aSessTrack = [];
 
-		$table = 'trade.cliente_pg_historico_v1';
+		$table = "{$this->sessBDCuenta}.trade.cliente_pg_historico_v1";
 		$this->db->trans_begin();
 
 			$insert = $this->db->insert($table, $input);
@@ -1048,8 +1048,8 @@ class M_basemadre extends My_Model{
 			, ch.flagTransferido
 			, ch.observacionRechazo
 			, ctp.nombre AS clienteTipo
-		FROM trade.cliente_pg_historico_v1 ch
-		JOIN trade.cliente_pg_v1 c ON c.idClientePg=ch.idClientePg
+		FROM {$this->sessBDCuenta}.trade.cliente_pg_historico_v1 ch
+		JOIN {$this->sessBDCuenta}.trade.cliente_pg_v1 c ON c.idClientePg=ch.idClientePg
 		LEFT JOIN General.dbo.ubigeo ubi ON ubi.cod_ubigeo=ch.cod_ubigeo
 		LEFT JOIN trade.zonaPeligrosa zp ON zp.idZonaPeligrosa=ch.idZonaPeligrosa
 		LEFT JOIN trade.cuenta cu ON ch.idCuenta=cu.idCuenta
@@ -1087,14 +1087,14 @@ class M_basemadre extends My_Model{
 		{$filtros}
 		ORDER BY ch.idClienteHistPg DESC ";
 
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.cliente_pg_v1' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.cliente_pg_v1" ];
 		return $this->db->query($sql)->result_array();
 	}
 
 	public function update_estado_basemadre_pg_v1($input=array()){
 		$aSessTrack = [];
 
-		$table = 'trade.cliente_pg_historico_v1';
+		$table = "{$this->sessBDCuenta}.trade.cliente_pg_historico_v1";
 		$where = array('idClientePg'=>$input['idClientePg'], 'idClienteHistPg'=>$input['idClienteHistPg']);
 		$params['fecFin'] = $input['fecFin'];
 
@@ -1115,7 +1115,7 @@ class M_basemadre extends My_Model{
 		return $update;
 	}
 
-	public function obtener_cliente_historico_pg_v1($input=array()){
+	public function obtener_cliente_historico_v1($input=array()){
 		$sql = "
 		DECLARE @idClienteHistPg INT=".$input['idClienteHistPg'].";
 		SELECT
@@ -1155,8 +1155,8 @@ class M_basemadre extends My_Model{
 			, ch.idZonaPeligrosa
 			, cu.nombre AS cuenta
 			, p.nombre AS proyecto
-		FROM trade.cliente_pg_historico_v1 ch
-		JOIN trade.cliente_pg_v1 c ON c.idClientePg=ch.idClientePg
+		FROM {$this->sessBDCuenta}.trade.cliente_pg_historico_v1 ch
+		JOIN {$this->sessBDCuenta}.trade.cliente_pg_v1 c ON c.idClientePg=ch.idClientePg
 		LEFT JOIN trade.cuenta cu ON cu.idCuenta=ch.idCuenta 
 		LEFT JOIN trade.proyecto p ON p.idProyecto=ch.idProyecto 
 		LEFT JOIN General.dbo.ubigeo ubi ON ubi.cod_ubigeo=ch.cod_ubigeo
@@ -1176,10 +1176,10 @@ class M_basemadre extends My_Model{
 		return $this->db->query($sql)->result_array();
 	}
 
-	public function update_cliente_historico_pg_v1($input=array()){
+	public function update_cliente_historico_v1($input=array()){
 		$aSessTrack = [];
 
-		$table = 'trade.cliente_pg_historico_v1';
+		$table = "{$this->sessBDCuenta}.trade.cliente_pg_historico_v1";
 		$params = $input['arrayParams'];
 		$where = $input['arrayWhere'];
 
@@ -1209,7 +1209,7 @@ class M_basemadre extends My_Model{
 			, c.razonSocial
 			, c.ruc
 			, c.dni
-		FROM trade.cliente_pg_v1 c
+		FROM {$this->sessBDCuenta}.trade.cliente_pg_v1 c
 		WHERE c.estado=1
 			AND c.idClientePg=@idCliente";
 
@@ -1217,7 +1217,7 @@ class M_basemadre extends My_Model{
 		return $this->db->query($sql)->result_array();
 	}
 
-	public function obtener_tranferir_cliente_historico_pg_v1($input=array()){
+	public function obtener_tranferir_cliente_historico_v1($input=array()){
 		$sql = "
 		DECLARE @idClienteHist INT=".$input['idClienteHistPg'].";
 		---
@@ -1241,7 +1241,7 @@ class M_basemadre extends My_Model{
 			, ch.referencia
 			, ch.latitud
 			, ch.longitud
-		FROM trade.cliente_pg_historico_v1 ch
+		FROM {$this->sessBDCuenta}.trade.cliente_pg_historico_v1 ch
 		WHERE ch.estado=1
 			AND ch.idClienteHistPg=@idClienteHist";
 
@@ -1252,7 +1252,7 @@ class M_basemadre extends My_Model{
 	public function update_cliente_historico_transferir($input=array()){
 		$aSessTrack = [];
 
-		$table = 'trade.cliente_pg_historico_v1';
+		$table = "{$this->sessBDCuenta}.trade.cliente_pg_historico_v1";
 		$where = array('idClientePg'=>$input['idClientePg'], 'idClienteHistPg'=>$input['idClienteHistPg']);
 		$params['flagTransferido'] = 1;
 		$params['idSolicitudTipo'] = 2;
@@ -1335,7 +1335,7 @@ class M_basemadre extends My_Model{
 	public function update_rechazo_basemadre_pg_v1($input=array()){
 		$aSessTrack = [];
 
-		$table = 'trade.cliente_pg_historico_v1';
+		$table = "{$this->sessBDCuenta}.trade.cliente_pg_historico_v1";
 		$where = array('idClientePg'=>$input['idClientePg'], 'idClienteHistPg'=>$input['idClienteHistPg']);
 		$params['observacionRechazo'] = $input['observacionRechazo'];
 		$params['idSolicitudTipo'] = $input['idSolicitudTipo'];
@@ -1360,16 +1360,16 @@ class M_basemadre extends My_Model{
 	public function obtener_motivo_rechazo($input=array()){
 		$query = $this->db->select('observacionRechazo')
 				->where( $input )
-				->get('trade.cliente_pg_historico_v1');
+				->get("{$this->sessBDCuenta}.trade.cliente_pg_historico_v1");
 
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.cliente_pg_historico_v1' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.cliente_pg_historico_v1" ];
 		return $query->result_array();
 	}
 
 	public function update_cliente_historico_rechazar($where=array(), $params=array()){
 		$aSessTrack = [];
 
-		$table = 'trade.cliente_pg_historico_v1';
+		$table = "{$this->sessBDCuenta}.trade.cliente_pg_historico_v1";
 
 		$this->db->trans_begin();
 
@@ -1494,10 +1494,10 @@ class M_basemadre extends My_Model{
 				, convert(varchar,fechaRegistro,108) horaRegistro 
 				, convert(varchar,finRegistro,108) horaFin
 				,(
-					SELECT count(*) FROM trade.cargaClienteClientesNoProcesados WHERE idCarga=cm.idCarga
+					SELECT count(*) FROM {$this->sessBDCuenta}.trade.cargaClienteClientesNoProcesados WHERE idCarga=cm.idCarga
 				) error
 			FROM 
-				trade.cargaCliente cm
+				{$this->sessBDCuenta}.trade.cargaCliente cm
 			 WHERE 1=1 ".$filtros."
 			 ORDER BY cm.idCarga DESC
 			 ";
@@ -1506,7 +1506,7 @@ class M_basemadre extends My_Model{
 
 	////ERRORES
 	public function obtener_clientes_no_procesado($id){
-		$sql="SELECT * FROM trade.cargaClienteClientesNoProcesados where idCarga= $id";
+		$sql="SELECT * FROM {$this->sessBDCuenta}.trade.cargaClienteClientesNoProcesados where idCarga= $id";
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -1578,11 +1578,11 @@ class M_basemadre extends My_Model{
 		$clientes= implode(",",$input);
 		$sql = "
 			DECLARE @fecha date=GETDATE();
-			UPDATE trade.data_visita
+			UPDATE {$this->sessBDCuenta}.trade.data_visita
 			SET estado=estado
 			WHERE idVisita IN (
-			SELECT idVisita FROM trade.data_visita v 
-			JOIN trade.data_ruta r ON r.fecha>=@fecha AND v.idRuta=r.idRuta
+			SELECT idVisita FROM {$this->sessBDCuenta}.trade.data_visita v 
+			JOIN {$this->sessBDCuenta}.trade.data_ruta r ON r.fecha>=@fecha AND v.idRuta=r.idRuta
 			AND v.idCliente IN (".$clientes.")
 			)
 			;

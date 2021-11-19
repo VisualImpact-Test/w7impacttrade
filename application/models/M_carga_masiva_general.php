@@ -76,7 +76,7 @@ class M_carga_masiva_general extends CI_Model{
 				,ISNULL(totalProcesados,0) totalProcesados
 				,estado 
 			FROM 
-				trade.cargaMasivaBaseMadre
+				{$this->sessBDCuenta}.trade.cargaMasivaBaseMadre
 			WHERE 
 				idUsuario={$idUsuario}
 		";
@@ -87,7 +87,7 @@ class M_carga_masiva_general extends CI_Model{
 	public function obtener_carpetas_base_madre(){
 		$filtro ='';
 		$filtro.= ( isset($cuenta) && !empty($cuenta) )? " AND idCuenta=".$cuenta:'';
-		$sql ="SELECT idCarga,idUsuario,estado,carpeta,idGrupoCanal canal,totalRegistros FROM trade.cargaMasivaBaseMadre WHERE estado=1";
+		$sql ="SELECT idCarga,idUsuario,estado,carpeta,idGrupoCanal canal,totalRegistros FROM {$this->sessBDCuenta}.trade.cargaMasivaBaseMadre WHERE estado=1";
 
 		return $this->db->query($sql)->result_array();
 	}
@@ -147,22 +147,22 @@ class M_carga_masiva_general extends CI_Model{
 	}
 	
 	public function actualizar_procesados($idCarga){
-		$update_="UPDATE trade.cargaMasivaBaseMadre SET totalProcesados=ISNULL(totalProcesados,0)+1,fechaFinCarga=getdate() WHERE idCarga=$idCarga ";
+		$update_="UPDATE {$this->sessBDCuenta}.trade.cargaMasivaBaseMadre SET totalProcesados=ISNULL(totalProcesados,0)+1,fechaFinCarga=getdate() WHERE idCarga=$idCarga ";
 		$this->db->query($update_);
 	}
 	
 	public function actualizar_clientes($idCarga,$totalRegistros){
-		$update_="UPDATE trade.cargaMasivaBaseMadre SET totalClientes=$totalRegistros WHERE idCarga=$idCarga ";
+		$update_="UPDATE {$this->sessBDCuenta}.trade.cargaMasivaBaseMadre SET totalClientes=$totalRegistros WHERE idCarga=$idCarga ";
 		$this->db->query($update_);
 	}
 	
 	public function actualizar_estado_carga($idCarga){
-		$update_="UPDATE trade.cargaMasivaBaseMadre SET estado=0 WHERE idCarga=$idCarga ";
+		$update_="UPDATE {$this->sessBDCuenta}.trade.cargaMasivaBaseMadre SET estado=0 WHERE idCarga=$idCarga ";
 		$this->db->query($update_);
 	} 
 	
 	public function estado_carga(){
-		$update_="SELECT *,convert(varchar,fechaFinCarga,108)horaFin FROM trade.cargaMasivaBaseMadre ";
+		$update_="SELECT *,convert(varchar,fechaFinCarga,108)horaFin FROM {$this->sessBDCuenta}.trade.cargaMasivaBaseMadre ";
 		return $this->db->query($update_);
 	} 
 	
@@ -171,7 +171,7 @@ class M_carga_masiva_general extends CI_Model{
 	
 	public function obtener_carpetas_visitas(){
 
-		$sql ="SELECT idCarga,idTipoUsuario,carpeta FROM trade.cargaProgramacionRutas WHERE estado=1";
+		$sql ="SELECT idCarga,idTipoUsuario,carpeta FROM {$this->sessBDCuenta}.trade.cargaProgramacionRutas WHERE estado=1";
 
 		return $this->db->query($sql)->result_array();
 	}
@@ -188,7 +188,7 @@ class M_carga_masiva_general extends CI_Model{
 					*
 				FROM
 					trade.cliente c
-					JOIN trade.cliente_historico_pg ch
+					JOIN {$this->sessBDCuenta}.trade.cliente_historico ch
 						ON ch.idCliente=c.idCliente
 						AND @fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin,@fecha)
 						AND ch.idProyecto=3
@@ -202,7 +202,7 @@ class M_carga_masiva_general extends CI_Model{
 					*
 				FROM
 					trade.cliente c
-					JOIN trade.cliente_historico_pg ch
+					JOIN {$this->sessBDCuenta}.trade.cliente_historico ch
 						ON ch.idCliente=c.idCliente
 						AND @fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin,@fecha)
 						AND ch.idProyecto=13
@@ -253,8 +253,8 @@ class M_carga_masiva_general extends CI_Model{
 			SELECT 
 				*
 			FROM
-				trade.data_ruta r
-				JOIN trade.data_visita v
+				{$this->sessBDCuenta}.trade.data_ruta r
+				JOIN {$this->sessBDCuenta}.trade.data_visita v
 					ON v.idRuta=r.idRuta
 					AND @fecha = r.fecha
 					AND r.idUsuario=$idUsuario
@@ -271,7 +271,7 @@ class M_carga_masiva_general extends CI_Model{
 			SELECT 
 				idRuta
 			FROM
-				trade.data_ruta
+				{$this->sessBDCuenta}.trade.data_ruta
 			WHERE
 				idUsuario=$idUsuario
 				AND fecha=@fecha
@@ -280,7 +280,7 @@ class M_carga_masiva_general extends CI_Model{
 	}
 	
 	public function actualizar_estado_carga_visita($idCarga){
-		$update_="UPDATE trade.cargaProgramacionRutas SET estado=0,finRegistro=getdate() WHERE idCarga=$idCarga ";
+		$update_="UPDATE {$this->sessBDCuenta}.trade.cargaProgramacionRutas SET estado=0,finRegistro=getdate() WHERE idCarga=$idCarga ";
 		$this->db->query($update_);
 	}
 
@@ -288,7 +288,7 @@ class M_carga_masiva_general extends CI_Model{
 	
 	public function obtener_carpetas_exclusiones(){
 
-		$sql ="SELECT idCarga,idTipoUsuario,carpeta FROM trade.cargaExclusionesRutas WHERE estado=1";
+		$sql ="SELECT idCarga,idTipoUsuario,carpeta FROM {$this->sessBDCuenta}.trade.cargaExclusionesRutas WHERE estado=1";
 
 		return $this->db->query($sql)->result_array();
 	}
@@ -298,8 +298,8 @@ class M_carga_masiva_general extends CI_Model{
 			SELECT 
 				v.idVisita 
 			FROM
-				trade.data_ruta r
-				JOIN trade.data_visita v
+				{$this->sessBDCuenta}.trade.data_ruta r
+				JOIN {$this->sessBDCuenta}.trade.data_visita v
 					ON v.idRuta=r.idRuta
 			WHERE 
 				r.fecha='".$fecha."'
@@ -311,7 +311,7 @@ class M_carga_masiva_general extends CI_Model{
 	}
 	
 	public function actualizar_estado_carga_exclusion($idCarga){
-		$update_="UPDATE trade.cargaExclusionesRutas SET estado=0,finRegistro=getdate() WHERE idCarga=$idCarga ";
+		$update_="UPDATE {$this->sessBDCuenta}.trade.cargaExclusionesRutas SET estado=0,finRegistro=getdate() WHERE idCarga=$idCarga ";
 		$this->db->query($update_);
 	}
 

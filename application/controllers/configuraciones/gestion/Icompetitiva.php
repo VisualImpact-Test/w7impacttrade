@@ -538,7 +538,7 @@ class Icompetitiva extends MY_Controller
 		if (!empty($post['elementosEliminados'])) {
 			$elementosEliminados = $post['elementosEliminados'];
 			if (!is_array($elementosEliminados)) $elementosEliminados = [$elementosEliminados];
-			$delete = $this->model->deleteMasivo('trade.list_categoria_marca_competenciaTradDet_elemento','idListCategoriaMarcaCompDetEle', $elementosEliminados);
+			$delete = $this->model->deleteMasivo("{$this->sessBDCuenta}.trade.list_categoria_marca_competenciaTradDet_elemento",'idListCategoriaMarcaCompDetEle', $elementosEliminados);
 		}
 		//UPDATE
 		$update = $this->model->actualizarMasivoLista($multiDataRefactorizada);

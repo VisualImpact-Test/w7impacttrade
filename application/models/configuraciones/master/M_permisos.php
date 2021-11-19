@@ -67,7 +67,7 @@ class M_permisos extends My_Model{
 	}
 	
 	public function obtener_permisos_modulo($idPermiso){
-		$sql="select * from ImpactTrade_bd.trade.master_permiso_modulo where idPermiso=$idPermiso";
+		$sql="select * from trade.master_permiso_modulo where idPermiso=$idPermiso";
 
 		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.master_permiso_modulo' ];
 		return $this->db->query($sql)->result_array();
@@ -179,7 +179,7 @@ class M_permisos extends My_Model{
 				LEFT JOIN trade.encargado_usuario sub ON sub.idUsuario=u.idUsuario
 				LEFT JOIN trade.encargado enc ON enc.idEncargado=sub.idEncargado
 				LEFT JOIN trade.usuario u_e ON u_e.idUsuario=enc.idUsuario
-				LEFT JOIN trade.data_asistencia da ON da.idUsuario = u.idUsuario AND da.fecha =@fecha
+				LEFT JOIN {$this->sessBDCuenta}.trade.data_asistencia da ON da.idUsuario = u.idUsuario AND da.fecha =@fecha
 				LEFT JOIN master.ocurrencias ocu ON ocu.idOcurrencia=da.idOcurrencia
 			WHERE
 				uh.idAplicacion = 1
@@ -195,7 +195,7 @@ class M_permisos extends My_Model{
 	function insertar_detalle_asistencia($input=array()){
 		$aSessTrack = [];
 
-		$table = 'trade.data_asistencia';
+		$table = "{$this->sessBDCuenta}.trade.data_asistencia";
 		$this->db->trans_begin();
 
 			$insert = $this->db->insert($table, $input);
@@ -352,12 +352,12 @@ class M_permisos extends My_Model{
 	}
 
 	public function update_fechas_carga_modulacion($where=array(), $update=array()){
-		$sql="UPDATE trade.master_modulacion 
+		$sql="UPDATE {$this->sessBDCuenta}.trade.master_modulacion 
 		SET fecIni='".$update['fecIniCarga']."', fecFin='".$update['fecFinCarga']."'
 		WHERE idPermiso=".$where['idPermiso'];
 
 		$this->CI->aSessTrack = [ 'idAccion' => 7,
-				'tabla' => 'trade.master_modulacion',
+				'tabla' => "{$this->sessBDCuenta}.trade.master_modulacion",
 				'id' => arrayToString([ 'idPermiso' => $where['idPermiso'] ])
 			];
 		return $this->db->query($sql);
@@ -373,8 +373,8 @@ class M_permisos extends My_Model{
 			, evt.idTipoElementoVisibilidad
 			, ISNULL(evt.idCategoria,0) AS idCategoria
 			, ISNULL(pc.nombre,'SIN CATEGORIA') AS categoria
-		FROM trade.master_listaElementos le
-		JOIN trade.master_listaElementosDet led ON led.idLista=le.idLista
+		FROM {$this->sessBDCuenta}.trade.master_listaElementos le
+		JOIN {$this->sessBDCuenta}.trade.master_listaElementosDet led ON led.idLista=le.idLista
 		JOIN trade.elementoVisibilidadTrad evt ON evt.idElementoVis=led.idElementoVisibilidad
 		LEFT JOIN trade.producto_categoria pc ON pc.idCategoria=evt.idCategoria
 		WHERE 1=1 AND le.estado=1 AND led.estado=1 AND evt.estado=1
@@ -394,7 +394,7 @@ class M_permisos extends My_Model{
 		--ORDER BY idCategoria, elemento ASC
 		ORDER BY led.orden ";
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.master_listaElementos' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.master_listaElementos" ];
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -406,17 +406,17 @@ class M_permisos extends My_Model{
 				, convert(varchar,fechaRegistro,103) fecRegistro
 				, convert(varchar,fechaRegistro,108) horaRegistro 
 				, convert(varchar,finRegistro,108) horaFin
-				, (SELECT COUNT(*) FROM  trade.cargaModulacionClientesNoProcesados WHERE elemento IS NULL AND idCarga=cm.idCarga  ) noProcesados
-				, (SELECT COUNT(*) FROM  trade.cargaModulacionClientesNoProcesados WHERE elemento IS NULL AND idCarga=cm.idCarga  ) noProcesados
+				, (SELECT COUNT(*) FROM  {$this->sessBDCuenta}.trade.cargaModulacionClientesNoProcesados WHERE elemento IS NULL AND idCarga=cm.idCarga  ) noProcesados
+				, (SELECT COUNT(*) FROM  {$this->sessBDCuenta}.trade.cargaModulacionClientesNoProcesados WHERE elemento IS NULL AND idCarga=cm.idCarga  ) noProcesados
 				,(
 					SELECT count(*) FROM (
-						SELECT idCarga FROM trade.cargaModulacionClientesNoProcesados WHERE idCarga=cm.idCarga
+						SELECT idCarga FROM {$this->sessBDCuenta}.trade.cargaModulacionClientesNoProcesados WHERE idCarga=cm.idCarga
 						UNION
-						SELECT idCarga FROM trade.cargaModulacionElementosError  WHERE idCarga=cm.idCarga
+						SELECT idCarga FROM {$this->sessBDCuenta}.trade.cargaModulacionElementosError  WHERE idCarga=cm.idCarga
 					)a
 				) error
 			FROM 
-				trade.cargaModulacion cm
+				{$this->sessBDCuenta}.trade.cargaModulacion cm
 
 			 WHERE cm.idPermiso='".$idPermiso."'
 		";
@@ -430,16 +430,16 @@ class M_permisos extends My_Model{
 				, convert(varchar,fechaRegistro,103) fecRegistro
 				, convert(varchar,fechaRegistro,108) horaRegistro 
 				, convert(varchar,finRegistro,108) horaFin
-				, (SELECT COUNT(*) FROM  trade.cargaModulacionClientesNoProcesados WHERE elemento IS NULL AND idCarga=cm.idCarga  ) noProcesados
+				, (SELECT COUNT(*) FROM  {$this->sessBDCuenta}.trade.cargaModulacionClientesNoProcesados WHERE elemento IS NULL AND idCarga=cm.idCarga  ) noProcesados
 				,(
 					SELECT count(*) FROM (
-						SELECT idCarga FROM trade.cargaModulacionClientesNoProcesados WHERE idCarga=cm.idCarga
+						SELECT idCarga FROM {$this->sessBDCuenta}.trade.cargaModulacionClientesNoProcesados WHERE idCarga=cm.idCarga
 						UNION
-						SELECT idCarga FROM trade.cargaModulacionElementosError  WHERE idCarga=cm.idCarga
+						SELECT idCarga FROM {$this->sessBDCuenta}.trade.cargaModulacionElementosError  WHERE idCarga=cm.idCarga
 					)a
 				) error
 			FROM 
-				trade.cargaModulacion cm
+				{$this->sessBDCuenta}.trade.cargaModulacion cm
 
 		";
 		return $this->db->query($sql)->result_array();

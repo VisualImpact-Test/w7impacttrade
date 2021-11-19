@@ -13,7 +13,7 @@ class M_info extends My_Model
 		$this->tablas = [
 			'elemento' => ['tabla' => 'trade.live_tipoInfo', 'id' => 'idInfo'],
 			'lista' => ['tabla' => 'trade.live_clienteInfo', 'id' => 'idClienteInfo'],
-			'listaDet' => ['tabla'=>'trade.list_visibilidadTradDet','id'=>'idListVisibilidadDet'],
+			'listaDet' => ['tabla'=>"{$this->sessBDCuenta}.trade.list_visibilidadTradDet",'id'=>'idListVisibilidadDet'],
 			'tipoElemento' => ['tabla'=>'trade.tipoElementoVisibilidadTrad','id'=>'idTipoElementoVis'],
 		
 			

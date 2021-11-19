@@ -101,16 +101,16 @@ class M_Fotos extends MY_Model
 				m.nombre modulo
 				{$segmentacion['columnas_bd']}
 			FROM 
-			trade.data_ruta r
-			JOIN trade.data_visita v 
+			{$this->sessBDCuenta}.trade.data_ruta r
+			JOIN {$this->sessBDCuenta}.trade.data_visita v 
 				ON r.idRuta = v.idRuta 
 				AND v.numFotos>0 
 				AND r.demo = 0
 				AND r.fecha BETWEEN @fecIni AND @fecFin
 				AND v.estado=1
-			JOIN trade.data_visitaFotos vf 
+			JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf 
 				ON vf.idVisita = v.idVisita
-			LEFT JOIN trade.data_visitaModuloFotos mf 
+			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaModuloFotos mf 
 				ON mf.idVisitaFoto = vf.idVisitaFoto
 			JOIN trade.aplicacion_modulo m 
 				ON m.idModulo = vf.idModulo
@@ -238,16 +238,16 @@ class M_Fotos extends MY_Model
 			SELECT DISTINCT $top
 				v.idVisita
 			FROM 
-			trade.data_ruta r
-			JOIN trade.data_visita v 
+			{$this->sessBDCuenta}.trade.data_ruta r
+			JOIN {$this->sessBDCuenta}.trade.data_visita v 
 				ON r.idRuta = v.idRuta 
 				AND v.numFotos>0 
 				AND r.demo = 0
 				AND r.fecha BETWEEN @fecIni AND @fecFin
 				AND v.estado=1
-			JOIN trade.data_visitaFotos vf 
+			JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf 
 				ON vf.idVisita = v.idVisita
-			LEFT JOIN trade.data_visitaModuloFotos mf 
+			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaModuloFotos mf 
 				ON mf.idVisitaFoto = vf.idVisitaFoto
 			JOIN trade.aplicacion_modulo m 
 				ON m.idModulo = vf.idModulo
@@ -391,12 +391,12 @@ class M_Fotos extends MY_Model
 					,r.tipoUsuario
 					,mg.carpetaFoto
 					,m.nombre modulo
-				FROM trade.data_ruta r
-				JOIN trade.data_visita v ON v.idRuta=r.idRuta
-				JOIN trade.data_visitaFotos vf ON vf.idVisita = v.idVisita
+				FROM {$this->sessBDCuenta}.trade.data_ruta r
+				JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
+				JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisita = v.idVisita
 				JOIN trade.aplicacion_modulo m 	ON m.idModulo = vf.idModulo
 				JOIN trade.aplicacion_modulo_grupo mg ON mg.idModuloGrupo = m.idModuloGrupo
-				   LEFT JOIN trade.data_visitaModuloFotos mf ON mf.idVisitaFoto = vf.idVisitaFoto
+				   LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaModuloFotos mf ON mf.idVisitaFoto = vf.idVisitaFoto
 				LEFT JOIN trade.canal ca ON ca.idCanal=v.idCanal
 				LEFT JOIN trade.grupoCanal gca ON ca.idGrupoCanal=gca.idGrupoCanal
 				LEFT JOIN trade.foto_tipo tf ON tf.idTipoFoto = mf.idTipoFoto

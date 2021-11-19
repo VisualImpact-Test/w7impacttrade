@@ -33,7 +33,7 @@ class Fotografico extends MY_Controller
 		$config['data']['icon'] = 'fa fa-camera';
 		$config['data']['title'] = 'Auditoría Fotográfica';
 		$config['data']['message'] = 'Auditoría Fotográfica';
-		$config['data']['tiposUsuario'] = $this->db->get_where('impactTrade_bd.trade.usuario_tipo',['estado'=>1])->result_array();
+		$config['data']['tiposUsuario'] = $this->db->get_where('trade.usuario_tipo',['estado'=>1])->result_array();
 		$config['view'] = 'modulos/fotografico/index';
 
 		$this->view($config);

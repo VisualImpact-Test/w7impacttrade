@@ -18,11 +18,11 @@ class M_liveStorecheckEnc extends CI_Model{
 				enc.nombre,
 				(
 					SELECT COUNT(1)
-					FROM lsck.tipoEncuestaPreg
+					FROM {$this->sessBDCuenta}.lsck.tipoEncuestaPreg
 					WHERE idEncuesta = enc.idEncuesta
 				) AS numPreg,
 				enc.estado
-			FROM lsck.tipoEncuesta enc
+			FROM {$this->sessBDCuenta}.lsck.tipoEncuesta enc
 			JOIN trade.cuenta cu ON enc.idCuenta = cu.idCuenta
 			WHERE 1 = 1{$filtro}
 			ORDER BY enc.fechaReg DESC, enc.horaReg DESC
@@ -37,7 +37,7 @@ class M_liveStorecheckEnc extends CI_Model{
 				foreach($input['idEncuesta'] as $idEncuesta){
 					$uEncuesta = array('estado' => $input['estado']);
 					$wEncuesta = array('idEncuesta' => $idEncuesta);
-					$this->db->update('lsck.tipoEncuesta', $uEncuesta, $wEncuesta);
+					$this->db->update("{$this->sessBDCuenta}.lsck.tipoEncuesta", $uEncuesta, $wEncuesta);
 				}
 
 			if( !$this->db->trans_status() ){
@@ -76,11 +76,11 @@ ORDER BY nombre
 		enpa.nombre AS alternativa,
 		enp.idExtAudTipo,
 		aut.nombre tipoAuditoria
-	FROM lsck.tipoEncuesta en
-	JOIN lsck.tipoEncuestaPreg enp ON en.idEncuesta = enp.idEncuesta
+	FROM {$this->sessBDCuenta}.lsck.tipoEncuesta en
+	JOIN {$this->sessBDCuenta}.lsck.tipoEncuestaPreg enp ON en.idEncuesta = enp.idEncuesta
 	JOIN master.tipoPregunta enpt ON enp.idTipoPregunta = enpt.idTipoPregunta
-	LEFT JOIN lsck.tipoEncuestaPregAlt enpa ON enp.idPregunta = enpa.idPregunta
-	LEFT JOIN lsck.ext_auditoriaTipo aut ON aut.idExtAudTipo = enp.idExtAudTipo
+	LEFT JOIN {$this->sessBDCuenta}.lsck.tipoEncuestaPregAlt enpa ON enp.idPregunta = enpa.idPregunta
+	LEFT JOIN {$this->sessBDCuenta}.lsck.ext_auditoriaTipo aut ON aut.idExtAudTipo = enp.idExtAudTipo
 WHERE en.idEncuesta = {$input['idEncuesta']}
 ";
 		return $this->db->query($sql)->result_array();
@@ -98,7 +98,7 @@ WHERE en.idEncuesta = {$input['idEncuesta']}
 						'nombre' => trim($input['encuesta']),
 						'idUsuarioReg' => $this->idUsuario
 					);
-				$this->db->insert('lsck.tipoEncuesta', $iEncuesta);
+				$this->db->insert("{$this->sessBDCuenta}.lsck.tipoEncuesta", $iEncuesta);
 				$idEncuesta = $this->db->insert_id();
 
 				if( !is_array($input["aPregunta"]) ){
@@ -115,7 +115,7 @@ WHERE en.idEncuesta = {$input['idEncuesta']}
 					!empty($input["presencia[{$num}]"]) &&  $input["presencia[{$num}]"] == "SI" ?  $iPregunta['extAudPresencia'] = 1: $iPregunta['extAudPresencia'] =  0;
 					!empty($input["checkDetalle[{$num}]"] )  &&  $input["checkDetalle[{$num}]"] == "on"? $iPregunta['extAudDetalle'] = 1 : $iPregunta['extAudDetalle'] = 0;
 					
-					$this->db->insert('lsck.tipoEncuestaPreg', $iPregunta);
+					$this->db->insert("{$this->sessBDCuenta}.lsck.tipoEncuestaPreg", $iPregunta);
 					$idPregunta = $this->db->insert_id();
 
 					if(empty($input["tipoAuditoria[{$num}]"])){
@@ -139,7 +139,7 @@ WHERE en.idEncuesta = {$input['idEncuesta']}
 									'idPregunta' => $idPregunta,
 									'nombre' => $alt,
 								);
-							$this->db->insert('lsck.tipoEncuestaPregAlt', $iAlternativa);
+							$this->db->insert("{$this->sessBDCuenta}.lsck.tipoEncuestaPregAlt", $iAlternativa);
 						}
 					}
 				}

@@ -19,7 +19,7 @@ class M_usuarios extends My_Model
 			'historicoZona' => ['tabla' => 'trade.usuario_historicoZona', 'id' => 'idUsuarioHistZona'],
 			'modulosMovil' => ['tabla' => 'trade.usuario_modulo', 'id' => 'idUsuarioModulo'],
 			'modulosIntranet' => ['tabla' => 'trade.usuario_menuOpcion', 'id' => 'idUsuarioMenuOpcion'],
-			'permisosCarpetas' => ['tabla' => 'trade.gestorArchivos_permisoCarpeta', 'id' => 'idPermisoCarpeta'],
+			'permisosCarpetas' => ['tabla' => "{$this->sessBDCuenta}.trade.gestorArchivos_permisoCarpeta", 'id' => 'idPermisoCarpeta'],
 			'usuarioHistorico' => ['tabla' => 'trade.usuario_historico', 'id' => 'idUsuarioHist'],
 		];
 	}
@@ -1127,14 +1127,14 @@ class M_usuarios extends My_Model
 				g.nombre nombreGrupo, 
 				c.idCarpeta, 
 				c.nombre nombreCarpeta
-			FROM trade.gestorArchivos_grupo g
-				INNER JOIN impactTrade_bd.trade.gestorArchivos_carpeta c ON c.idGrupo = g.idGrupo
+			FROM {$this->sessBDCuenta}.trade.gestorArchivos_grupo g
+				INNER JOIN {$this->sessBDCuenta}.trade.gestorArchivos_carpeta c ON c.idGrupo = g.idGrupo
 			WHERE g.estado = 1
 				AND c.estado = 1
 				{$filtros}
 		";
 
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.gestorArchivos_grupo' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.gestorArchivos_grupo" ];
 		return $this->db->query($sql);
 	}
 	
@@ -1156,12 +1156,12 @@ class M_usuarios extends My_Model
 
 		$sql = "
 			SELECT pc.idCarpeta
-			FROM trade.gestorArchivos_permisoCarpeta pc
-				JOIN trade.gestorArchivos_carpeta c ON pc.idCarpeta = c.idCarpeta
+			FROM {$this->sessBDCuenta}.trade.gestorArchivos_permisoCarpeta pc
+				JOIN {$this->sessBDCuenta}.trade.gestorArchivos_carpeta c ON pc.idCarpeta = c.idCarpeta
 			WHERE idUsuario = {$idUsuario}
 		";
 
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.gestorArchivos_permisoCarpeta' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.gestorArchivos_permisoCarpeta" ];
 		return $this->db->query($sql);
 	}
 

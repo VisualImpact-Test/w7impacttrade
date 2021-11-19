@@ -119,7 +119,7 @@ class M_basemadre extends MY_Model{
 			}
 
 		if($input['idProyecto']==14){
-			$tabla_historico= 'trade.cliente_historico_aje';
+			$tabla_historico= "{$this->sessBDCuenta}.trade.cliente_historico";
 		}else{
 			$tabla_historico= getClienteHistoricoCuenta();
 		}
@@ -194,8 +194,8 @@ class M_basemadre extends MY_Model{
 					, v.idCliente
 					, ROW_NUMBER() OVER (PARTITION BY v.idCliente ORDER BY r.fecha DESC) fila 
 				FROM 
-					trade.data_ruta r 
-					JOIN trade.data_visita v ON r.idRuta = v.idRuta
+					{$this->sessBDCuenta}.trade.data_ruta r 
+					JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta
 					LEFT JOIN trade.banner b ON b.idBanner = v.idBanner
 					JOIN General.dbo.ubigeo ub ON ub.cod_ubigeo = v.cod_ubigeo
 					JOIN trade.canal ca ON ca.idCanal = v.idCanal
@@ -208,7 +208,7 @@ class M_basemadre extends MY_Model{
 			SELECT * FROM lista_visita WHERE fila = 1
 		";
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_ruta' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_ruta" ];
 		return $this->db->query($sql)->result_array();
 	}
 

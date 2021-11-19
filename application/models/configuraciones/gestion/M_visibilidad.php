@@ -13,8 +13,8 @@ class M_visibilidad extends My_Model
 
 		$this->tablas = [
 			'elemento' => ['tabla' => 'trade.producto_categoria', 'id' => 'idCategoria'],
-			'lista' => ['tabla' => 'trade.list_visibilidad', 'id' => 'idListVisibilidad'],
-			'listaDet' => ['tabla'=>'trade.list_visibilidadDet','id'=>'idListVisibilidadDet'],
+			'lista' => ['tabla' => "{$this->sessBDCuenta}.trade.list_visibilidad", 'id' => 'idListVisibilidad'],
+			'listaDet' => ['tabla'=>"{$this->sessBDCuenta}.trade.list_visibilidadDet",'id'=>'idListVisibilidadDet'],
 			'marca' => ['tabla'=>'trade.producto_marca','id'=>'idMarca'],
 		
 			
@@ -66,7 +66,7 @@ class M_visibilidad extends My_Model
 	public function getIdEncuesta($encuesta){
 
 		
-		$sql = $this->db->get_where('trade.encuesta',array('nombre'=>$encuesta));
+		$sql = $this->db->get_where("{$this->sessBDCuenta}.trade.encuesta",array('nombre'=>$encuesta));
 		
 		return ($sql);
 

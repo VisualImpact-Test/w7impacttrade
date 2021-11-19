@@ -55,7 +55,7 @@ class M_cartera_objetivo extends MY_Model
         , CONVERT(VARCHAR, co.fecFin, 103) AS fecFin
         , co.cartera
         , co.estado
-        FROM trade.cartera_objetivo co
+        FROM {$this->sessBDCuenta}.trade.cartera_objetivo co
         JOIN trade.cuenta c ON co.idCuenta = c.idCuenta
         JOIN trade.proyecto p ON co.idProyecto = p.idProyecto
         LEFT JOIN trade.grupoCanal gc ON co.idGrupoCanal = gc.idGrupoCanal
@@ -192,7 +192,7 @@ class M_cartera_objetivo extends MY_Model
     {
         $result = [];
 
-        $result['insert'] = $this->db->insert_batch('trade.cartera_objetivo', array_unique($params, SORT_REGULAR));
+        $result['insert'] = $this->db->insert_batch("{$this->sessBDCuenta}.trade.cartera_objetivo", array_unique($params, SORT_REGULAR));
 
         return $result;
     }
@@ -210,7 +210,7 @@ class M_cartera_objetivo extends MY_Model
             'idDistribuidora' => (!empty($params['idDistribuidora']) ? $params['idDistribuidora'] : NULL),
             'foto' => $params['foto']
         ];
-        $query = $this->db->insert('trade.data_visitaPremiacionCargo', $insert);
+        $query = $this->db->insert("{$this->sessBDCuenta}.trade.data_visitaPremiacionCargo", $insert);
         $result['id'] = $this->db->insert_id();
 
         if ($this->db->trans_status() === FALSE || !$query) {
@@ -244,7 +244,7 @@ class M_cartera_objetivo extends MY_Model
         ];
 
         $this->db->where('idObjetivo', $params['id']);
-        $this->db->update('trade.cartera_objetivo', $update);
+        $this->db->update("{$this->sessBDCuenta}.trade.cartera_objetivo", $update);
 
         if ($this->db->trans_status() === FALSE) {
             $this->db->trans_rollback();
@@ -268,7 +268,7 @@ class M_cartera_objetivo extends MY_Model
         ];
 
         $this->db->where('idObjetivo', $params['idObjetivo']);
-        $this->db->update('trade.cartera_objetivo', $update);
+        $this->db->update("{$this->sessBDCuenta}.trade.cartera_objetivo", $update);
 
         if ($this->db->trans_status() === FALSE) {
             $this->db->trans_rollback();

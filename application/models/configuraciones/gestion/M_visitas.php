@@ -51,7 +51,7 @@ class M_visitas extends MY_Model{
 			--, uhds.idDistribuidoraSucursal
 			--, uhpl.idPlaza
 			--, uhz.idZona
-		FROM trade.data_ruta r
+		FROM {$this->sessBDCuenta}.trade.data_ruta r
 		LEFT JOIN trade.cuenta c ON c.idCuenta=r.idCuenta
 		LEFT JOIN trade.proyecto py ON py.idProyecto=r.idProyecto
 		LEFT JOIN trade.encargado ec ON ec.idEncargado=r.idEncargado
@@ -72,7 +72,7 @@ class M_visitas extends MY_Model{
 		{$filtros}
 		ORDER BY fecha, nombreUsuario ASC";
 
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_ruta' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_ruta" ];
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -124,8 +124,8 @@ class M_visitas extends MY_Model{
 			, v.estado
 			, v.idTipoExclusion
 			, v.flagContingencia
-		FROM trade.data_ruta r
-		JOIN trade.data_visita v ON v.idRuta=r.idRuta
+		FROM {$this->sessBDCuenta}.trade.data_ruta r
+		JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
 		LEFT JOIN trade.plaza pl ON pl.idPlaza=v.idPlaza
 		LEFT JOIN trade.distribuidoraSucursal ds ON ds.idDistribuidoraSucursal=v.idDistribuidoraSucursal
 		LEFT JOIN trade.distribuidora d ON d.idDistribuidora=ds.idDistribuidora
@@ -137,7 +137,7 @@ class M_visitas extends MY_Model{
 		AND r.fecha BETWEEN @fecIni AND @fecFin
 		ORDER BY r.fecha ASC";
 
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visita' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visita" ];
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -145,10 +145,10 @@ class M_visitas extends MY_Model{
 		$aSessTrack = [];
 
 		if ($input['tabla']=='rutas') {
-			$table = 'trade.data_ruta';
+			$table = "{$this->sessBDCuenta}.trade.data_ruta";
 			$where = array('idRuta'=>$input['idRuta']);
 		} elseif ($input['tabla']=='visitas') {
-			$table = 'trade.data_visita';
+			$table = "{$this->sessBDCuenta}.trade.data_visita";
 			$where = array('idVisita'=>$input['idVisita']);
 		}
 		
@@ -290,24 +290,24 @@ class M_visitas extends MY_Model{
 
 		$query = $this->db->select('idRuta,idProyecto,idCuenta')
 				->where( array('idUsuario'=>$input['idUsuario'],'fecha'=>$input['fecha'], 'estado'=>1 ) )
-				->get('trade.data_ruta');
+				->get("{$this->sessBDCuenta}.trade.data_ruta");
 
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_ruta' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_ruta" ];
 		return $query->result_array();
 	}
 	
 	public function obtener_data_ruta($idRuta){
 
-		$query = "SELECT * FROM trade.data_ruta WHERE idRuta=$idRuta";
+		$query = "SELECT * FROM {$this->sessBDCuenta}.trade.data_ruta WHERE idRuta=$idRuta";
 
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_ruta' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_ruta" ];
 		return $this->db->query($query)->row_array();
 	}
 
 	public function insertar_ruta($input=array()){
 		$aSessTrack = [];
 
-		$table = 'trade.data_ruta';
+		$table = "{$this->sessBDCuenta}.trade.data_ruta";
 		$this->db->trans_begin();
 
 			$insert = $this->db->insert($table, $input);
@@ -326,7 +326,7 @@ class M_visitas extends MY_Model{
 	public function insertar_visita($input=array()){
 		$aSessTrack = [];
 
-		$table = 'trade.data_visita';
+		$table = "{$this->sessBDCuenta}.trade.data_visita";
 		$this->db->trans_begin();
 		
 			$insert = $this->db->insert($table, $input);
@@ -346,18 +346,18 @@ class M_visitas extends MY_Model{
 	public function obtener_ruta_actual($idRuta){
 		$query = $this->db->select('*')
 				->where( array('idRuta'=>$idRuta) )
-				->get('trade.data_ruta');
+				->get("{$this->sessBDCuenta}.trade.data_ruta");
 
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_ruta' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_ruta" ];
 		return $query->result_array();
 	}
 
 	public function obtener_lista_ruta_visitas($idRuta){
 		$query = $this->db->select('idCliente')
 				->where( array('idRuta'=>$idRuta, 'estado'=>1) )
-				->get('trade.data_visita');
+				->get("{$this->sessBDCuenta}.trade.data_visita");
 
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visita' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visita" ];
 		return $query->result_array();
 	}
 
@@ -373,13 +373,13 @@ class M_visitas extends MY_Model{
 			, r.nombreUsuario
 			, r.numVisita
 			, r.estado
-		FROM trade.data_ruta r
+		FROM {$this->sessBDCuenta}.trade.data_ruta r
 		WHERE 1=1 --AND r.demo=0
 		{$filtros}
 		ORDER BY r.fecha ASC
 		";
 
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_ruta' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_ruta" ];
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -412,7 +412,7 @@ class M_visitas extends MY_Model{
 	public function update_reprogramar_ruta($input=array()){
 		$aSessTrack = [];
 
-		$table = 'trade.data_ruta';
+		$table = "{$this->sessBDCuenta}.trade.data_ruta";
 		$params = $input['arrayParams'];
 		$where = $input['arrayWhere'];
 
@@ -443,11 +443,11 @@ class M_visitas extends MY_Model{
 			, v.idCliente
 			, v.razonSocial
 			, v.direccion
-		FROM trade.data_ruta r
-		LEFT JOIN trade.data_visita v ON v.idRuta=r.idRuta
+		FROM {$this->sessBDCuenta}.trade.data_ruta r
+		LEFT JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
 		WHERE r.idRuta={$idRuta}";
 
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_ruta' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_ruta" ];
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -455,27 +455,27 @@ class M_visitas extends MY_Model{
 
 		$query = $this->db->select('idVisita')
 				->where( $input )
-				->get('trade.data_visita');
+				->get("{$this->sessBDCuenta}.trade.data_visita");
 
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visita' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visita" ];
 		return $query->result_array();
 	}
 	public function obtener_verificacion_existente_visita_cliente($input=array()){
 		$sql = "
 		SELECT idVisita 
 		FROM
-		trade.data_visita
+		{$this->sessBDCuenta}.trade.data_visita
 		WHERE idRuta = {$input['idRuta']} AND idCliente ='{$input['idCliente']}'
 		";
 
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visita' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visita" ];
 		return $this->db->query($sql)->result_array();
 
 	}
 
 	public function delete_visita_det($input=array()){
 		$aSessTrack = [];
-		$table = 'trade.data_visitaDet';
+		$table = "{$this->sessBDCuenta}.trade.data_visitaDet";
 		
 		$this->db->trans_begin();
 			$delete = $this->db->delete($table, $input);
@@ -493,13 +493,13 @@ class M_visitas extends MY_Model{
 	public function delete_visita_detalle($input=array()){
 		$sql="
 		DECLARE @idRuta INT= ".$input['idRuta'].", @idCliente INT=".$input['idCliente']." ;
-		DELETE FROM trade.data_visitaDet WHERE idVisita IN (
-			SELECT idVisita FROM trade.data_visita WHERE idRuta IN (@idRuta) AND idCliente IN (@idCliente)
+		DELETE FROM {$this->sessBDCuenta}.trade.data_visitaDet WHERE idVisita IN (
+			SELECT idVisita FROM {$this->sessBDCuenta}.trade.data_visita WHERE idRuta IN (@idRuta) AND idCliente IN (@idCliente)
 		)";
 
 		$this->aSessTrack[] = [
 				'idAccion' => 8,
-				'tabla' => 'trade.data_visitaDet',
+				'tabla' => "{$this->sessBDCuenta}.trade.data_visitaDet",
 				'id' => arrayToString([ 'idRuta' => $input['idRuta'], 'idCliente' => $input['idCliente'] ])
 			];
 		return $this->db->query($sql)->result_array();
@@ -508,7 +508,7 @@ class M_visitas extends MY_Model{
 	public function delete_visita($input=array()){
 		$aSessTrack = [];
 
-		$table = 'trade.data_visita';
+		$table = "{$this->sessBDCuenta}.trade.data_visita";
 		$this->db->trans_begin();
 
 			$delete = $this->db->delete($table, $input);
@@ -526,9 +526,9 @@ class M_visitas extends MY_Model{
 	public function obtener_lista_ruta_visitas_total($idRuta){
 		$query = $this->db->select('idCliente')
 				->where( array('idRuta'=>$idRuta) )
-				->get('trade.data_visita');
+				->get("{$this->sessBDCuenta}.trade.data_visita");
 
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visita' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visita" ];
 		return $query->result_array();
 	}
 
@@ -550,14 +550,14 @@ class M_visitas extends MY_Model{
 			, v.direccion
 			, v.horaIni
 			, v.horaFin
-		FROM trade.data_ruta r
-		JOIN trade.data_visita v ON v.idRuta=r.idRuta
+		FROM {$this->sessBDCuenta}.trade.data_ruta r
+		JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
 		WHERE 1=1 --AND r.demo=0
 		{$filtros}
 		ORDER BY r.fecha, r.idUsuario ASC
 		";
 
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visita' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visita" ];
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -567,10 +567,10 @@ class M_visitas extends MY_Model{
 		if (!empty($input['cuenta'])) $filtros .= " AND idCuenta= " . $input['cuenta'];
 		$sql="
 			DECLARE @fecha date=getdate();
-			update trade.data_visita 
+			update {$this->sessBDCuenta}.trade.data_visita 
 			set estado=estado
 			where idRuta in(
-			select idRuta from trade.data_ruta
+			select idRuta from {$this->sessBDCuenta}.trade.data_ruta
 			WHERE fecha >=@fecha
 			{$filtros}
 			);";
@@ -609,7 +609,7 @@ class M_visitas extends MY_Model{
 
 	public function update_estado_exclusion_visita($input=array()){
 		$aSessTrack = [];
-		$table = 'trade.data_visita';
+		$table = "{$this->sessBDCuenta}.trade.data_visita";
 		$where = array('idVisita'=>$input['idVisita']);
 		
 		$params['idTipoExclusion'] = $input['idTipoExclusion'];
@@ -770,10 +770,10 @@ class M_visitas extends MY_Model{
 		$aSessTrack = [];
 
 		if ($input['tabla']=='rutas') {
-			$table = 'trade.data_ruta';
+			$table = "{$this->sessBDCuenta}.trade.data_ruta";
 			$where = array('idRuta'=>$input['idRuta']);
 		} elseif ($input['tabla']=='visitas') {
-			$table = 'trade.data_visita';
+			$table = "{$this->sessBDCuenta}.trade.data_visita";
 			$where = array('idVisita'=>$input['idVisita']);
 		}
 		
@@ -800,10 +800,10 @@ class M_visitas extends MY_Model{
 		$aSessTrack = [];
 
 		if ($input['tabla']=='rutas') {
-			$table = 'trade.data_ruta';
+			$table = "{$this->sessBDCuenta}.trade.data_ruta";
 			$where = array('idRuta'=>$input['idRuta']);
 		} elseif ($input['tabla']=='visitas') {
-			$table = 'trade.data_visita';
+			$table = "{$this->sessBDCuenta}.trade.data_visita";
 			$where = array('idVisita'=>$input['idVisita']);
 		}
 		
@@ -833,14 +833,14 @@ class M_visitas extends MY_Model{
 				, c.carpeta
 				, u.apePaterno+' '+u.apeMaterno+' '+u.nombres usuario
 				, totalRegistros
-				, (SELECT count(*) FROM trade.cargaProgramacionRutasDet  WHERE idCarga= c.idCarga) total_procesados
+				, (SELECT count(*) FROM {$this->sessBDCuenta}.trade.cargaProgramacionRutasDet  WHERE idCarga= c.idCarga) total_procesados
 				, CONVERT(VARCHAR,fechaRegistro,103) fechaRegistro
 				, CONVERT(VARCHAR,fechaRegistro,108) horaRegistro
 				, CONVERT(VARCHAR,finRegistro,108) horaFinRegistro
 				, c.estado
-				, (SELECT count(*) FROM trade.cargaProgramacionRutasDet  WHERE idCarga= c.idCarga AND  comentario <>'' ) error
+				, (SELECT count(*) FROM {$this->sessBDCuenta}.trade.cargaProgramacionRutasDet  WHERE idCarga= c.idCarga AND  comentario <>'' ) error
 			FROM 
-				trade.cargaProgramacionRutas c
+				{$this->sessBDCuenta}.trade.cargaProgramacionRutas c
 				JOIN trade.usuario_tipo ut
 					ON ut.idTipoUsuario=c.idTipoUsuario
 				JOIN trade.usuario u
@@ -856,14 +856,14 @@ class M_visitas extends MY_Model{
 				, c.carpeta
 				, u.apePaterno+' '+u.apeMaterno+' '+u.nombres usuario
 				, totalRegistros
-				, (SELECT count(*) FROM trade.cargaExclusionesRutasDet  WHERE idCarga= c.idCarga) total_procesados
+				, (SELECT count(*) FROM {$this->sessBDCuenta}.trade.cargaExclusionesRutasDet  WHERE idCarga= c.idCarga) total_procesados
 				, CONVERT(VARCHAR,fechaRegistro,103) fechaRegistro
 				, CONVERT(VARCHAR,fechaRegistro,108) horaRegistro
 				, CONVERT(VARCHAR,finRegistro,108) horaFinRegistro
 				, c.estado
-				, (SELECT count(*) FROM trade.cargaExclusionesRutasDet  WHERE idCarga= c.idCarga AND  comentario <>'' ) error
+				, (SELECT count(*) FROM {$this->sessBDCuenta}.trade.cargaExclusionesRutasDet  WHERE idCarga= c.idCarga AND  comentario <>'' ) error
 			FROM 
-				trade.cargaExclusionesRutas c
+				{$this->sessBDCuenta}.trade.cargaExclusionesRutas c
 				JOIN trade.usuario_tipo ut
 					ON ut.idTipoUsuario=c.idTipoUsuario
 				JOIN trade.usuario u
@@ -874,7 +874,7 @@ class M_visitas extends MY_Model{
 	
 	public function obtener_errores($id){
 		$sql="
-			SELECT * FROM trade.cargaProgramacionRutasDet  WHERE idCarga=$id AND comentario <>''
+			SELECT * FROM {$this->sessBDCuenta}.trade.cargaProgramacionRutasDet  WHERE idCarga=$id AND comentario <>''
 		";
 		return $this->db->query($sql)->result_array();
 	}

@@ -42,7 +42,7 @@ class Encuesta extends MY_Controller
 	{
 		ini_set('memory_limit', '2048M');
 		
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visitaEncuesta' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaEncuesta" ];
 		$dataParaVista['visitas'] = $visitas = $this->m_encuesta->query_visitaEncuesta($post)->result_array();
 
 		if (count($visitas) > 0) {

@@ -65,8 +65,8 @@ class M_inteligencia extends MY_Model{
 				--, ubi1.cod_ubigeo AS codUbigeoDisitrito
 
 				{$segmentacion['columnas_bd']}
-			FROM trade.data_ruta r
-			JOIN trade.data_visita v ON v.idRuta=r.idRuta
+			FROM {$this->sessBDCuenta}.trade.data_ruta r
+			JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
 			JOIN ".getClienteHistoricoCuenta()." ch
 				ON ch.idCliente = v.idCliente AND General.dbo.fn_fechaVigente(ch.fecIni,ch.fecFin,@fecIni,@fecFin)=1
 			JOIN trade.usuario_historico uh On uh.idUsuario=r.idUsuario
@@ -81,7 +81,7 @@ class M_inteligencia extends MY_Model{
 				ON sn.idSubCanal=sc.idSubCanal
 			LEFT JOIN trade.cliente_tipo ct
 				ON ct.idClienteTipo = sn.idClienteTipo
-			JOIN trade.data_visitaInteligencia dvv ON dvv.idVisita=v.idVisita
+			JOIN {$this->sessBDCuenta}.trade.data_visitaInteligencia dvv ON dvv.idVisita=v.idVisita
 			JOIN trade.cuenta cu ON cu.idCuenta=r.idCuenta
 			JOIN trade.canal ca ON ca.idCanal=v.idCanal
 			JOIN trade.grupoCanal gc ON ca.idGrupoCanal=gc.idGrupoCanal
@@ -92,7 +92,9 @@ class M_inteligencia extends MY_Model{
 			LEFT JOIN trade.usuario_tipo ut ON r.idTipoUsuario = ut.idTipoUsuario
 			{$segmentacion['join']}
 			WHERE r.fecha BETWEEN @fecIni AND @fecFin
-			AND r.demo = 0 AND r.estado = 1 AND v.estado = 1{$filtros}
+			AND r.estado = 1 AND v.estado = 1
+			AND r.demo = 0 
+			{$filtros}
 			ORDER BY fecha, departamento, canal, tipoUsuario, supervisor, nombreUsuario  ASC
 		";		
 		$query = $this->db->query($sql);
@@ -156,20 +158,22 @@ class M_inteligencia extends MY_Model{
 				, vitd.accion
 
 				, vf.fotoUrl 'foto'
-			FROM trade.data_ruta r
-			JOIN trade.data_visita v ON v.idRuta=r.idRuta
+			FROM {$this->sessBDCuenta}.trade.data_ruta r
+			JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
 			JOIN trade.cuenta cu ON cu.idCuenta=r.idCuenta
 			JOIN trade.canal ca ON ca.idCanal=v.idCanal 
-			JOIN trade.data_visitaInteligencia vit ON vit.idVisita=v.idVisita
-			JOIN trade.data_visitaInteligenciaDet vitd ON vitd.idVisitaInteligencia=vit.idVisitaInteligencia
+			JOIN {$this->sessBDCuenta}.trade.data_visitaInteligencia vit ON vit.idVisita=v.idVisita
+			JOIN {$this->sessBDCuenta}.trade.data_visitaInteligenciaDet vitd ON vitd.idVisitaInteligencia=vit.idVisitaInteligencia
 	
 			JOIN trade.producto_categoria pc ON pc.idCategoria=vitd.idCategoria
 			JOIN trade.producto_marca pm ON pm.idMarca=vitd.idMarca
 			JOIN trade.tipoElementoCompetencia cp ON cp.idTipoElementoCompetencia=vitd.idTipoElementoCompetencia
-			LEFT JOIN trade.data_visitaFotos vf ON vf.idVisitaFoto=vitd.idVisitaFoto
+			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisitaFoto=vitd.idVisitaFoto
 			LEFT JOIN trade.unidadMedidaInteligencia umi ON vitd.idUnidadMedida = umi.idUnidadMedida
 			WHERE r.fecha BETWEEN @fecIni AND @fecFin
-			AND r.demo = 0 AND r.estado = 1 AND v.estado = 1{$filtros}
+			AND r.estado = 1 AND v.estado = 1
+			AND r.demo = 0 
+			{$filtros}
 		";
 
 		$query = $this->db->query($sql);
@@ -209,7 +213,7 @@ class M_inteligencia extends MY_Model{
 				, CONVERT(VARCHAR(8),vf.hora)hora
 				, vf.fotoUrl foto
 			FROM 
-				trade.data_visitaFotos vf
+				{$this->sessBDCuenta}.trade.data_visitaFotos vf
 				JOIN trade.aplicacion_modulo m ON vf.idModulo = m.idModulo
 			WHERE 
 				idVisita = $idVisita";

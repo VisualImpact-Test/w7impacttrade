@@ -463,7 +463,7 @@ class ElementosVisibilidad extends MY_Controller{
 
 		switch ($tipoListaVisibilidad) {
 			case 'obligatoria':
-				$tabla = 'trade.list_visibilidadTradObl';
+				$tabla = "{$this->sessBDCuenta}.trade.list_visibilidadTradObl";
 				$inputParams=array();
 				$inputParams['fecFin'] = $valorEstado==0 ? date('Y-m-d'):NULL;
 				$inputWhere=array();
@@ -492,7 +492,7 @@ class ElementosVisibilidad extends MY_Controller{
 				}
 				break;
 			case 'iniciativa':
-				$tabla = 'trade.list_visibilidadTradIni';
+				$tabla = "{$this->sessBDCuenta}.trade.list_visibilidadTradIni";
 				$inputParams=array();
 				$inputParams['fecFin'] = $valorEstado==0 ? date('Y-m-d'):NULL;
 				$inputWhere=array();
@@ -521,7 +521,7 @@ class ElementosVisibilidad extends MY_Controller{
 				}
 				break;
 			case 'adicional':
-				$tabla = 'trade.list_visibilidadTradAdc';
+				$tabla = "{$this->sessBDCuenta}.trade.list_visibilidadTradAdc";
 				$inputParams=array();
 				$inputParams['fecFin'] = $valorEstado==0 ? date('Y-m-d'):NULL;
 				$inputWhere=array();
@@ -588,15 +588,15 @@ class ElementosVisibilidad extends MY_Controller{
 
 				switch ($tipoListaVisibilidad) {
 					case 'obligatoria': 
-						$tabla = 'trade.list_visibilidadTradObl'; 
+						$tabla = "{$this->sessBDCuenta}.trade.list_visibilidadTradObl"; 
 						$inputWhere['idListVisibilidadObl'] = $idLista;
 						break;
 					case 'iniciativa':
-						$tabla = 'trade.list_visibilidadTradIni';
+						$tabla = "{$this->sessBDCuenta}.trade.list_visibilidadTradIni";
 						$inputWhere['idListVisibilidadIni'] = $idLista;
 						break;
 					case 'adicional':
-						$tabla = 'trade.list_visibilidadTradAdc';
+						$tabla = "{$this->sessBDCuenta}.trade.list_visibilidadTradAdc";
 						$inputWhere['idListVisibilidadAdc'] = $idLista;
 						break;
 					default:

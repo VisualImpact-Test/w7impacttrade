@@ -86,10 +86,10 @@ class M_premiaciones extends MY_Model{
 				{$segmentacion['columnas_bd']}
 
 			FROM 
-				trade.data_visitaPremiacion vp
-				JOIN trade.data_visita v
+				{$this->sessBDCuenta}.trade.data_visitaPremiacion vp
+				JOIN {$this->sessBDCuenta}.trade.data_visita v
 					ON v.idVisita = vp.idVisita
-				JOIN trade.data_ruta r
+				JOIN {$this->sessBDCuenta}.trade.data_ruta r
 					ON r.idRuta = v.idRuta
 				JOIN trade.usuario_historico uh On uh.idUsuario=r.idUsuario
 					AND General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,@fecIni,@fecFin)=1
@@ -106,9 +106,9 @@ class M_premiaciones extends MY_Model{
 					ON ca.idCanal = v.idCanal
 				LEFT JOIN trade.grupoCanal gc
 					ON gc.idGrupoCanal = ca.idGrupoCanal
-				LEFT JOIN trade.data_visitaFotos vf
+				LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf
 					ON vf.idVisitaFoto = vp.idVisitaFoto
-				LEFT JOIN trade.premiacion p
+				LEFT JOIN {$this->sessBDCuenta}.trade.premiacion p
 					ON p.idPremiacion = vp.idPremiacion
 				LEFT JOIN trade.tipo_premiacion tp
 					ON tp.idTipoPremiacion = vp.idTipoPremiacion
@@ -130,7 +130,7 @@ class M_premiaciones extends MY_Model{
 		];
 
 		$this->db->where('idVisitaPremiacion', $params['id']);
-		$this->db->update('trade.data_visitaPremiacion', $update);
+		$this->db->update("{$this->sessBDCuenta}.trade.data_visitaPremiacion", $update);
 
 		if ($this->db->affected_rows() != 1) {
 			return false;
@@ -148,7 +148,7 @@ class M_premiaciones extends MY_Model{
 				, nombre
 				, CONVERT(VARCHAR,fechaInicio,103) AS fecIni
 				, CONVERT(VARCHAR,fechaCaducidad,103) AS fecFin
-			FROM trade.premiacion
+			FROM {$this->sessBDCuenta}.trade.premiacion
 			WHERE @fecha between fechaInicio and ISNULL(fechaCaducidad,@fecha)
 			AND idCuenta={$params['idCuenta']};
 			;
@@ -169,7 +169,7 @@ class M_premiaciones extends MY_Model{
 			, UPPER(p.nombre) AS plaza
 			, UPPER(d.nombre) AS distribuidora
 			, pc.foto
-		FROM trade.data_visitaPremiacionCargo pc
+		FROM {$this->sessBDCuenta}.trade.data_visitaPremiacionCargo pc
 		JOIN trade.canal gc ON pc.idGrupoCanal = gc.idCanal
 		LEFT JOIN trade.plaza p ON pc.idPlaza = p.idPlaza
 		LEFT JOIN trade.distribuidora d ON pc.idDistribuidora = d.idDistribuidora
@@ -233,7 +233,7 @@ class M_premiaciones extends MY_Model{
 			'idDistribuidora' => (!empty($params['idDistribuidora']) ? $params['idDistribuidora'] : NULL),
 			'foto' => $params['foto']
 		];
-		$query = $this->db->insert('trade.data_visitaPremiacionCargo', $insert);
+		$query = $this->db->insert("{$this->sessBDCuenta}.trade.data_visitaPremiacionCargo", $insert);
 		$result['id'] = $this->db->insert_id();
 
 		if ($this->db->trans_status() === FALSE || !$query) {
@@ -253,7 +253,7 @@ class M_premiaciones extends MY_Model{
 		$this->db->trans_begin();
 
 		$this->db->where('idCargo', $params['idCargo']);
-		$this->db->delete('trade.data_visitaPremiacionCargo');
+		$this->db->delete("{$this->sessBDCuenta}.trade.data_visitaPremiacionCargo");
 
 		if ($this->db->trans_status() === FALSE) {
 			$this->db->trans_rollback();
@@ -280,7 +280,7 @@ class M_premiaciones extends MY_Model{
 			, UPPER(c.razonSocial) AS cliente
 			, po.estado
 			, po.comentario
-		FROM trade.data_visitaPremiacionObjetivo po
+		FROM {$this->sessBDCuenta}.trade.data_visitaPremiacionObjetivo po
 		JOIN trade.canal gc ON po.idGrupoCanal = gc.idCanal
 		JOIN trade.cliente c ON po.idCliente = c.idCliente
 		WHERE 1 = 1{$filtros}
@@ -317,7 +317,7 @@ class M_premiaciones extends MY_Model{
 	{
 		$result = [];
 		
-		$result['insert'] = $this->db->insert_batch('trade.data_visitaPremiacionObjetivo', array_unique($params, SORT_REGULAR));
+		$result['insert'] = $this->db->insert_batch("{$this->sessBDCuenta}.trade.data_visitaPremiacionObjetivo", array_unique($params, SORT_REGULAR));
 
 		return $result;
 	}
@@ -333,7 +333,7 @@ class M_premiaciones extends MY_Model{
 		];
 
 		$this->db->where('idObjetivo', $params['idObjetivo_formestado']);
-		$this->db->update('trade.data_visitaPremiacionObjetivo', $update);
+		$this->db->update("{$this->sessBDCuenta}.trade.data_visitaPremiacionObjetivo", $update);
 
 		if ($this->db->trans_status() === FALSE) {
 			$this->db->trans_rollback();
@@ -415,10 +415,10 @@ class M_premiaciones extends MY_Model{
 				{$segmentacion['columnas_bd']}
 
 			FROM 
-				trade.data_visitaPremiacion vp
-				JOIN trade.data_visita v
+				{$this->sessBDCuenta}.trade.data_visitaPremiacion vp
+				JOIN {$this->sessBDCuenta}.trade.data_visita v
 					ON v.idVisita = vp.idVisita
-				JOIN trade.data_ruta r
+				JOIN {$this->sessBDCuenta}.trade.data_ruta r
 					ON r.idRuta = v.idRuta
 				JOIN trade.usuario_historico uh On uh.idUsuario=r.idUsuario
 					AND General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,@fecIni,@fecFin)=1
@@ -435,9 +435,9 @@ class M_premiaciones extends MY_Model{
 					ON ca.idCanal = v.idCanal
 				LEFT JOIN trade.grupoCanal gc
 					ON gc.idGrupoCanal = ca.idGrupoCanal
-				LEFT JOIN trade.data_visitaFotos vf
+				LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf
 					ON vf.idVisitaFoto = vp.idVisitaFoto
-				LEFT JOIN trade.premiacion p
+				LEFT JOIN {$this->sessBDCuenta}.trade.premiacion p
 					ON p.idPremiacion = vp.idPremiacion
 				LEFT JOIN trade.tipo_premiacion tp
 					ON tp.idTipoPremiacion = vp.idTipoPremiacion

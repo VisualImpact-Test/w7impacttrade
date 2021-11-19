@@ -13,7 +13,7 @@ class M_carga_masiva extends CI_Model{
 	public function obtener_carpetas(){
 		$filtro ='';
 		$filtro.= ( isset($cuenta) && !empty($cuenta) )? " AND idCuenta=".$cuenta:'';
-		$sql ="SELECT idCarga,idPermiso,fecIni,fecFin,estado,carpeta FROM trade.cargaModulacion WHERE estado=1";
+		$sql ="SELECT idCarga,idPermiso,fecIni,fecFin,estado,carpeta FROM {$this->sessBDCuenta}.trade.cargaModulacion WHERE estado=1";
 
 		return $this->db->query($sql)->result_array();
 	}
@@ -30,8 +30,8 @@ class M_carga_masiva extends CI_Model{
 				, cd.idCargaDet
 				, cd.cantidad
 			FROM 
-				trade.cargaModulacion c
-				JOIN trade.cargaModulacionDet cd
+				{$this->sessBDCuenta}.trade.cargaModulacion c
+				JOIN {$this->sessBDCuenta}.trade.cargaModulacionDet cd
 					ON cd.idCarga=c.idCarga
 			WHERE 
 				c.estado = 1
@@ -64,7 +64,7 @@ class M_carga_masiva extends CI_Model{
 				c.idCuenta,
 				c.idProyecto
 			FROM 
-				trade.cargaRuta c
+				{$this->sessBDCuenta}.trade.cargaRuta c
 			WHERE 
 				c.estado = 1 
 		";
@@ -88,7 +88,7 @@ class M_carga_masiva extends CI_Model{
 				c.idCuenta,
 				c.idProyecto
 			FROM 
-				trade.cargaRuta c
+				{$this->sessBDCuenta}.trade.cargaRuta c
 			WHERE 
 				c.estado = 1 
 				and (c.procesado IS NULL or c.procesado='0')
@@ -101,7 +101,7 @@ class M_carga_masiva extends CI_Model{
 			 SELECT 
 				c.*
 			FROM 
-				trade.cargaRutaDet c
+				{$this->sessBDCuenta}.trade.cargaRutaDet c
 			WHERE 
 				c.estado = 1 
 				AND c.idCarga={$params['idCarga']};
@@ -112,7 +112,7 @@ class M_carga_masiva extends CI_Model{
 
 	public function insertar_carga_ruta($input=array()){
 		$aSessTrack = [];
-		$table = 'trade.cargaRuta';
+		$table = "{$this->sessBDCuenta}.trade.cargaRuta";
 		$this->db->trans_begin();
 
 			$insert = $this->db->insert($table, $input);
@@ -129,7 +129,7 @@ class M_carga_masiva extends CI_Model{
 
 	public function insertar_carga_ruta_det($input=array()){
 		$aSessTrack = [];
-		$table = 'trade.cargaRutaDet';
+		$table = "{$this->sessBDCuenta}.trade.cargaRutaDet";
 		$this->db->trans_begin();
 
 			$insert = $this->db->insert($table, $input);
@@ -146,7 +146,7 @@ class M_carga_masiva extends CI_Model{
 
 	public function insertar_carga_ruta_no_procesado($input=array()){
 		$aSessTrack = [];
-		$table = 'trade.cargaRutaNoProcesados';
+		$table = "{$this->sessBDCuenta}.trade.cargaRutaNoProcesados";
 		$this->db->trans_begin();
 
 			$insert = $this->db->insert($table, $input);
@@ -166,7 +166,7 @@ class M_carga_masiva extends CI_Model{
 
 
 
-		$table = 'trade.cargaRuta';
+		$table = "{$this->sessBDCuenta}.trade.cargaRuta";
 		$this->db->trans_begin();
 
 			$this->db->where($where);
@@ -195,51 +195,51 @@ class M_carga_masiva extends CI_Model{
 			SET @fecha=CONVERT(DATE,'{$params['fecha']}');
 			SELECT
 				@num=COUNT(idRuta)
-			FROM trade.data_ruta
+			FROM {$this->sessBDCuenta}.trade.data_ruta
 			WHERE idUsuario={$params['idUsuario']}
 			AND fecha=@fecha AND idCuenta = {$params['idCuenta']} AND idProyecto = {$params['idProyecto']};
 
 			IF( @num=0 )BEGIN
-				INSERT INTO trade.data_ruta (fecha,idUsuario,idEncargado,idProyecto,idCuenta) VALUES (@fecha,{$params['idUsuario']},null,{$params['idProyecto']},{$params['idCuenta']})
+				INSERT INTO {$this->sessBDCuenta}.trade.data_ruta (fecha,idUsuario,idEncargado,idProyecto,idCuenta) VALUES (@fecha,{$params['idUsuario']},null,{$params['idProyecto']},{$params['idCuenta']})
 			END
 
 			SELECT
 				@idRuta=idRuta
-			FROM trade.data_ruta
+			FROM {$this->sessBDCuenta}.trade.data_ruta
 			WHERE idUsuario={$params['idUsuario']}
 			AND fecha=@fecha AND idProyecto = {$params['idProyecto']} AND idCuenta = {$params['idCuenta']};
 
 			SELECT
 				@num=COUNT(idVisita)
-			FROM trade.data_visita
+			FROM {$this->sessBDCuenta}.trade.data_visita
 			WHERE idRuta=@idRuta
 			AND idCliente={$params['idCliente']} 
 
 			IF( @num=0 )BEGIN
-				INSERT INTO trade.data_visita (idRuta,idCliente) VALUES (@idRuta,{$params['idCliente']});
+				INSERT INTO {$this->sessBDCuenta}.trade.data_visita (idRuta,idCliente) VALUES (@idRuta,{$params['idCliente']});
 			END
 		";
-		$this->CI->aSessTrack[] = [ 'idAccion' => 8, 'tabla' => 'trade.data_visita', 'id' => $params['idCliente'] ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 8, 'tabla' => "{$this->sessBDCuenta}.trade.data_visita", 'id' => $params['idCliente'] ];
 		return $this->db->query($sql);
 	}
 
 	public function update_carga_ruta_clientes_count($params){
 		$sql ="
-			UPDATE trade.cargaRuta
-			SET totalClientes= (select count(*) from trade.cargaRutaDet where idCarga={$params['idCarga']})
+			UPDATE {$this->sessBDCuenta}.trade.cargaRuta
+			SET totalClientes= (select count(*) from {$this->sessBDCuenta}.trade.cargaRutaDet where idCarga={$params['idCarga']})
 			WHERE idCarga ={$params['idCarga']};
 		";
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.cargaRuta' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.cargaRuta" ];
 		return $this->db->query($sql);
 	}
 
 	public function update_carga_ruta_fecha($params){
 		$sql ="
-			update  trade.cargaRuta 
+			update  {$this->sessBDCuenta}.trade.cargaRuta 
 			set finRegistro=getdate()
 			where idCarga={$params['idCarga']};
 		";
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.cargaRuta' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.cargaRuta" ];
 		return $this->db->query($sql);
 	}
 
@@ -252,14 +252,14 @@ class M_carga_masiva extends CI_Model{
 			distinct
 			rpd.idCliente
 		FROM
-			trade.cargaRuta rp
-			JOIN trade.cargaRutaDet rpd 
+			{$this->sessBDCuenta}.trade.cargaRuta rp
+			JOIN {$this->sessBDCuenta}.trade.cargaRutaDet rpd 
 				ON rpd.idCarga=rp.idCarga
 		WHERE 
 			rp.idCarga={$idCarga};
 		";
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.master_rutaProgramada' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.master_rutaProgramada" ];
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -269,8 +269,8 @@ class M_carga_masiva extends CI_Model{
 			rpd.idUsuario
 			, t.fecha 
 		FROM
-				trade.cargaRuta rp
-			JOIN trade.cargaRutaDet rpd 
+				{$this->sessBDCuenta}.trade.cargaRuta rp
+			JOIN {$this->sessBDCuenta}.trade.cargaRutaDet rpd 
 				ON rpd.idCarga=rp.idCarga
 			JOIN General.dbo.tiempo t 
 				ON t.fecha between rp.fecIni and rp.fecFin 
@@ -289,7 +289,7 @@ class M_carga_masiva extends CI_Model{
 			;
 		";
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.master_rutaProgramada' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.master_rutaProgramada" ];
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -311,7 +311,7 @@ class M_carga_masiva extends CI_Model{
 				c.fecFinLista,
 				c.procesado
 			FROM 
-				trade.cargaPermiso c
+				{$this->sessBDCuenta}.trade.cargaPermiso c
 			WHERE 
 				c.estado = 1 
 				and (c.procesado IS NULL or c.procesado='0')
@@ -337,7 +337,7 @@ class M_carga_masiva extends CI_Model{
 				c.idProyecto,
 				c.auditoria
 			FROM 
-				trade.cargaPermiso c
+				{$this->sessBDCuenta}.trade.cargaPermiso c
 			WHERE 
 				c.estado = 1 
 		";
@@ -364,7 +364,7 @@ class M_carga_masiva extends CI_Model{
 	public function update_carga_permiso($where=array(), $params=array()){
 		$aSessTrack = [];
 
-		$table = 'trade.cargaPermiso';
+		$table = "{$this->sessBDCuenta}.trade.cargaPermiso";
 		$this->db->trans_begin();
 
 			$this->db->where($where);
@@ -389,7 +389,7 @@ class M_carga_masiva extends CI_Model{
 			 	distinct
 				c.idCliente
 			FROM 
-				trade.cargaPermisoDet c
+				{$this->sessBDCuenta}.trade.cargaPermisoDet c
 			WHERE 
 				c.estado = 1 
 				AND c.idCarga={$params['idCarga']};
@@ -406,7 +406,7 @@ class M_carga_masiva extends CI_Model{
 			 SELECT 
 				c.*
 			FROM 
-				trade.cargaPermisoDet c
+				{$this->sessBDCuenta}.trade.cargaPermisoDet c
 			WHERE 
 				c.estado = 1 
 				AND c.idCarga={$params['idCarga']}
@@ -437,31 +437,31 @@ class M_carga_masiva extends CI_Model{
 
 	public function update_carga_permiso_clientes_count($params){
 		$sql ="
-			UPDATE trade.cargaPermiso
+			UPDATE {$this->sessBDCuenta}.trade.cargaPermiso
 			SET totalClientes= (
 				SELECT COUNT(*) FROM (
 					SELECT 
 					 distinct
 						 c.idCliente
 					FROM 
-						trade.cargaPermisoDet c
+						{$this->sessBDCuenta}.trade.cargaPermisoDet c
 					WHERE 
 						c.estado = 1 
 					AND c.idCarga={$params['idCarga']}
 				) A )
 			WHERE idCarga ={$params['idCarga']};
 		";
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.cargaPermiso' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.cargaPermiso" ];
 		return $this->db->query($sql);
 	}
 
 	public function update_carga_permiso_fecha($params){
 		$sql ="
-			update  trade.cargaPermiso 
+			update  {$this->sessBDCuenta}.trade.cargaPermiso 
 			set finRegistro=getdate()
 			where idCarga={$params['idCarga']};
 		";
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.cargaPermiso' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.cargaPermiso" ];
 		return $this->db->query($sql);
 	}
 
@@ -486,7 +486,7 @@ class M_carga_masiva extends CI_Model{
 				c.procesado,
 				c.auditoria
 			FROM 
-				trade.cargaCliente c
+			{$this->sessBDCuenta}.trade.cargaCliente c
 			WHERE 
 				c.estado = 1 
 		";
@@ -509,7 +509,7 @@ class M_carga_masiva extends CI_Model{
 				c.idProyecto,
 				c.auditoria
 			FROM 
-				trade.cargaCliente c
+				{$this->sessBDCuenta}.trade.cargaCliente c
 			WHERE 
 				c.estado = 1 
 				and (c.procesado IS NULL or c.procesado='0')
@@ -522,7 +522,7 @@ class M_carga_masiva extends CI_Model{
 			 SELECT 
 				c.*
 			FROM 
-				trade.cargaClienteDet c
+				{$this->sessBDCuenta}.trade.cargaClienteDet c
 			WHERE 
 				c.estado = 1 
 				AND c.idCarga={$params['idCarga']};
@@ -533,7 +533,7 @@ class M_carga_masiva extends CI_Model{
 
 	public function insertar_carga_cliente($input=array()){
 		$aSessTrack = [];
-		$table = 'trade.cargaCliente';
+		$table = "{$this->sessBDCuenta}.trade.cargaCliente";
 		$this->db->trans_begin();
 
 			$insert = $this->db->insert($table, $input);
@@ -550,7 +550,7 @@ class M_carga_masiva extends CI_Model{
 
 	public function insertar_carga_cliente_det($input=array()){
 		$aSessTrack = [];
-		$table = 'trade.cargaClienteDet';
+		$table = "{$this->sessBDCuenta}.trade.cargaClienteDet";
 		$this->db->trans_begin();
 
 			$insert = $this->db->insert($table, $input);
@@ -567,7 +567,7 @@ class M_carga_masiva extends CI_Model{
 
 	public function insertar_carga_cliente_no_procesado($input=array()){
 		$aSessTrack = [];
-		$table = 'trade.cargaClienteClientesNoProcesados';
+		$table = "{$this->sessBDCuenta}.trade.cargaClienteClientesNoProcesados";
 		$this->db->trans_begin();
 
 			$insert = $this->db->insert($table, $input);
@@ -585,7 +585,7 @@ class M_carga_masiva extends CI_Model{
 	public function update_carga_cliente($where=array(), $params=array()){
 		$aSessTrack = [];
 
-		$table = 'trade.cargaCliente';
+		$table = "{$this->sessBDCuenta}.trade.cargaCliente";
 		$this->db->trans_begin();
 
 			$this->db->where($where);
@@ -605,37 +605,37 @@ class M_carga_masiva extends CI_Model{
 
 	public function update_carga_cliente_clientes_count($params){
 		$sql ="
-			UPDATE trade.cargaCliente
-			SET totalClientes= (select count(*) from trade.cargaClienteDet where idCarga={$params['idCarga']})
+			UPDATE {$this->sessBDCuenta}.trade.cargaCliente
+			SET totalClientes= (select count(*) from {$this->sessBDCuenta}.trade.cargaClienteDet where idCarga={$params['idCarga']})
 			WHERE idCarga ={$params['idCarga']};
 		";
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.cargaCliente' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.cargaCliente" ];
 		return $this->db->query($sql);
 	}
 
 	public function update_carga_cliente_fecha($params){
 		$sql ="
-			update  trade.cargaCliente 
+			update  {$this->sessBDCuenta}.trade.cargaCliente 
 			set finRegistro=getdate()
 			where idCarga={$params['idCarga']};
 		";
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.cargaCliente' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.cargaCliente" ];
 		return $this->db->query($sql);
 	}
 
 
 
 	public function obtener_verificacion_cliente($input=array()){
-		$tablahistorico="trade.cliente_historico";
+		$tablahistorico="{$this->sessBDCuenta}.trade.cliente_historico";
 		if( !empty($input['idCuenta'])){
 			if($input['idCuenta']=="3"){
-				$tablahistorico="trade.cliente_historico_pg";
+				$tablahistorico="{$this->sessBDCuenta}.trade.cliente_historico";
 			}else if($input['idCuenta']=="13"){
-				$tablahistorico="trade.cliente_historico_visualimpact";
+				$tablahistorico="{$this->sessBDCuenta}.trade.cliente_historico";
 			}else if($input['idCuenta']=="2"){
-				$tablahistorico="trade.cliente_historico_aje";
+				$tablahistorico="{$this->sessBDCuenta}.trade.cliente_historico";
 			}else{
-				$tablahistorico="trade.cliente_historico";
+				$tablahistorico="{$this->sessBDCuenta}.trade.cliente_historico";
 			}
 		}
 		$sql ="
@@ -900,7 +900,7 @@ class M_carga_masiva extends CI_Model{
 		SELECT 
 			c.*
 		FROM 
-			trade.cargaPermisoDet c
+			{$this->sessBDCuenta}.trade.cargaPermisoDet c
 		JOIN trade.elementoVisibilidadTrad ev 
 			ON ev.idElementoVis=c.idElemento
 		WHERE 
@@ -915,23 +915,23 @@ class M_carga_masiva extends CI_Model{
 	public function verificar_lista_tradicional($input=array()){
 		$query = $this->db->select('idListVisibilidadObl')
 				->where( $input )
-				->get('trade.list_visibilidadTradObl');
+				->get("{$this->sessBDCuenta}.trade.list_visibilidadTradObl");
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.list_visibilidadTradObl' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.list_visibilidadTradObl" ];
 		return $query->result_array();
 	}
 
 	public function delete_lista_tradicional_detalle($idListVisibilidad){
-		$sql="DELETE FROM trade.list_visibilidadTradOblDet WHERE idListVisibilidadObl={$idListVisibilidad}";
+		$sql="DELETE FROM {$this->sessBDCuenta}.trade.list_visibilidadTradOblDet WHERE idListVisibilidadObl={$idListVisibilidad}";
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 8, 'tabla' => 'trade.list_visibilidadTradObl', 'id' => $idListVisibilidad ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 8, 'tabla' => "{$this->sessBDCuenta}.trade.list_visibilidadTradObl", 'id' => $idListVisibilidad ];
 		return $this->db->query($sql);
 	}
 
 	public function insertar_lista_tradicional_detalle($input=array()){
 		$aSessTrack = [];
 
-		$table = 'trade.list_visibilidadTradObl';
+		$table = "{$this->sessBDCuenta}.trade.list_visibilidadTradObl";
 		$this->db->trans_begin();
 			
 			$insert = $this->db->insert($table, $input);
@@ -952,7 +952,7 @@ class M_carga_masiva extends CI_Model{
 	public function insertar_lista_tradicional($input=array()){
 		$aSessTrack = [];
 
-		$table = 'trade.list_visibilidadTradObl';
+		$table = "{$this->sessBDCuenta}.trade.list_visibilidadTradObl";
 		$this->db->trans_begin();
 
 			$insert = $this->db->insert($table, $input);
@@ -973,22 +973,22 @@ class M_carga_masiva extends CI_Model{
 	public function verificar_lista_obligatoria($input=array()){
 		$query = $this->db->select('idListVisibilidadObl')
 				->where( $input )
-				->get('trade.list_visibilidadTradObl');
+				->get("{$this->sessBDCuenta}.trade.list_visibilidadTradObl");
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.list_visibilidadTradObl' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.list_visibilidadTradObl" ];
 		return $query->result_array();
 	}
 
 	public function delete_lista_obligatoria_detallle($idListVisibilidadObl){
-		$sql="DELETE FROM trade.list_visibilidadTradOblDet WHERE idListVisibilidadObl={$idListVisibilidadObl}";
+		$sql="DELETE FROM {$this->sessBDCuenta}.trade.list_visibilidadTradOblDet WHERE idListVisibilidadObl={$idListVisibilidadObl}";
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 8, 'tabla' => 'trade.list_visibilidadTradOblDet', 'id' => $idListVisibilidadObl ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 8, 'tabla' => "{$this->sessBDCuenta}.trade.list_visibilidadTradOblDet", 'id' => $idListVisibilidadObl ];
 		return $this->db->query($sql);
 	}
 	public function insertar_lista_obligatoria_detalle($input=array()){
 		$aSessTrack = [];
 
-		$table = 'trade.list_visibilidadTradOblDet';
+		$table = "{$this->sessBDCuenta}.trade.list_visibilidadTradOblDet";
 		$this->db->trans_begin();
 
 			$insert = $this->db->insert($table, $input);
@@ -1008,7 +1008,7 @@ class M_carga_masiva extends CI_Model{
 	public function insertar_lista_obligatoria($input=array()){
 		$aSessTrack = [];
 
-		$table = 'trade.list_visibilidadTradObl';
+		$table = "{$this->sessBDCuenta}.trade.list_visibilidadTradObl";
 		$this->db->trans_begin();
 
 			$insert = $this->db->insert($table, $input);
@@ -1029,23 +1029,23 @@ class M_carga_masiva extends CI_Model{
 	public function verificar_lista_visibilidadTrad( $input = [] ){
 		$query = $this->db->select('idListVisibilidad')
 					->where( $input )
-					->get('trade.list_visibilidadTrad');
+					->get("{$this->sessBDCuenta}.trade.list_visibilidadTrad");
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.list_visibilidadTrad' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.list_visibilidadTrad" ];
 		return $query->result_array();
 	}
 
 	public function delete_lista_visibilidadTradDet($idListVisibilidad){
-		$sql = "DELETE FROM trade.list_visibilidadTradDet WHERE idListVisibilidad = {$idListVisibilidad}";
+		$sql = "DELETE FROM {$this->sessBDCuenta}.trade.list_visibilidadTradDet WHERE idListVisibilidad = {$idListVisibilidad}";
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 8, 'tabla' => 'trade.list_visibilidadTradDet', 'id' => $idListVisibilidad ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 8, 'tabla' => "{$this->sessBDCuenta}.trade.list_visibilidadTradDet", 'id' => $idListVisibilidad ];
 		return $this->db->query($sql);
 	}
 
 	public function insertar_lista_visibilidadTrad($input=array()){
 		$aSessTrack = [];
 
-		$table = 'trade.list_visibilidadTrad';
+		$table = "{$this->sessBDCuenta}.trade.list_visibilidadTrad";
 		$this->db->trans_begin();
 
 			$insert = $this->db->insert($table, $input);
@@ -1066,33 +1066,33 @@ class M_carga_masiva extends CI_Model{
 	public function verificar_lista_iniciativa( $input = [] ){
 		$this->db->select('idListVisibilidadIni');
 		$this->db->where($input);
-		$query = $this->db->get('trade.list_visibilidadTradIni');
+		$query = $this->db->get("{$this->sessBDCuenta}.trade.list_visibilidadTradIni");
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.list_visibilidadTradIni' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.list_visibilidadTradIni" ];
 		return $query->result_array();
 	}
 
 	public function verificar_lista_iniciativa_trade( $input = [] ){
 		$this->db->select('idListIniciativaTrad');
 		$this->db->where($input);
-		$query = $this->db->get('trade.list_iniciativaTrad');
+		$query = $this->db->get("{$this->sessBDCuenta}.trade.list_iniciativaTrad");
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.list_iniciativaTrad' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.list_iniciativaTrad" ];
 		return $query->result_array();
 	}
 
 	public function delete_lista_iniciativa_detalle_elementos($idListVisibilidadIni){
 		$sql = "
-			DELETE trade.list_visibilidadTradIniDetElemento 
+			DELETE {$this->sessBDCuenta}.trade.list_visibilidadTradIniDetElemento 
 			WHERE idListVisibilidadIniDet IN ( 
 				SELECT idListVisibilidadIniDet
-				FROM trade.list_visibilidadTradIniDet 
+				FROM {$this->sessBDCuenta}.trade.list_visibilidadTradIniDet 
 				WHERE idListVisibilidadIni = {$idListVisibilidadIni}
 			)
 		";
 
 		$this->CI->aSessTrack[] = [ 'idAccion' => 8,
-				'tabla' => 'trade.list_visibilidadTradIniDetElemento',
+				'tabla' => "{$this->sessBDCuenta}.trade.list_visibilidadTradIniDetElemento",
 				'id' => arrayToString([ 'idListVisibilidadIni' => $idListVisibilidadIni])
 			];
 		return $this->db->query($sql);
@@ -1100,36 +1100,36 @@ class M_carga_masiva extends CI_Model{
 
 	public function delete_lista_iniciativa_detalle_elementos_trade($idListVisibilidadIni){
 		$sql = "
-			DELETE trade.list_iniciativaTradDetElemento 
+			DELETE {$this->sessBDCuenta}.trade.list_iniciativaTradDetElemento 
 			WHERE idListIniciativaTradDet IN ( 
 				SELECT idListIniciativaTradDet
-				FROM trade.list_iniciativaTradDet 
+				FROM {$this->sessBDCuenta}.trade.list_iniciativaTradDet 
 				WHERE idListIniciativaTrad = {$idListVisibilidadIni}
 			)
 		";
 
 		$this->CI->aSessTrack[] = [ 'idAccion' => 8,
-				'tabla' => 'trade.list_iniciativaTradDetElemento',
+				'tabla' => "{$this->sessBDCuenta}.trade.list_iniciativaTradDetElemento",
 				'id' => arrayToString([ 'idListIniciativaTrad' => $idListVisibilidadIni])
 			];
 		return $this->db->query($sql);
 	}
 
 	public function delete_lista_iniciativa_detallle($idListVisibilidadIni){
-		$sql = "DELETE FROM trade.list_visibilidadTradIniDet WHERE idListVisibilidadIni = {$idListVisibilidadIni}";
+		$sql = "DELETE FROM {$this->sessBDCuenta}.trade.list_visibilidadTradIniDet WHERE idListVisibilidadIni = {$idListVisibilidadIni}";
 
 		$this->CI->aSessTrack[] = [ 'idAccion' => 8,
-				'tabla' => 'trade.list_visibilidadTradIniDet',
+				'tabla' => "{$this->sessBDCuenta}.trade.list_visibilidadTradIniDet",
 				'id' => arrayToString([ 'idListVisibilidadIni' => $idListVisibilidadIni])
 			];
 		return $this->db->query($sql);
 	}
 
 	public function delete_lista_iniciativa_detallle_trade($idListVisibilidadIni){
-		$sql = "DELETE FROM trade.list_iniciativaTradDet WHERE idListIniciativaTrad = {$idListVisibilidadIni}";
+		$sql = "DELETE FROM {$this->sessBDCuenta}.trade.list_iniciativaTradDet WHERE idListIniciativaTrad = {$idListVisibilidadIni}";
 
 		$this->CI->aSessTrack[] = [ 'idAccion' => 8,
-				'tabla' => 'trade.list_iniciativaTradDet',
+				'tabla' => "{$this->sessBDCuenta}.trade.list_iniciativaTradDet",
 				'id' => arrayToString([ 'idListIniciativaTrad' => $idListVisibilidadIni])
 			];
 		return $this->db->query($sql);
@@ -1138,7 +1138,7 @@ class M_carga_masiva extends CI_Model{
 	public function insertar_lista_iniciativa($input=array()){
 		$aSessTrack = [];
 
-		$table = 'trade.list_visibilidadTradIni';
+		$table = "{$this->sessBDCuenta}.trade.list_visibilidadTradIni";
 		$this->db->trans_begin();
 
 			$insert = $this->db->insert($table, $input);
@@ -1158,7 +1158,7 @@ class M_carga_masiva extends CI_Model{
 	public function insertar_lista_iniciativa_trade($input=array()){
 		$aSessTrack = [];
 
-		$table = 'trade.list_iniciativaTrad';
+		$table = "{$this->sessBDCuenta}.trade.list_iniciativaTrad";
 		$this->db->trans_begin();
 
 			$insert = $this->db->insert($table, $input);
@@ -1185,7 +1185,7 @@ class M_carga_masiva extends CI_Model{
 		$arrayDetalle['estado'] = 1;
 
 		//validar existencia
-		$rs = $this->db->get_where('trade.list_visibilidadTradIniDet', $arrayDetalle)->result_array();
+		$rs = $this->db->get_where("{$this->sessBDCuenta}.trade.list_visibilidadTradIniDet", $arrayDetalle)->result_array();
 		if($rs!=null){
 			if(count($rs) >=1){
 				//si existe iniciativa agregar detalle elemento
@@ -1196,7 +1196,7 @@ class M_carga_masiva extends CI_Model{
 				$arrayDetalleElemento['estado']=1;
 
 				$aSessTrack = [];
-				$table = 'trade.list_visibilidadTradIniDetElemento';
+				$table = "{$this->sessBDCuenta}.trade.list_visibilidadTradIniDetElemento";
 				$this->db->trans_begin();
 
 					$insert = $this->db->insert($table, $arrayDetalleElemento);
@@ -1213,7 +1213,7 @@ class M_carga_masiva extends CI_Model{
 			}else{
 				//insertar la iniciativa
 				$aSessTrack = [];
-				$table = 'trade.list_visibilidadTradIniDet';
+				$table = "{$this->sessBDCuenta}.trade.list_visibilidadTradIniDet";
 				$this->db->trans_begin();
 
 					$insert = $this->db->insert($table, $arrayDetalle);
@@ -1235,7 +1235,7 @@ class M_carga_masiva extends CI_Model{
 					$arrayDetalleElemento['estado']=1;
 
 					$aSessTrack = [];
-					$table = 'trade.list_visibilidadTradIniDetElemento';
+					$table = "{$this->sessBDCuenta}.trade.list_visibilidadTradIniDetElemento";
 					$this->db->trans_begin();
 
 						$insert = $this->db->insert($table, $arrayDetalleElemento);
@@ -1254,7 +1254,7 @@ class M_carga_masiva extends CI_Model{
 		}else{
 			//insertar la iniciativa
 			$aSessTrack = [];
-			$table = 'trade.list_visibilidadTradIniDet';
+			$table = "{$this->sessBDCuenta}.trade.list_visibilidadTradIniDet";
 			$this->db->trans_begin();
 
 				$insert = $this->db->insert($table, $arrayDetalle);
@@ -1276,7 +1276,7 @@ class M_carga_masiva extends CI_Model{
 				$arrayDetalleElemento['estado']=1;
 
 				$aSessTrack = [];
-				$table = 'trade.list_visibilidadTradIniDetElemento';
+				$table = "{$this->sessBDCuenta}.trade.list_visibilidadTradIniDetElemento";
 				$this->db->trans_begin();
 
 					$insert = $this->db->insert($table, $arrayDetalleElemento);
@@ -1297,16 +1297,16 @@ class M_carga_masiva extends CI_Model{
 
 	public function obtener_cliente($input=array()){
 		$filtros = '';
-		$tablahistorico="trade.cliente_historico";
+		$tablahistorico="{$this->sessBDCuenta}.trade.cliente_historico";
 		if( !empty($input['idCuenta'])){
 			if($input['idCuenta']=="3"){
-				$tablahistorico="trade.cliente_historico_pg";
+				$tablahistorico="{$this->sessBDCuenta}.trade.cliente_historico";
 			}else if($input['idCuenta']=="13"){
-				$tablahistorico="trade.cliente_historico_visualimpact";
+				$tablahistorico="{$this->sessBDCuenta}.trade.cliente_historico";
 			}else if($input['idCuenta']=="2"){
-				$tablahistorico="trade.cliente_historico_aje";
+				$tablahistorico="{$this->sessBDCuenta}.trade.cliente_historico";
 			}else{
-				$tablahistorico="trade.cliente_historico";
+				$tablahistorico="{$this->sessBDCuenta}.trade.cliente_historico";
 			}
 		}
 		$filtros .= !empty($input['idCliente']) ? " AND c.idCliente=".$input['idCliente'] : "";
@@ -1347,7 +1347,7 @@ class M_carga_masiva extends CI_Model{
 				c.idCuenta,
 				c.idProyecto
 			FROM 
-				trade.cargaIniciativa c
+				{$this->sessBDCuenta}.trade.cargaIniciativa c
 			WHERE 
 				c.estado = 1 
 				and (c.procesado IS NULL or c.procesado='0')
@@ -1358,7 +1358,7 @@ class M_carga_masiva extends CI_Model{
 	public function update_carga_iniciativa($where=array(), $params=array()){
 		$aSessTrack = [];
 
-		$table = 'trade.cargaIniciativa';
+		$table = "{$this->sessBDCuenta}.trade.cargaIniciativa";
 		$this->db->trans_begin();
 
 			$this->db->where($where);
@@ -1378,20 +1378,20 @@ class M_carga_masiva extends CI_Model{
 
 	public function update_carga_iniciativa_clientes_count($params){
 		$sql ="
-			UPDATE trade.cargaIniciativa
+			UPDATE {$this->sessBDCuenta}.trade.cargaIniciativa
 			SET totalClientes= (
 				SELECT COUNT(*) FROM (
 					SELECT 
 					 *
 					FROM 
-						trade.cargaIniciativaDet c
+					  	{$this->sessBDCuenta}.trade.cargaIniciativaDet c
 					WHERE 
 						c.estado = 1 
 					AND c.idCarga={$params['idCarga']}
 				) A )
 			WHERE idCarga ={$params['idCarga']};
 		";
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.cargaIniciativa' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.cargaIniciativa" ];
 		return $this->db->query($sql);
 	}
 
@@ -1412,7 +1412,7 @@ class M_carga_masiva extends CI_Model{
 				c.idCuenta,
 				c.idProyecto
 			FROM 
-				trade.cargaIniciativa c
+				{$this->sessBDCuenta}.trade.cargaIniciativa c
 			WHERE 
 				c.estado = 1 
 				and c.procesado=1
@@ -1427,7 +1427,7 @@ class M_carga_masiva extends CI_Model{
 			 	distinct
 				c.idCliente
 			FROM 
-				trade.cargaIniciativaDet c
+				{$this->sessBDCuenta}.trade.cargaIniciativaDet c
 			WHERE 
 				c.estado = 1 
 				AND c.idCarga={$params['idCarga']};
@@ -1444,7 +1444,7 @@ class M_carga_masiva extends CI_Model{
 			 SELECT 
 				c.*
 			FROM 
-				trade.cargaIniciativaDet c
+				{$this->sessBDCuenta}.trade.cargaIniciativaDet c
 			WHERE 
 				c.estado = 1 
 				AND c.idCarga={$params['idCarga']}
@@ -1459,8 +1459,8 @@ class M_carga_masiva extends CI_Model{
 		SELECT 
 			ev.idElementoVis
 		FROM 
-			trade.cargaIniciativaDet c
-		JOIN trade.iniciativaTradElemento ite 
+			{$this->sessBDCuenta}.trade.cargaIniciativaDet c
+		JOIN {$this->sessBDCuenta}.trade.iniciativaTradElemento ite 
 			ON ite.idIniciativa=c.idIniciativa
 		JOIN trade.elementoVisibilidadTrad ev 
 			ON ev.idElementoVis=ite.idElementoVis
@@ -1476,7 +1476,7 @@ class M_carga_masiva extends CI_Model{
 
 	public function insertar_lista_iniciativa_det($input=array()){
 		$aSessTrack = [];
-		$table = 'trade.list_iniciativaTradDet';
+		$table = "{$this->sessBDCuenta}.trade.list_iniciativaTradDet";
 		$this->db->trans_begin();
 			$insert = $this->db->insert($table, $input);
 			$id = $this->db->insert_id();
@@ -1490,7 +1490,7 @@ class M_carga_masiva extends CI_Model{
 
 	public function insertar_lista_iniciativa_det_trade($input=array()){
 		$aSessTrack = [];
-		$table = 'trade.list_iniciativaTradDet';
+		$table = "{$this->sessBDCuenta}.trade.list_iniciativaTradDet";
 		$this->db->trans_begin();
 			$insert = $this->db->insert($table, $input);
 			$id = $this->db->insert_id();
@@ -1504,11 +1504,11 @@ class M_carga_masiva extends CI_Model{
 
 	public function update_carga_iniciativa_fecha($params){
 		$sql ="
-			update  trade.cargaIniciativa
+			update  {$this->sessBDCuenta}.trade.cargaIniciativa
 			set finRegistro=getdate()
 			where idCarga={$params['idCarga']};
 		";
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.cargaIniciativa' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.cargaIniciativa" ];
 		return $this->db->query($sql);
 	}
 
@@ -1669,7 +1669,7 @@ class M_carga_masiva extends CI_Model{
 			SET totalClientes= (select count(*) from trade.cargaClienteProyectoDet where idCarga={$params['idCarga']})
 			WHERE idCarga ={$params['idCarga']};
 		";
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.cargaCliente' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.cargaCliente" ];
 		return $this->db->query($sql);
 	}
 
@@ -1728,11 +1728,11 @@ class M_carga_masiva extends CI_Model{
 		$sql = "
 			WITH list_visitas AS (
 				SELECT v.idVisita  
-				FROM trade.data_ruta r 
-				JOIN trade.data_visita v ON v.idRuta=r.idRuta
+				FROM {$this->sessBDCuenta}.trade.data_ruta r 
+				JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
 				WHERE r.idProyecto={$post['idProyecto']} and r.fecha='{$post['fecha']}'
 			)
-			UPDATE trade.data_visita
+			UPDATE {$this->sessBDCuenta}.trade.data_visita
 			SET estado=estado
 			where idVisita IN (
 				SELECT  idVisita FROM list_visitas

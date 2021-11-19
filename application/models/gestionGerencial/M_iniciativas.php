@@ -57,22 +57,22 @@ class M_iniciativas extends MY_Model{
 			, vf.fotoUrl AS foto
 			, vid.idVisitaIniciativaTradDet 
 			, CONVERT(VARCHAR(8),vi.hora, 108) as hora
-		FROM trade.data_ruta r
-		JOIN trade.data_visita v ON v.idRuta=r.idRuta
-		JOIN trade.data_visitaIniciativaTrad vi ON vi.idVisita=v.idVisita
+		FROM {$this->sessBDCuenta}.trade.data_ruta r
+		JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
+		JOIN {$this->sessBDCuenta}.trade.data_visitaIniciativaTrad vi ON vi.idVisita=v.idVisita
 		JOIN trade.canal ca ON ca.idCanal=v.idCanal
-		LEFT JOIN trade.data_visitaIniciativaTradDet vid ON vid.idVisitaIniciativaTrad=vi.idVisitaIniciativaTrad
+		LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaIniciativaTradDet vid ON vid.idVisitaIniciativaTrad=vi.idVisitaIniciativaTrad
 		LEFT JOIN General.dbo.ubigeo ubi ON ubi.cod_ubigeo=v.cod_ubigeo
 		LEFT JOIN trade.plaza pl ON pl.idPlaza=v.idPlaza
 		LEFT JOIN trade.distribuidoraSucursal ds ON ds.idDistribuidoraSucursal=v.idDistribuidoraSucursal
 		LEFT JOIN trade.distribuidora d ON d.idDistribuidora=ds.idDistribuidora
 		LEFT JOIN General.dbo.ubigeo ubi1 ON ubi1.cod_ubigeo=ds.cod_ubigeo
-		LEFT JOIN trade.iniciativaTrad it ON it.idIniciativa=vid.idIniciativa
+		LEFT JOIN {$this->sessBDCuenta}.trade.iniciativaTrad it ON it.idIniciativa=vid.idIniciativa
 		LEFT JOIN trade.elementoVisibilidadTrad eit ON eit.idElementoVis=vid.idElementoIniciativa
 		LEFT JOIN trade.estadoIniciativaTrad esit ON esit.idEstadoIniciativa=vid.idEstadoIniciativa
 		LEFT JOIN trade.encargado ec ON ec.idEncargado=r.idEncargado
 		LEFT JOIN trade.usuario us ON us.idUsuario=ec.idUsuario
-		LEFT JOIN trade.data_visitaFotos vf ON vf.idVisitaFoto=vid.idVisitaFoto
+		LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisitaFoto=vid.idVisitaFoto
 		WHERE r.estado=1 AND v.estado=1 AND r.demo=0
 		AND r.fecha BETWEEN @fecIni AND @fecFin
 		{$filtros}
@@ -124,12 +124,12 @@ class M_iniciativas extends MY_Model{
 				, COUNT(CASE WHEN (v.estadoIncidencia=1) THEN 1 END) OVER(PARTITION BY en.idUsuario,r.idUsuario) AS total_visitas_incidencia
 				, vit.idVisitaIniciativaTrad
 				, SUM(CASE WHEN (vit.idVisitaIniciativaTrad IS NOT NULL) THEN 1 ELSE 0 END) OVER(PARTITION BY en.idUsuario, r.idUsuario) AS suma_visitas_iniciativas
-			FROM trade.data_ruta r 
-			JOIN trade.data_visita v ON v.idRuta=r.idRuta
+			FROM {$this->sessBDCuenta}.trade.data_ruta r 
+			JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
 			JOIN trade.canal ca ON ca.idCanal=v.idCanal
 			LEFT JOIN trade.encargado en ON en.idEncargado=r.idEncargado
 			LEFT JOIN trade.usuario us ON us.idUsuario=en.idUsuario
-			LEFT JOIN trade.data_visitaIniciativaTrad vit ON vit.idVisita=v.idVisita
+			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaIniciativaTrad vit ON vit.idVisita=v.idVisita
 			WHERE r.estado=1 --AND r.demo=0
 			AND v.estado=1
 			AND r.fecha BETWEEN @fecIni AND @fecFin
@@ -174,12 +174,12 @@ class M_iniciativas extends MY_Model{
 				, eit.nombre AS elementoIniciativa
 				, vitd.cantidad
 				, SUM(vitd.cantidad) OVER(PARTITION BY en.idUsuario,r.idUsuario, vitd.idElementoIniciativa) AS suma_cantidad_elemento_iniciativa
-			FROM trade.data_ruta r 
-			JOIN trade.data_visita v ON v.idRuta=r.idRuta
+			FROM {$this->sessBDCuenta}.trade.data_ruta r 
+			JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
 			LEFT JOIN trade.encargado en ON en.idEncargado=r.idEncargado
 			LEFT JOIN trade.usuario us ON us.idUsuario=en.idUsuario
-			JOIN trade.data_visitaIniciativaTrad vit ON vit.idVisita=v.idVisita
-			JOIN trade.data_visitaIniciativaTradDet vitd ON vitd.idVisitaIniciativaTrad=vit.idVisitaIniciativaTrad
+			JOIN {$this->sessBDCuenta}.trade.data_visitaIniciativaTrad vit ON vit.idVisita=v.idVisita
+			JOIN {$this->sessBDCuenta}.trade.data_visitaIniciativaTradDet vitd ON vitd.idVisitaIniciativaTrad=vit.idVisitaIniciativaTrad
 			LEFT JOIN trade.elementoIniciativaTrad eit ON eit.idElementoIniciativa=vitd.idElementoIniciativa
 			WHERE r.estado=1 --AND r.demo=0
 			AND v.estado=1
@@ -225,14 +225,14 @@ class M_iniciativas extends MY_Model{
 			, d.nombre AS distribuidora
 			, ubi.distrito AS ciudad
 			, vit.idVisitaIniciativaTrad
-		FROM trade.data_ruta r 
-		JOIN trade.data_visita v ON v.idRuta=r.idRuta
+		FROM {$this->sessBDCuenta}.trade.data_ruta r 
+		JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
 		LEFT JOIN trade.encargado en ON en.idEncargado=r.idEncargado
 		LEFT JOIN trade.usuario us ON us.idUsuario=en.idUsuario
 		LEFT JOIN trade.distribuidoraSucursal ds ON ds.idDistribuidoraSucursal=v.idDistribuidoraSucursal
 		LEFT JOIN trade.distribuidora d ON d.idDistribuidora=ds.idDistribuidora
 		LEFT JOIN General.dbo.ubigeo ubi ON ubi.cod_ubigeo=ds.cod_ubigeo
-		LEFT JOIN trade.data_visitaIniciativaTrad vit ON vit.idVisita=v.idVisita
+		LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaIniciativaTrad vit ON vit.idVisita=v.idVisita
 		WHERE r.estado=1 --AND r.demo=0
 		AND v.estado=1
 		AND r.fecha BETWEEN @fecIni AND @fecFin
@@ -273,15 +273,15 @@ class M_iniciativas extends MY_Model{
 			, eit.nombre AS elementoIniciativa
 			, vitd.presencia
 			, vitd.cantidad
-		FROM trade.data_ruta r 
-		JOIN trade.data_visita v ON v.idRuta=r.idRuta
+		FROM {$this->sessBDCuenta}.trade.data_ruta r 
+		JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
 		LEFT JOIN trade.encargado en ON en.idEncargado=r.idEncargado
 		LEFT JOIN trade.usuario us ON us.idUsuario=en.idUsuario
 		LEFT JOIN trade.distribuidoraSucursal ds ON ds.idDistribuidoraSucursal=v.idDistribuidoraSucursal
 		LEFT JOIN trade.distribuidora d ON d.idDistribuidora=ds.idDistribuidora
 		LEFT JOIN General.dbo.ubigeo ubi ON ubi.cod_ubigeo=ds.cod_ubigeo
-		JOIN trade.data_visitaIniciativaTrad vit ON vit.idVisita=v.idVisita
-		JOIN trade.data_visitaIniciativaTradDet vitd ON vitd.idVisitaIniciativaTrad=vit.idVisitaIniciativaTrad
+		JOIN {$this->sessBDCuenta}.trade.data_visitaIniciativaTrad vit ON vit.idVisita=v.idVisita
+		JOIN {$this->sessBDCuenta}.trade.data_visitaIniciativaTradDet vitd ON vitd.idVisitaIniciativaTrad=vit.idVisitaIniciativaTrad
 		LEFT JOIN trade.elementoIniciativaTrad eit ON eit.idElementoIniciativa=vitd.idElementoIniciativa
 		WHERE r.estado=1 --AND r.demo=0
 		AND v.estado=1
@@ -305,10 +305,10 @@ class M_iniciativas extends MY_Model{
 		u.idUsuario as idGTM ,
 		u.apePaterno + ' '+u.apeMaterno+ ' '+u.nombres as gtm,
 		ut.idTipoUsuario
-		from trade.data_visitaIniciativaTradDet vit
-		JOIN trade.data_visitaIniciativaTrad vi ON vi.idVisitaIniciativaTrad=vit.idVisitaIniciativaTrad
-		JOIN trade.data_visita v ON v.idVisita=vi.idVisita
-		JOIN trade.data_ruta r ON r.idRuta=v.idRuta
+		from {$this->sessBDCuenta}.trade.data_visitaIniciativaTradDet vit
+		JOIN {$this->sessBDCuenta}.trade.data_visitaIniciativaTrad vi ON vi.idVisitaIniciativaTrad=vit.idVisitaIniciativaTrad
+		JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idVisita=vi.idVisita
+		JOIN {$this->sessBDCuenta}.trade.data_ruta r ON r.idRuta=v.idRuta
 		JOIN trade.usuario u ON u.idUsuario=r.idUsuario
 		JOIN trade.usuario_historico uh ON uh.idUsuario=r.idUsuario 
 			AND (
@@ -364,12 +364,12 @@ class M_iniciativas extends MY_Model{
 			vit.producto,
 			dvf.fotoUrl
 
-		from trade.data_visitaIniciativaTradDet vit
-		JOIN trade.data_visitaIniciativaTrad vi ON vi.idVisitaIniciativaTrad=vit.idVisitaIniciativaTrad
-		JOIN trade.data_visita v ON v.idVisita=vi.idVisita
-		JOIN trade.data_ruta r ON r.idRuta=v.idRuta 
+		from {$this->sessBDCuenta}.trade.data_visitaIniciativaTradDet vit
+		JOIN {$this->sessBDCuenta}.trade.data_visitaIniciativaTrad vi ON vi.idVisitaIniciativaTrad=vit.idVisitaIniciativaTrad
+		JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idVisita=vi.idVisita
+		JOIN {$this->sessBDCuenta}.trade.data_ruta r ON r.idRuta=v.idRuta 
 		JOIN trade.usuario u ON u.idUsuario=r.idUsuario
-		JOIN trade.cliente_historico_pg ch ON ch.idCliente=v.idCliente  
+		JOIN {$this->sessBDCuenta}.trade.cliente_historico ch ON ch.idCliente=v.idCliente  
 			AND (
 				ch.fecIni <= ISNULL( ch.fecFin, @fecFin)
 				AND (
@@ -385,10 +385,10 @@ class M_iniciativas extends MY_Model{
 
 		JOIN trade.canal c ON c.idCanal =  v.idCanal
 		JOIN trade.grupoCanal gc ON gc.idGrupoCanal =  c.idGrupoCanal
-		JOIN trade.iniciativaTrad ini ON ini.idIniciativa=vit.idIniciativa
+		JOIN {$this->sessBDCuenta}.trade.iniciativaTrad ini ON ini.idIniciativa=vit.idIniciativa
 		JOIN trade.elementoVisibilidadTrad evt ON evt.idElementoVis=vit.idElementoIniciativa
 		LEFT JOIN trade.estadoIniciativaTrad esit ON esit.idEstadoIniciativa=vit.idEstadoIniciativa
-		LEFT JOIN trade.data_visitaFotos dvf ON dvf.idVisitaFoto=vit.idVisitaFoto
+		LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos dvf ON dvf.idVisitaFoto=vit.idVisitaFoto
 
 		LEFT JOIN General.dbo.ubigeo ubi ON ubi.cod_ubigeo=v.cod_ubigeo
 		LEFT JOIN trade.plaza pl ON pl.idPlaza=v.idPlaza
@@ -421,7 +421,7 @@ class M_iniciativas extends MY_Model{
 
 			SELECT
 				ch.idCliente, ch.razonSocial
-			FROM trade.cliente_historico_pg ch
+			FROM {$this->sessBDCuenta}.trade.cliente_historico ch
 			WHERE @fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin, @fecha)
 			AND ch.estado = 1 {$filtro}
 			ORDER BY ch.razonSocial

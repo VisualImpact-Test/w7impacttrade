@@ -12,15 +12,15 @@ class M_iniciativatrad extends My_Model
 		parent::__construct();
 
 		$this->tablas = [
-			'elemento' => ['tabla' => 'trade.iniciativaTrad', 'id' => 'idIniciativa'],
-			'lista' => ['tabla' => 'trade.list_iniciativaTrad', 'id' => 'idListIniciativaTrad'],
-			'listaDet' => ['tabla'=>'trade.list_iniciativaTradDet','id'=>'idListIniciativaTradDet'],
+			'elemento' => ['tabla' => "{$this->sessBDCuenta}.trade.iniciativaTrad", 'id' => 'idIniciativa'],
+			'lista' => ['tabla' => "{$this->sessBDCuenta}.trade.list_iniciativaTrad", 'id' => 'idListIniciativaTrad'],
+			'listaDet' => ['tabla'=>"{$this->sessBDCuenta}.trade.list_iniciativaTradDet",'id'=>'idListIniciativaTradDet'],
 			'tipoElemento' => ['tabla'=>'trade.competencia_tipo','id'=>'idTipoCompetencia'],
 			'elementoIniciativa' => ['tabla'=>'trade.elementoVisibilidadTrad','id'=>'idElementoVis'],
 			'motivoIniciativa' => ['tabla'=>'trade.estadoIniciativaTrad','id'=>'idEstadoIniciativa'],
-			'listaDetElemento' =>['tabla'=>'trade.list_iniciativaTradDetElemento','id'=>'idListIniciativaTradDetEle'],
+			'listaDetElemento' =>['tabla'=>"{$this->sessBDCuenta}.trade.list_iniciativaTradDetElemento",'id'=>'idListIniciativaTradDetEle'],
 			'motivoElementoVisibilidad' => ['tabla'=>'trade.motivoElementoVisibilidadTrad','id'=>'idMotivoElementoVis'],
-			'iniciativaTradElemento' => ['tabla'=>'trade.iniciativaTradElemento','id'=>'idIniciativaTradElemento'],
+			'iniciativaTradElemento' => ['tabla'=>"{$this->sessBDCuenta}.trade.iniciativaTradElemento",'id'=>'idIniciativaTradElemento'],
 		];
 		$this->CI = &get_instance();
 	}
@@ -107,7 +107,7 @@ class M_iniciativatrad extends My_Model
 				e.idIniciativa
 				, e.idElementoVis 
 				, det.nombre
-				from  trade.iniciativaTradElemento e 
+				from  {$this->sessBDCuenta}.trade.iniciativaTradElemento e 
 				JOIN trade.elementoVisibilidadTrad det ON e.idElementoVis = det.idElementoVis
 				WHERE 1=1 {$filtros}";
 
@@ -178,7 +178,7 @@ class M_iniciativatrad extends My_Model
 						$arrayDetalle['estado'] = 1;
 	
 						//validar existencia
-						$rs = $this->db->get_where('trade.list_iniciativaTradDet',$arrayDetalle)->result_array();
+						$rs = $this->db->get_where("{$this->sessBDCuenta}.trade.list_iniciativaTradDet",$arrayDetalle)->result_array();
 						if($rs!=null){
 							if(count($rs) >=1){
 								//si existe iniciativa agregar detalle elemento
@@ -190,10 +190,10 @@ class M_iniciativatrad extends My_Model
 								$arrayDetalleElemento['estado']=1;
 
 								//validar existencia
-								$rs_elemento = $this->db->get_where('trade.list_iniciativaTradDetElemento',$arrayDetalleElemento)->result_array();
+								$rs_elemento = $this->db->get_where("{$this->sessBDCuenta}.trade.list_iniciativaTradDetElemento",$arrayDetalleElemento)->result_array();
 								if($rs_elemento==null){
 
-									$table = 'trade.list_iniciativaTradDetElemento';
+									$table = "{$this->sessBDCuenta}.trade.list_iniciativaTradDetElemento";
 									$this->db->trans_begin();
 		
 										$insert = $this->db->insert($table, $arrayDetalleElemento);
@@ -211,7 +211,7 @@ class M_iniciativatrad extends My_Model
 								
 							}else{
 								//insertar la iniciativa
-								$table = 'trade.list_iniciativaTradDet';
+								$table = "{$this->sessBDCuenta}.trade.list_iniciativaTradDet";
 								$this->db->trans_begin();
 	
 									$insert = $this->db->insert($table, $arrayDetalle);
@@ -233,7 +233,7 @@ class M_iniciativatrad extends My_Model
 									$arrayDetalleElemento['idElementoVis']=$value;
 									$arrayDetalleElemento['estado']=1;
 	
-									$table = 'trade.list_iniciativaTradDetElemento';
+									$table = "{$this->sessBDCuenta}.trade.list_iniciativaTradDetElemento";
 									$this->db->trans_begin();
 	
 										$insert = $this->db->insert($table, $arrayDetalleElemento);
@@ -251,7 +251,7 @@ class M_iniciativatrad extends My_Model
 							}
 						}else{
 							//insertar la iniciativa
-							$table = 'trade.list_iniciativaTradDet';
+							$table = "{$this->sessBDCuenta}.trade.list_iniciativaTradDet";
 							$this->db->trans_begin();
 	
 								$insert = $this->db->insert($table, $arrayDetalle);
@@ -272,7 +272,7 @@ class M_iniciativatrad extends My_Model
 								$arrayDetalleElemento['idElementoVis']=$value;
 								$arrayDetalleElemento['estado']=1;
 	
-								$table = 'trade.list_iniciativaTradDetElemento';
+								$table = "{$this->sessBDCuenta}.trade.list_iniciativaTradDetElemento";
 								$this->db->trans_begin();
 	
 									$insert = $this->db->insert($table, $arrayDetalleElemento);
@@ -305,19 +305,19 @@ class M_iniciativatrad extends My_Model
 	{
 		$delete=null;
 		$sql="
-			DELETE trade.list_iniciativaTradDetElemento where idListIniciativaTradDet IN(
-				SELECT idListIniciativaTradDet from trade.list_iniciativaTradDet WHERE idListIniciativaTrad=$idLista
+			DELETE {$this->sessBDCuenta}.trade.list_iniciativaTradDetElemento where idListIniciativaTradDet IN(
+				SELECT idListIniciativaTradDet from {$this->sessBDCuenta}.trade.list_iniciativaTradDet WHERE idListIniciativaTrad=$idLista
 			);
 		";
 		$delete=$this->db->query($sql);
 		if($delete){
 			$sql="
-				DELETE trade.list_iniciativaTradDet WHERE idListIniciativaTrad=$idLista
+				DELETE {$this->sessBDCuenta}.trade.list_iniciativaTradDet WHERE idListIniciativaTrad=$idLista
 			";
 			$delete=$this->db->query($sql);
 
-			$this->aSessTrack[] = [ 'idAccion' => 8, 'tabla' => 'trade.list_iniciativaTradDetElemento', 'id' => arrayToString([ 'idListIniciativaTrad' => $idLista ]) ];
-			$this->aSessTrack[] = [ 'idAccion' => 8, 'tabla' => 'trade.list_iniciativaTradDet', 'id' => arrayToString([ 'idListIniciativaTrad' => $idLista ]) ];
+			$this->aSessTrack[] = [ 'idAccion' => 8, 'tabla' => "{$this->sessBDCuenta}.trade.list_iniciativaTradDetElemento", 'id' => arrayToString([ 'idListIniciativaTrad' => $idLista ]) ];
+			$this->aSessTrack[] = [ 'idAccion' => 8, 'tabla' => "{$this->sessBDCuenta}.trade.list_iniciativaTradDet", 'id' => arrayToString([ 'idListIniciativaTrad' => $idLista ]) ];
 		}
 		return $delete;
 	}
@@ -537,7 +537,7 @@ class M_iniciativatrad extends My_Model
 				
 	
 					//validar existencia
-					$rs = $this->db->get_where('trade.list_iniciativaTradDet',$arrayDetalle)->result_array();
+					$rs = $this->db->get_where("{$this->sessBDCuenta}.trade.list_iniciativaTradDet",$arrayDetalle)->result_array();
 					if($rs!=null){
 						if(count($rs) >=0){
 							//si existe iniciativa agregar detalle elemento
@@ -548,9 +548,9 @@ class M_iniciativatrad extends My_Model
 							$arrayDetalleElemento['idElementoVis']=$row['elemento_lista'];
 							$arrayDetalleElemento['estado']=1;
 
-							$rs_elementos = $this->db->get_where('trade.list_iniciativaTradDetElemento', $arrayDetalleElemento)->result_array();
+							$rs_elementos = $this->db->get_where("{$this->sessBDCuenta}.trade.list_iniciativaTradDetElemento", $arrayDetalleElemento)->result_array();
 							if( empty($rs_elementos)){
-								$table = 'trade.list_iniciativaTradDetElemento';
+								$table = "{$this->sessBDCuenta}.trade.list_iniciativaTradDetElemento";
 								$this->db->trans_begin();
 
 									$insert = $this->db->insert($table, $arrayDetalleElemento);
@@ -568,7 +568,7 @@ class M_iniciativatrad extends My_Model
 							
 						}else{
 							//insertar la iniciativa
-							$table = 'trade.list_iniciativaTradDet';
+							$table = "{$this->sessBDCuenta}.trade.list_iniciativaTradDet";
 							$this->db->trans_begin();
 
 								$insert = $this->db->insert($table, $arrayDetalle);
@@ -589,7 +589,7 @@ class M_iniciativatrad extends My_Model
 								$arrayDetalleElemento['idElementoVis']=$row['elemento_lista'];
 								$arrayDetalleElemento['estado']=1;
 	
-								$table = 'trade.list_iniciativaTradDetElemento';
+								$table = "{$this->sessBDCuenta}.trade.list_iniciativaTradDetElemento";
 								$this->db->trans_begin();
 
 									$insert = $this->db->insert($table, $arrayDetalleElemento);
@@ -607,7 +607,7 @@ class M_iniciativatrad extends My_Model
 						}
 					}else{
 						//insertar la iniciativa
-						$table = 'trade.list_iniciativaTradDet';
+						$table = "{$this->sessBDCuenta}.trade.list_iniciativaTradDet";
 						$this->db->trans_begin();
 
 							$insert = $this->db->insert($table, $arrayDetalle);
@@ -628,7 +628,7 @@ class M_iniciativatrad extends My_Model
 							$arrayDetalleElemento['idElementoVis']=$row['elemento_lista'];
 							$arrayDetalleElemento['estado']=1;
 
-							$table = 'trade.list_iniciativaTradDetElemento';
+							$table = "{$this->sessBDCuenta}.trade.list_iniciativaTradDetElemento";
 							$this->db->trans_begin();
 
 								$insert = $this->db->insert($table, $arrayDetalleElemento);
@@ -694,10 +694,10 @@ class M_iniciativatrad extends My_Model
 				$arrayDetalle['estado'] = 1;
 
 				//validar existencia
-				$rs = $this->db->get_where('trade.iniciativaTradElemento',$arrayDetalle)->result_array();
+				$rs = $this->db->get_where("{$this->sessBDCuenta}.trade.iniciativaTradElemento",$arrayDetalle)->result_array();
 				if($rs==null){ 
 					//insertar la elemento a iniciativa
-					$table = 'trade.iniciativaTradElemento';
+					$table = "{$this->sessBDCuenta}.trade.iniciativaTradElemento";
 					$this->db->trans_begin();
 
 						$insert = $this->db->insert($table, $arrayDetalle);
@@ -847,12 +847,12 @@ class M_iniciativatrad extends My_Model
 				,gc.nombre grupoCanal
 				,ini.nombre iniciativa
 				FROM ".$this->tablas['lista']['tabla']." lst
-				JOIN trade.list_iniciativaTradDet lstd ON lstd.idListIniciativaTrad = lst.idListIniciativaTrad
+				JOIN {$this->sessBDCuenta}.trade.list_iniciativaTradDet lstd ON lstd.idListIniciativaTrad = lst.idListIniciativaTrad
 				JOIN trade.proyecto p ON p.idProyecto  = lst.idProyecto
 				LEFT JOIN trade.canal c ON c.idCanal = lst.idCanal
                 LEFT JOIN trade.cliente cli ON cli.idCliente = lst.idCliente
 				LEFT JOIN trade.grupoCanal gc ON gc.idGrupoCanal = lst.idGrupoCanal
-				LEFT JOIN trade.iniciativaTrad ini ON ini.idIniciativa = lstd.idIniciativa 
+				LEFT JOIN {$this->sessBDCuenta}.trade.iniciativaTrad ini ON ini.idIniciativa = lstd.idIniciativa 
 				{$filtros}
 				ORDER BY lst.estado DESC,lst.fecIni ASC
 			";
@@ -872,13 +872,13 @@ class M_iniciativatrad extends My_Model
 			ev.idElementoVis,
 			ev.nombre 		
 			FROM 
-			trade.iniciativaTrad e
-			JOIN trade.list_iniciativaTradDet lstd ON lstd.idIniciativa = e.idIniciativa
-			JOIN trade.list_iniciativaTradDetElemento lstdet On lstdet.idListIniciativaTradDet=lstd.idListIniciativaTradDet
+			{$this->sessBDCuenta}.trade.iniciativaTrad e
+			JOIN {$this->sessBDCuenta}.trade.list_iniciativaTradDet lstd ON lstd.idIniciativa = e.idIniciativa
+			JOIN {$this->sessBDCuenta}.trade.list_iniciativaTradDetElemento lstdet On lstdet.idListIniciativaTradDet=lstd.idListIniciativaTradDet
 			JOIN trade.elementoVisibilidadTrad ev ON ev.idElementoVis=lstdet.idElementoVis
 			WHERE lstd.idListIniciativaTrad = ".$post['id'].";
 			";
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.iniciativaTrad' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.iniciativaTrad" ];
 		return $this->db->query($sql);
 	}
 
@@ -950,7 +950,7 @@ class M_iniciativatrad extends My_Model
 		WHERE det.idIniciativa= {$post['idIniciativaTrad']} AND det.idListIniciativaTrad = {$post['idListIniciativaTrad']}
 		";
 
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.list_iniciativaTrad' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.list_iniciativaTrad" ];
 		return $this->db->query($sql);
 	}
 
@@ -1115,12 +1115,12 @@ class M_iniciativatrad extends My_Model
 
 		$sql = "
 			DECLARE @fecha as date=getdate();
-			select idIniciativa,nombre from trade.iniciativaTrad
+			select idIniciativa,nombre from {$this->sessBDCuenta}.trade.iniciativaTrad
 			where @fecha between fecIni and ISNULL(fecFin,@fecha) and estado=1
 			 {$filtros}
 			";
 
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.iniciativaTrad' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.iniciativaTrad" ];
 		return $this->db->query($sql);
 	}
 
@@ -1406,12 +1406,12 @@ class M_iniciativatrad extends My_Model
 				, convert(varchar,fechaRegistro,103) fecRegistro
 				, convert(varchar,fechaRegistro,108) horaRegistro 
 				, convert(varchar,finRegistro,108) horaFin
-				, (SELECT COUNT(*) FROM  trade.cargaIniciativaNoProcesados WHERE idCarga=cm.idCarga  ) noProcesados
+				, (SELECT COUNT(*) FROM  {$this->sessBDCuenta}.trade.cargaIniciativaNoProcesados WHERE idCarga=cm.idCarga  ) noProcesados
 				,(
-					SELECT count(*) FROM trade.cargaIniciativaNoProcesados WHERE idCarga=cm.idCarga
+					SELECT count(*) FROM {$this->sessBDCuenta}.trade.cargaIniciativaNoProcesados WHERE idCarga=cm.idCarga
 				) error
 			FROM 
-				trade.cargaIniciativa cm
+				{$this->sessBDCuenta}.trade.cargaIniciativa cm
 				order by cm.idCarga DESC
 
 		";
@@ -1420,7 +1420,7 @@ class M_iniciativatrad extends My_Model
 
 	////ERRORES
 	public function obtener_iniciativas_no_procesado($id){
-		$sql="SELECT * FROM trade.cargaIniciativaNoProcesados where idCarga= $id";
+		$sql="SELECT * FROM {$this->sessBDCuenta}.trade.cargaIniciativaNoProcesados where idCarga= $id";
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -1453,16 +1453,16 @@ class M_iniciativatrad extends My_Model
 		$this->db->query("
 		DECLARE
 			@fechaHoy DATE = GETDATE();
-		UPDATE trade.list_iniciativaTrad
+		UPDATE {$this->sessBDCuenta}.trade.list_iniciativaTrad
 		SET
-		trade.list_iniciativaTrad.fecFin = '{$params['fecFinVigencia']}',
-		trade.list_iniciativaTrad.fechaModificacion = @fechaHoy
+		{$this->sessBDCuenta}.trade.list_iniciativaTrad.fecFin = '{$params['fecFinVigencia']}',
+		{$this->sessBDCuenta}.trade.list_iniciativaTrad.fechaModificacion = @fechaHoy
 		WHERE
-		trade.list_iniciativaTrad.idListIniciativaTrad IN {$params['idListIniciativaTrad']}
+		{$this->sessBDCuenta}.trade.list_iniciativaTrad.idListIniciativaTrad IN {$params['idListIniciativaTrad']}
 		");
 
 		$id = $this->db->insert_id();
-		$aSessTrack = [ 'idAccion' => 7, 'tabla' => 'trade.list_iniciativaTrad', 'id' => $id ];
+		$aSessTrack = [ 'idAccion' => 7, 'tabla' => "{$this->sessBDCuenta}.trade.list_iniciativaTrad", 'id' => $id ];
 
 		if ( $this->db->trans_status() === FALSE ) {
 			$this->db->trans_rollback();

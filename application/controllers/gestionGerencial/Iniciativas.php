@@ -49,7 +49,7 @@ class Iniciativas extends MY_Controller{
 	}
 
 	public function filtrar(){
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visitaIniciativaTrad' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaIniciativaTrad" ];
 
 		$result = $this->result;
 		$data = json_decode($this->input->post('data'));
@@ -159,7 +159,7 @@ class Iniciativas extends MY_Controller{
 	}
 
 	public function visitasDetallado(){
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visitaIniciativaTrad' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaIniciativaTrad" ];
 
 		$result = $this->result;
 		$data = json_decode($this->input->post('data'));
@@ -195,7 +195,7 @@ class Iniciativas extends MY_Controller{
 	}
 
 	public function elementoDetallado(){
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visitaIniciativaTrad' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaIniciativaTrad" ];
 
 		$result = $this->result;
 		$data = json_decode($this->input->post('data'));
@@ -231,7 +231,7 @@ class Iniciativas extends MY_Controller{
 	}
 
 	public function iniciativas_pdf(){
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visitaIniciativaTrad' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaIniciativaTrad" ];
 		$this->aSessTrack[] = [ 'idAccion' => 9 ];
 
 		$post=json_decode($this->input->post('data'));

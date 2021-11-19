@@ -15,7 +15,7 @@ class M_asistencia extends MY_Model{
 		$filtros = "";$filtroTipoUsuario = '';
 		$sessIdTipoUsuario = $this->idTipoUsuario;
 		$sessDemo = $this->demo;
-		
+		$bdcuenta = $this->sessBDCuenta;
 		if(empty($input['cuenta_filtro'])){
 			$filtros.= getPermisos('cuenta');
 		}else{
@@ -56,8 +56,8 @@ class M_asistencia extends MY_Model{
 					, row_number() OVER (PARTITION BY r.idUsuario, r.fecha ORDER BY v.horaIni ASC ) row
 					
 				FROM 
-					trade.data_ruta r
-					JOIN trade.data_visita v ON r.idRuta = v.idRuta 
+					{$this->sessBDCuenta}.trade.data_ruta r
+					JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta 
 					JOIN trade.cliente c ON c.idCliente = v.idCliente
 				WHERE
 					r.fecha BETWEEN @fecIni AND @fecFin
@@ -73,8 +73,8 @@ class M_asistencia extends MY_Model{
 				, c.longitud
 				, row_number() OVER (PARTITION BY r.idUsuario, r.fecha ORDER BY v.horaFin DESC ) row
 			FROM 
-				trade.data_ruta r
-				JOIN trade.data_visita v ON r.idRuta = v.idRuta 
+				{$this->sessBDCuenta}.trade.data_ruta r
+				JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta 
 				JOIN trade.cliente c ON c.idCliente = v.idCliente
 			WHERE
 				r.fecha BETWEEN @fecIni AND @fecFin
@@ -259,7 +259,7 @@ class M_asistencia extends MY_Model{
 				, oc.idOcurrencia
 				, oc.nombre ocurrencia
 			FROM 
-				trade.data_asistencia a
+				{$this->sessBDCuenta}.trade.data_asistencia a
 				JOIN General.dbo.tiempo ti ON a.fecha = ti.fecha
 				JOIN master.tipoAsistencia tia ON a.idTipoAsistencia=tia.idTipoAsistencia
 				LEFT JOIN master.ocurrencias oc ON oc.idOcurrencia=a.idOcurrencia AND oc.estado=1 AND oc.flagAsistencia=1
@@ -274,7 +274,7 @@ class M_asistencia extends MY_Model{
 			$result = $query->result_array();
 		}
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_asistencia' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_asistencia" ];
 		return $result;
 	}
 
@@ -320,7 +320,7 @@ class M_asistencia extends MY_Model{
 
 	public function obtener_foto($input=array()){
 
-		$sql="select fotoUrl from trade.data_asistencia  where idUsuario='".$input['idUsuario']."' 
+		$sql="select fotoUrl from {$this->sessBDCuenta}.trade.data_asistencia  where idUsuario='".$input['idUsuario']."' 
 			AND fecha='".$input['fecha']."' AND idTipoAsistencia='".$input['type']."' ";
 
 		$query = $this->db->query($sql);
@@ -330,7 +330,7 @@ class M_asistencia extends MY_Model{
 			$result = $query->result_array();
 		}
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_asistencia' ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_asistencia" ];
 		return $result;
 	}
 }

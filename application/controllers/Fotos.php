@@ -38,7 +38,7 @@ class Fotos extends MY_Controller
 	{
 		ini_set('memory_limit', '1024M');
 		set_time_limit(0);
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.data_visitaFotos' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaFotos" ];
 		$fotosClientes = $this->m_foto->getFotosNew($post,$visitas)->result_array();
 
 		$fotosClientesRefactorizado = [];

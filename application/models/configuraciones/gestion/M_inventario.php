@@ -12,8 +12,8 @@ class m_inventario extends My_Model
 
 		$this->tablas = [
             'elemento' => ['tabla' => 'trade.producto', 'id' => 'idProducto'],
-			'lista' => ['tabla' => 'trade.list_inventario', 'id' => 'idListInventario'],
-			'listaDet' => ['tabla'=>'trade.list_inventarioDet','id'=>'idListInventarioDet'],
+			'lista' => ['tabla' => "{$this->sessBDCuenta}.trade.list_inventario", 'id' => 'idListInventario'],
+			'listaDet' => ['tabla'=>"{$this->sessBDCuenta}.trade.list_inventarioDet",'id'=>'idListInventarioDet'],
 			'marca' => ['tabla'=>'trade.producto_marca','id'=>'idMarca'],
 		];
 	}
@@ -396,9 +396,9 @@ class m_inventario extends My_Model
 			,ch.idCuenta
 		FROM 
 			".getClienteHistoricoCuenta()." ch
-			JOIN ImpactTrade_bd.trade.segmentacionNegocio sn
+			JOIN trade.segmentacionNegocio sn
 				ON sn.idSegNegocio = ch.idSegNegocio
-			JOIN ImpactTrade_bd.trade.canal ca
+			JOIN trade.canal ca
 				ON ca.idCanal=sn.idCanal 
 		{$filtros}
 		";

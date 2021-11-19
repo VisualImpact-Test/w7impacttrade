@@ -100,7 +100,7 @@ class EvidenciaFoto extends MY_Controller
 
 	public function mostrarFotos()
 	{
-		$this->aSessTrack[] = ['idAccion' => 5, 'tabla' => 'trade.data_visitaFotos'];
+		$this->aSessTrack[] = ['idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaFotos"];
 
 		$result = $this->result;
 		$data = json_decode($this->input->post('data'));

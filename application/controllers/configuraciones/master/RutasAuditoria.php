@@ -199,15 +199,15 @@ class RutasAuditoria extends MY_Controller{
 		else{$array_eliminar=array('0'=>$post['eliminar']);}
 		
 		foreach( $array_eliminar as $row){
-			$sql1 = 'delete from trade.master_visitaProgramadaDet where idVisitaProg = '.$row;
-			$sql2 = 'delete from trade.master_visitaProgramada where idVisitaProg = '.$row;
+			$sql1 = 'delete from {$this->sessBDCuenta}.trade.master_visitaProgramadaDet where idVisitaProg = '.$row;
+			$sql2 = 'delete from {$this->sessBDCuenta}.trade.master_visitaProgramada where idVisitaProg = '.$row;
 			$this->db->query($sql1);
 			$this->db->query($sql2);
 		}
 		
-		$total_clientes = "SELECT count(*) total FROM trade.master_visitaProgramada WHERE idRutaProg = ".$idRutaProg;
+		$total_clientes = "SELECT count(*) total FROM {$this->sessBDCuenta}.trade.master_visitaProgramada WHERE idRutaProg = ".$idRutaProg;
 		$res = $this->db->query($total_clientes)->row_array();
-		$update = "UPDATE trade.master_rutaProgramada SET numClientes=".$res['total']." WHERE idRutaProg = ".$idRutaProg;
+		$update = "UPDATE {$this->sessBDCuenta}.trade.master_rutaProgramada SET numClientes=".$res['total']." WHERE idRutaProg = ".$idRutaProg;
 		$this->db->query($update);
 		
 		$result = array( 
@@ -239,7 +239,7 @@ class RutasAuditoria extends MY_Controller{
 		if(!empty($fecFin)){
 			$array_ruta['fecFin']=$fecFin;
 		}
-		$this->db->insert('trade.master_rutaProgramada',$array_ruta);
+		$this->db->insert("{$this->sessBDCuenta}.trade.master_rutaProgramada",$array_ruta);
 		
 		$idRutaProg = $this->db->insert_id();
 		
@@ -251,7 +251,7 @@ class RutasAuditoria extends MY_Controller{
 		if(!empty($fecFin)){
 			$array_ruta_det['fecFin']=$fecFin;
 		}
-		$this->db->insert('trade.master_rutaProgramadaDet',$array_ruta_det);
+		$this->db->insert("{$this->sessBDCuenta}.trade.master_rutaProgramadaDet",$array_ruta_det);
 		
 		if(count($idCliente)){
 			foreach( $idCliente as $row ){
@@ -259,7 +259,7 @@ class RutasAuditoria extends MY_Controller{
 				$array_visita['idRutaProg'] = $idRutaProg;
 				$array_visita['idCliente'] = $row;
 				
-				$this->db->insert('trade.master_visitaProgramada',$array_visita);
+				$this->db->insert("{$this->sessBDCuenta}.trade.master_visitaProgramada",$array_visita);
 		
 				$idVisita = $this->db->insert_id();
 								
@@ -267,49 +267,49 @@ class RutasAuditoria extends MY_Controller{
 					$array_visitaDet = array();
 					$array_visitaDet['idVisitaProg'] = $idVisita;
 					$array_visitaDet['idDia'] = 1;
-					$this->db->insert('trade.master_visitaProgramadaDet',$array_visitaDet);
+					$this->db->insert("{$this->sessBDCuenta}.trade.master_visitaProgramadaDet",$array_visitaDet);
 				}
 				if(!empty($post['martes_'.$row])){
 					$array_visitaDet = array();
 					$array_visitaDet['idVisitaProg'] = $idVisita;
 					$array_visitaDet['idDia'] = 2;
-					$this->db->insert('trade.master_visitaProgramadaDet',$array_visitaDet);
+					$this->db->insert("{$this->sessBDCuenta}.trade.master_visitaProgramadaDet",$array_visitaDet);
 				}
 				if(!empty($post['miercoles_'.$row])){
 					$array_visitaDet = array();
 					$array_visitaDet['idVisitaProg'] = $idVisita;
 					$array_visitaDet['idDia'] = 3;
-					$this->db->insert('trade.master_visitaProgramadaDet',$array_visitaDet);
+					$this->db->insert("{$this->sessBDCuenta}.trade.master_visitaProgramadaDet",$array_visitaDet);
 				}
 				if(!empty($post['jueves_'.$row])){
 					$array_visitaDet = array();
 					$array_visitaDet['idVisitaProg'] = $idVisita;
 					$array_visitaDet['idDia'] = 4;
-					$this->db->insert('trade.master_visitaProgramadaDet',$array_visitaDet);
+					$this->db->insert("{$this->sessBDCuenta}.trade.master_visitaProgramadaDet",$array_visitaDet);
 				}
 				if(!empty($post['viernes_'.$row])){
 					$array_visitaDet = array();
 					$array_visitaDet['idVisitaProg'] = $idVisita;
 					$array_visitaDet['idDia'] = 5;
-					$this->db->insert('trade.master_visitaProgramadaDet',$array_visitaDet);
+					$this->db->insert("{$this->sessBDCuenta}.trade.master_visitaProgramadaDet",$array_visitaDet);
 				}
 				if(!empty($post['sabado_'.$row])){
 					$array_visitaDet = array();
 					$array_visitaDet['idVisitaProg'] = $idVisita;
 					$array_visitaDet['idDia'] = 6;
-					$this->db->insert('trade.master_visitaProgramadaDet',$array_visitaDet);
+					$this->db->insert("{$this->sessBDCuenta}.trade.master_visitaProgramadaDet",$array_visitaDet);
 				}
 				if(!empty($post['domingo_'.$row])){
 					$array_visitaDet = array();
 					$array_visitaDet['idVisitaProg'] = $idVisita;
 					$array_visitaDet['idDia'] = 7;
-					$this->db->insert('trade.master_visitaProgramadaDet',$array_visitaDet);
+					$this->db->insert("{$this->sessBDCuenta}.trade.master_visitaProgramadaDet",$array_visitaDet);
 				}
 			}
 			
-			$total_clientes = "SELECT count(*) total FROM trade.master_visitaProgramada WHERE idRutaProg = ".$idRutaProg;
+			$total_clientes = "SELECT count(*) total FROM {$this->sessBDCuenta}.trade.master_visitaProgramada WHERE idRutaProg = ".$idRutaProg;
 			$res = $this->db->query($total_clientes)->row_array();
-			$update = "UPDATE trade.master_rutaProgramada SET numClientes=".$res['total']." WHERE idRutaProg = ".$idRutaProg;
+			$update = "UPDATE {$this->sessBDCuenta}.trade.master_rutaProgramada SET numClientes=".$res['total']." WHERE idRutaProg = ".$idRutaProg;
 			$this->db->query($update);
 		}
 		
@@ -374,7 +374,7 @@ class RutasAuditoria extends MY_Controller{
 		}
 		
 		$this->db->where('idRutaProg', $idRutaProg);
-        $this->db->update('trade.master_rutaProgramada', $array_ruta);
+        $this->db->update("{$this->sessBDCuenta}.trade.master_rutaProgramada", $array_ruta);
 
 		$array_ruta_det = array();
 		
@@ -382,17 +382,17 @@ class RutasAuditoria extends MY_Controller{
 			foreach( $array_cliente as $row ){
 				if($array_eliminar[$row]==0){
 				$idCliente = $row;
-				$sql = "SELECT idVisitaProg FROM trade.master_visitaProgramada WHERE idCliente =".$idCliente." AND idRutaProg = ".$idRutaProg." " ;
+				$sql = "SELECT idVisitaProg FROM {$this->sessBDCuenta}.trade.master_visitaProgramada WHERE idCliente =".$idCliente." AND idRutaProg = ".$idRutaProg." " ;
 				$res = $this->db->query($sql)->row_array();
 				if(count($res)){
 					$idVisitaProg=$res['idVisitaProg'];
-					$delete = "DELETE FROM trade.master_visitaProgramadaDet WHERE idVisitaProg =".$idVisitaProg;
+					$delete = "DELETE FROM {$this->sessBDCuenta}.trade.master_visitaProgramadaDet WHERE idVisitaProg =".$idVisitaProg;
 					$this->db->query($delete);
 				}else {
 					$array_visita = array();
 					$array_visita['idRutaProg'] = $idRutaProg;
 					$array_visita['idCliente'] = $idCliente;
-					$this->db->insert('trade.master_visitaProgramada',$array_visita);
+					$this->db->insert("{$this->sessBDCuenta}.trade.master_visitaProgramada",$array_visita);
 					$idVisitaProg=$this->db->insert_id();
 				}
 				
@@ -410,7 +410,7 @@ class RutasAuditoria extends MY_Controller{
 							  'idVisitaProg' => $idVisitaProg
 							, 'idDia' => 1
 						);
-						$this->db->insert('trade.master_visitaProgramadaDet',$insert_visitaDet);
+						$this->db->insert("{$this->sessBDCuenta}.trade.master_visitaProgramadaDet",$insert_visitaDet);
 					}
 
 					if(!empty($martes) && $martes==1){
@@ -419,7 +419,7 @@ class RutasAuditoria extends MY_Controller{
 							  'idVisitaProg' => $idVisitaProg
 							, 'idDia' => 2
 						);
-						$this->db->insert('trade.master_visitaProgramadaDet',$insert_visitaDet);
+						$this->db->insert("{$this->sessBDCuenta}.trade.master_visitaProgramadaDet",$insert_visitaDet);
 					}
 		
 					if(!empty($miercoles) && $miercoles==1 ){
@@ -428,7 +428,7 @@ class RutasAuditoria extends MY_Controller{
 							  'idVisitaProg' => $idVisitaProg
 							, 'idDia' => 3
 						);
-						$this->db->insert('trade.master_visitaProgramadaDet',$insert_visitaDet);
+						$this->db->insert("{$this->sessBDCuenta}.trade.master_visitaProgramadaDet",$insert_visitaDet);
 					}
 				
 					if(!empty($jueves) && $jueves==1 ){
@@ -437,7 +437,7 @@ class RutasAuditoria extends MY_Controller{
 							  'idVisitaProg' => $idVisitaProg
 							, 'idDia' => 4
 						);
-						$this->db->insert('trade.master_visitaProgramadaDet',$insert_visitaDet);
+						$this->db->insert("{$this->sessBDCuenta}.trade.master_visitaProgramadaDet",$insert_visitaDet);
 					}
 				
 					if(!empty($viernes ) && $viernes==1){
@@ -446,7 +446,7 @@ class RutasAuditoria extends MY_Controller{
 							  'idVisitaProg' => $idVisitaProg
 							, 'idDia' => 5
 						);
-						$this->db->insert('trade.master_visitaProgramadaDet',$insert_visitaDet);
+						$this->db->insert("{$this->sessBDCuenta}.trade.master_visitaProgramadaDet",$insert_visitaDet);
 					}
 
 					if(!empty($sabado) && $sabado==1){
@@ -455,7 +455,7 @@ class RutasAuditoria extends MY_Controller{
 							  'idVisitaProg' => $idVisitaProg
 							, 'idDia' => 6
 						);
-						$this->db->insert('trade.master_visitaProgramadaDet',$insert_visitaDet);
+						$this->db->insert("{$this->sessBDCuenta}.trade.master_visitaProgramadaDet",$insert_visitaDet);
 					}
 
 					if(!empty($domingo) && $domingo==1 ){
@@ -464,24 +464,24 @@ class RutasAuditoria extends MY_Controller{
 							  'idVisitaProg' => $idVisitaProg
 							, 'idDia' =>7
 						);
-						$this->db->insert('trade.master_visitaProgramadaDet',$insert_visitaDet);
+						$this->db->insert("{$this->sessBDCuenta}.trade.master_visitaProgramadaDet",$insert_visitaDet);
 					}
 				}else{
 					$idCliente = $row;
-					$sql = "SELECT idVisitaProg FROM trade.master_visitaProgramada WHERE idCliente =".$idCliente." AND idRutaProg = ".$idRutaProg." " ;
+					$sql = "SELECT idVisitaProg FROM {$this->sessBDCuenta}.trade.master_visitaProgramada WHERE idCliente =".$idCliente." AND idRutaProg = ".$idRutaProg." " ;
 					$res = $this->db->query($sql)->row_array();
 					$idVisitaProg=$res['idVisitaProg'];
-					$delete1 = "DELETE FROM trade.master_visitaProgramadaDet WHERE idVisitaProg =".$idVisitaProg;
-					$delete2 = "DELETE FROM trade.master_visitaProgramada WHERE idVisitaProg =".$idVisitaProg;
+					$delete1 = "DELETE FROM {$this->sessBDCuenta}.trade.master_visitaProgramadaDet WHERE idVisitaProg =".$idVisitaProg;
+					$delete2 = "DELETE FROM {$this->sessBDCuenta}.trade.master_visitaProgramada WHERE idVisitaProg =".$idVisitaProg;
 					$this->db->query($delete1);
 					$this->db->query($delete2);
 				}
 
 			}
 			
-			$total_clientes = "SELECT count(*) total FROM trade.master_visitaProgramada WHERE idRutaProg = ".$idRutaProg;
+			$total_clientes = "SELECT count(*) total FROM {$this->sessBDCuenta}.trade.master_visitaProgramada WHERE idRutaProg = ".$idRutaProg;
 			$res = $this->db->query($total_clientes)->row_array();
-			$update = "UPDATE trade.master_rutaProgramada SET numClientes=".$res['total']." WHERE idRutaProg = ".$idRutaProg;
+			$update = "UPDATE {$this->sessBDCuenta}.trade.master_rutaProgramada SET numClientes=".$res['total']." WHERE idRutaProg = ".$idRutaProg;
 			$this->db->query($update);
 		}
 		
@@ -502,15 +502,15 @@ class RutasAuditoria extends MY_Controller{
 		$fecFin = $post->{'fechas_fin_rutas'};
 		if(empty($fecFin))$fecFinR=$fecIni;
 		else{$fecFinR=$fecFin;}
-		$update = "UPDATE trade.master_rutaProgramadaDet SET fecFin= DATEADD(day,-1,'".$fecIni."') WHERE idRutaProgDet IN(
-					SELECT idRutaProgDet FROM trade.master_rutaProgramadaDet WHERE general.dbo.fn_fechaVigente(fecIni,fecFin,'".$fecIni."','".$fecFinR."')=1
+		$update = "UPDATE {$this->sessBDCuenta}.trade.master_rutaProgramadaDet SET fecFin= DATEADD(day,-1,'".$fecIni."') WHERE idRutaProgDet IN(
+					SELECT idRutaProgDet FROM {$this->sessBDCuenta}.trade.master_rutaProgramadaDet WHERE general.dbo.fn_fechaVigente(fecIni,fecFin,'".$fecIni."','".$fecFinR."')=1
 					AND idRutaProg=$idRutaProg
 					) ";
 		$this->db->query($update);
 		if(empty($fecFin)){
-			$insert = "insert into trade.master_rutaProgramadaDet VALUES($idRutaProg,$idUsuario,'".$fecIni."',null,getdate(),1) ";
+			$insert = "insert into {$this->sessBDCuenta}.trade.master_rutaProgramadaDet VALUES($idRutaProg,$idUsuario,'".$fecIni."',null,getdate(),1) ";
 		}else{
-			$insert = "insert into trade.master_rutaProgramadaDet VALUES($idRutaProg,$idUsuario,'".$fecIni."','".$fecFin."',getdate(),1) ";
+			$insert = "insert into {$this->sessBDCuenta}.trade.master_rutaProgramadaDet VALUES($idRutaProg,$idUsuario,'".$fecIni."','".$fecFin."',getdate(),1) ";
 		}
 		$this->db->query($insert);
 		
@@ -566,7 +566,7 @@ class RutasAuditoria extends MY_Controller{
 				$array_visita['idRutaProg'] = $idRutaProg;
 				$array_visita['idCliente'] = $row;
 				
-				$this->db->insert('trade.master_visitaProgramada',$array_visita);
+				$this->db->insert("{$this->sessBDCuenta}.trade.master_visitaProgramada",$array_visita);
 		
 				$idVisita = $this->db->insert_id();
 								
@@ -574,49 +574,49 @@ class RutasAuditoria extends MY_Controller{
 					$array_visitaDet = array();
 					$array_visitaDet['idVisitaProg'] = $idVisita;
 					$array_visitaDet['idDia'] = 1;
-					$this->db->insert('trade.master_visitaProgramadaDet',$array_visitaDet);
+					$this->db->insert("{$this->sessBDCuenta}.trade.master_visitaProgramadaDet",$array_visitaDet);
 				}
 				if(!empty($post['martes_'.$row])){
 					$array_visitaDet = array();
 					$array_visitaDet['idVisitaProg'] = $idVisita;
 					$array_visitaDet['idDia'] = 2;
-					$this->db->insert('trade.master_visitaProgramadaDet',$array_visitaDet);
+					$this->db->insert("{$this->sessBDCuenta}.trade.master_visitaProgramadaDet",$array_visitaDet);
 				}
 				if(!empty($post['miercoles_'.$row])){
 					$array_visitaDet = array();
 					$array_visitaDet['idVisitaProg'] = $idVisita;
 					$array_visitaDet['idDia'] = 3;
-					$this->db->insert('trade.master_visitaProgramadaDet',$array_visitaDet);
+					$this->db->insert("{$this->sessBDCuenta}.trade.master_visitaProgramadaDet",$array_visitaDet);
 				}
 				if(!empty($post['jueves_'.$row])){
 					$array_visitaDet = array();
 					$array_visitaDet['idVisitaProg'] = $idVisita;
 					$array_visitaDet['idDia'] = 4;
-					$this->db->insert('trade.master_visitaProgramadaDet',$array_visitaDet);
+					$this->db->insert("{$this->sessBDCuenta}.trade.master_visitaProgramadaDet",$array_visitaDet);
 				}
 				if(!empty($post['viernes_'.$row])){
 					$array_visitaDet = array();
 					$array_visitaDet['idVisitaProg'] = $idVisita;
 					$array_visitaDet['idDia'] = 5;
-					$this->db->insert('trade.master_visitaProgramadaDet',$array_visitaDet);
+					$this->db->insert("{$this->sessBDCuenta}.trade.master_visitaProgramadaDet",$array_visitaDet);
 				}
 				if(!empty($post['sabado_'.$row])){
 					$array_visitaDet = array();
 					$array_visitaDet['idVisitaProg'] = $idVisita;
 					$array_visitaDet['idDia'] = 6;
-					$this->db->insert('trade.master_visitaProgramadaDet',$array_visitaDet);
+					$this->db->insert("{$this->sessBDCuenta}.trade.master_visitaProgramadaDet",$array_visitaDet);
 				}
 				if(!empty($post['domingo_'.$row])){
 					$array_visitaDet = array();
 					$array_visitaDet['idVisitaProg'] = $idVisita;
 					$array_visitaDet['idDia'] = 7;
-					$this->db->insert('trade.master_visitaProgramadaDet',$array_visitaDet);
+					$this->db->insert("{$this->sessBDCuenta}.trade.master_visitaProgramadaDet",$array_visitaDet);
 				}
 			}
 			
-			$total_clientes = "SELECT count(*) total FROM trade.master_visitaProgramada WHERE idRutaProg = ".$idRutaProg;
+			$total_clientes = "SELECT count(*) total FROM {$this->sessBDCuenta}.trade.master_visitaProgramada WHERE idRutaProg = ".$idRutaProg;
 			$res = $this->db->query($total_clientes)->row_array();
-			$update = "UPDATE trade.master_rutaProgramada SET numClientes=".$res['total']." WHERE idRutaProg = ".$idRutaProg;
+			$update = "UPDATE {$this->sessBDCuenta}.trade.master_rutaProgramada SET numClientes=".$res['total']." WHERE idRutaProg = ".$idRutaProg;
 			$this->db->query($update);
 		}
 		
@@ -952,7 +952,7 @@ class RutasAuditoria extends MY_Controller{
 					$clientes=$this->model->obtener_clientes($params);
 					$idClienteTipo =$clientes[0]['subcanal'];
 			
-				$sql = "SELECT DISTINCT ISNULL(minCategorias,0) minCategorias, ISNULL(minElementosOblig,0) minElementosOblig FROM trade.master_modulacion_validaciones WHERE idClienteTipo = 1 AND General.dbo.fn_fechaVigente(fecIni,fecFin,'$fecIni','$fecFin')=1";
+				$sql = "SELECT DISTINCT ISNULL(minCategorias,0) minCategorias, ISNULL(minElementosOblig,0) minElementosOblig FROM {$this->sessBDCuenta}.trade.master_modulacion_validaciones WHERE idClienteTipo = 1 AND General.dbo.fn_fechaVigente(fecIni,fecFin,'$fecIni','$fecFin')=1";
 				$validaciones_carga = $this->db->query($sql)->result_array();
 
 				$minCategorias=0;
@@ -985,7 +985,7 @@ class RutasAuditoria extends MY_Controller{
 					
 					$data_cliente = $this->db->query($sql)->row_array();
 					$idCanal = $data_cliente['idCanal'];
-					$validar_lista = "SELECT * FROM trade.list_visibilidadTrad WHERE idCliente= $idCliente AND fecIni='".$fecIni."' AND fecFin = '".$fecFin."' ";
+					$validar_lista = "SELECT * FROM {$this->sessBDCuenta}.trade.list_visibilidadTrad WHERE idCliente= $idCliente AND fecIni='".$fecIni."' AND fecFin = '".$fecFin."' ";
 					$res_validacion = $this->db->query($validar_lista)->row_array();
 					$total =count($res_validacion);
 					if($total==0){
@@ -995,7 +995,7 @@ class RutasAuditoria extends MY_Controller{
 							, 'fecFin' 			=> $fecFin
 							, 'idProyecto'		=> 2
 						);
-						$this->db->insert('trade.list_visibilidadTrad',$insert);
+						$this->db->insert("{$this->sessBDCuenta}.trade.list_visibilidadTrad",$insert);
 						$id = $this->db->insert_id();
 						for($j=0;$j<$total_elementos;$j++){
 							$idElemento = $post[$i]['modulacion'][$j];
@@ -1004,11 +1004,11 @@ class RutasAuditoria extends MY_Controller{
 								, 'idElementoVis' => $idElemento
 								, 'estado' => 2
 							);
-							$this->db->insert('trade.list_visibilidadTradDet',$insert_elementos);
+							$this->db->insert("{$this->sessBDCuenta}.trade.list_visibilidadTradDet",$insert_elementos);
 						}
 					}else{
 						$id =$res_validacion['idListVisibilidad'];
-						$delete = "delete from  trade.list_visibilidadTradDet WHERE idListVisibilidad=".$id;
+						$delete = "delete from  {$this->sessBDCuenta}.trade.list_visibilidadTradDet WHERE idListVisibilidad=".$id;
 						$this->db->query($delete);
 						for($j=0;$j<$total_elementos;$j++){
 							
@@ -1018,7 +1018,7 @@ class RutasAuditoria extends MY_Controller{
 								, 'idElementoVis' => $idElemento
 								, 'estado' => 1
 							);
-							$this->db->insert('trade.list_visibilidadTradDet',$insert_elementos);
+							$this->db->insert("{$this->sessBDCuenta}.trade.list_visibilidadTradDet",$insert_elementos);
 						}
 						
 					}
@@ -1147,7 +1147,7 @@ class RutasAuditoria extends MY_Controller{
 				$insert_ruta['fecFin'] = $fecFin;
 			}
 			
-			$this->db->insert('trade.master_rutaProgramada',$insert_ruta);
+			$this->db->insert("{$this->sessBDCuenta}.trade.master_rutaProgramada",$insert_ruta);
 			$idRutaProg = $this->db->insert_id();
 
 			
@@ -1162,30 +1162,30 @@ class RutasAuditoria extends MY_Controller{
 				  , 'fecFin' => $array_fecha[$row]
 				);
 				
-				$this->db->insert('trade.master_rutaProgramadaDet',$insert_gtm);
+				$this->db->insert("{$this->sessBDCuenta}.trade.master_rutaProgramadaDet",$insert_gtm);
 				$idRutaProgDet = $this->db->insert_id();
 
 				
 				$idCliente = $row;
-				$sql = "SELECT idVisitaProg FROM trade.master_visitaProgramada WHERE idCliente =".$idCliente." AND idRutaProg = ".$idRutaProg." " ;
+				$sql = "SELECT idVisitaProg FROM {$this->sessBDCuenta}.trade.master_visitaProgramada WHERE idCliente =".$idCliente." AND idRutaProg = ".$idRutaProg." " ;
 				$res = $this->db->query($sql)->row_array();
 				if($res!=null){
 					if(count($res)){
 						$idVisitaProg=$res['idVisitaProg'];
-						$delete = "DELETE FROM trade.master_visitaProgramadaDet WHERE idVisitaProg =".$idVisitaProg;
+						$delete = "DELETE FROM {$this->sessBDCuenta}.trade.master_visitaProgramadaDet WHERE idVisitaProg =".$idVisitaProg;
 						$this->db->query($delete);
 					}else {
 						$array_visita = array();
 						$array_visita['idRutaProg'] = $idRutaProgDet;
 						$array_visita['idCliente'] = $idCliente;
-						$this->db->insert('trade.master_visitaProgramada',$array_visita);
+						$this->db->insert("{$this->sessBDCuenta}.trade.master_visitaProgramada",$array_visita);
 						$idVisitaProg=$this->db->insert_id();
 					}
 				}else {
 					$array_visita = array();
 					$array_visita['idRutaProg'] = $idRutaProgDet;
 					$array_visita['idCliente'] = $idCliente;
-					$this->db->insert('trade.master_visitaProgramada',$array_visita);
+					$this->db->insert("{$this->sessBDCuenta}.trade.master_visitaProgramada",$array_visita);
 					$idVisitaProg=$this->db->insert_id();
 				}
 				
@@ -1202,20 +1202,20 @@ class RutasAuditoria extends MY_Controller{
 						'idVisitaProg' => $idVisitaProg
 						, 'idDia' => $dayofweek
 					);
-					$this->db->insert('trade.master_visitaProgramadaDet',$insert_visitaDet);
+					$this->db->insert("{$this->sessBDCuenta}.trade.master_visitaProgramadaDet",$insert_visitaDet);
 				}
 
 			}
 			
-			$total_clientes = "SELECT count(*) total FROM trade.master_visitaProgramada WHERE idRutaProg = ".$idRutaProg;
+			$total_clientes = "SELECT count(*) total FROM {$this->sessBDCuenta}.trade.master_visitaProgramada WHERE idRutaProg = ".$idRutaProg;
 			$res = $this->db->query($total_clientes)->row_array();
-			$update = "UPDATE trade.master_rutaProgramada SET numClientes=".$res['total']." WHERE idRutaProg = ".$idRutaProg;
+			$update = "UPDATE {$this->sessBDCuenta}.trade.master_rutaProgramada SET numClientes=".$res['total']." WHERE idRutaProg = ".$idRutaProg;
 			$this->db->query($update);
 		}
 			
-			$total_clientes = "SELECT count(*) total FROM trade.master_visitaProgramada WHERE idRutaProg = ".$idRutaProg;
+			$total_clientes = "SELECT count(*) total FROM {$this->sessBDCuenta}.trade.master_visitaProgramada WHERE idRutaProg = ".$idRutaProg;
 			$res = $this->db->query($total_clientes)->row_array();
-			$update = "UPDATE trade.master_rutaProgramada SET numClientes=".$res['total']." WHERE idRutaProg = ".$idRutaProg;
+			$update = "UPDATE {$this->sessBDCuenta}.trade.master_rutaProgramada SET numClientes=".$res['total']." WHERE idRutaProg = ".$idRutaProg;
 			$this->db->query($update);
 		
 		
@@ -1253,7 +1253,7 @@ class RutasAuditoria extends MY_Controller{
 				,'idUsuarioReg'=>$this->session->idUsuario
 			);
 			
-			$this->db->insert('trade.master_rutaProgramada',$insert_ruta);
+			$this->db->insert("{$this->sessBDCuenta}.trade.master_rutaProgramada",$insert_ruta);
 			$idRutaProg = $this->db->insert_id();
 
 			foreach($array_cliente[$row] as $row_c => $value_c){
@@ -1264,14 +1264,14 @@ class RutasAuditoria extends MY_Controller{
 				  , 'idUsuario' => $array_gtm[$row]
 				  , 'fecFin' => $fecha
 				);
-				$this->db->insert('trade.master_rutaProgramadaDet',$insert_gtm);
+				$this->db->insert("{$this->sessBDCuenta}.trade.master_rutaProgramadaDet",$insert_gtm);
 				$idRutaProgDet = $this->db->insert_id();
 
 				$insert_visita = array(
 					  'idRutaProg' => $idRutaProgDet
 					, 'idCliente' => $value_c
 				);
-				$this->db->insert('trade.master_visitaProgramada', $insert_visita);
+				$this->db->insert("{$this->sessBDCuenta}.trade.master_visitaProgramada", $insert_visita);
 				$idVisitaProg = $this->db->insert_id();
 				
 
@@ -1283,14 +1283,14 @@ class RutasAuditoria extends MY_Controller{
 						'idVisitaProg' => $idVisitaProg
 						, 'idDia' => $dayofweek
 					);
-					$this->db->insert('trade.master_visitaProgramadaDet',$insert_visitaDet);
+					$this->db->insert("{$this->sessBDCuenta}.trade.master_visitaProgramadaDet",$insert_visitaDet);
 				}
 					
 			}
 			
-			$total_clientes = "SELECT count(*) total FROM trade.master_visitaProgramada WHERE idRutaProg = ".$idRutaProg;
+			$total_clientes = "SELECT count(*) total FROM {$this->sessBDCuenta}.trade.master_visitaProgramada WHERE idRutaProg = ".$idRutaProg;
 			$res = $this->db->query($total_clientes)->row_array();
-			$update = "UPDATE trade.master_rutaProgramada SET numClientes=".$res['total']." WHERE idRutaProg = ".$idRutaProg;
+			$update = "UPDATE {$this->sessBDCuenta}.trade.master_rutaProgramada SET numClientes=".$res['total']." WHERE idRutaProg = ".$idRutaProg;
 			$this->db->query($update);
 		}
 		

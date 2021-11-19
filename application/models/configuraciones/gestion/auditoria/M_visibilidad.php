@@ -12,12 +12,12 @@ class M_visibilidad extends My_Model
 		$this->tablas = [
 			'elemento' => ['tabla' => 'trade.elementoVisibilidadTrad', 'id' => 'idElementoVis'],
 			'tipoElemento' => ['tabla' => 'trade.tipoElementoVisibilidadTrad', 'id' => 'idTipoElementoVis'],
-			'lista' => ['tabla' => 'trade.list_visibilidadTradObl', 'id' => 'idListVisibilidadObl'],
-			'listaDet' => ['tabla' => 'trade.list_visibilidadTradOblDet', 'id' => 'idListVisibilidadOblDet'],
-			'iniciativa' => ['tabla' => 'trade.iniciativaTrad', 'id' => 'idIniciativa'],
-			'listaIniciativa' => ['tabla' => 'trade.list_visibilidadTradIni', 'id' => 'idListVisibilidadIni'],
-			'listaIniciativaDet' => ['tabla' => 'trade.list_visibilidadTradIniDet', 'id' => 'idListVisibilidadIniDet'],
-			'listaIniciativaDetElemento' => ['tabla' => 'trade.list_visibilidadTradIniDetElemento', 'id' => 'idListVisibilidadIniDetEle'],
+			'lista' => ['tabla' => "{$this->sessBDCuenta}.trade.list_visibilidadTradObl", 'id' => 'idListVisibilidadObl'],
+			'listaDet' => ['tabla' => "{$this->sessBDCuenta}.trade.list_visibilidadTradOblDet", 'id' => 'idListVisibilidadOblDet'],
+			'iniciativa' => ['tabla' => "{$this->sessBDCuenta}.trade.iniciativaTrad", 'id' => 'idIniciativa'],
+			'listaIniciativa' => ['tabla' => "{$this->sessBDCuenta}.trade.list_visibilidadTradIni", 'id' => 'idListVisibilidadIni'],
+			'listaIniciativaDet' => ['tabla' => "{$this->sessBDCuenta}.trade.list_visibilidadTradIniDet", 'id' => 'idListVisibilidadIniDet'],
+			'listaIniciativaDetElemento' => ['tabla' => "{$this->sessBDCuenta}.trade.list_visibilidadTradIniDetElemento", 'id' => 'idListVisibilidadIniDetEle'],
 		];
 	}
 
@@ -44,8 +44,8 @@ class M_visibilidad extends My_Model
 			FROM
 			" . $this->tablas['elemento']['tabla'] . " p
 			JOIN " . $this->tablas['tipoElemento']['tabla'] . " t ON t." . $this->tablas['tipoElemento']['id'] . " = p.idTipoElementoVisibilidad
-			LEFT JOIN impactTrade_bd.trade.producto_categoria pc ON pc.idCategoria = p.idCategoria
-			JOIN impactTrade_bd.trade.cuenta cu ON cu.idCuenta=p.idCuenta
+			LEFT JOIN trade.producto_categoria pc ON pc.idCategoria = p.idCategoria
+			JOIN trade.cuenta cu ON cu.idCuenta=p.idCuenta
 			{$filtros} and p.idTipoElementoVisibilidad IN (1,2)
 		";
 
@@ -76,8 +76,8 @@ class M_visibilidad extends My_Model
                 FROM
                 " . $this->tablas['elemento']['tabla'] . " p
                 JOIN " . $this->tablas['tipoElemento']['tabla'] . " t ON t." . $this->tablas['tipoElemento']['id'] . " = p.idTipoElementoVisibilidad
-                LEFT JOIN impactTrade_bd.trade.producto_categoria pc ON pc.idCategoria = p.idCategoria
-                JOIN impactTrade_bd.trade.proyecto py ON py.idProyecto=p.idProyecto
+                LEFT JOIN trade.producto_categoria pc ON pc.idCategoria = p.idCategoria
+                JOIN trade.proyecto py ON py.idProyecto=p.idProyecto
                 {$filtros} and p.idTipoElementoVisibilidad IN (1)
 			";
 
@@ -112,7 +112,7 @@ class M_visibilidad extends My_Model
 		$sql = "
                 SELECT *
                 FROM
-					impactTrade_bd.trade.producto_categoria
+					trade.producto_categoria
 				WHERE
 					estado=1
 			";
@@ -125,9 +125,9 @@ class M_visibilidad extends My_Model
 	{
 
 
-		$sql = $this->db->get_where('trade.encuesta', array('nombre' => $encuesta));
+		$sql = $this->db->get_where("{$this->sessBDCuenta}.trade.encuesta", array('nombre' => $encuesta));
 
-		$this->aSessTrack[] = ['idAccion' => 5, 'tabla' => 'trade.encuesta'];
+		$this->aSessTrack[] = ['idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.encuesta"];
 		return ($sql);
 	}
 
@@ -585,7 +585,7 @@ class M_visibilidad extends My_Model
 				e.idIniciativa
 				, e.idElementoVis 
 				, det.nombre
-				from  trade.iniciativaTradElemento e 
+				from  {$this->sessBDCuenta}.trade.iniciativaTradElemento e 
 				JOIN trade.elementoVisibilidadTrad det ON e.idElementoVis = det.idElementoVis
 				WHERE 1=1 {$filtros}";
 
@@ -652,13 +652,13 @@ class M_visibilidad extends My_Model
 				lstd.idIniciativa,
 				ev.idElementoVis,
 				ev.nombre
-			FROM trade.iniciativaTrad e
-			JOIN trade.list_visibilidadTradIniDet lstd ON lstd.idIniciativa = e.idIniciativa
-			JOIN trade.list_visibilidadTradIniDetElemento lstdet On lstdet.idListVisibilidadIniDet = lstd.idListVisibilidadIniDet
+			FROM {$this->sessBDCuenta}.trade.iniciativaTrad e
+			JOIN {$this->sessBDCuenta}.trade.list_visibilidadTradIniDet lstd ON lstd.idIniciativa = e.idIniciativa
+			JOIN {$this->sessBDCuenta}.trade.list_visibilidadTradIniDetElemento lstdet On lstdet.idListVisibilidadIniDet = lstd.idListVisibilidadIniDet
 			JOIN trade.elementoVisibilidadTrad ev ON ev.idElementoVis = lstdet.idElementoVis
 			WHERE lstd.idListVisibilidadIni = ".$post['id'].";
 			";
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.iniciativaTrad' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.iniciativaTrad" ];
 		return $this->db->query($sql);
 	}
 
@@ -712,7 +712,7 @@ class M_visibilidad extends My_Model
 						$arrayDetalle['estado'] = 1;
 	
 						//validar existencia
-						$rs = $this->db->get_where('trade.list_visibilidadTradIniDet',$arrayDetalle)->result_array();
+						$rs = $this->db->get_where("{$this->sessBDCuenta}.trade.list_visibilidadTradIniDet",$arrayDetalle)->result_array();
 						if($rs!=null){
 							if(count($rs) >=1){
 								//si existe iniciativa agregar detalle elemento
@@ -724,10 +724,10 @@ class M_visibilidad extends My_Model
 								$arrayDetalleElemento['estado']=1;
 
 								//validar existencia
-								$rs_elemento = $this->db->get_where('trade.list_visibilidadTradIniDetElemento',$arrayDetalleElemento)->result_array();
+								$rs_elemento = $this->db->get_where("{$this->sessBDCuenta}.trade.list_visibilidadTradIniDetElemento",$arrayDetalleElemento)->result_array();
 								if($rs_elemento==null){
 
-									$table = 'trade.list_visibilidadTradIniDetElemento';
+									$table = "{$this->sessBDCuenta}.trade.list_visibilidadTradIniDetElemento";
 									$this->db->trans_begin();
 		
 										$insert = $this->db->insert($table, $arrayDetalleElemento);
@@ -745,7 +745,7 @@ class M_visibilidad extends My_Model
 								
 							}else{
 								//insertar la iniciativa
-								$table = 'trade.list_visibilidadTradIniDet';
+								$table = "{$this->sessBDCuenta}.trade.list_visibilidadTradIniDet";
 								$this->db->trans_begin();
 	
 									$insert = $this->db->insert($table, $arrayDetalle);
@@ -767,7 +767,7 @@ class M_visibilidad extends My_Model
 									$arrayDetalleElemento['idElementoVis']=$value;
 									$arrayDetalleElemento['estado']=1;
 	
-									$table = 'trade.list_visibilidadTradIniDetElemento';
+									$table = "{$this->sessBDCuenta}.trade.list_visibilidadTradIniDetElemento";
 									$this->db->trans_begin();
 	
 										$insert = $this->db->insert($table, $arrayDetalleElemento);
@@ -785,7 +785,7 @@ class M_visibilidad extends My_Model
 							}
 						}else{
 							//insertar la iniciativa
-							$table = 'trade.list_visibilidadTradIniDet';
+							$table = "{$this->sessBDCuenta}.trade.list_visibilidadTradIniDet";
 							$this->db->trans_begin();
 	
 								$insert = $this->db->insert($table, $arrayDetalle);
@@ -806,7 +806,7 @@ class M_visibilidad extends My_Model
 								$arrayDetalleElemento['idElementoVis']=$value;
 								$arrayDetalleElemento['estado']=1;
 	
-								$table = 'trade.list_visibilidadTradIniDetElemento';
+								$table = "{$this->sessBDCuenta}.trade.list_visibilidadTradIniDetElemento";
 								$this->db->trans_begin();
 	
 									$insert = $this->db->insert($table, $arrayDetalleElemento);
@@ -860,19 +860,19 @@ class M_visibilidad extends My_Model
 	{
 		$delete=null;
 		$sql="
-			DELETE trade.list_visibilidadTradIniDetElemento where idListVisibilidadIniDet IN(
-				SELECT idListVisibilidadIniDet from trade.list_visibilidadTradIniDet WHERE idListVisibilidadIni=$idLista
+			DELETE {$this->sessBDCuenta}.trade.list_visibilidadTradIniDetElemento where idListVisibilidadIniDet IN(
+				SELECT idListVisibilidadIniDet from {$this->sessBDCuenta}.trade.list_visibilidadTradIniDet WHERE idListVisibilidadIni=$idLista
 			);
 		";
 		$delete=$this->db->query($sql);
 		if($delete){
 			$sql="
-				DELETE trade.list_visibilidadTradIniDet WHERE idListVisibilidadIni=$idLista
+				DELETE {$this->sessBDCuenta}.trade.list_visibilidadTradIniDet WHERE idListVisibilidadIni=$idLista
 			";
 			$delete=$this->db->query($sql);
 
-			$this->aSessTrack[] = [ 'idAccion' => 8, 'tabla' => 'trade.list_visibilidadTradIniDetElemento', 'id' => arrayToString([ 'idListVisibilidadIni' => $idLista ]) ];
-			$this->aSessTrack[] = [ 'idAccion' => 8, 'tabla' => 'trade.list_visibilidadTradIniDet', 'id' => arrayToString([ 'idListVisibilidadIni' => $idLista ]) ];
+			$this->aSessTrack[] = [ 'idAccion' => 8, 'tabla' => "{$this->sessBDCuenta}.trade.list_visibilidadTradIniDetElemento", 'id' => arrayToString([ 'idListVisibilidadIni' => $idLista ]) ];
+			$this->aSessTrack[] = [ 'idAccion' => 8, 'tabla' => "{$this->sessBDCuenta}.trade.list_visibilidadTradIniDet", 'id' => arrayToString([ 'idListVisibilidadIni' => $idLista ]) ];
 		}
 		return $delete;
 	}
@@ -943,7 +943,7 @@ class M_visibilidad extends My_Model
 				
 	
 					//validar existencia
-					$rs = $this->db->get_where('trade.list_visibilidadTradIniDet',$arrayDetalle)->result_array();
+					$rs = $this->db->get_where("{$this->sessBDCuenta}.trade.list_visibilidadTradIniDet",$arrayDetalle)->result_array();
 					if($rs!=null){
 						if(count($rs) >=0){
 							//si existe iniciativa agregar detalle elemento
@@ -954,9 +954,9 @@ class M_visibilidad extends My_Model
 							$arrayDetalleElemento['idElementoVis']=$row['elemento_lista'];
 							$arrayDetalleElemento['estado']=1;
 
-							$rs_elementos = $this->db->get_where('trade.list_visibilidadTradIniDetElemento', $arrayDetalleElemento)->result_array();
+							$rs_elementos = $this->db->get_where("{$this->sessBDCuenta}.trade.list_visibilidadTradIniDetElemento", $arrayDetalleElemento)->result_array();
 							if( empty($rs_elementos)){
-								$table = 'trade.list_visibilidadTradIniDetElemento';
+								$table = "{$this->sessBDCuenta}.trade.list_visibilidadTradIniDetElemento";
 								$this->db->trans_begin();
 
 									$insert = $this->db->insert($table, $arrayDetalleElemento);
@@ -974,7 +974,7 @@ class M_visibilidad extends My_Model
 							
 						}else{
 							//insertar la iniciativa
-							$table = 'trade.list_visibilidadTradIniDet';
+							$table = "{$this->sessBDCuenta}.trade.list_visibilidadTradIniDet";
 							$this->db->trans_begin();
 
 								$insert = $this->db->insert($table, $arrayDetalle);
@@ -995,7 +995,7 @@ class M_visibilidad extends My_Model
 								$arrayDetalleElemento['idElementoVis']=$row['elemento_lista'];
 								$arrayDetalleElemento['estado']=1;
 	
-								$table = 'trade.list_visibilidadTradIniDetElemento';
+								$table = "{$this->sessBDCuenta}.trade.list_visibilidadTradIniDetElemento";
 								$this->db->trans_begin();
 
 									$insert = $this->db->insert($table, $arrayDetalleElemento);
@@ -1013,7 +1013,7 @@ class M_visibilidad extends My_Model
 						}
 					}else{
 						//insertar la iniciativa
-						$table = 'trade.list_visibilidadTradIniDet';
+						$table = "{$this->sessBDCuenta}.trade.list_visibilidadTradIniDet";
 						$this->db->trans_begin();
 
 							$insert = $this->db->insert($table, $arrayDetalle);
@@ -1034,7 +1034,7 @@ class M_visibilidad extends My_Model
 							$arrayDetalleElemento['idElementoVis']=$row['elemento_lista'];
 							$arrayDetalleElemento['estado']=1;
 
-							$table = 'trade.list_visibilidadTradIniDetElemento';
+							$table = "{$this->sessBDCuenta}.trade.list_visibilidadTradIniDetElemento";
 							$this->db->trans_begin();
 
 								$insert = $this->db->insert($table, $arrayDetalleElemento);
@@ -1077,14 +1077,14 @@ class M_visibilidad extends My_Model
 				, fecFin fecFinal
 				, estado
 			FROM 
-				impactTrade_bd.trade.master_listaElementos
+				{$this->sessBDCuenta}.trade.master_listaElementos
 			WHERE
 				1=1
 				{$filtros}
 			ORDER BY estado DESC ,idLista DESC
 			";
 
-		$this->aSessTrack[] = ['idAccion' => 5, 'tabla' => 'trade.master_listaElementos'];
+		$this->aSessTrack[] = ['idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.master_listaElementos"];
 		return $this->db->query($sql);
 	}
 
@@ -1098,10 +1098,10 @@ class M_visibilidad extends My_Model
 			$insert['fecFin'] = $post['fechaFin'];
 		}
 
-		$insert = $this->db->insert('trade.master_listaElementos', $insert);
+		$insert = $this->db->insert("{$this->sessBDCuenta}.trade.master_listaElementos", $insert);
 		$this->insertId = $this->db->insert_id();
 
-		$this->aSessTrack[] = ['idAccion' => 6, 'tabla' => 'trade.master_listaElementos', 'id' => $this->insertId];
+		$this->aSessTrack[] = ['idAccion' => 6, 'tabla' => "{$this->sessBDCuenta}.trade.master_listaElementos", 'id' => $this->insertId];
 		return $insert;
 	}
 
@@ -1116,7 +1116,7 @@ class M_visibilidad extends My_Model
 				,t.nombre tipo
 				, m.orden
 			FROM 
-				impactTrade_bd.trade.master_listaElementosDet m
+				{$this->sessBDCuenta}.trade.master_listaElementosDet m
 				JOIN trade.elementoVisibilidadTrad evt
 					ON evt.idElementoVis = m.idElementoVisibilidad
 				JOIN " . $this->tablas['tipoElemento']['tabla'] . " t ON t." . $this->tablas['tipoElemento']['id'] . " = evt.idTipoElementoVisibilidad
@@ -1124,7 +1124,7 @@ class M_visibilidad extends My_Model
 				idLista='" . $post['id'] . "'
 			";
 
-		$this->aSessTrack[] = ['idAccion' => 5, 'tabla' => 'trade.master_listaElementosDet'];
+		$this->aSessTrack[] = ['idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.master_listaElementosDet"];
 		return $this->db->query($sql);
 	}
 
@@ -1142,9 +1142,9 @@ class M_visibilidad extends My_Model
 		];
 
 		$this->db->where($where);
-		$update = $this->db->update('trade.master_listaElementos', $update);
+		$update = $this->db->update("{$this->sessBDCuenta}.trade.master_listaElementos", $update);
 
-		$this->aSessTrack[] = ['idAccion' => 7, 'tabla' => 'trade.master_listaElementos', 'id' => $post['idlst']];
+		$this->aSessTrack[] = ['idAccion' => 7, 'tabla' => "{$this->sessBDCuenta}.trade.master_listaElementos", 'id' => $post['idlst']];
 		return $update;
 	}
 
@@ -1161,10 +1161,10 @@ class M_visibilidad extends My_Model
 			}
 		}
 		if (empty($input)) return true;
-		$update =  $this->actualizarMasivo('trade.master_listaElementosDet', $input, 'idLista');
+		$update =  $this->actualizarMasivo("{$this->sessBDCuenta}.trade.master_listaElementosDet", $input, 'idLista');
 
-		$this->aSessTrack[] = ['idAccion' => 7, 'tabla' => 'trade.master_listaElementosDet'];
-		$this->aSessTrack[] = ['idAccion' => 7, 'tabla' => 'trade.master_listaElementosDet'];
+		$this->aSessTrack[] = ['idAccion' => 7, 'tabla' => "{$this->sessBDCuenta}.trade.master_listaElementosDet"];
+		$this->aSessTrack[] = ['idAccion' => 7, 'tabla' => "{$this->sessBDCuenta}.trade.master_listaElementosDet"];
 		return $update;
 	}
 
@@ -1176,7 +1176,7 @@ class M_visibilidad extends My_Model
 		$repetidos = false;
 		foreach ($multiDataRefactorizada as $index => $row) {
 			$new_array[] = $row['elemento_lista'];
-			$rs = $this->db->get_where('trade.master_listaElementosDet', array('idLista' => $idLista, 'idElementoVisibilidad' => $row['elemento_lista']))->row_array();
+			$rs = $this->db->get_where("{$this->sessBDCuenta}.trade.master_listaElementosDet", array('idLista' => $idLista, 'idElementoVisibilidad' => $row['elemento_lista']))->row_array();
 			if ($rs != null) {
 				if (count($rs) >= 1) {
 					$repetidos = true;
@@ -1205,8 +1205,8 @@ class M_visibilidad extends My_Model
 				}
 			}
 			if (empty($input)) return true;
-			$insert = $this->db->insert_batch('trade.master_listaElementosDet', $input);
-			$this->aSessTrack[] = ['idAccion' => 6, 'tabla' => 'trade.master_listaElementosDet'];
+			$insert = $this->db->insert_batch("{$this->sessBDCuenta}.trade.master_listaElementosDet", $input);
+			$this->aSessTrack[] = ['idAccion' => 6, 'tabla' => "{$this->sessBDCuenta}.trade.master_listaElementosDet"];
 		} else {
 			$insert = 'repetido';
 		}
@@ -1217,9 +1217,9 @@ class M_visibilidad extends My_Model
 	{
 		$query = $this->db->select('idLista')
 			->where($input)
-			->get('trade.master_listaElementos');
+			->get("{$this->sessBDCuenta}.trade.master_listaElementos");
 
-		$this->aSessTrack[] = ['idAccion' => 5, 'tabla' => 'trade.master_listaElementos'];
+		$this->aSessTrack[] = ['idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.master_listaElementos"];
 		return $query->result_array();
 	}
 
@@ -1227,13 +1227,13 @@ class M_visibilidad extends My_Model
 	{
 		$aSessTrack = [];
 
-		$table = 'trade.master_listaElementos';
+		$table = "{$this->sessBDCuenta}.trade.master_listaElementos";
 		$this->db->trans_begin();
 
 		$insert = $this->db->insert($table, $input);
 		$id = $this->db->insert_id();
 
-		$aSessTrack = ['idAccion' => 6, 'tabla' => 'trade.master_listaElementos', 'id' => $id];
+		$aSessTrack = ['idAccion' => 6, 'tabla' => "{$this->sessBDCuenta}.trade.master_listaElementos", 'id' => $id];
 
 		if ($this->db->trans_status() === FALSE) {
 			$this->db->trans_rollback();
@@ -1256,16 +1256,16 @@ class M_visibilidad extends My_Model
 	{
 		$query = $this->db->select('idListaDet')
 			->where($input)
-			->get('trade.master_listaElementosDet');
+			->get("{$this->sessBDCuenta}.trade.master_listaElementosDet");
 
-		$this->aSessTrack[] = ['idAccion' => 5, 'tabla' => 'trade.master_listaElementosDet'];
+		$this->aSessTrack[] = ['idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.master_listaElementosDet"];
 		return $query->result_array();
 	}
 
 	public function insertar_lista_modulacion_detalle($input = array())
 	{
 		$aSessTrack = [];
-		$table = 'trade.master_listaElementosDet';
+		$table = "{$this->sessBDCuenta}.trade.master_listaElementosDet";
 		$this->db->trans_begin();
 
 		$insert = $this->db->insert($table, $input);
@@ -1320,11 +1320,11 @@ class M_visibilidad extends My_Model
 			,ch.idCuenta
 		FROM 
 			" . getClienteHistoricoCuenta() . " ch
-			JOIN ImpactTrade_bd.trade.segmentacionNegocio sn
+			JOIN trade.segmentacionNegocio sn
 				ON sn.idSegNegocio = ch.idSegNegocio
-			JOIN ImpactTrade_bd.trade.canal ca
+			JOIN trade.canal ca
 				ON ca.idCanal=sn.idCanal 
-			JOIN ImpactTrade_bd.trade.grupoCanal gc 
+			JOIN trade.grupoCanal gc 
 			    ON gc.idGrupoCanal=ca.idGrupoCanal
 			{$filtros}
 		ORDER BY gc.idGrupoCanal
