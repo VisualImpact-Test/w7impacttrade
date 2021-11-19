@@ -455,18 +455,16 @@ class M_Fotos extends MY_Model
 				,ch.cliente_tipo
 				,v.carpetaFoto
 				,v.modulo
+				,c.nombre cuenta
+				,py.nombre proyecto
 				{$columnas}
 			FROM list_visitasFotos v
-			JOIN lista_clientes ch ON v.idCliente = ch.idCliente
+			LEFT JOIN lista_clientes ch ON v.idCliente = ch.idCliente
 			LEFT JOIN trade.canal ca ON ca.idCanal=v.idCanal
 			LEFT JOIN trade.grupoCanal gca ON ca.idGrupoCanal=gca.idGrupoCanal
-			ORDER BY canal, 
-						departamento, 
-						provincia, 
-						distrito, 
-						razonSocial, 
-						fecha, 
-						tipoFoto DESC;
+			LEFT JOIN trade.proyecto py ON py.idProyecto = v.idProyecto
+			LEFT JOIN trade.cuenta c ON c.idCuenta = py.idCuenta
+			ORDER BY canal,departamento, provincia, distrito, razonSocial, fecha, tipoFoto DESC;
 		";
 
 		$query = $this->db->query($sql);

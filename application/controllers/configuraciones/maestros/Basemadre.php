@@ -543,7 +543,7 @@ class Basemadre extends MY_Controller{
 		$idCuenta = ( !empty($data->{'cuenta'}) && isset($data->{'cuenta'}) ) ? $data->{'cuenta'} : NULL;
 		$idProyecto = ( !empty($data->{'proyecto'}) && isset($data->{'proyecto'}) ) ? $data->{'proyecto'} : NULL;
 		$idZona = ( !empty($data->{'zona'}) && isset($data->{'zona'}) ) ? $data->{'zona'} : NULL;
-		$flagCartera = ( !empty($data->{'flagCartera'}) && isset($data->{'flagCartera'}) ) ? $data->{'flagCartera'} : 0;
+		$flagCartera = ( !empty($data->{'flagCartera'}) && isset($data->{'flagCartera'}) ) ? $data->{'flagCartera'} : 1;
 		$codigoCliente = ( !empty($data->{'codCliente'}) && isset($data->{'codCliente'}) ) ? $data->{'codCliente'} : NULL;
 
 		$idGrupoCanal = ( !empty($data->{'grupoCanal'}) && isset($data->{'grupoCanal'}) ) ? $data->{'grupoCanal'} : NULL;
@@ -1156,7 +1156,7 @@ class Basemadre extends MY_Controller{
 			$inputHistorico['idCuenta'] = ( !empty($data->{'cuenta'}) && isset($data->{'cuenta'}) ) ? $data->{'cuenta'} : NULL;
 			$inputHistorico['idProyecto'] = ( !empty($data->{'proyecto'}) && isset($data->{'proyecto'}) ) ? $data->{'proyecto'} : NULL;
 			$inputHistorico['idZona'] = ( !empty($data->{'zona'}) && isset($data->{'zona'}) ) ? $data->{'zona'} : NULL;
-			$inputHistorico['flagCartera'] = ( !empty($data->{'flagCartera'}) && isset($data->{'flagCartera'}) ) ? $data->{'flagCartera'} : 0;
+			$inputHistorico['flagCartera'] = ( !empty($data->{'flagCartera'}) && isset($data->{'flagCartera'}) ) ? $data->{'flagCartera'} : 1;
 			$inputHistorico['codCliente'] = ( !empty($data->{'codCliente'}) && isset($data->{'codCliente'}) ) ? $data->{'codCliente'} : NULL;
 			$inputHistorico['cod_ubigeo'] = ( !empty($data->{'cod_ubigeo'}) && isset($data->{'cod_ubigeo'}) ) ? $data->{'cod_ubigeo'} : NULL;
 			$inputHistorico['direccion'] = ( !empty($data->{'direccion'}) && isset($data->{'direccion'}) ) ? $data->{'direccion'} : NULL;
@@ -1632,7 +1632,7 @@ class Basemadre extends MY_Controller{
 						$idZonaPeligrosa = ( !empty($idZonaPeligrosa) ? $idZonaPeligrosa[0]['idZonaPeligrosa'] : NULL );
 
 					$codigoCliente = (isset($cliente[12]) && !empty($cliente[12])) ? $cliente[12] : NULL;
-					$flagCartera = (isset($cliente[13]) && !empty($cliente[13])) ? ($cliente[13]=='SI' ? 1 : 0) : 0;
+					$flagCartera = (isset($cliente[13]) && !empty($cliente[13])) ? ($cliente[13]=='SI' ? 1 : 0) : 1;
 
 					$fechaInicio = (isset($cliente[14]) && !empty($cliente[14])) ? $cliente[14] : date('Y-m-d');
 					$fechaFin = (isset($cliente[15]) && !empty($cliente[15])) ? $cliente[15] : NULL;

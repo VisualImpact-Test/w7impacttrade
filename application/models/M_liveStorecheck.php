@@ -55,7 +55,7 @@ LEFT JOIN General.dbo.ubigeo ubi_pz ON pz.cod_ubigeo = ubi_pz.cod_ubigeo
 JOIN pg.dbo.cliente c ON pz.idPlaza = c.idPlaza
 JOIN pg.dbo.clienteHistorico ch ON c.idCliente = ch.idCliente
 	AND pg.fn.datesBetween(ch.fecCreacion, ch.fecTermino, @fecIni, @fecFin) = 1
-JOIN lsck.conf_cliente cc ON c.idCliente = cc.idCliente
+JOIN {$this->sessBDCuenta}.lsck.conf_cliente cc ON c.idCliente = cc.idCliente
 	AND pg.fn.datesBetween(cc.fecIni, cc.fecFin, @fecIni, @fecFin) = 1
 JOIN lsck.tipoCliente tc ON cc.idTipoCliente = tc.idTipoCliente
 WHERE c.estado2 = 1{$filtro}
@@ -107,7 +107,7 @@ LEFT JOIN General.dbo.ubigeo ubi_pz ON pz.cod_ubigeo = ubi_pz.cod_ubigeo
 JOIN pg.dbo.cliente c ON pz.idPlaza = c.idPlaza
 JOIN pg.dbo.clienteHistorico ch ON c.idCliente = ch.idCliente
 	AND pg.fn.datesBetween(ch.fecCreacion, ch.fecTermino, @fecIni, @fecFin) = 1
-JOIN lsck.conf_cliente cc ON c.idCliente = cc.idCliente
+JOIN {$this->sessBDCuenta}.lsck.conf_cliente cc ON c.idCliente = cc.idCliente
 	AND pg.fn.datesBetween(cc.fecIni, cc.fecFin, @fecIni, @fecFin) = 1
 JOIN lsck.tipoCliente tc ON cc.idTipoCliente = tc.idTipoCliente
 LEFT JOIN General.dbo.ubigeo ubi_c ON c.cod_ubigeo = ubi_c.cod_ubigeo
@@ -141,7 +141,7 @@ SELECT
 	pzi.valor,
 	tem.idEmpresa,
 	tem.nombre AS empresa
-FROM lsck.conf_plazaInfo pzi
+FROM {$this->sessBDCuenta}.lsck.conf_plazaInfo pzi
 JOIN lsck.tipoInfo ti ON pzi.idInfo = ti.idInfo
 LEFT JOIN lsck.tipoEmpresa tem ON pzi.idEmpresa = tem.idEmpresa
 WHERE @fecha BETWEEN pzi.fecIni AND ISNULL(pzi.fecFin, @fecha)
@@ -164,24 +164,24 @@ SELECT
 	(
 		SELECT COUNT(1)
 		FROM pg.dbo.cliente c
-		JOIN lsck.conf_cliente cc ON c.idCliente = cc.idCliente
+		JOIN {$this->sessBDCuenta}.lsck.conf_cliente cc ON c.idCliente = cc.idCliente
 		WHERE c.idPlaza = cpz.idPlaza
 		AND cc.idTipoCliente = cpz.idTipoCliente
 	) AS totalTienda,
 	(
 		SELECT COUNT(idTipoClienteAudDet)
-		FROM lsck.conf_tipoClienteAud ctca
+		FROM {$this->sessBDCuenta}.lsck.conf_tipoClienteAud ctca
 		JOIN lsck.conf_tipoClienteAudDet ctcad ON ctca.idTipoClienteAud = ctcad.idTipoClienteAud
 		WHERE ctca.idTipoCliente = cpz.idTipoCliente
 		AND ctca.idExtAudTipo = exadt.idExtAudTipo
 		AND @fecha BETWEEN ctca.fecIni AND ISNULL(ctca.fecFin, @fecha)
 	) AS audTotal
-FROM lsck.conf_plaza cpz
+FROM {$this->sessBDCuenta}.lsck.conf_plaza cpz
 JOIN lsck.ext_auditoriaTipo exadt ON cpz.idExtAudTipo = exadt.idExtAudTipo
 WHERE @fecha BETWEEN cpz.fecIni AND ISNULL(cpz.fecFin, @fecha)
 AND cpz.idPlaza = {$input['idPlaza']}
 ";
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'lsck.conf_plaza' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.lsck.conf_plaza" ];
 		return $this->db->query($sql)->result_array($sql);
 	}
 
@@ -219,7 +219,7 @@ SELECT
 	UPPER(pz.descripcion) AS plaza,
 	ubi_pz.distrito AS distrito,
 	COUNT(audpz.idAudPlaza) AS totalAud
-FROM lsck.auditoriaPlaza audpz
+FROM {$this->sessBDCuenta}.lsck.auditoriaPlaza audpz
 JOIN pg.auditoria.plazaCliente pz ON audpz.idPlaza = pz.idPlaza
 JOIN pg.dbo.distribuidoraSucursal dsc ON pz.idDistribuidoraSucursal = dsc.idDistribuidoraSucursal
 JOIN pg.dbo.distribuidora ds ON dsc.idDistribuidora = ds.idDistribuidora
@@ -228,7 +228,7 @@ LEFT JOIN General.dbo.ubigeo ubi_pz ON pz.cod_ubigeo = ubi_pz.cod_ubigeo
 WHERE audpz.estado = 1{$filtro}
 GROUP BY pz.idPlaza, ds.nombre + ' - ' + ubi_dsc.distrito, pz.descripcion, ubi_pz.distrito
 ";
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'lsck.auditoriaPlaza' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaPlaza" ];
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -251,21 +251,21 @@ SELECT
 	UPPER(prf.nombre) AS perfCalificacion,
 	(
 		SELECT COUNT(ac.idCliente)
-		FROM lsck.auditoriaCLiente ac
+		FROM {$this->sessBDCuenta}.lsck.auditoriaCLiente ac
 		WHERE ac.idAudPlaza = apz.idAudPlaza
 		AND ac.estado = 1
 	) AS totalCliente,
 	UPPER(u.nombres + ISNULL(' ' + u.apePaterno, '') + ISNULL(' ' + u.apeMaterno, '')) AS usuario,
 	apz.estado
-FROM lsck.auditoriaPlaza apz
+FROM {$this->sessBDCuenta}.lsck.auditoriaPlaza apz
 JOIN pg.auditoria.plazaCliente pz ON apz.idPlaza = pz.idPlaza
-JOIN lsck.auditoriaCalculo aca ON apz.idAudCalculo = aca.idAudCalculo
+JOIN {$this->sessBDCuenta}.lsck.auditoriaCalculo aca ON apz.idAudCalculo = aca.idAudCalculo
 JOIN lsck.perfectOms prf ON aca.idPerfectOms = prf.idPerfectOms
 JOIN trade.usuario u ON apz.idUsuario = u.idUsuario
 WHERE apz.estado = 1 {$filtro}
 ORDER BY apz.fecha DESC, apz.horaReg DESC
 ";
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'lsck.auditoriaPlaza' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaPlaza" ];
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -287,7 +287,7 @@ SELECT
 	evd.nombre AS evaluacionDet,
 	evd.detallar,
 	levd.idEncuesta
-FROM lsck.conf_cliente cc
+FROM {$this->sessBDCuenta}.lsck.conf_cliente cc
 JOIN lsck.listEvaluacion lev ON cc.idTipoCliente = lev.idTipoCliente
 JOIN lsck.listEvaluacionDet levd ON lev.idListEval = levd.idListEval
 JOIN lsck.tipoEvaluacionDet evd ON levd.idEvaluacionDet = evd.idEvaluacionDet
@@ -296,7 +296,7 @@ WHERE @fecha BETWEEN cc.fecIni AND ISNULL(cc.fecFin, @fecha)
 AND @fecha BETWEEN lev.fecIni AND ISNULL(lev.fecFin, @fecha)
 AND lev.idTipoAuditoria = 2{$filtro}
 ";
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'lsck.auditoriaPlaza' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaPlaza" ];
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -316,14 +316,14 @@ SELECT
 	xam.idExtAudMat,
 	xam.nombre AS material,
 	cad.presencia
-FROM lsck.conf_cliente c
-JOIN lsck.conf_clienteAud ca ON c.idConfCliente = ca.idConfCliente
-JOIN lsck.conf_clienteAudDet cad ON ca.idConfClienteAud = cad.idConfClienteAud
+FROM {$this->sessBDCuenta}.lsck.conf_cliente c
+JOIN {$this->sessBDCuenta}.lsck.conf_clienteAud ca ON c.idConfCliente = ca.idConfCliente
+JOIN {$this->sessBDCuenta}.lsck.conf_clienteAudDet cad ON ca.idConfClienteAud = cad.idConfClienteAud
 JOIN lsck.ext_auditoriaMaterial xam ON cad.idExtAudMat = xam.idExtAudMat
 WHERE @fecha BETWEEN c.fecIni AND ISNULL(c.fecFin, @fecha){$filtro}
 ORDER BY idCliente, idExtAudTipo, nombre
 ";
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'lsck.conf_cliente' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.lsck.conf_cliente" ];
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -340,15 +340,15 @@ ORDER BY idCliente, idExtAudTipo, nombre
 SELECT
 	acevp.idAudClienteEvalPreg,
 	pregalt.nombre AS item
-FROM lsck.auditoriaPlaza apz
-JOIN lsck.auditoriaCliente ac ON apz.idAudPlaza = ac.idAudPlaza
+FROM {$this->sessBDCuenta}.lsck.auditoriaPlaza apz
+JOIN {$this->sessBDCuenta}.lsck.auditoriaCLiente ac ON apz.idAudPlaza = ac.idAudPlaza
 JOIN pg.auditoria.plazaCliente pz ON apz.idPlaza = pz.idPlaza
 JOIN pg.dbo.cliente c ON ac.idCliente = c.idCliente
-JOIN lsck.auditoriaClienteEval acev ON ac.idAudCliente = acev.idAudCliente
-JOIN lsck.auditoriaClienteEvalPreg acevp ON acev.idAudClienteEval = acevp.idAudClienteEval
+JOIN {$this->sessBDCuenta}.lsck.auditoriaClienteEval acev ON ac.idAudCliente = acev.idAudCliente
+JOIN {$this->sessBDCuenta}.lsck.auditoriaClienteEvalPreg acevp ON acev.idAudClienteEval = acevp.idAudClienteEval
 JOIN lsck.tipoEncuestaPreg preg ON acevp.idPregunta = preg.idPregunta
 JOIN lsck.tipoEncuestaPregAlt pregalt ON preg.idPregunta = pregalt.idPregunta
-LEFT JOIN lsck.auditoriaClienteEvalPregAlt acevpa ON acevp.idAudClienteEvalPreg = acevpa.idAudClienteEvalPreg AND pregalt.idAlternativa = acevpa.idAlternativa
+LEFT JOIN {$this->sessBDCuenta}.lsck.auditoriaClienteEvalPregAlt acevpa ON acevp.idAudClienteEvalPreg = acevpa.idAudClienteEvalPreg AND pregalt.idAlternativa = acevpa.idAlternativa
 WHERE preg.idTipoPregunta = 3
 AND acevpa.idAlternativa IS NULL{$filtro}
 
@@ -357,21 +357,21 @@ UNION
 SELECT
 	acevp.idAudClienteEvalPreg,
 	exam.nombre AS item
-FROM lsck.auditoriaPlaza apz
-JOIN lsck.auditoriaCliente ac ON apz.idAudPlaza = ac.idAudPlaza
+FROM {$this->sessBDCuenta}.lsck.auditoriaPlaza apz
+JOIN {$this->sessBDCuenta}.lsck.auditoriaCLiente ac ON apz.idAudPlaza = ac.idAudPlaza
 JOIN pg.auditoria.plazaCliente pz ON apz.idPlaza = pz.idPlaza
 JOIN pg.dbo.cliente c ON ac.idCliente = c.idCliente
-JOIN lsck.auditoriaClienteEval acev ON ac.idAudCliente = acev.idAudCliente
-JOIN lsck.auditoriaClienteEvalPreg acevp ON acev.idAudClienteEval = acevp.idAudClienteEval
+JOIN {$this->sessBDCuenta}.lsck.auditoriaClienteEval acev ON ac.idAudCliente = acev.idAudCliente
+JOIN {$this->sessBDCuenta}.lsck.auditoriaClienteEvalPreg acevp ON acev.idAudClienteEval = acevp.idAudClienteEval
 JOIN lsck.tipoEncuestaPreg preg ON acevp.idPregunta = preg.idPregunta
-JOIN lsck.conf_cliente cc ON ac.idCliente = cc.idCliente AND apz.fecha BETWEEN cc.fecIni AND ISNULL(cc.fecFin, apz.fecha)
-JOIN lsck.conf_clienteAud cca ON cc.idConfCliente = cca.idConfCliente AND preg.idExtAudTipo = cca.idExtAudTipo
-JOIN lsck.conf_clienteAudDet ccad ON cca.idConfClienteAud = ccad.idConfClienteAud AND preg.extAudPresencia = ccad.presencia
+JOIN {$this->sessBDCuenta}.lsck.conf_cliente cc ON ac.idCliente = cc.idCliente AND apz.fecha BETWEEN cc.fecIni AND ISNULL(cc.fecFin, apz.fecha)
+JOIN {$this->sessBDCuenta}.lsck.conf_clienteAud cca ON cc.idConfCliente = cca.idConfCliente AND preg.idExtAudTipo = cca.idExtAudTipo
+JOIN {$this->sessBDCuenta}.lsck.conf_clienteAudDet ccad ON cca.idConfClienteAud = ccad.idConfClienteAud AND preg.extAudPresencia = ccad.presencia
 JOIN lsck.ext_auditoriaMaterial exam ON ccad.idExtAudMat = exam.idExtAudMat
-LEFT JOIN lsck.auditoriaClienteEvalPregAlt acevpa ON acevp.idAudClienteEvalPreg = acevpa.idAudClienteEvalPreg AND ccad.idExtAudMat = acevpa.idExtAudMat
+LEFT JOIN {$this->sessBDCuenta}.lsck.auditoriaClienteEvalPregAlt acevpa ON acevp.idAudClienteEvalPreg = acevpa.idAudClienteEvalPreg AND ccad.idExtAudMat = acevpa.idExtAudMat
 WHERE acevpa.idExtAudMat IS NULL{$filtro}
 ";
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'lsck.auditoriaClienteEval' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaClienteEval" ];
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -390,15 +390,15 @@ SELECT
 	c.direccion,
 	tc.idTipoCliente,
 	UPPER(tc.nombre) AS tipoCliente
-FROM lsck.auditoriaPlaza apz
-JOIN lsck.auditoriaCliente ac ON apz.idAudPlaza = ac.idAudPlaza
-JOIN lsck.conf_cliente cc ON ac.idCliente = cc.idCliente AND apz.fecha BETWEEN cc.fecIni AND ISNULL(cc.fecFin, apz.fecha)
+FROM {$this->sessBDCuenta}.lsck.auditoriaPlaza apz
+JOIN {$this->sessBDCuenta}.lsck.auditoriaCLiente ac ON apz.idAudPlaza = ac.idAudPlaza
+JOIN {$this->sessBDCuenta}.lsck.conf_cliente cc ON ac.idCliente = cc.idCliente AND apz.fecha BETWEEN cc.fecIni AND ISNULL(cc.fecFin, apz.fecha)
 JOIN lsck.tipoCliente tc ON cc.idTipoCliente = tc.idTipoCliente
 JOIN pg.dbo.cliente c ON ac.idCliente = c.idCliente
 WHERE ac.estado = 1{$filtro}
 ORDER BY apz.fecha DESC, apz.horaReg DESC
 ";
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'lsck.auditoriaCliente' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaCLiente" ];
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -413,11 +413,11 @@ SELECT
 	UPPER(ev.nombre) AS evaluacion,
 	af.idAudFoto,
 	af.estado
-FROM lsck.auditoriaFoto af
+FROM {$this->sessBDCuenta}.lsck.auditoriaFoto af
 JOIN lsck.tipoEvaluacion ev ON af.idEvaluacion = ev.idEvaluacion
 WHERE 1 = 1{$filtro}
 ";
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'lsck.auditoriaFoto' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaFoto" ];
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -446,7 +446,7 @@ JOIN lsck.tipoEncuestaPreg enp ON en.idEncuesta = enp.idEncuesta
 LEFT JOIN lsck.tipoEncuestaPregAlt enpa ON enp.idPregunta = enpa.idPregunta AND enpa.estado = 1
 WHERE en.estado = 1 AND enp.estado = 1{$filtro}
 ";
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'lsck.auditoriaFoto' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaFoto" ];
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -552,16 +552,16 @@ SELECT
 	acevp.ordenTrabajoEstado as status,
 	CONVERT(VARCHAR, acevp.fecRespuesta, 103) AS fecRespuesta,
 	acevp.observacion
-FROM lsck.auditoriaPlaza apz
-JOIN lsck.auditoriaCliente ac ON apz.idAudPlaza = ac.idAudPlaza
+FROM {$this->sessBDCuenta}.lsck.auditoriaPlaza apz
+JOIN {$this->sessBDCuenta}.lsck.auditoriaCLiente ac ON apz.idAudPlaza = ac.idAudPlaza
 JOIN pg.auditoria.plazaCliente pz ON apz.idPlaza = pz.idPlaza
 JOIN pg.dbo.cliente c ON ac.idCliente = c.idCliente
-JOIN lsck.auditoriaClienteEval acev ON ac.idAudCliente = acev.idAudCliente
-JOIN lsck.auditoriaClienteEvalPreg acevp ON acev.idAudClienteEval = acevp.idAudClienteEval
+JOIN {$this->sessBDCuenta}.lsck.auditoriaClienteEval acev ON ac.idAudCliente = acev.idAudCliente
+JOIN {$this->sessBDCuenta}.lsck.auditoriaClienteEvalPreg acevp ON acev.idAudClienteEval = acevp.idAudClienteEval
 JOIN lsck.tipoEncuestaPreg preg ON acevp.idPregunta = preg.idPregunta
 WHERE LEN(ISNULL(acevp.ordenTrabajo, '')) > 0{$filtro}
 ";
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'lsck.auditoriaClienteEvalPreg' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaClienteEvalPreg" ];
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -583,17 +583,17 @@ SELECT
 	rsp.idResponsable,
 	rsp.nombres + ISNULL(' ' + rsp.apellidos, '') AS responsable,
 	rsp.email
-FROM lsck.auditoriaPlaza apz
-JOIN lsck.auditoriaCliente ac ON apz.idAudPlaza = ac.idAudPlaza
+FROM {$this->sessBDCuenta}.lsck.auditoriaPlaza apz
+JOIN {$this->sessBDCuenta}.lsck.auditoriaCLiente ac ON apz.idAudPlaza = ac.idAudPlaza
 JOIN pg.auditoria.plazaCliente pz ON apz.idPlaza = pz.idPlaza
 JOIN pg.dbo.cliente c ON ac.idCliente = c.idCliente
-JOIN lsck.auditoriaClienteEval acev ON ac.idAudCliente = acev.idAudCliente
-JOIN lsck.auditoriaClienteEvalPreg acevp ON acev.idAudClienteEval = acevp.idAudClienteEval
-JOIN lsck.auditoriaClienteEvalPregResp acevpr ON acevp.idAudClienteEvalPreg = acevpr.idAudClienteEvalPreg
+JOIN {$this->sessBDCuenta}.lsck.auditoriaClienteEval acev ON ac.idAudCliente = acev.idAudCliente
+JOIN {$this->sessBDCuenta}.lsck.auditoriaClienteEvalPreg acevp ON acev.idAudClienteEval = acevp.idAudClienteEval
+JOIN {$this->sessBDCuenta}.lsck.auditoriaClienteEvalPregResp acevpr ON acevp.idAudClienteEvalPreg = acevpr.idAudClienteEvalPreg
 JOIN lsck.responsable rsp ON acevpr.idResponsable = rsp.idResponsable
 WHERE LEN(ISNULL(acevp.ordenTrabajo, '')) > 0{$filtro}
 ";
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'lsck.auditoriaClienteEvalPregResp' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaClienteEvalPregResp" ];
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -623,18 +623,18 @@ SELECT
 	rsp.idResponsable,
 	rsp.nombres + ISNULL(' ' + rsp.apellidos, '') AS responsable,
 	rsp.email
-FROM lsck.auditoriaPlaza apz
-JOIN lsck.auditoriaCliente ac ON apz.idAudPlaza = ac.idAudPlaza
+FROM {$this->sessBDCuenta}.lsck.auditoriaPlaza apz
+JOIN {$this->sessBDCuenta}.lsck.auditoriaCLiente ac ON apz.idAudPlaza = ac.idAudPlaza
 JOIN pg.auditoria.plazaCliente pz ON apz.idPlaza = pz.idPlaza
 JOIN pg.dbo.cliente c ON ac.idCliente = c.idCliente
-JOIN lsck.auditoriaClienteEval acev ON ac.idAudCliente = acev.idAudCliente
-JOIN lsck.auditoriaClienteEvalPreg acevp ON acev.idAudClienteEval = acevp.idAudClienteEval
+JOIN {$this->sessBDCuenta}.lsck.auditoriaClienteEval acev ON ac.idAudCliente = acev.idAudCliente
+JOIN {$this->sessBDCuenta}.lsck.auditoriaClienteEvalPreg acevp ON acev.idAudClienteEval = acevp.idAudClienteEval
 JOIN lsck.tipoEncuestaPreg preg ON acevp.idPregunta = preg.idPregunta
-JOIN lsck.auditoriaClienteEvalPregResp acevpr ON acevp.idAudClienteEvalPreg = acevpr.idAudClienteEvalPreg
+JOIN {$this->sessBDCuenta}.lsck.auditoriaClienteEvalPregResp acevpr ON acevp.idAudClienteEvalPreg = acevpr.idAudClienteEvalPreg
 JOIN lsck.responsable rsp ON acevpr.idResponsable = rsp.idResponsable
 WHERE LEN(ISNULL(acevp.ordenTrabajo, '')) > 0{$filtro}
 ";
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'lsck.auditoriaClienteEvalPregResp' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaClienteEvalPregResp" ];
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -662,17 +662,17 @@ SELECT
 	aca.pregNota,
 	aca.perfNota,
 	aca.perfPorcentaje
-FROM lsck.auditoriaPlaza apz
+FROM {$this->sessBDCuenta}.lsck.auditoriaPlaza apz
 JOIN pg.auditoria.plazaCliente pz ON apz.idPlaza = pz.idPlaza
 JOIN pg.dbo.distribuidoraSucursal dsc ON pz.idDistribuidoraSucursal = dsc.idDistribuidoraSucursal
 JOIN pg.dbo.distribuidora ds ON dsc.idDistribuidora = ds.idDistribuidora
 JOIN General.dbo.ubigeo ubi_dsc ON dsc.cod_ubigeo = ubi_dsc.cod_ubigeo
 LEFT JOIN General.dbo.ubigeo ubi_pz ON pz.cod_ubigeo = ubi_pz.cod_ubigeo
-JOIN lsck.auditoriaCalculo aca ON apz.idAudCalculo = aca.idAudCalculo
+JOIN {$this->sessBDCuenta}.lsck.auditoriaCalculo aca ON apz.idAudCalculo = aca.idAudCalculo
 JOIN lsck.perfectOms prf ON aca.idPerfectOms = prf.idPerfectOms
 WHERE apz.estado = 1{$filtro}
 ";
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'lsck.auditoriaPlaza' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaPlaza" ];
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -686,12 +686,12 @@ WHERE apz.estado = 1{$filtro}
 SELECT
 	acapz.idIndicador,
 	acapz.punto
-FROM lsck.auditoriaPlaza apz
-JOIN lsck.auditoriaCalculo aca ON apz.idAudCalculo = aca.idAudCalculo
-JOIN lsck.auditoriaCalculoPlaza acapz ON aca.idAudCalculo = acapz.idAudCalculo
+FROM {$this->sessBDCuenta}.lsck.auditoriaPlaza apz
+JOIN {$this->sessBDCuenta}.lsck.auditoriaCalculo aca ON apz.idAudCalculo = aca.idAudCalculo
+JOIN {$this->sessBDCuenta}.lsck.auditoriaCalculoPlaza acapz ON aca.idAudCalculo = acapz.idAudCalculo
 WHERE 1 = 1{$filtro}
 ";
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'lsck.auditoriaCalculo' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaCalculo" ];
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -712,17 +712,17 @@ SELECT
 	apzep.respuesta,
 	epa.idAlternativa,
 	epa.nombre AS alternativa
-FROM lsck.auditoriaPlaza apz
-JOIN lsck.auditoriaPlazaEval apze ON apz.idAudPlaza = apze.idAudPlaza
+FROM {$this->sessBDCuenta}.lsck.auditoriaPlaza apz
+JOIN {$this->sessBDCuenta}.lsck.auditoriaPlazaEval apze ON apz.idAudPlaza = apze.idAudPlaza
 JOIN lsck.tipoEvaluacionDet evd ON apze.idEvaluacionDet = evd.idEvaluacionDet
 JOIN lsck.tipoEvaluacion ev ON evd.idEvaluacion = ev.idEvaluacion
-JOIN lsck.auditoriaPlazaEvalPreg apzep ON apze.idAudPlazaEval = apzep.idAudPlazaEval
-LEFT JOIN lsck.auditoriaPlazaEvalPregAlt apzepa ON apzep.idAudPlazaEvalPreg = apzepa.idAudPlazaEvalPreg
+JOIN {$this->sessBDCuenta}.lsck.auditoriaPlazaEvalPreg apzep ON apze.idAudPlazaEval = apzep.idAudPlazaEval
+LEFT JOIN {$this->sessBDCuenta}.lsck.auditoriaPlazaEvalPregAlt apzepa ON apzep.idAudPlazaEvalPreg = apzepa.idAudPlazaEvalPreg
 JOIN lsck.tipoEncuestaPreg ep ON apzep.idPregunta = ep.idPregunta
 LEFT JOIN lsck.tipoEncuestaPregAlt epa ON apzepa.idAlternativa = epa.idAlternativa
 WHERE 1 = 1{$filtro}
 ";
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'lsck.auditoriaPlazaEval' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaPlazaEval" ];
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -731,8 +731,8 @@ WHERE 1 = 1{$filtro}
 			if( !empty($input['idAudPlaza']) ) $filtro .= " AND af.idAudPlaza = {$input['idAudPlaza']}";
 			if( isset($input['estado']) && strlen($input['estado']) > 0 ) $filtro .= " AND af.estado = {$input['estado']} ";
 
-		$sql = "SELECT idAudFoto, idEvaluacion FROM lsck.auditoriaFoto af WHERE 1 = 1{$filtro}";
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'lsck.auditoriaFoto' ];
+		$sql = "SELECT idAudFoto, idEvaluacion FROM {$this->sessBDCuenta}.lsck.auditoriaFoto af WHERE 1 = 1{$filtro}";
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaFoto" ];
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -750,15 +750,15 @@ SELECT
 	c.idCliente,
 	c.razonSocial AS cliente,
 	UPPER(tc.nombre) AS tipoCliente
-FROM lsck.auditoriaPlaza apz
-JOIN lsck.auditoriaCliente ac ON apz.idAudPlaza = ac.idAudPlaza
+FROM {$this->sessBDCuenta}.lsck.auditoriaPlaza apz
+JOIN {$this->sessBDCuenta}.lsck.auditoriaCLiente ac ON apz.idAudPlaza = ac.idAudPlaza
 JOIN pg.dbo.cliente c ON ac.idCliente = c.idCliente
-JOIN lsck.conf_cliente cc ON c.idCliente = cc.idCliente
+JOIN {$this->sessBDCuenta}.lsck.conf_cliente cc ON c.idCliente = cc.idCliente
 	AND apz.fecha BETWEEN cc.fecIni AND ISNULL(fecFin, apz.fecha)
 JOIN lsck.tipoCliente tc ON cc.idTipoCliente = tc.idTipoCliente
 WHERE ac.estado = 1{$filtro}
 ";
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'lsck.auditoriaCliente' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaCLiente" ];
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -781,16 +781,16 @@ SELECT
 	acp.respuesta,
 	epa.idAlternativa,
 	epa.nombre AS alternativa
-FROM lsck.auditoriaPlaza apz
-JOIN lsck.auditoriaCliente ac ON apz.idAudPlaza = ac.idAudPlaza
-JOIN lsck.auditoriaClientePreg acp ON ac.idAudCliente = acp.idAudCliente
-LEFT JOIN lsck.auditoriaClientePregAlt acpa ON acp.idAudClientePreg = acpa.idAudClientePreg
+FROM {$this->sessBDCuenta}.lsck.auditoriaPlaza apz
+JOIN {$this->sessBDCuenta}.lsck.auditoriaCLiente ac ON apz.idAudPlaza = ac.idAudPlaza
+JOIN {$this->sessBDCuenta}.lsck.auditoriaClientePreg acp ON ac.idAudCliente = acp.idAudCliente
+LEFT JOIN {$this->sessBDCuenta}.lsck.auditoriaClientePregAlt acpa ON acp.idAudClientePreg = acpa.idAudClientePreg
 LEFT JOIN lsck.tipoEncuestaPregAlt epa ON acpa.idAlternativa = epa.idAlternativa
 JOIN lsck.tipoEncuestaPreg ep ON acp.idPregunta = ep.idPregunta
 JOIN lsck.tipoEncuesta e ON ep.idEncuesta = e.idEncuesta
 WHERE ac.estado = 1{$filtro}
 ";
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'lsck.auditoriaClientePreg' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaClientePreg" ];
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -828,13 +828,13 @@ SELECT
 	epa.nombre AS item,
 	CASE WHEN acevpa.idAlternativa IS NOT NULL
 		THEN 1 ELSE 0 END marcados
-FROM lsck.auditoriaPlaza apz
-JOIN lsck.auditoriaCliente ac ON apz.idAudPlaza = ac.idAudPlaza
-JOIN lsck.auditoriaClienteEval acev ON ac.idAudCliente = acev.idAudCliente
-JOIN lsck.auditoriaClienteEvalPreg acevp ON acev.idAudClienteEval = acevp.idAudClienteEval
+FROM {$this->sessBDCuenta}.lsck.auditoriaPlaza apz
+JOIN {$this->sessBDCuenta}.lsck.auditoriaCLiente ac ON apz.idAudPlaza = ac.idAudPlaza
+JOIN {$this->sessBDCuenta}.lsck.auditoriaClienteEval acev ON ac.idAudCliente = acev.idAudCliente
+JOIN {$this->sessBDCuenta}.lsck.auditoriaClienteEvalPreg acevp ON acev.idAudClienteEval = acevp.idAudClienteEval
 LEFT JOIN lsck.tipoEncuestaPregAlt epa ON acevp.idPregunta = epa.idPregunta
-LEFT JOIN lsck.auditoriaClienteEvalPregAlt acevpa ON acevp.idAudClienteEvalPreg = acevpa.idAudClienteEvalPreg AND epa.idAlternativa = acevpa.idAlternativa
-LEFT JOIN lsck.auditoriaClienteEvalPregResp acevpr ON acevp.idAudClienteEvalPreg = acevpr.idAudClienteEvalPreg
+LEFT JOIN {$this->sessBDCuenta}.lsck.auditoriaClienteEvalPregAlt acevpa ON acevp.idAudClienteEvalPreg = acevpa.idAudClienteEvalPreg AND epa.idAlternativa = acevpa.idAlternativa
+LEFT JOIN {$this->sessBDCuenta}.lsck.auditoriaClienteEvalPregResp acevpr ON acevp.idAudClienteEvalPreg = acevpr.idAudClienteEvalPreg
 LEFT JOIN lsck.responsable res ON acevpr.idResponsable = res.idResponsable
 JOIN lsck.tipoEncuestaPreg ep ON acevp.idPregunta = ep.idPregunta
 JOIN lsck.tipoEvaluacionDet evd ON acev.idEvaluacionDet = evd.idEvaluacionDet
@@ -867,23 +867,23 @@ SELECT
 	eam.nombre AS item,
 	CASE WHEN acevpa.idExtAudMat IS NOT NULL
 		THEN 1 ELSE 0 END marcados
-FROM lsck.auditoriaPlaza apz
-JOIN lsck.auditoriaCliente ac ON apz.idAudPlaza = ac.idAudPlaza
-JOIN lsck.auditoriaClienteEval acev ON ac.idAudCliente = acev.idAudCliente
-JOIN lsck.auditoriaClienteEvalPreg acevp ON acev.idAudClienteEval = acevp.idAudClienteEval
+FROM {$this->sessBDCuenta}.lsck.auditoriaPlaza apz
+JOIN {$this->sessBDCuenta}.lsck.auditoriaCLiente ac ON apz.idAudPlaza = ac.idAudPlaza
+JOIN {$this->sessBDCuenta}.lsck.auditoriaClienteEval acev ON ac.idAudCliente = acev.idAudCliente
+JOIN {$this->sessBDCuenta}.lsck.auditoriaClienteEvalPreg acevp ON acev.idAudClienteEval = acevp.idAudClienteEval
 JOIN lsck.tipoEncuestaPreg ep ON acevp.idPregunta = ep.idPregunta
-JOIN lsck.conf_cliente cc ON ac.idCliente = cc.idCliente AND apz.fecha BETWEEN cc.fecIni AND ISNULL(cc.fecFin, apz.fecha)
-JOIN lsck.conf_clienteAud cca ON cc.idConfCliente = cca.idConfCliente AND ep.idExtAudTipo = cca.idExtAudTipo
-JOIN lsck.conf_clienteAudDet ccad ON cca.idConfClienteAud = ccad.idConfClienteAud AND ep.extAudPresencia = ccad.presencia
+JOIN {$this->sessBDCuenta}.lsck.conf_cliente cc ON ac.idCliente = cc.idCliente AND apz.fecha BETWEEN cc.fecIni AND ISNULL(cc.fecFin, apz.fecha)
+JOIN {$this->sessBDCuenta}.lsck.conf_clienteAud cca ON cc.idConfCliente = cca.idConfCliente AND ep.idExtAudTipo = cca.idExtAudTipo
+JOIN {$this->sessBDCuenta}.lsck.conf_clienteAudDet ccad ON cca.idConfClienteAud = ccad.idConfClienteAud AND ep.extAudPresencia = ccad.presencia
 JOIN lsck.ext_auditoriaMaterial eam ON ccad.idExtAudMat = eam.idExtAudMat
-LEFT JOIN lsck.auditoriaClienteEvalPregAlt acevpa ON acevp.idAudClienteEvalPreg = acevpa.idAudClienteEvalPreg AND eam.idExtAudMat = acevpa.idExtAudMat
-LEFT JOIN lsck.auditoriaClienteEvalPregResp acevpr ON acevp.idAudClienteEvalPreg = acevpr.idAudClienteEvalPreg
+LEFT JOIN {$this->sessBDCuenta}.lsck.auditoriaClienteEvalPregAlt acevpa ON acevp.idAudClienteEvalPreg = acevpa.idAudClienteEvalPreg AND eam.idExtAudMat = acevpa.idExtAudMat
+LEFT JOIN {$this->sessBDCuenta}.lsck.auditoriaClienteEvalPregResp acevpr ON acevp.idAudClienteEvalPreg = acevpr.idAudClienteEvalPreg
 LEFT JOIN lsck.responsable res ON acevpr.idResponsable = res.idResponsable
 JOIN lsck.tipoEvaluacionDet evd ON acev.idEvaluacionDet = evd.idEvaluacionDet
 JOIN lsck.tipoEvaluacion ev ON evd.idEvaluacion = ev.idEvaluacion
 WHERE ac.estado = 1 AND ep.idExtAudTipo IS NOT NULL{$filtro}
 ";
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'lsck.auditoriaClienteEval' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaClienteEval" ];
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -897,12 +897,12 @@ SELECT
 	af.idAudFoto,
 	af.idEvaluacion,
 	ac.idCliente
-FROM lsck.auditoriaFoto af
-JOIN lsck.auditoriaCliente ac ON af.idAudCliente = ac.idAudCliente
-JOIN lsck.auditoriaPlaza apz ON ac.idAudPlaza = apz.idAudPlaza
+FROM {$this->sessBDCuenta}.lsck.auditoriaFoto af
+JOIN {$this->sessBDCuenta}.lsck.auditoriaCLiente ac ON af.idAudCliente = ac.idAudCliente
+JOIN {$this->sessBDCuenta}.lsck.auditoriaPlaza apz ON ac.idAudPlaza = apz.idAudPlaza
 WHERE 1 = 1{$filtro}
 ";
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'lsck.auditoriaFoto' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaFoto" ];
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -917,12 +917,12 @@ SELECT
 	acac.idCliente,
 	acac.idIndicador,
 	acac.punto
-FROM lsck.auditoriaPlaza apz
-JOIN lsck.auditoriaCalculo aca ON apz.idAudCalculo = aca.idAudCalculo
-JOIN lsck.auditoriaCalculoCliente acac ON aca.idAudCalculo = acac.idAudCalculo
+FROM {$this->sessBDCuenta}.lsck.auditoriaPlaza apz
+JOIN {$this->sessBDCuenta}.lsck.auditoriaCalculo aca ON apz.idAudCalculo = aca.idAudCalculo
+JOIN {$this->sessBDCuenta}.lsck.auditoriaCalculoCliente acac ON aca.idAudCalculo = acac.idAudCalculo
 WHERE 1 = 1{$filtro}
 ";
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'lsck.auditoriaCalculoCliente' ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaCalculoCliente" ];
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -945,10 +945,10 @@ WHERE 1 = 1{$filtro}
 						'fechaReg' => date('d/m/Y'),
 						'horaReg' => date('H:i:s')
 					];
-				$this->db->insert('lsck.auditoriaCalculo', $aCalculo);
+				$this->db->insert("{$this->sessBDCuenta}.lsck.auditoriaCalculo", $aCalculo);
 				$idAudCalculo = $this->db->insert_id();
 
-				$this->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => 'lsck.auditoriaCalculo', 'id' => $idAudCalculo ];
+				$this->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaCalculo", 'id' => $idAudCalculo ];
 
 				foreach($input['tipoIndicador'] as $idTipoIndicador => $vtind){
 					if( empty($input['puntaje'][1]) )
@@ -963,9 +963,9 @@ WHERE 1 = 1{$filtro}
 									'punto' => $punto
 								];
 
-							$this->db->insert('lsck.auditoriaCalculoPlaza', $aCalculoPlaza);
+							$this->db->insert("{$this->sessBDCuenta}.lsck.auditoriaCalculoPlaza", $aCalculoPlaza);
 							$idAudCalculoPlaza = $this->db->insert_id();
-							$this->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => 'lsck.auditoriaCalculoPlaza', 'id' => $idAudCalculoPlaza ];
+							$this->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaCalculoPlaza", 'id' => $idAudCalculoPlaza ];
 						}
 					}
 					elseif( $idTipoIndicador == 2 ){
@@ -979,9 +979,9 @@ WHERE 1 = 1{$filtro}
 										'punto' => $punto
 									];
 
-								$this->db->insert('lsck.auditoriaCalculoCliente', $aCalculoCliente);
+								$this->db->insert("{$this->sessBDCuenta}.lsck.auditoriaCalculoCliente", $aCalculoCliente);
 								$idAudCalculoCliente = $this->db->insert_id();
-								$this->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => 'lsck.auditoriaCalculoCliente', 'id' => $idAudCalculoCliente ];
+								$this->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaCalculoCliente", 'id' => $idAudCalculoCliente ];
 							}
 						}
 					}
@@ -1021,9 +1021,9 @@ WHERE 1 = 1{$filtro}
 						'idUsuario' => $input['idUsuario'],
 						'idUsuarioReg' => $this->idUsuario
 					];
-				$this->db->insert('lsck.auditoriaPlaza', $iAudPlaza);
+				$this->db->insert("{$this->sessBDCuenta}.lsck.auditoriaPlaza", $iAudPlaza);
 				$idAudPlaza = $this->db->insert_id();
-				$this->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => 'lsck.auditoriaPlaza', 'id' => $idAudPlaza ];
+				$this->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaPlaza", 'id' => $idAudPlaza ];
 
 				/* AUDITORIA PLAZA EVALUACION*/
 				if( isset($input["plaza-evaluacion[{$idPlaza}]"]) ){
@@ -1042,9 +1042,9 @@ WHERE 1 = 1{$filtro}
 										'idAudPlaza' => $idAudPlaza,
 										'idEvaluacion' => $idEvaluacion
 									];
-								$this->db->insert('lsck.auditoriaFoto', $iAuditoriaFoto);
+								$this->db->insert("{$this->sessBDCuenta}.lsck.auditoriaFoto", $iAuditoriaFoto);
 								$idAudFoto = $this->db->insert_id();
-								$this->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => 'lsck.auditoriaFoto', 'id' => $idAudFoto ];
+								$this->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaFoto", 'id' => $idAudFoto ];
 
 								$carpeta = $this->carpeta['raiz'].$this->carpeta['livestorecheck'];
 								$archivo = $carpeta."{$idAudFoto}.png";
@@ -1075,9 +1075,9 @@ WHERE 1 = 1{$filtro}
 										'idEvaluacionDet' => $idEvaluacionDet,
 										'comentario' => $comentario
 									);
-								$this->db->insert('lsck.auditoriaPlazaEval', $iAudPlazaEval);
+								$this->db->insert("{$this->sessBDCuenta}.lsck.auditoriaPlazaEval", $iAudPlazaEval);
 								$idAudPlazaEval = $this->db->insert_id();
-								$this->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => 'lsck.auditoriaPlazaEval', 'id' => $idAudPlazaEval ];
+								$this->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaPlazaEval", 'id' => $idAudPlazaEval ];
 
 								if( !is_array($input["plaza-pregunta[{$idPlaza}][{$idEvaluacionDet}]"]) )
 									$input["plaza-pregunta[{$idPlaza}][{$idEvaluacionDet}]"] = [ $input["plaza-pregunta[{$idPlaza}][{$idEvaluacionDet}]"] ];
@@ -1096,9 +1096,9 @@ WHERE 1 = 1{$filtro}
 											'idPregunta' => $idPregunta,
 											'respuesta' => $respuesta
 										];
-									$this->db->insert('lsck.auditoriaPlazaEvalPreg', $iAudPlazaEvalPreg);
+									$this->db->insert("{$this->sessBDCuenta}.lsck.auditoriaPlazaEvalPreg", $iAudPlazaEvalPreg);
 									$idAudPlazaEvalPreg = $this->db->insert_id();
-									$this->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => 'lsck.auditoriaPlazaEvalPreg', 'id' => $idAudPlazaEvalPreg ];
+									$this->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaPlazaEvalPreg", 'id' => $idAudPlazaEvalPreg ];
 
 									/* ALTERNATIVAS */
 									if( isset($input["plaza-alternativa[{$idPlaza}][{$idEvaluacionDet}][{$idPregunta}]"]) ){
@@ -1111,9 +1111,9 @@ WHERE 1 = 1{$filtro}
 													'idAudPlazaEvalPreg' => $idAudPlazaEvalPreg,
 													'idAlternativa' => $idAlternativa
 												);
-											$this->db->insert('lsck.auditoriaPlazaEvalPregAlt', $iAudPlazaEvalPregAlt);
+											$this->db->insert("{$this->sessBDCuenta}.lsck.auditoriaPlazaEvalPregAlt", $iAudPlazaEvalPregAlt);
 											$idAudPlazaEvalPregAlt = $this->db->insert_id();
-											$this->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => 'lsck.auditoriaPlazaEvalPregAlt', 'id' => $idAudPlazaEvalPregAlt ];
+											$this->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaPlazaEvalPregAlt", 'id' => $idAudPlazaEvalPregAlt ];
 										}
 									}
 								}
@@ -1134,9 +1134,9 @@ WHERE 1 = 1{$filtro}
 								'idAudPlaza' => $idAudPlaza,
 								'idCliente' => $idCliente
 							];
-						$this->db->insert('lsck.auditoriaCliente', $iAudCliente);
+						$this->db->insert("{$this->sessBDCuenta}.lsck.auditoriaCLiente", $iAudCliente);
 						$idAudCliente = $this->db->insert_id();
-						$this->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => 'lsck.auditoriaCliente', 'id' => $idAudCliente ];
+						$this->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaCLiente", 'id' => $idAudCliente ];
 
 						/* ENCUESTA TIENDA */
 						if( isset($input["tienda-pregunta[{$idCliente}]"]) ){
@@ -1166,9 +1166,9 @@ WHERE 1 = 1{$filtro}
 										'respuesta' => $respuesta,
 										'comentario' => $comentario
 									];
-								$this->db->insert('lsck.auditoriaClientePreg', $iAudClientePreg);
+								$this->db->insert("{$this->sessBDCuenta}.lsck.auditoriaClientePreg", $iAudClientePreg);
 								$idAudClientePreg = $this->db->insert_id();
-								$this->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => 'lsck.auditoriaClientePreg', 'id' => $idAudClientePreg ];
+								$this->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaClientePreg", 'id' => $idAudClientePreg ];
 
 								/* ALTERNATIVAS */
 								if( isset($input["tienda-alternativa[{$idCliente}][{$idPregunta}]"]) ){
@@ -1181,9 +1181,9 @@ WHERE 1 = 1{$filtro}
 												'idAudClientePreg' => $idAudClientePreg,
 												'idAlternativa' => $idAlternativa
 											];
-										$this->db->insert('lsck.auditoriaClientePregAlt', $iAudClientePregAlt);
+										$this->db->insert("{$this->sessBDCuenta}.lsck.auditoriaClientePregAlt", $iAudClientePregAlt);
 										$idAudClientePregAlt = $this->db->insert_id();
-										$this->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => 'lsck.auditoriaClientePregAlt', 'id' => $idAudClientePregAlt ];
+										$this->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaClientePregAlt", 'id' => $idAudClientePregAlt ];
 									}
 								}
 							}
@@ -1206,9 +1206,9 @@ WHERE 1 = 1{$filtro}
 												'idAudCliente' => $idAudCliente,
 												'idEvaluacion' => $idEvaluacion
 											];
-										$this->db->insert('lsck.auditoriaFoto', $iAuditoriaFoto);
+										$this->db->insert("{$this->sessBDCuenta}.lsck.auditoriaFoto", $iAuditoriaFoto);
 										$idAudFoto = $this->db->insert_id();
-										$this->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => 'lsck.auditoriaFoto', 'id' => $idAudFoto ];
+										$this->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaFoto", 'id' => $idAudFoto ];
 
 										$carpeta = $this->carpeta['raiz'].$this->carpeta['livestorecheck'];
 										$archivo = $carpeta."{$idAudFoto}.png";
@@ -1240,9 +1240,9 @@ WHERE 1 = 1{$filtro}
 												'idEvaluacionDet' => $idEvaluacionDet,
 												'comentario' => $comentario
 											];
-										$this->db->insert('lsck.auditoriaClienteEval', $iAudClienteEval);
+										$this->db->insert("{$this->sessBDCuenta}.lsck.auditoriaClienteEval", $iAudClienteEval);
 										$idAudClienteEval = $this->db->insert_id();
-										$this->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => 'lsck.auditoriaClienteEval', 'id' => $idAudClienteEval ];
+										$this->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaClienteEval", 'id' => $idAudClienteEval ];
 
 										if( !is_array($input["pregunta[{$idCliente}][{$idEvaluacionDet}]"]) )
 											$input["pregunta[{$idCliente}][{$idEvaluacionDet}]"] = [ $input["pregunta[{$idCliente}][{$idEvaluacionDet}]"] ];
@@ -1277,9 +1277,9 @@ WHERE 1 = 1{$filtro}
 													'resultado' => $resultado,
 													'ordenTrabajo' => $ordenTrabajo
 												];
-											$this->db->insert('lsck.auditoriaClienteEvalPreg', $iAudClienteEvalPreg);
+											$this->db->insert("{$this->sessBDCuenta}.lsck.auditoriaClienteEvalPreg", $iAudClienteEvalPreg);
 											$idAudClienteEvalPreg = $this->db->insert_id();
-											$this->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => 'lsck.auditoriaClienteEvalPreg', 'id' => $idAudClienteEvalPreg ];
+											$this->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaClienteEvalPreg", 'id' => $idAudClienteEvalPreg ];
 
 											/* RESPONSABLE */
 											if( isset($input["responsable[{$idCliente}][{$idEvaluacionDet}][{$idPregunta}]"]) &&
@@ -1311,9 +1311,9 @@ WHERE 1 = 1{$filtro}
 															'idResponsable' => $idResponsable,
 															'idResponsableTipo' => $idResponsableTipo
 														);
-													$this->db->insert('lsck.auditoriaClienteEvalPregResp', $iAudClienteEvalPregResp);
+													$this->db->insert("{$this->sessBDCuenta}.lsck.auditoriaClienteEvalPregResp", $iAudClienteEvalPregResp);
 													$idAudClienteEvalPregResp = $this->db->insert_id();
-													$this->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => 'lsck.auditoriaClienteEvalPregResp', 'id' => $idAudClienteEvalPregResp ];
+													$this->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaClienteEvalPregResp", 'id' => $idAudClienteEvalPregResp ];
 
 													if( !empty($ordenTrabajo) && !empty($responsableEmail) ){
 														$pregunta = $this->db->get_where('lsck.tipoEncuestaPreg', array('idPregunta' => $idPregunta))->row()->nombre;
@@ -1337,9 +1337,9 @@ WHERE 1 = 1{$filtro}
 															'idAudClienteEvalPreg' => $idAudClienteEvalPreg,
 															'idAlternativa' => $idAlternativa
 														);
-													$this->db->insert('lsck.auditoriaClienteEvalPregAlt', $iAudClienteEvalPregAlt);
+													$this->db->insert("{$this->sessBDCuenta}.lsck.auditoriaClienteEvalPregAlt", $iAudClienteEvalPregAlt);
 													$idAudClienteEvalPregAlt = $this->db->insert_id();
-													$this->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => 'lsck.auditoriaClienteEvalPregAlt', 'id' => $idAudClienteEvalPregAlt ];
+													$this->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaClienteEvalPregAlt", 'id' => $idAudClienteEvalPregAlt ];
 												}
 											}
 
@@ -1354,9 +1354,9 @@ WHERE 1 = 1{$filtro}
 															'idAudClienteEvalPreg' => $idAudClienteEvalPreg,
 															'idExtAudMat' => $idExtAudMat
 														);
-													$this->db->insert('lsck.auditoriaClienteEvalPregAlt', $iAudClienteEvalPregAlt);
+													$this->db->insert("{$this->sessBDCuenta}.lsck.auditoriaClienteEvalPregAlt", $iAudClienteEvalPregAlt);
 													$idAudClienteEvalPregAlt = $this->db->insert_id();
-													$this->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => 'lsck.auditoriaClienteEvalPregAlt', 'id' => $idAudClienteEvalPregAlt ];
+													$this->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaClienteEvalPregAlt", 'id' => $idAudClienteEvalPregAlt ];
 												}
 											}
 										}
@@ -1384,8 +1384,8 @@ WHERE 1 = 1{$filtro}
 
 				if( email($emailConf) ){
 					foreach($content as $idAudClienteEvalPreg => $vcontent){
-						$this->db->update('lsck.auditoriaClienteEvalPreg', ['notificacion' => 1], ['idAudClienteEvalPreg' => $idAudClienteEvalPreg]);
-						$this->aSessTrack[] = [ 'idAccion' => 7, 'tabla' => 'lsck.auditoriaClienteEvalPreg', 'id' => $idAudClienteEvalPreg ];
+						$this->db->update("{$this->sessBDCuenta}.lsck.auditoriaClienteEvalPreg", ['notificacion' => 1], ['idAudClienteEvalPreg' => $idAudClienteEvalPreg]);
+						$this->aSessTrack[] = [ 'idAccion' => 7, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaClienteEvalPreg", 'id' => $idAudClienteEvalPreg ];
 					}
 				}
 			}
@@ -1426,8 +1426,8 @@ WHERE 1 = 1{$filtro}
 
 						$uAudFoto = [ 'estado' => $estado ];
 						$wAudFoto = [ 'idAudFoto' => $idAudFoto ];
-						$this->db->update('lsck.auditoriaFoto', $uAudFoto, $wAudFoto);
-						$this->aSessTrack[] = [ 'idAccion' => 7, 'tabla' => 'lsck.auditoriaFoto', 'id' => $idAudFoto ];
+						$this->db->update("{$this->sessBDCuenta}.lsck.auditoriaFoto", $uAudFoto, $wAudFoto);
+						$this->aSessTrack[] = [ 'idAccion' => 7, 'tabla' => "{$this->sessBDCuenta}.lsck.auditoriaFoto", 'id' => $idAudFoto ];
 					}
 				}
 
@@ -1454,7 +1454,7 @@ WHERE 1 = 1{$filtro}
 					);
 
 				$wOrdenTrabajo = array( 'idAudClienteEvalPreg' => $input['idAudClienteEvalPreg'] );
-				$this->db->update('lsck.auditoriaClienteEvalPreg', $aOrdenTrabajo, $wOrdenTrabajo);
+				$this->db->update("{$this->sessBDCuenta}.lsck.auditoriaClienteEvalPreg", $aOrdenTrabajo, $wOrdenTrabajo);
 
 			if( !$this->db->trans_status() ){
 				$this->db->trans_rollback();

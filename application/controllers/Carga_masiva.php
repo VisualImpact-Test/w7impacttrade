@@ -1138,7 +1138,7 @@ class Carga_masiva extends CI_Controller
 											$idZonaPeligrosa = ( !empty($idZonaPeligrosa) ? $idZonaPeligrosa[0]['idZonaPeligrosa'] : NULL );
 
 										$codigoCliente = (isset($cliente[12]) && !empty($cliente[12])) ? $cliente[12] : NULL;
-										$flagCartera = (isset($cliente[13]) && !empty($cliente[13])) ? ($cliente[13]=='SI' ? 1 : 0) : 0;
+										$flagCartera = (isset($cliente[13]) && !empty($cliente[13])) ? ($cliente[13]=='SI' ? 1 : 0) : 1;
 
 										$fechaInicio = (isset($cliente[14]) && !empty($cliente[14])) ? $cliente[14] : date('Y-m-d');
 										$fechaFin = (isset($cliente[15]) && !empty($cliente[15])) ? $cliente[15] : NULL;

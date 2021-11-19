@@ -111,7 +111,7 @@ class Premiaciones extends MY_Controller
 			'banner' => empty( $post['datos']['banner_filtro']) ? '' :  $post['datos']['banner_filtro'],
 		);
 
-		$visitasTotal = $this->model->obtener_premiacionesvisita($params);
+		$visitasTotal = $this->model->obtener_premiacionesvisitaSimple($params);
 
 		$www=base_url().'public/';
 		$style="
@@ -139,6 +139,9 @@ class Premiaciones extends MY_Controller
 				$header .= '<td class="title" >PREMIACIONES</td>';
 			$header .= '</tr>';
 		$header .= '</table>';
+
+		ini_set('memory_limit','1024M');
+		set_time_limit(0);
 
 		require APPPATH . '/vendor/autoload.php';
 		$mpdf = new \Mpdf\Mpdf();
@@ -240,7 +243,9 @@ class Premiaciones extends MY_Controller
 			$mpdf->WriteHTML($html);
 		}
 
-		$mpdf->Output('premiaciones.pdf','D');
+		header('Set-Cookie: fileDownload=true; path=/');
+		header('Cache-Control: max-age=60, must-revalidate');
+		$mpdf->Output("premiaciones.pdf", \Mpdf\Output\Destination::DOWNLOAD);
 	}
 
 	public function actualizar_estado()

@@ -7,7 +7,7 @@ $externo = $this->flag_externo;
 		<thead>
 			<tr>
 				<th>TOTAL: <?= count($premiaciones) ?></th>
-				<th colspan="<?=20+count($segmentacion['headers'])?>"></th>
+				<th colspan="<?= 20 + count($segmentacion['headers']) ?>"></th>
 			</tr>
 			<tr>
 				<th class="text-center align-middle noVis">#</th>
@@ -19,11 +19,11 @@ $externo = $this->flag_externo;
 				<th class="text-center align-middle">GRUPO CANAL</th>
 				<th class="text-center align-middle">CANAL</th>
 				<th class="text-center align-middle hideCol">SUBCANAL</th>
-				<?foreach ($segmentacion['headers'] as $k => $v) {?>
-					<th class="text-center align-middle" ><?=strtoupper($v['header'])?></th>
-				<?}?>
+				<? foreach ($segmentacion['headers'] as $k => $v) { ?>
+					<th class="text-center align-middle"><?= strtoupper($v['header']) ?></th>
+				<? } ?>
 				<th class="text-center align-middle">COD VISUAL</th>
-				<th class="text-center align-middle hideCol">COD <?=$this->sessNomCuentaCorto?></th>
+				<th class="text-center align-middle hideCol">COD <?= $this->sessNomCuentaCorto ?></th>
 				<th class="text-center align-middle hideCol">COD PDV</th>
 				<th class="text-center align-middle">PDV</th>
 				<th class="text-center align-middle">PREMIADO</th>
@@ -54,15 +54,15 @@ $externo = $this->flag_externo;
 					<td class="text-left" style="text-align:center;"><?= verificarEmpty($row['tipoUsuario'], 3); ?></td>
 					<td class="text-center" style="text-align:center;"><?= verificarEmpty($row['idUsuario'], 3); ?></td>
 					<td class="text-left" style="text-align:center;"><?= verificarEmpty($row['nombreUsuario'], 3); ?></td>
-					<td class="text-left" style="text-align:center;"><?= !empty($row['grupoCanal'])? $row['grupoCanal'] : '-'; ?></td>
-					<td class="text-left" style="text-align:center;"><?= !empty($row['canal'])? $row['canal'] : '-'; ?></td>
-					<td class="text-left" style="text-align:center;"><?= !empty($row['subCanal'])? $row['subCanal'] : '-'; ?></td>
-					<?foreach ($segmentacion['headers'] as $k => $v) {?>
+					<td class="text-left" style="text-align:center;"><?= !empty($row['grupoCanal']) ? $row['grupoCanal'] : '-'; ?></td>
+					<td class="text-left" style="text-align:center;"><?= !empty($row['canal']) ? $row['canal'] : '-'; ?></td>
+					<td class="text-left" style="text-align:center;"><?= !empty($row['subCanal']) ? $row['subCanal'] : '-'; ?></td>
+					<? foreach ($segmentacion['headers'] as $k => $v) { ?>
 						<td class="text-left"><?= (!empty($row[($v['columna'])]) ? $row[($v['columna'])] : '-') ?></td>
-					<?}?>
+					<? } ?>
 					<td class="text-center" style="text-align:center;"><?= verificarEmpty($row['idCliente'], 3); ?></td>
-					<td class="text-center" style="text-align:center;"><?= !empty($row['codCliente'])? $row['codCliente'] : '-'; ?></td>
-					<td class="text-center" style="text-align:center;"><?= !empty($row['codDist'])? $row['codDist'] : '-'; ?></td>
+					<td class="text-center" style="text-align:center;"><?= !empty($row['codCliente']) ? $row['codCliente'] : '-'; ?></td>
+					<td class="text-center" style="text-align:center;"><?= !empty($row['codDist']) ? $row['codDist'] : '-'; ?></td>
 					<td class="text-left" style="text-align:center;"><?= verificarEmpty($row['razonSocial'], 3); ?></td>
 					<td class="text-center" style="text-align:center;"><?= $gps . ' ' . $foto . ' ' . (($row['premiado'] == 1) ? 'SI' : 'NO'); ?></td>
 					<td class="text-left" style="text-align:center;"><?= $row['premiacion']; ?></td>
@@ -71,12 +71,7 @@ $externo = $this->flag_externo;
 					<td class="text-right" style="text-align:center;"><?= moneda($row['monto'], false, 0) ?></td>
 					<td class="text-center" style="text-align:center;">-</td>
 					<td class="text-center style-icons" style="text-align:center;">
-						<span class="badge <?=$badge?>" id="spanEstado-<?= $row['idVisitaPremiacion']; ?>"><?= $mensajeEstado; ?></span>
-						<?if(empty($externo)){?>
-						<a id="hrefEstado-<?= $row['idVisitaPremiacion']; ?>" href="javascript:;" style="margin-left:5px;" class="btn-actualizar-estado" data-id="<?= $row['idVisitaPremiacion']; ?>" data-estado="<?= $row['estado']; ?>">
-							<i class="fa fa-sync"></i>
-						</a>
-						<?}?>
+						<span class="badge <?= $badge ?>" id="spanEstado-<?= $row['idVisitaPremiacion']; ?>"><?= $mensajeEstado; ?></span>
 					</td>
 				</tr>
 			<? $ix++;

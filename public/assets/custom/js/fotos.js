@@ -110,22 +110,26 @@ var Fotos = {
 
 				$.each(response, function (indexCliente, cliente) {
 
-					dataHtml+="<div class='col-md-12 clienteFotos mt-4'>";
+					dataHtml+="<div class='col-xl-4 col-lg-6 col-sm-12 col-md-12  clienteFotos mt-4 card-deck' >";
 						dataHtml+="<div class='main-card card'>";
 							dataHtml+="<div class='card-body'>";
 								dataHtml+="<div class='row mb-2'>";
 									dataHtml+="<div class='col-md-12'>";
-										dataHtml+="<h2 class='font-weight-bold'>" + cliente.razonSocial +"</h2>";
+										dataHtml+="<h3 class='font-weight-bold'>" + cliente.razonSocial +"</h2>";
 									dataHtml+="</div>";
 								dataHtml+="</div>";
 								dataHtml+="<hr>";
 								///
-								dataHtml+="<div class='col-md-12 col-descsripcion-foto' style='margin-bottom: 30px;'>";
+								dataHtml+="<div class='col-md-12 col-descsripcion-foto'>";
+									dataHtml+="<div class='col-md-6'><label><span class='font-weight-bold'>CUENTA: </span>"+ cliente.cuenta +"</label><br><label><span class='font-weight-bold'>PROYECTO: </span>"+ cliente.proyecto +"</label></div>";
 									dataHtml+="<div class='col-md-6'><label><span class='font-weight-bold'>COD VISUAL: </span>"+ cliente.idCliente +"</label><br><label><span class='font-weight-bold'>COD CUENTA: </span>"+ cliente.codCliente +"</label></div>";
-									dataHtml+="<div class='col-md-6'><label><span class='font-weight-bold'>DIRECCIÓN: </span>"+ cliente.direccion +"</label><br><label><span class='font-weight-bold'>UBICACIÓN: </span>"+ cliente.departamento + " - " + cliente.provincia + " - " + cliente.distrito +"</label></div>";
+									// dataHtml+="<div class='col-md-6'><label><span class='font-weight-bold'>DIRECCIÓN: </span>"+ cliente.direccion +"</label><br><label><span class='font-weight-bold'>UBICACIÓN: </span>"+ cliente.departamento + " - " + cliente.provincia + " - " + cliente.distrito +"</label></div>";
 									// dataHtml+="<div class='col-md-12'><label><span class='font-weight-bold'>Distribuidora: </span>Demo</label><br><label><span class='font-weight-bold'>Sucursal: </span>Demo</label></div>";
 									dataHtml+="<div class='col-md-6'><label><span class='font-weight-bold'>CANAL: </span>"+ cliente.canal +"</label></div>";
 									dataHtml+="<div class='col-md-6'><label><span class='font-weight-bold'>TIPO CLIENTE: </span>"+ cliente.cliente_tipo +"</label></div>";
+								dataHtml+="</div>";
+								dataHtml+="<div class='col-md-12 col-descsripcion-foto' style='margin-bottom: 15px;'>";
+									dataHtml+="<div class='col-md-12'><label><span class='font-weight-bold'>DIRECCIÓN: </span>"+ cliente.direccion +"</label><br><label><span class='font-weight-bold'>UBICACIÓN: </span>"+ cliente.departamento + " - " + cliente.provincia + " - " + cliente.distrito +"</label></div>";
 								dataHtml+="</div>";
 								///
 								dataHtml+="<div class='row'>";
@@ -137,8 +141,8 @@ var Fotos = {
 										var urlFoto = urlfotos+carpeta +'/'+ fotoPreview;
 										var objectFotos = JSON.stringify(visita.fotos);
 
-										dataHtml+="<div class='col-md-4 fotoPorVisita' style='margin: auto;'>";
-											dataHtml+="<div class='main-card card text-center shadow-none'><img height='320px;' src='" + urlFoto +"' alt='Card image'>";
+										dataHtml+="<div class='col-md-12 fotoPorVisita'>";
+											dataHtml+="<div class='main-card card text-center shadow-none'><img height='200px;' src='" + urlFoto +"' alt='Card image'>";
 												dataHtml+="<div class='card-img-overlay'>";
 													dataHtml+="<a href='#' data-usuario='" + visita.usuario +"' data-tipousuario='"+ visita.tipoUsuario +"' data-fecha='"+ visita.fecha +"' data-objectfotos='" + objectFotos +"' class='btn-verMasFotos btn btn-secondary'>Ver " + cantidadFotos + stringFoto +"</a>";
 												dataHtml+="</div>";

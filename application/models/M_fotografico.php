@@ -82,7 +82,7 @@ class M_fotografico extends MY_Model{
 					ON sn.idSubCanal = sc.idSubCanal
 				LEFT JOIN trade.zonaPeligrosa zp
 					ON zp.idZonaPeligrosa=v.idZonaPeligrosa
-				JOIN  trade.auditoriaFotografica af
+				JOIN  {$this->sessBDCuenta}.trade.auditoriaFotografica af
 					ON af.idVisita = v.idVisita
 				{$segmentacion['join']}
 			WHERE
@@ -134,7 +134,7 @@ class M_fotografico extends MY_Model{
 					ON ubp.cod_ubigeo = pl.cod_ubigeo
 				LEFT JOIN trade.zonaPeligrosa zp
 					ON zp.idZonaPeligrosa=v.idZonaPeligrosa
-				LEFT JOIN  trade.auditoriaFotografica af
+				LEFT JOIN  {$this->sessBDCuenta}.trade.auditoriaFotografica af
 					ON af.idVisita = v.idVisita
 			WHERE
 				1=1 
@@ -186,7 +186,7 @@ class M_fotografico extends MY_Model{
 					ON ubp.cod_ubigeo = pl.cod_ubigeo
 				LEFT JOIN trade.zonaPeligrosa zp
 					ON zp.idZonaPeligrosa=v.idZonaPeligrosa
-				LEFT JOIN  trade.auditoriaFotografica af
+				LEFT JOIN  {$this->sessBDCuenta}.trade.auditoriaFotografica af
 					ON af.idVisita = v.idVisita
 				JOIN trade.data_visitaFotos vf
 					ON vf.idVisita = v.idVisita
@@ -230,7 +230,7 @@ class M_fotografico extends MY_Model{
 			'resultado'=>$resultado,
 			'tienePrecios'=>$precios
 		);
-		$insertAuditoria = $this->db->insert('trade.auditoriaFotografica',$cabecera);
+		$insertAuditoria = $this->db->insert("{$this->sessBDCuenta}.trade.auditoriaFotografica",$cabecera);
 		$idAuditoria = $this->db->insert_id();
 		//
 		/* foreach ($elementos as $elemento){

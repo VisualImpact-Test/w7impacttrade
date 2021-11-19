@@ -53,6 +53,9 @@ class Fotos extends MY_Controller
 			$fotosClientesRefactorizado[$row['idCliente']]['direccion'] = $row['direccion'];
 			$fotosClientesRefactorizado[$row['idCliente']]['razonSocial'] = $row['razonSocial'];
 			$fotosClientesRefactorizado[$row['idCliente']]['cliente_tipo'] = $row['cliente_tipo'];
+			
+			$fotosClientesRefactorizado[$row['idCliente']]['cuenta'] = $row['cuenta'];
+			$fotosClientesRefactorizado[$row['idCliente']]['proyecto'] = $row['proyecto'];
 
 			if (empty($fotosClientesRefactorizado[$row['idCliente']]['visitas'])) $fotosClientesRefactorizado[$row['idCliente']]['visitas'] = [];
 			$fotosClientesRefactorizado[$row['idCliente']]['visitas'][$row['idVisita']]['idVisita'] = $row['idVisita'];

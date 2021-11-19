@@ -345,6 +345,112 @@ class M_premiaciones extends MY_Model{
 
 		return $result;
 	}
+
+	public function obtener_premiacionesvisitaSimple($input=array()){
+		$filtros = "";
+
+		$externo = $this->flag_externo;
+		$proyecto = $this->sessIdProyecto;
+		(!empty($input['idPremiacion'])) ? $filtros .= " AND vp.idPremiacion = ".$input['idPremiacion'] : "";
+		(!empty($input['idGrupoCanal'])) ? $filtros .= " AND gc.idGrupoCanal = ".$input['idGrupoCanal'] : "";
+		(!empty($input['idCanal'])) ? $filtros .= " AND ca.idCanal = ".$input['idCanal'] : "";
+
+		$filtros .= !empty($input['tipoUsuario']) ? " AND uh.idTipoUsuario=".$input['tipoUsuario'] : "";
+		$filtros .= !empty($input['usuario']) ? " AND uh.idUsuario=".$input['usuario'] : "";
+
+		$filtros .= !empty($input['distribuidoraSucursal']) ? ' AND ds.idDistribuidoraSucursal='.$input['distribuidoraSucursal'] : '';
+		$filtros .= !empty($input['distribuidora']) ? ' AND d.idDistribuidora='.$input['distribuidora'] : '';
+		$filtros .= !empty($input['zona']) ? ' AND z.idZona='.$input['zona'] : '';
+		$filtros .= !empty($input['plaza']) ? ' AND pl.idPlaza='.$input['plaza'] : '';
+		$filtros .= !empty($input['cadena']) ? ' AND cad.idCadena='.$input['cadena'] : '';
+		$filtros .= !empty($input['banner']) ? ' AND ba.idBanner='.$input['banner'] : '';
+
+
+
+		!empty($externo) ? $filtros.= " AND vp.estado = 1": '';
+
+		$demo = $this->demo;
+		$filtro_demo = '';
+		if(!$demo){
+			$filtro_demo = " AND r.demo = 0";
+		}
+		$segmentacion = getSegmentacion(['grupoCanal_filtro'=>$input['idGrupoCanal']]);
+
+		$sql = "
+			DECLARE
+				  @fecIni DATE = '".$input['fecIni']."'
+				, @fecFin DATE = '".$input['fecFin']."'
+			SELECT 
+				DISTINCT
+				  gc.idGrupoCanal
+				, gc.nombre grupoCanal
+				, ca.nombre canal
+
+				, v.idCliente
+				, v.razonSocial
+				, r.idUsuario
+				, r.nombreUsuario
+				, r.tipoUsuario
+				, c.codCliente
+				, c.codDist
+				, CONVERT(VARCHAR,r.fecha,103) fecha
+				, CONVERT(VARCHAR,vp.hora,108) hora
+				, v.latIni
+				, v.lonIni
+				, vf.fotoUrl
+				, p.idPremiacion
+				, p.nombre premiacion
+				, tp.idTipoPremiacion
+				, tp.descripcion tipoPremiacion
+				, vp.codigo
+				, vp.monto
+				, vp.premiado
+
+				,vp.idVisitaPremiacion
+				,vp.estado
+				,vp.latitud as latitud_visita
+				,vp.longitud as longitud_visita
+				,ch.latitud as latitud_cliente
+				,ch.longitud as longitud_cliente
+				{$segmentacion['columnas_bd']}
+
+			FROM 
+				trade.data_visitaPremiacion vp
+				JOIN trade.data_visita v
+					ON v.idVisita = vp.idVisita
+				JOIN trade.data_ruta r
+					ON r.idRuta = v.idRuta
+				JOIN trade.usuario_historico uh On uh.idUsuario=r.idUsuario
+					AND General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,@fecIni,@fecFin)=1
+					AND uh.idProyecto=r.idProyecto
+				JOIN trade.cliente c 
+					ON c.idCliente = v.idCliente
+				JOIN ".getClienteHistoricoCuenta()." ch
+					ON ch.idCliente = v.idCliente
+					AND General.dbo.fn_fechavigente(ch.fecIni,ch.fecFin,@fecIni,@fecFin)=1
+					AND ch.idProyecto={$proyecto}
+				LEFT JOIN trade.segmentacionNegocio sn
+					ON sn.idSegNegocio = ch.idSegNegocio
+				LEFT JOIN trade.canal ca
+					ON ca.idCanal = v.idCanal
+				LEFT JOIN trade.grupoCanal gc
+					ON gc.idGrupoCanal = ca.idGrupoCanal
+				LEFT JOIN trade.data_visitaFotos vf
+					ON vf.idVisitaFoto = vp.idVisitaFoto
+				LEFT JOIN trade.premiacion p
+					ON p.idPremiacion = vp.idPremiacion
+				LEFT JOIN trade.tipo_premiacion tp
+					ON tp.idTipoPremiacion = vp.idTipoPremiacion
+				LEFT JOIN trade.subCanal subca ON subca.idSubCanal = sn.idSubcanal
+				{$segmentacion['join']}
+
+			WHERE r.fecha BETWEEN @fecIni AND @fecFin AND vp.estado = 1
+			{$filtro_demo}
+			AND r.estado = 1 
+			AND v.estado = 1{$filtros}
+		";
+		return $this->query($sql);
+	}
 	
 }
 ?>

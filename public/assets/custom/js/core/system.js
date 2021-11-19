@@ -185,11 +185,13 @@ var View={
 
 		//if( typeof($BODY)!='undefined' ) $BODY.toggleClass('nav-md nav-sm');
 
+		
 		$(window).resize(function () {
 			// Fn.dataTableAdjust();
 		});
 
 		$('.hide-parent').parent().hide();
+
 
 		$("#btn-toggle-menu").click(function(e){
 			e.preventDefault();

@@ -15,10 +15,10 @@ class M_liveStorecheckConf extends My_Model
 			'responsable' => ['tabla' => 'lsck.responsable', 'id' => 'idResponsable'],
 			'tipoAuditoria' => ['tabla' => 'lsck.ext_auditoriaTipo', 'id' => 'idExtAudTipo'],
 			'empresa' => ['tabla' => 'lsck.tipoEmpresa', 'id' => 'idEmpresa'],
-			'infPlaza' => ['tabla' => 'lsck.conf_plazaInfo', 'id' => 'idPlazaInfo'],
-			'confPlaza' => ['tabla' => 'lsck.conf_plaza', 'id' => 'idConfPlaza'],
-			'confCliente' => ['tabla' => 'lsck.conf_cliente', 'id' => 'idConfCliente'],
-			'confTipoCliente' => ['tabla' => 'lsck.conf_tipoClienteAud', 'id' => 'idTipoClienteAud','tablaDet' => 'lsck.conf_tipoClienteAudDet'],
+			'infPlaza' => ['tabla' => "{$this->sessBDCuenta}.lsck.conf_plazaInfo", 'id' => 'idPlazaInfo'],
+			'confPlaza' => ['tabla' => "{$this->sessBDCuenta}.lsck.conf_plaza", 'id' => 'idConfPlaza'],
+			'confCliente' => ['tabla' => "{$this->sessBDCuenta}.lsck.conf_cliente", 'id' => 'idConfCliente'],
+			'confTipoCliente' => ['tabla' => "{$this->sessBDCuenta}.lsck.conf_tipoClienteAud", 'id' => 'idTipoClienteAud','tablaDet' => 'lsck.conf_tipoClienteAudDet'],
 			'listaEvaluacion' => ['tabla' => 'lsck.listEvaluacion', 'id' => 'idListEval','tablaDet' => 'lsck.listEvaluacionDet'],
 			'preguntas' => ['tabla' => 'lsck.tipoEncuesta', 'id' => 'idEncuesta'],
 			'tipoEvaluacion' => ['tabla' => 'lsck.tipoEvaluacion', 'id' => 'idEvaluacion'],
@@ -277,7 +277,7 @@ class M_liveStorecheckConf extends My_Model
 		p.idConfCliente id
 		,UPPER(c.razonSocial  + ' - ' + tc.nombre) as value
 		FROM
-		lsck.conf_cliente p
+		{$this->sessBDCuenta}.lsck.conf_cliente p
 		LEFT JOIN trade.usuario u ON u.idUsuario = p.idUsuarioReg
 		LEFT JOIN lsck.tipoCliente tc ON tc.idTipoCliente = p.idTipoCliente
 		LEFT JOIN pg.dbo.cliente c ON c.idCliente = p.idCliente
@@ -552,7 +552,7 @@ class M_liveStorecheckConf extends My_Model
 		,te.nombre empresa
 		,d.nombre + ' - ' + u_d.distrito distribuidora
 		FROM
-		lsck.conf_plazaInfo p
+		{$this->sessBDCuenta}.lsck.conf_plazaInfo p
 		LEFT JOIN trade.usuario u ON u.idUsuario = p.idUsuarioReg
 		LEFT JOIN pg.auditoria.plazaCliente plz ON plz.idPlaza = p.idPlaza
 		LEFT JOIN lsck.tipoInfo ti ON ti.idInfo = p.idInfo
@@ -634,7 +634,7 @@ class M_liveStorecheckConf extends My_Model
 		,tae.nombre tipoAuditoriaExt 
 		,d.nombre + ' - ' + u_d.distrito distribuidora
 		FROM
-		lsck.conf_plaza p
+		{$this->sessBDCuenta}.lsck.conf_plaza p
 		LEFT JOIN trade.usuario u ON u.idUsuario = p.idUsuarioReg
 		LEFT JOIN pg.auditoria.plazaCliente plz ON plz.idPlaza = p.idPlaza
 		LEFT JOIN lsck.tipoCliente tc ON tc.idTipoCliente = p.idTipoCliente
@@ -782,7 +782,7 @@ class M_liveStorecheckConf extends My_Model
 		,d.nombre + ' - ' + u_d.distrito distribuidora
 		,pz.descripcion plaza
 		FROM
-		lsck.conf_cliente p
+		{$this->sessBDCuenta}.lsck.conf_cliente p
 		LEFT JOIN trade.usuario u ON u.idUsuario = p.idUsuarioReg
 		LEFT JOIN lsck.tipoCliente tc ON tc.idTipoCliente = p.idTipoCliente
 		LEFT JOIN pg.dbo.cliente c ON c.idCliente = p.idCliente
@@ -815,8 +815,8 @@ class M_liveStorecheckConf extends My_Model
 		,tc.nombre tipoCliente
 		,ISNULL(c.idCliente,cc.idCliente) idCliente	
 		FROM
-		lsck.conf_clienteAud p
-		LEFT JOIN lsck.conf_cliente cc ON cc.idConfCliente = p.idConfCliente
+		{$this->sessBDCuenta}.lsck.conf_clienteAud p
+		LEFT JOIN {$this->sessBDCuenta}.lsck.conf_cliente cc ON cc.idConfCliente = p.idConfCliente
 		LEFT JOIN pg.dbo.cliente c ON c.idCliente = cc.idCliente
 		LEFT JOIN trade.usuario u ON u.idUsuario = p.idUsuarioReg
 		LEFT JOIN lsck.ext_auditoriaTipo aut ON aut.idExtAudTipo = p.idExtAudTipo
@@ -844,10 +844,10 @@ class M_liveStorecheckConf extends My_Model
 		,aum.idExtAudMat codigoSKU
 		,CASE WHEN p.presencia = 1 THEN 'SI' ELSE 'NO' END flag_presencia
 		FROM
-		lsck.conf_clienteAudDet p
+		{$this->sessBDCuenta}.lsck.conf_clienteAudDet p
 		LEFT JOIN trade.usuario u ON u.idUsuario = p.idUsuarioReg
 		LEFT JOIN lsck.ext_auditoriaMaterial aum ON aum.idExtAudMat = p.idExtAudMat AND aum.estado = 1
-		LEFT JOIN lsck.conf_clienteAud cca ON cca.idConfClienteAud = p.idConfClienteAud
+		LEFT JOIN {$this->sessBDCuenta}.lsck.conf_clienteAud cca ON cca.idConfClienteAud = p.idConfClienteAud
 		LEFT JOIN lsck.ext_auditoriaTipo aut ON aut.idExtAudTipo = cca.idExtAudTipo
 		$filtros
 		";
@@ -884,7 +884,7 @@ class M_liveStorecheckConf extends My_Model
 			
 		];
 
-		$insert = $this->db->insert('lsck.conf_clienteAud', $insert);
+		$insert = $this->db->insert("{$this->sessBDCuenta}.lsck.conf_clienteAud", $insert);
 		$this->insertId = $this->db->insert_id();
 		return $insert;
     }
@@ -899,26 +899,26 @@ class M_liveStorecheckConf extends My_Model
 			
 		];
 
-		$insert = $this->db->insert('lsck.conf_clienteAudDet', $insert);
+		$insert = $this->db->insert("{$this->sessBDCuenta}.lsck.conf_clienteAudDet", $insert);
 		$this->insertId = $this->db->insert_id();
 
 		$where = array(
 			'presencia' => 1,
 			'idConfClienteAud' => $post['idConfClienteAud'],
 		);
-		$valor = $this->db->get_where('lsck.conf_clienteAudDet',$where)->num_rows();
+		$valor = $this->db->get_where("{$this->sessBDCuenta}.lsck.conf_clienteAudDet",$where)->num_rows();
 	
 		$update = array(
 			'valor' => $valor
 		);
 	
-		return 	$this->db->update('lsck.conf_clienteAud', $update, array('idConfClienteAud'=>$post['idConfClienteAud']));
+		return 	$this->db->update("{$this->sessBDCuenta}.lsck.conf_clienteAud", $update, array('idConfClienteAud'=>$post['idConfClienteAud']));
 
     }
 	public function actualizarEstadoConfClienteAudDet($post)
 	{
 		$sql = "
-		UPDATE lsck.conf_clienteAudDet set presencia = ~presencia where idConfClienteAudDet = {$post['id']}
+		UPDATE {$this->sessBDCuenta}.lsck.conf_clienteAudDet set presencia = ~presencia where idConfClienteAudDet = {$post['id']}
 		";
 		$this->db->query($sql);
 
@@ -926,13 +926,13 @@ class M_liveStorecheckConf extends My_Model
 			'presencia' => 1,
 			'idConfClienteAud' => $post['idConfClienteAud'],
 		);
-		$valor = $this->db->get_where('lsck.conf_clienteAudDet',$where)->num_rows();
+		$valor = $this->db->get_where("{$this->sessBDCuenta}.lsck.conf_clienteAudDet",$where)->num_rows();
 	
 		$update = array(
 			'valor' => $valor
 		);
 	
-		return 	$this->db->update('lsck.conf_clienteAud', $update, array('idConfClienteAud'=>$post['idConfClienteAud']));
+		return 	$this->db->update("{$this->sessBDCuenta}.lsck.conf_clienteAud", $update, array('idConfClienteAud'=>$post['idConfClienteAud']));
 
     }
     
@@ -978,7 +978,7 @@ class M_liveStorecheckConf extends My_Model
 		,tc.nombre tipoCliente
 		,COUNT(pd.idTipoClienteAudDet) OVER (PARTITION BY p.idTipoClienteAud) total
 		FROM
-		lsck.conf_tipoClienteAud p
+		{$this->sessBDCuenta}.lsck.conf_tipoClienteAud p
 		LEFT JOIN trade.usuario u ON u.idUsuario = p.idUsuarioReg
 		LEFT JOIN lsck.ext_auditoriaTipo aut ON aut.idExtAudTipo = p.idExtAudTipo
 		LEFT JOIN lsck.tipoCliente tc ON tc.idTipoCliente = p.idTipoCliente
@@ -1100,7 +1100,7 @@ class M_liveStorecheckConf extends My_Model
 			SELECT 
 			c.*
 			,(General.dbo.fn_fechaVigente(fecIni,fecFin,GETDATE(),GETDATE())) as vigente
-			FROM lsck.conf_tipoClienteAud  c
+			FROM {$this->sessBDCuenta}.lsck.conf_tipoClienteAud  c
 			)
 			SELECT * FROM list
 			WHERE idTipoCliente = {$post['sl_tipoCliente']} AND idExtAudTipo = {$post['sl_tipoAuditoria']} AND vigente = 1
@@ -1122,7 +1122,7 @@ class M_liveStorecheckConf extends My_Model
 		SELECT 
 		c.*
 		,(General.dbo.fn_fechaVigente(fecIni,fecFin,GETDATE(),GETDATE())) as vigente
-		FROM lsck.conf_plaza  c
+		FROM {$this->sessBDCuenta}.lsck.conf_plaza  c
 		)
 		SELECT * FROM list
 		WHERE idPlaza = {$post['sl_plazas']} AND vigente = 1 AND idTipoCliente = {$post['sl_tipoCliente']} AND idExtAudTipo = {$post['sl_tipoAuditoria']}
@@ -1144,7 +1144,7 @@ class M_liveStorecheckConf extends My_Model
 		SELECT 
 		c.*
 		,(General.dbo.fn_fechaVigente(fecIni,fecFin,GETDATE(),GETDATE())) as vigente
-		FROM lsck.conf_plazaInfo  c
+		FROM {$this->sessBDCuenta}.lsck.conf_plazaInfo  c
 		)
 		SELECT * FROM list
 		WHERE idPlaza = {$post['sl_plazas']} AND vigente = 1 AND idInfo = {$post['sl_tipoInfo']} 
@@ -1192,7 +1192,7 @@ class M_liveStorecheckConf extends My_Model
 		SELECT 
 		c.*
 		,(General.dbo.fn_fechaVigente(fecIni,fecFin,GETDATE(),GETDATE())) as vigente
-		FROM lsck.conf_cliente  c
+		FROM {$this->sessBDCuenta}.lsck.conf_cliente c
 		)
 		SELECT * FROM list
 		WHERE idCliente = {$post['idCliente']} AND vigente = 1
@@ -1220,8 +1220,8 @@ class M_liveStorecheckConf extends My_Model
 		ca.idConfClienteAud,
 		ca.idExtAudTipo
 		,(General.dbo.fn_fechaVigente(fecIni,fecFin,GETDATE(),GETDATE())) as vigente
-		FROM lsck.conf_cliente  c
-		LEFT JOIN lsck.conf_clienteAud ca ON c.idConfCliente = ca.idConfCliente
+		FROM {$this->sessBDCuenta}.lsck.conf_cliente c
+		LEFT JOIN {$this->sessBDCuenta}.lsck.conf_clienteAud ca ON c.idConfCliente = ca.idConfCliente
 		)
 		SELECT * FROM list
 		$filtros
@@ -1254,7 +1254,7 @@ class M_liveStorecheckConf extends My_Model
 		$sql = "
 		SELECT 
 		*
-		FROM lsck.conf_clienteAudDet
+		FROM {$this->sessBDCuenta}.lsck.conf_clienteAudDet
 		WHERE idConfClienteAud = {$post['idConfClienteAud']} AND idExtAudMat = {$post['idExtAudMat']} 
 		$filtros
 		";
@@ -1527,14 +1527,14 @@ class M_liveStorecheckConf extends My_Model
 		return $this->db->insert_batch($this->tablas['confCliente']['tabla'], $insert_arr);
 	}
 	public function registroMasivoConfClienteAud($insert){
-		return $this->db->insert_batch('lsck.conf_clienteAud', $insert);
+		return $this->db->insert_batch("{$this->sessBDCuenta}.lsck.conf_clienteAud", $insert);
 	}
 	public function registroMasivoConfClienteAudDet($insert){
-		return $this->db->insert_batch('lsck.conf_clienteAudDet', $insert);
+		return $this->db->insert_batch("{$this->sessBDCuenta}.lsck.conf_clienteAudDet", $insert);
 	}
 	public function registroMasivoConfClienteAudDet2($insert){
 
-		$rs = $this->db->insert_batch('lsck.conf_clienteAudDet', $insert);
+		$rs = $this->db->insert_batch("{$this->sessBDCuenta}.lsck.conf_clienteAudDet", $insert);
 		return $this->calcularValorConfClienteAud();
 	}
 	public function registroMasivoConfTipoCliente($insert){
@@ -1708,20 +1708,20 @@ WHERE en.idEncuesta = {$input['idEncuesta']}
 		$where = array(
 			'idConfClienteAud' => $post['idConfClienteAud'],
 		);
-		$d = $this->db->delete('lsck.conf_clienteAudDet',$where);
+		$d = $this->db->delete("{$this->sessBDCuenta}.lsck.conf_clienteAudDet",$where);
 
-		$rs = $this->db->insert_batch('lsck.conf_clienteAudDet',$insert);
+		$rs = $this->db->insert_batch("{$this->sessBDCuenta}.lsck.conf_clienteAudDet",$insert);
 		$where = array(
 			'presencia' => 1,
 			'idConfClienteAud' => $post['idConfClienteAud'],
 		);
-		$valor = $this->db->get_where('lsck.conf_clienteAudDet',$where)->num_rows();
+		$valor = $this->db->get_where("{$this->sessBDCuenta}.lsck.conf_clienteAudDet",$where)->num_rows();
 	
 		$update = array(
 			'valor' => $valor
 		);
 	
-		return 	$this->db->update('lsck.conf_clienteAud', $update, array('idConfClienteAud'=>$post['idConfClienteAud']));
+		return 	$this->db->update("{$this->sessBDCuenta}.lsck.conf_clienteAud", $update, array('idConfClienteAud'=>$post['idConfClienteAud']));
 	}
 	public function calcularValorConfClienteAud(){
 		$sql = "
@@ -1730,15 +1730,15 @@ WHERE en.idEncuesta = {$input['idEncuesta']}
 			ca.*,
 			CASE WHEN cad.presencia = 1 THEN COUNT(cad.idConfClienteAudDet) OVER (PARTITION BY ca.idConfClienteAud )END valor_presencia
 			FROM
-			lsck.conf_clienteAud ca
-			LEFT JOIN lsck.conf_clienteAudDet cad ON ca.idConfClienteAud = cad.idConfClienteAud
+			{$this->sessBDCuenta}.lsck.conf_clienteAud ca
+			LEFT JOIN {$this->sessBDCuenta}.lsck.conf_clienteAudDet cad ON ca.idConfClienteAud = cad.idConfClienteAud
 			WHERE cad.presencia = 1
 			)
 			UPDATE
 				ca
 			SET 
 				ca.valor = lp.valor_presencia
-			FROM lsck.conf_clienteAud ca
+			FROM {$this->sessBDCuenta}.lsck.conf_clienteAud ca
 			JOIN list_presencia lp ON lp.idConfClienteAud = ca.idConfClienteAud
 		";
 
@@ -1753,15 +1753,15 @@ WHERE en.idEncuesta = {$input['idEncuesta']}
 			ca.*,
 			CASE WHEN cad.presencia = 1 THEN COUNT(cad.idConfClienteAudDet) OVER (PARTITION BY ca.idConfClienteAud )END valor_presencia
 			FROM
-			lsck.conf_clienteAud ca
-			LEFT JOIN lsck.conf_clienteAudDet cad ON ca.idConfClienteAud = cad.idConfClienteAud
+			{$this->sessBDCuenta}.lsck.conf_clienteAud ca
+			LEFT JOIN {$this->sessBDCuenta}.lsck.conf_clienteAudDet cad ON ca.idConfClienteAud = cad.idConfClienteAud
 			WHERE cad.presencia = 1
 			)
 			UPDATE
 				ca
 			SET 
 				ca.valor = lp.valor_presencia
-			FROM lsck.conf_clienteAud ca
+			FROM {$this->sessBDCuenta}.lsck.conf_clienteAud ca
 			JOIN list_presencia lp ON lp.idConfClienteAud = ca.idConfClienteAud
 		";
 

@@ -5,7 +5,7 @@
 			<?= $title ?>
 		</h3>
 		<span>
-			<?=$this->idUsuarioHist . ' - ' . $this->idTipoUsuario?>
+			<?=$this->sessBDCuenta?>
 		</span>
 	</div>
 	<div class="col-lg-10 d-flex">
