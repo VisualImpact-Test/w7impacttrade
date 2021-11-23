@@ -132,7 +132,7 @@ class M_contingenciaAsistencia extends My_Model{
 				LEFT JOIN trade.encargado_usuario sub ON sub.idUsuario=u.idUsuario
 				LEFT JOIN trade.encargado enc ON enc.idEncargado=sub.idEncargado
 				LEFT JOIN trade.usuario u_e ON u_e.idUsuario=enc.idUsuario
-				LEFT JOIN {$this->sessBDCuenta}.trade.data_asistencia da ON da.idUsuario = u.idUsuario AND da.fecha =@fecha
+				LEFT JOIN ImpactTrade_bd.trade.data_asistencia da ON da.idUsuario = u.idUsuario AND da.fecha =@fecha
 				LEFT JOIN master.ocurrencias ocu ON ocu.idOcurrencia=da.idOcurrencia
 
 				JOIN trade.aplicacion app ON uh.idAplicacion = app.idAplicacion
@@ -151,7 +151,7 @@ class M_contingenciaAsistencia extends My_Model{
 	function insertar_detalle_asistencia($input=array()){
 		$aSessTrack = [];
 
-		$table = "{$this->sessBDCuenta}.trade.data_asistencia";
+		$table = "ImpactTrade_bd.trade.data_asistencia";
 		$this->db->trans_begin();
 
 			$insert = $this->db->insert($table, $input);

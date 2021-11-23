@@ -9,7 +9,7 @@ class M_Home extends MY_Model{
 	
 	public function find_data(){
 		$sql = "
-			SELECT TOP 1000 * FROM {$this->sessBDCuenta}.trade.data_asistencia
+			SELECT TOP 1000 * FROM ImpactTrade_bd.trade.data_asistencia
 		";
 		return $this->db->query($sql);
 	}
@@ -485,7 +485,7 @@ class M_Home extends MY_Model{
             , oc.idOcurrencia
             , oc.nombre ocurrencia
         FROM 
-            {$this->sessBDCuenta}.trade.data_asistencia a
+            ImpactTrade_bd.trade.data_asistencia a
             JOIN master.tipoAsistencia tia ON a.idTipoAsistencia=tia.idTipoAsistencia
             LEFT JOIN master.ocurrencias oc ON oc.idOcurrencia=a.idOcurrencia AND oc.estado=1 AND oc.flagAsistencia=1
         WHERE

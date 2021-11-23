@@ -2037,16 +2037,16 @@ class Carga_masiva extends CI_Controller
 	
 								$codigoElemento=array();
 
-								$tablaHistorico="{$this->sessBDCuenta}.trade.cliente_historico";
+								$tablaHistorico="ImpactTrade_small.trade.cliente_historico";
 								if( !empty($row['idCuenta']) ){
 									if($row['idCuenta']=="2"){
-										$tablaHistorico="{$this->sessBDCuenta}.trade.cliente_historico";
+										$tablaHistorico="ImpactTrade_aje.trade.cliente_historico";
 									}else if($row['idCuenta']=="3"){
-										$tablaHistorico="{$this->sessBDCuenta}.trade.cliente_historico";
+										$tablaHistorico="ImpactTrade_pg.trade.cliente_historico";
 									}else if($row['idCuenta']=="13"){
-										$tablaHistorico="{$this->sessBDCuenta}.trade.cliente_historico";
+										$tablaHistorico="ImpactTrade_small.trade.cliente_historico";
 									}else{
-										$tablaHistorico="{$this->sessBDCuenta}.trade.cliente_historico";
+										$tablaHistorico="ImpactTrade_small.trade.cliente_historico";
 									}
 								}
 								

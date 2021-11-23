@@ -10,7 +10,7 @@
             <div class="card-body p-0">
                 <ul class="nav nav-tabs nav-justified">
                     <li class="nav-item">
-                        <a class="nav-link active" data-toggle="tab" href="#contentFotografico">Cartera</a>
+                        <a class="nav-link active" data-toggle="tab" href="#contentFotografico">Detallado</a>
                     </li>
                 </ul>
             </div>

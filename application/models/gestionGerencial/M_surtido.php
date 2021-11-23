@@ -92,7 +92,9 @@ class M_surtido extends MY_Model{
 					ON ct.idClienteTipo = sn.idClienteTipo
 			{$segmentacion['join']}
 			WHERE r.fecha BETWEEN @fecIni AND @fecFin
-			AND r.demo = 0 AND r.estado = 1 AND v.estado=1
+			--AND r.demo = 0 
+			AND r.estado = 1 
+			AND v.estado=1
 			{$filtros}
 			ORDER BY fecha, departamento, canal, tipoUsuario, supervisor, nombreUsuario  ASC
 		";
@@ -151,7 +153,8 @@ class M_surtido extends MY_Model{
             JOIN trade.producto_categoria pc ON pc.idCategoria=ele.idCategoria
             LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisitaFoto=dvd.idVisitaFoto
             WHERE r.fecha BETWEEN @fecIni AND @fecFin
-            AND r.estado = 1 AND v.estado = 1{$filtros}
+            AND r.estado = 1 
+			AND v.estado = 1{$filtros}
 		";
 
 		$query = $this->db->query($sql);

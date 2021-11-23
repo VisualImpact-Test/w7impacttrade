@@ -573,7 +573,7 @@ class M_checkproductos extends MY_Model{
 		, ck.totalPrecio
 		, ck.totalPrecioBanner
 		, ck.idTipoReporte
-		FROM ImpactTrade_bd.resumen.checkProducto ck
+		FROM {$this->sessBDCuenta}.resumen.checkProducto ck
 		WHERE ck.fecha BETWEEN @fecIni AND @fecFin
 		{$filtros}
 		ORDER BY categoria,marca
@@ -616,7 +616,7 @@ class M_checkproductos extends MY_Model{
 		, ck.totalPrecio
 		, ck.totalPrecioBanner
 		, ck.idTipoReporte
-		FROM ImpactTrade_bd.resumen.checkProducto ck
+		FROM {$this->sessBDCuenta}.resumen.checkProducto ck
 		WHERE ck.fecha BETWEEN @fecIni AND @fecFin
 		{$filtros}
 		ORDER BY categoria,marca
@@ -706,7 +706,7 @@ class M_checkproductos extends MY_Model{
 		,UPPER(ck.producto) producto
 		,ck.totalPresencia
 		FROM
-		resumen.checkProducto ck
+		{$this->sessBDCuenta}.resumen.checkProducto ck
 		WHERE  
 		ck.fecha BETWEEN @fecIni AND @fecFin
 		{$filtros}
@@ -729,7 +729,7 @@ class M_checkproductos extends MY_Model{
 		,UPPER(ck.producto) producto
 		,ck.totalPresencia
 		FROM
-		resumen.checkProducto ck
+		{$this->sessBDCuenta}.resumen.checkProducto ck
 		WHERE  
 		ck.fecha BETWEEN @fecIni AND @fecFin
 		{$filtros}
@@ -753,7 +753,7 @@ class M_checkproductos extends MY_Model{
 		,UPPER(ck.producto) producto
 		,ck.totalQuiebres
 		FROM
-		resumen.checkProducto ck
+		{$this->sessBDCuenta}.resumen.checkProducto ck
 		WHERE  
 		ck.fecha BETWEEN @fecIni AND @fecFin
 		{$filtros}
@@ -777,7 +777,7 @@ class M_checkproductos extends MY_Model{
 		,UPPER(ck.producto) producto
 		,ck.totalQuiebres
 		FROM
-		resumen.checkProducto ck
+		{$this->sessBDCuenta}.resumen.checkProducto ck
 		WHERE  
 		ck.fecha BETWEEN @fecIni AND @fecFin
 		{$filtros}

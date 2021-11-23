@@ -5,7 +5,7 @@
 			<?= $title ?>
 		</h3>
 		<span>
-			<?=$this->sessBDCuenta?>
+			<?=$this->carpetaArchivos?>
 		</span>
 	</div>
 	<div class="col-lg-10 d-flex">

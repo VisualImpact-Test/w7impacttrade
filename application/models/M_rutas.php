@@ -126,7 +126,7 @@ class M_rutas extends MY_Model{
 				, ISNULL(v.lonFin,0) long_fin
 				, ISNULL(c.latitud,0) latitud
 				, ISNULL(c.longitud,0) longitud
-				, ROW_NUMBER() OVER (PARTITION BY r.idUsuario ORDER BY r.idUsuario) row
+				-- , ROW_NUMBER() OVER (PARTITION BY r.idUsuario ORDER BY r.idUsuario) row
 				, ISNULL(vi.idIncidencia,0) idTipoIncidencia
 				, CASE WHEN (v.horaIni IS NOT NULL AND v.horaFin IS NOT NULL AND vi.nombreIncidencia IS NULL ) OR (v.estadoIncidencia=0) THEN 1 ELSE 0 END as PDV_EFECTIVO
 				, CASE WHEN (v.horaIni IS NULL AND v.horaFin IS NULL AND vi.nombreIncidencia IS NOT NULL) OR (v.estadoIncidencia=1) THEN 1 ELSE 0 END as PDV_NO_VISITADO
@@ -163,7 +163,7 @@ class M_rutas extends MY_Model{
 				{$segmentacion['columnas_bd']}
 
 			FROM {$this->sessBDCuenta}.trade.data_ruta r
-			JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta AND r.demo = 0
+			JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta 
 			LEFT JOIN General.dbo.ubigeo ub ON v.cod_ubigeo = ub.cod_ubigeo
 			LEFT JOIN {$this->sessBDCuenta}.trade.data_asistencia a ON a.idUsuario = r.idUsuario AND r.fecha = a.fecha AND a.idTipoAsistencia = 1
 			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaIncidencia vi ON vi.idVisita = v.idVisita

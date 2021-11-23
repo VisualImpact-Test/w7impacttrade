@@ -128,7 +128,7 @@ class Icompetitiva extends MY_Controller
 
 		$result['result'] = 1;
 		if (count($data) < 1) {
-			$result['data']['html'] = getMensajeGestion('noRegistro');
+			$result['data']['html'] = getMensajeGestion('noRegistros');
 		} else {
 			$dataParaVista['data'] = $data;
 			$result['data']['html'] = $this->load->view($this->html['elemento']['tabla'], $dataParaVista, true);
@@ -261,7 +261,7 @@ class Icompetitiva extends MY_Controller
 
 		$result['result'] = 1;
 		if (count($data) < 1) {
-			$result['data']['html'] = getMensajeGestion('noRegistro');
+			$result['data']['html'] = getMensajeGestion('noRegistros');
 		} else {
 			$dataParaVista['data'] = $data;
 			$result['data']['html'] = $this->load->view($this->html['lista']['tabla'], $dataParaVista, true);
@@ -336,7 +336,7 @@ class Icompetitiva extends MY_Controller
 
 		$result['result'] = 1;
 		if (count($data) < 1) {
-			$result['data']['html'] = getMensajeGestion('noRegistro');
+			$result['data']['html'] = getMensajeGestion('noRegistros');
 		} else {
 			$dataParaVista['data'] = $data;
 			$html = "";

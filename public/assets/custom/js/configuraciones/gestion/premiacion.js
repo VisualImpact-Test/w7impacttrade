@@ -48,7 +48,7 @@ var TipoPremiacion = {
 
     cambiarSeccionActivo: function () {
         switch (TipoPremiacion.tabSeleccionado) {
-            case 'TipoPremiacion':
+            case 'Premiacion':
                 TipoPremiacion.customDataTable = Gestion.defaultDT;
                 break;
         }

@@ -56,7 +56,7 @@
                                                 ?>
                                                 <button type="button" class="btn-moduloApp-oblig btn btn-sm px-1<?=$obligColor?>"
                                                     title="<?=$obligText?>Obligatorio"
-                                                    data-flagObligatorio="<?=$obligFlag?>"
+                                                    data-flag-obligatorio="<?=$obligFlag?>"
                                                 >
                                                     <i class="fas fa-exclamation-circle fa-lg"></i>
                                                 </button>

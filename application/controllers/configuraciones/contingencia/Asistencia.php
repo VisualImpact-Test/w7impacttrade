@@ -144,7 +144,7 @@ class Asistencia extends MY_Controller{
 					$arrayAuditoria = array(
 						'idUsuario' => $this->idUsuario
 						,'accion' => 'GUARDAR'
-						,'tabla' => "{$this->sessBDCuenta}.trade.data_asistencia"
+						,'tabla' => "ImpactTrade_bd.trade.data_asistencia"
 						,'sql' => $this->db->last_query()
 					);
 					guardarAuditoria($arrayAuditoria);
@@ -210,7 +210,7 @@ class Asistencia extends MY_Controller{
 				$arrayAuditoria = array(
 					'idUsuario' => $this->idUsuario
 					,'accion' => 'GUARDAR'
-					,'tabla' => "{$this->sessBDCuenta}.trade.data_asistencia"
+					,'tabla' => "ImpactTrade_bd.trade.data_asistencia"
 					,'sql' => $this->db->last_query()
 				);
 				guardarAuditoria($arrayAuditoria);

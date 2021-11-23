@@ -1236,8 +1236,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 					$ci->email->cc($email['cc']);
 				}
 
-				$bcc = array( 'jefry.mallma@visualimpact.com.pe');
-				$ci->email->bcc($bcc);
+				// $bcc = array( 'jefry.mallma@visualimpact.com.pe');
+				// $ci->email->bcc($bcc);
 
 				$ci->email->subject($email['asunto']);
 				$ci->email->message($email['contenido']);
