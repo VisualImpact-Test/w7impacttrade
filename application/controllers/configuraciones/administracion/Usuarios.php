@@ -8,6 +8,7 @@ class Usuarios extends MY_Controller
 	{
 		parent::__construct();
 		$this->load->model('configuraciones/administracion/M_Usuarios','m_usuarios');
+		$this->load->model('M_control','m_control');
 
 		$this->titulo = [
 			'cambiarEstado' => 'Activar/Desactivar',
@@ -457,7 +458,13 @@ class Usuarios extends MY_Controller
 			$tiposDeUsuarioRefactorizado[$value['idCuenta']][$value['idTipoUsuario']]['tipoUsuario'] = $value['tipoUsuario'];
 		}
 		$dataParaVista['tiposDeUsuario'] = $tiposDeUsuarioRefactorizado;
-		$dataParaVista['cuentas'] = $this->m_usuarios->getCuentas()->result_array();
+
+		$idTipoUsuario = $this->idTipoUsuario;
+		if(!empty($idTipoUsuario) && $idTipoUsuario == ID_TIPOUSUARIO_TI){
+			$dataParaVista['cuentas'] = $this->m_usuarios->getCuentas()->result_array();
+		}else {
+			$dataParaVista['cuentas'] = $this->m_control->get_cuenta();
+		}
 
 		$aplicaciones = $this->m_usuarios->getAplicaciones()->result_array();
 		$aplicacionesRefactorizado = [];
@@ -601,6 +608,7 @@ class Usuarios extends MY_Controller
 					$grupoMenus[$value['idGrupoMenu']]['grupoMenu'] = $value['grupoMenu'];
 					$menuOpciones[$value['idGrupoMenu']][$value['idMenuOpcion']]['idMenuOpcion'] = $value['idMenuOpcion'];
 					$menuOpciones[$value['idGrupoMenu']][$value['idMenuOpcion']]['menuOpcion'] = $value['nombre'];
+					$menuOpciones[$value['idGrupoMenu']][$value['idMenuOpcion']]['icono'] = !empty($value['icono']) ?  $value['icono'] : '' ;
 				}
 				$dataParaVista['grupoMenus'] = $grupoMenus;
 				$dataParaVista['menuOpciones'] = $menuOpciones;

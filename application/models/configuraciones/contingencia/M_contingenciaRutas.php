@@ -61,6 +61,13 @@ class M_contingenciaRutas extends My_Model{
 		$filtros .= !empty($input['idTipoUsuario']) ? " AND r.idTipoUsuario=".$input['idTipoUsuario'] : "";
 		// $filtros .= " AND v.horaFin is null";
 
+		if(!empty($input['estadoUsuario']) && ($input['estadoUsuario'] == 1 || $input['estadoUsuario'] == 2)){
+			$filtros .= $input['estadoUsuario'] == 1  ? ' AND r.idUsuario IN(SELECT idUsuario FROM list_usuarios_activos)' : ''; 
+			$filtros .= $input['estadoUsuario'] == 2  ? ' AND r.idUsuario NOT IN(SELECT idUsuario FROM list_usuarios_activos)' : ''; 
+		}else{
+			$filtros .= !empty($input['estadoUsuario']) && $input['estadoUsuario'] == 3  ? ' AND 1<>1 ' : ''; 
+		}
+
 		// DATOS DEMO
 		if( $sessIdTipoUsuario != 4 ){
 			if( empty($sessDemo) ) $filtros .=  " AND r.demo = 0";
@@ -70,10 +77,20 @@ class M_contingenciaRutas extends My_Model{
 		$segmentacion = getSegmentacion(['grupoCanal_filtro' => $input['grupoCanal_filtro']]);
 
 		$sql="
-			DECLARE @fecha DATE='".$input['fecha']."';
-			WITH lista_visitas AS (
+			DECLARE 
+				@fecha DATE='".$input['fecha']."',
+				@hoy DATE = GETDATE();
+			WITH list_usuarios_activos as(
+				SELECT DISTINCT
+				u.idUsuario
+				FROM
+				trade.usuario u 
+				JOIN trade.usuario_historico uh ON uh.idUsuario = u.idUsuario
+				WHERE General.dbo.fn_fechaVigente (uh.fecIni,uh.fecFin,@hoy,@hoy) = 1 AND uh.idProyecto = {$input['idProyecto']}
+			), lista_visitas AS (
 				SELECT
 				CONVERT(VARCHAR,r.fecha,103) AS fecha
+				, CASE WHEN r.idUsuario NOT IN(SELECT idUsuario FROM list_usuarios_activos) THEN 1 ELSE 0 END cesado
 				, r.idUsuario
 				, r.idUsuario AS codUsuario
 				, r.nombreUsuario AS usuario
@@ -155,7 +172,8 @@ class M_contingenciaRutas extends My_Model{
 				AND r.estado=1
 				AND v.estado=1
 				{$filtros}
-		)SELECT * FROM lista_visitas
+		)
+		SELECT * FROM lista_visitas
 		WHERE condicion IN(1,4) 
 		AND flagContingencia = 1
 		ORDER BY fecha, idUsuario ASC

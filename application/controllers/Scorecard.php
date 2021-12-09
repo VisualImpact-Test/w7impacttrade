@@ -30,7 +30,7 @@ class Scorecard extends MY_Controller{
 			}
 		}
 
-		$config['data']['permisos'] = empty($permisos) ? '-- Grupo Canal --' : false;
+		$config['data']['permisos'] = empty($permisos) ? ' Grupo Canal ' : false;
 		
 
 		$config['data']['icon'] = 'fa fa-chart-line';
@@ -56,6 +56,7 @@ class Scorecard extends MY_Controller{
 		$input['idProyecto'] = $data->{'proyecto_filtro'};
 		$input['idGrupoCanal'] = $data->{'grupoCanal_filtro'};
 		$input['idCanal'] = $data->{'canal_filtro'};
+		$input['idClienteTipo'] = $data->{'subcanal_filtro'};
 
 		$array = array();
 

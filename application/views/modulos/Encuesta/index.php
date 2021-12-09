@@ -92,7 +92,7 @@
 						</div>
 						<div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip">
 							<span class="tooltiptext">Sub Canal</span>
-							<?= getFiltros(['subCanal' => ['label' => 'Sub Canal', 'name' => 'subcanal_filtro', 'id' => 'subcanal_filtro', 'data' => false, 'select2' => 'ui my_select2Full', 'html' => '']]); ?>
+							<?= getFiltros(['tipoCliente' => ['label' => 'Sub Canal', 'name' => 'subcanal_filtro', 'id' => 'subcanal_filtro', 'data' => false, 'select2' => 'ui my_select2Full', 'html' => '']]); ?>
 						</div>
 						<div class="mb-2 mr-sm-2 position-relative form-group custom_tooltip">
 							<span class="tooltiptext">Tipo Pregunta</span>

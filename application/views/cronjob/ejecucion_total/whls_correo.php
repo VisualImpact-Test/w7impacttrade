@@ -15,7 +15,7 @@
 					<th rowspan="3" style="font-size:9px; border-bottom:1pt solid black;padding:8px;text-align:center;">ID</th>
 					<th rowspan="3" style="font-size:9px; border-bottom:1pt solid black;padding:8px;text-align:center;">FECHA</th>
 					<th rowspan="3" style="font-size:9px; border-bottom:1pt solid black;padding:8px;text-align:center;">CIUDAD</th>
-					<th rowspan="3" style="font-size:9px; border-bottom:1pt solid black;padding:8px;text-align:center;">DISTRIBUIDORA</th>
+					<th rowspan="3" style="font-size:9px; border-bottom:1pt solid black;padding:8px;text-align:center;">PLAZA</th>
 					<th rowspan="3" style="font-size:9px; border-bottom:1pt solid black;padding:8px;text-align:center;">CLIENTE</th>
 					<th rowspan="3" style="font-size:9px; border-bottom:1pt solid black;padding:8px;text-align:center;">DIRECCION</th>
 					<th rowspan="3" style="font-size:9px; border-bottom:1pt solid black;padding:8px;text-align:center;">AUDITOR</th>
@@ -68,8 +68,8 @@
 					<td <?=$style_ini.$style_fin;?>><?=$i++;?></td>
 					<td <?=$style_ini.$style_fin;?>><?=$v_v['idVisita'];?></td>
 					<td <?=$style_ini.$style_fin;?>><?=strtoupper(utf8_decode($v_v['fecha']));?></td>
-					<td <?=$style_ini.$style_fin;?>><?=strtoupper(utf8_decode($v_v['ciudadDistribuidoraSuc']));?></td>
-					<td <?=$style_ini.$style_fin;?>><?=strtoupper(utf8_decode($v_v['distribuidora']));?></td>
+					<td <?=$style_ini.$style_fin;?>><?=strtoupper(utf8_decode($v_v['ciudadPlaza']));?></td>
+					<td <?=$style_ini.$style_fin;?>><?=strtoupper(utf8_decode($v_v['plaza']));?></td>
 					<td <?=$style_ini.$style_fin;?>><?=strtoupper(utf8_decode($v_v['razonSocial']));?></td>
 					<td <?=$style_ini.$style_fin;?>><?=strtoupper(utf8_decode($v_v['direccion']));?></td>
 					<td <?=$style_ini.$style_fin;?>><?=strtoupper(utf8_decode($v_v['usuario']));?></td>

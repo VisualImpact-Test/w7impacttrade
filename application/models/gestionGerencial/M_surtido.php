@@ -16,7 +16,7 @@ class M_surtido extends MY_Model{
 		$filtros .= !empty($input['proyecto_filtro']) ? ' AND r.idProyecto='.$input['proyecto_filtro'] : '';
 		$filtros .= !empty($input['grupoCanal_filtro']) ? ' AND ca.idGrupoCanal='.$input['grupoCanal_filtro'] : '';
 		$filtros .= !empty($input['canal_filtro']) ? ' AND v.idCanal='.$input['canal_filtro'] : '';
-
+		$filtros .= !empty($input['subcanal']) ? ' AND ct.idClienteTipo='.$input['subcanal'] : '';
 		$filtros .= !empty($input['tipoUsuario_filtro']) ? " AND uh.idTipoUsuario=".$input['tipoUsuario_filtro'] : "";
 		$filtros .= !empty($input['usuario_filtro']) ? " AND uh.idUsuario=".$input['usuario_filtro'] : "";
 
@@ -54,16 +54,8 @@ class M_surtido extends MY_Model{
 				, v.direccion
 				, v.idPlaza
 
-				--, pl.nombre AS plaza
-				--, v.idDistribuidoraSucursal
-				--, ds.idDistribuidora
-				--, d.nombre AS distribuidora
-				--, ds.cod_ubigeo
-				--, ubi1.distrito AS ciudadDistribuidoraSuc
-				--, ubi1.cod_ubigeo AS codUbigeoDisitrito
-
 				, gc.nombre grupoCanal
-				, subca.nombre subCanal
+				, ct.nombre subCanal
 				{$segmentacion['columnas_bd']}
 			FROM {$this->sessBDCuenta}.trade.data_ruta r
 			JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
@@ -78,11 +70,6 @@ class M_surtido extends MY_Model{
 			JOIN trade.cliente c ON v.idCliente = c.idCliente
 			JOIN {$cliente_historico} ch ON ch.idCliente = c.idCliente AND General.dbo.fn_fechaVigente(ch.fecIni,ch.fecFin,@fecIni,@fecFin)=1 AND ch.idProyecto = {$input['proyecto_filtro']}
 			LEFT JOIN General.dbo.ubigeo ubi ON ubi.cod_ubigeo=v.cod_ubigeo
-
-			--LEFT JOIN trade.plaza pl ON pl.idPlaza=v.idPlaza
-			--LEFT JOIN trade.distribuidoraSucursal ds ON ds.idDistribuidoraSucursal=v.idDistribuidoraSucursal
-			--LEFT JOIN trade.distribuidora d ON d.idDistribuidora=ds.idDistribuidora
-			--LEFT JOIN General.dbo.ubigeo ubi1 ON ubi1.cod_ubigeo=ds.cod_ubigeo
 
 			LEFT JOIN trade.encargado ec ON ec.idEncargado=r.idEncargado
 			LEFT JOIN trade.usuario us ON us.idUsuario=ec.idUsuario

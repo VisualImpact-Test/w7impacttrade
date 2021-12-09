@@ -87,4 +87,5 @@ defined('RUTA_MOVIL_FOTOS')    OR define('RUTA_MOVIL_FOTOS','http://movil.visual
 defined('GC_TRADICIONALES')    OR define('GC_TRADICIONALES',['Tradicional','TRADICIONAL','HFS']);
 defined('GC_MODERNOS')         OR define('GC_MODERNOS',['Moderno','MODERNO','HSM']);
 defined('GC_MAYORISTAS')         OR define('GC_MAYORISTAS',['WHLS','whls']);
+defined('ID_TIPOUSUARIO_TI')         OR define('ID_TIPOUSUARIO_TI',4);
 // defined('FOTOS_CONTROLADOR')   OR define('FOTOS_CONTROLADOR',base_url()+ 'ControlFoto/');

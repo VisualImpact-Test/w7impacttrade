@@ -14,7 +14,9 @@
             <div class='col-xs-12 col-sm-12 col-md-12 col-lg-12 mb-2'>
                 <div class="form-check form-check-inline">
                     <input id="grupoMenu<?= $grupoMenu['idGrupoMenu'] ?>" class="form-check-input checkPadre" data-checkhijo="grupoMenu<?= $grupoMenu['idGrupoMenu'] ?>" type="checkbox" value="">
-                    <label for="grupoMenu<?= $grupoMenu['idGrupoMenu'] ?>" class="form-check-label"><?= $grupoMenu['grupoMenu'] ?></label>
+                    <b style="text-transform: uppercase;">
+                        <label for="grupoMenu<?= $grupoMenu['idGrupoMenu'] ?>" class="form-check-label"><?= $grupoMenu['grupoMenu'] ?></label>
+                    </b>
                 </div>
             </div>
             <div class='col-xs-12 col-sm-12 col-md-12 col-lg-12 mb-2'>
@@ -25,7 +27,12 @@
                         <div class='col-xs-4 col-sm-4 col-md-4 col-lg-4 mb-2'>
                             <div class="form-check">
                                 <input data-checkhijo="grupoMenu<?= $grupoMenu['idGrupoMenu'] ?>" name="menuOpcion" id="menuOpcion<?= $menuOpcion['idMenuOpcion'] ?>" class="form-check-input checkHijo" type="checkbox" value="<?= $menuOpcion['idMenuOpcion'] ?>" <?= $seleccionado ?>>
-                                <label for="menuOpcion<?= $menuOpcion['idMenuOpcion'] ?>" class="form-check-label"><?= $menuOpcion['menuOpcion'] ?></label>
+                                <label for="menuOpcion<?= $menuOpcion['idMenuOpcion'] ?>" class="form-check-label">
+                                    <?if(!empty( $menuOpcion['icono'])){?>
+                                        <i style="color: gray;" class="<?= $menuOpcion['icono']?>"></i>
+                                    <?}?>
+                                    <?= $menuOpcion['menuOpcion'] ?>
+                                </label>
                             </div>
                         </div>
                     <?php } ?>

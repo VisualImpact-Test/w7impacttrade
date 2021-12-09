@@ -86,7 +86,7 @@
             <select id='cuentaHistorico' name='cuentaHistorico' class='form-control form-control-sm my_select2EditarHistoricosDeUsuario'>
                 <option value=''>-- Seleccionar --</option>
                 <?php foreach ($cuentas as $cuenta) { ?>
-                    <option value='<?= $cuenta['idCuenta'] ?>'><?= $cuenta['nombre'] ?></option>
+                    <option value='<?= $cuenta['id'] ?>'><?= $cuenta['nombre'] ?></option>
                 <?php } ?>
             </select>
         </div>

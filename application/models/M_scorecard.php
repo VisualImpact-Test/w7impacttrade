@@ -17,7 +17,7 @@ class M_scorecard extends MY_Model{
 
 		$filtros .= !empty($input['idGrupoCanal']) ? 'AND gc.idGrupoCanal =' . $input['idGrupoCanal'] : '';
 		$filtros .= !empty($input['idCanal']) ? 'AND ca.idCanal =' . $input['idCanal'] : '';
-
+		$filtros .= !empty($input['idClienteTipo']) ? 'AND sn.idClienteTipo =' . $input['idClienteTipo'] : '';
 		$sql = "
 			DECLARE
 				  @fecIni DATE = GETDATE()
@@ -163,7 +163,12 @@ class M_scorecard extends MY_Model{
 
 		$subfiltros .= !empty($input['idGrupoCanal']) ? 'AND gc.idGrupoCanal =' . $input['idGrupoCanal'] : '';
 		$subfiltros .= !empty($input['idCanal']) ? 'AND ca.idCanal =' . $input['idCanal'] : '';
+		$subfiltros .= !empty($input['idCanal']) ? 'AND ca.idCanal =' . $input['idCanal'] : '';
 		$subfiltros .= !empty($input['idProyecto']) ? 'AND r.idProyecto =' . $input['idProyecto'] : '';
+		$subfiltros .= !empty($input['idCanal']) ? 'AND ca.idCanal =' . $input['idCanal'] : '';
+		
+		$subfiltros .= !empty($input['idClienteTipo']) ? 'AND sn.idClienteTipo =' . $input['idClienteTipo'] : '';
+
 		//$subfiltros .= !empty($input['idCuenta']) ? 'AND cu.idCuenta =' . $input['idCuenta'] : '';
 		$segmentacion = getSegmentacion(['grupoCanal_filtro' => $input['idGrupoCanal']]);
 		$sql = "
@@ -222,7 +227,7 @@ class M_scorecard extends MY_Model{
 					JOIN {$this->sessBDCuenta}.trade.data_visita v
 						ON v.idRuta = r.idRuta
 						AND r.fecha BETWEEN @fecIni AND @fecFin
-						AND r.idTIpoUsuario IN(1)
+						AND r.idTIpoUsuario IN(1,18)
 					JOIN ".getClienteHistoricoCuenta()." ch ON ch.idCliente = v.idCliente 
 						AND General.dbo.fn_fechaVigente(ch.fecIni,ch.fecFin,r.fecha,r.fecha)=1 AND ch.idProyecto = r.idProyecto
 					JOIN trade.proyecto py ON py.idProyecto = r.idProyecto
@@ -345,7 +350,7 @@ class M_scorecard extends MY_Model{
 					JOIN {$this->sessBDCuenta}.trade.data_visita v
 						ON v.idRuta = r.idRuta
 						AND r.fecha BETWEEN @fecIni AND @fecFin
-						AND r.idTIpoUsuario IN(1)
+						AND r.idTIpoUsuario IN(1,18)
 					JOIN trade.cliente c ON c.idCliente = v.idCliente
 					JOIN ".getClienteHistoricoCuenta()." ch ON ch.idCliente = v.idCliente 
 						AND General.dbo.fn_fechaVigente(ch.fecIni,ch.fecFin,r.fecha,r.fecha)=1 AND ch.idProyecto = {$sessIdProyecto} 
@@ -491,7 +496,7 @@ class M_scorecard extends MY_Model{
 		,ut.idTipoUsuario
 		,ut.nombre tipoUsuario
 		FROM trade.usuario u 
-		JOIN trade.usuario_historico uh ON uh.idUsuario = u.idUsuario AND uh.idTipoUsuario IN(2,6,10) AND General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,@fecIni,@fecFin)=1
+		JOIN trade.usuario_historico uh ON uh.idUsuario = u.idUsuario AND uh.idTipoUsuario IN(2,11,17) AND General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,@fecIni,@fecFin)=1
 		JOIN trade.usuario_tipo ut ON ut.idTipoUsuario = uh.idTipoUsuario
 		JOIN trade.usuario_historicoDistribuidoraSucursal uhds ON uhds.idUsuarioHist = uh.idUsuarioHist AND uhds.estado = 1
 		";
@@ -512,7 +517,7 @@ class M_scorecard extends MY_Model{
 		,ut.idTipoUsuario
 		,ut.nombre tipoUsuario
 		FROM trade.usuario u 
-		JOIN trade.usuario_historico uh ON uh.idUsuario = u.idUsuario AND uh.idTipoUsuario IN(2,6,10) AND General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,@fecIni,@fecFin)=1
+		JOIN trade.usuario_historico uh ON uh.idUsuario = u.idUsuario AND uh.idTipoUsuario IN(2,11,17) AND General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,@fecIni,@fecFin)=1
 		JOIN trade.usuario_tipo ut ON ut.idTipoUsuario = uh.idTipoUsuario
 		JOIN trade.usuario_historicoPlaza uhp ON uhp.idUsuarioHist = uh.idUsuarioHist
 		";
@@ -533,7 +538,7 @@ class M_scorecard extends MY_Model{
 		,ut.idTipoUsuario
 		,ut.nombre tipoUsuario
 		FROM trade.usuario u 
-		JOIN trade.usuario_historico uh ON uh.idUsuario = u.idUsuario AND uh.idTipoUsuario IN(2,6,10) AND General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,@fecIni,@fecFin)=1
+		JOIN trade.usuario_historico uh ON uh.idUsuario = u.idUsuario AND uh.idTipoUsuario IN(2,11,17) AND General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,@fecIni,@fecFin)=1
 		JOIN trade.usuario_tipo ut ON ut.idTipoUsuario = uh.idTipoUsuario
 		JOIN trade.usuario_historicoBanner uhb ON uhb.idUsuarioHist = uh.idUsuarioHist
 		";

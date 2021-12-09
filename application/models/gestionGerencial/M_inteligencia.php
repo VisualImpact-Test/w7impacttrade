@@ -16,7 +16,7 @@ class M_inteligencia extends MY_Model{
 			$filtros .= !empty($input['proyecto_filtro']) ? ' AND r.idProyecto='.$input['proyecto_filtro'] : '';
 			$filtros .= !empty($input['grupoCanal_filtro']) ? ' AND ca.idGrupoCanal='.$input['grupoCanal_filtro'] : '';
 			$filtros .= !empty($input['canal_filtro']) ? ' AND v.idCanal='.$input['canal_filtro'] : '';
-
+			$filtros .= !empty($input['subcanal']) ? ' AND ct.idClienteTipo='.$input['subcanal'] : '';
 			$filtros .= !empty($input['tipoUsuario_filtro']) ? " AND uh.idTipoUsuario=".$input['tipoUsuario_filtro'] : "";
 			$filtros .= !empty($input['usuario_filtro']) ? " AND uh.idUsuario=".$input['usuario_filtro'] : "";
 
@@ -42,7 +42,7 @@ class M_inteligencia extends MY_Model{
 				, v.idVisita
 				, gc.nombre AS grupoCanal
 				, v.canal
-				, sc.nombre AS subCanal
+				, ct.nombre AS subCanal
 				, v.idCliente
 				, v.codCliente
 				, c.codDist
@@ -56,14 +56,6 @@ class M_inteligencia extends MY_Model{
 				, v.direccion
 				, v.idPlaza
 
-				--, pl.nombre AS plaza
-				--, v.idDistribuidoraSucursal
-				--, ds.idDistribuidora
-				--, d.nombre AS distribuidora
-				--, ds.cod_ubigeo
-				--, ubi1.distrito AS ciudadDistribuidoraSuc
-				--, ubi1.cod_ubigeo AS codUbigeoDisitrito
-
 				{$segmentacion['columnas_bd']}
 			FROM {$this->sessBDCuenta}.trade.data_ruta r
 			JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
@@ -72,7 +64,6 @@ class M_inteligencia extends MY_Model{
 			JOIN trade.usuario_historico uh On uh.idUsuario=r.idUsuario
 			 and General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,@fecIni,@fecFin)=1
 			 and uh.idProyecto=r.idProyecto
-
 
 			LEFT JOIN trade.cliente c ON v.idCliente = c.idCliente
 			LEFT JOIN trade.segmentacionNegocio sn

@@ -409,6 +409,7 @@ class Carga_masiva_general extends CI_Controller{
 		$carpetas = $this->model->obtener_carpetas_visitas();
 		///
 		foreach($carpetas as $row){
+			$this->cambiarBaseDatos($row['idCuenta']);
 			$ruta = 'public/csv/visitas/'.$row['carpeta'];
 			$rutaFiles = 'public/csv/visitas/'.$row['carpeta'].'/archivos/';
 			$directorio_INS = opendir($rutaFiles);
@@ -522,6 +523,7 @@ class Carga_masiva_general extends CI_Controller{
 		$carpetas = $this->model->obtener_carpetas_exclusiones();
 		///
 		foreach($carpetas as $row){
+			$this->cambiarBaseDatos($row['idCuenta']);
 			$ruta = 'public/csv/exclusiones/'.$row['carpeta'];
 			$rutaFiles = 'public/csv/exclusiones/'.$row['carpeta'].'/archivos/';
 			$directorio_INS = opendir($rutaFiles);
@@ -605,6 +607,22 @@ class Carga_masiva_general extends CI_Controller{
 		///
 		
 		
+	}
+
+
+	public function cambiarBaseDatos($idCuenta){
+		if($idCuenta==2){
+			$this->sessBDCuenta="ImpactTrade_aje";
+			$this->model->sessBDCuenta="ImpactTrade_aje";
+		}
+		else if($idCuenta==3){
+			$this->sessBDCuenta="ImpactTrade_pg";
+			$this->model->sessBDCuenta="ImpactTrade_pg";
+		}
+		else  {
+			$this->sessBDCuenta="ImpactTrade_small";
+			$this->model->sessBDCuenta="ImpactTrade_small";
+		}
 	}
 
 }

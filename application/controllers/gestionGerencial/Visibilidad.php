@@ -48,7 +48,7 @@ class Visibilidad extends MY_Controller{
 		$input['proyecto_filtro'] = $data->{'proyecto_filtro'};
 		$input['grupoCanal_filtro'] = $data->{'grupoCanal_filtro'};
 		$input['canal_filtro'] = $data->{'canal_filtro'};
-
+		$input['subcanal'] = $data->{'subcanal_filtro'};
 		$input['subcanal_filtro'] = empty($data->{'subcanal_filtro'}) ? '' : $data->{'subcanal_filtro'};
 
 
@@ -152,7 +152,7 @@ class Visibilidad extends MY_Controller{
 		$params['proyecto_filtro'] = $post->{'proyecto_filtro'};
 		$params['grupoCanal_filtro'] = $post->{'grupoCanal_filtro'};
 		$params['canal_filtro'] = $post->{'canal_filtro'};
-
+		$params['subcanal'] = $post->{'subcanal_filtro'};
 
 		$params['subcanal_filtro'] = empty($data->{'subcanal_filtro'}) ? '' : $data->{'subcanal_filtro'};
 

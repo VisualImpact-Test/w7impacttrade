@@ -81,6 +81,9 @@ $select2 = "my_select2AgregarLista";
                                 <div class="wr-20">ENCUESTAS</div>
                             </th>
                             <th class="text-center align-middle">
+                                <div class="wr-10">OBLIGATORIO</div>
+                            </th>
+                            <th class="text-center align-middle">
                                 <button class="btn btn-AgregarElemento btn-secondary" title="Agregar Elemento"><strong>AGREGAR FILA</strong> <i class="fa fa-plus"></i></button>
                             </th>
                         </tr>
@@ -95,6 +98,12 @@ $select2 = "my_select2AgregarLista";
                                     <?php foreach ($encuestas as $idEncuesta => $encuesta) { ?>
                                         <option value='<?= $encuesta['idEncuesta'] ?>'><?= $encuesta['nombre'] ?></option>
                                     <?php } ?>
+                                </select>
+                            </td>
+                            <td class="text-center" data-name='sl_obligatorio'>
+                                <select class='form-control form-control-sm'>
+                                    <option value='0'>NO</option>
+                                    <option value='1'>SÍ</option>
                                 </select>
                             </td>
                             <td class="text-left">

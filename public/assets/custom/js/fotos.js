@@ -85,7 +85,7 @@ var Fotos = {
 		});
 
 		$(document).ready(function () {
-			$( ".btn-buscar" ).click();
+			// $( ".btn-buscar" ).click();
 			$(".flt_grupoCanal").change();
 		});
 	},

@@ -19,7 +19,7 @@ class M_rutas extends MY_Model{
             if( !empty($sessIdProyecto) ) $filtros .= " AND r.idProyecto = ".$sessIdProyecto;
             if( !empty($input['grupo_filtro']) ) $filtros .= " AND gc.idGrupoCanal = ".$input['grupo_filtro'];
             if( !empty($input['canal_filtro']) ) $filtros .= " AND v.idCanal = ".$input['canal_filtro'];
-			$filtros .= !empty($input['subcanal']) ? ' AND subc.idSubCanal='.$input['subcanal'] : '';
+			$filtros .= !empty($input['subcanal']) ? ' AND ctp.idClienteTipo='.$input['subcanal'] : '';
 			$filtros .= !empty($input['tipoUsuario_filtro']) ? ' AND r.idTipoUsuario='.$input['tipoUsuario_filtro'] : '';
 			$filtros .= !empty($input['usuario_filtro']) ? ' AND r.idUsuario IN ('.$input['usuario_filtro'].')': '';
 			$filtros .= !empty($input['distribuidora_filtro']) ? ' AND d.idDistribuidora='.$input['distribuidora_filtro'] : '';
@@ -40,6 +40,13 @@ class M_rutas extends MY_Model{
 			$filtros .= !empty($input['foto']) ? ' AND (v.numFotos >= 1) '  : '';
 			$filtros .= !empty($input['obs']) ? ' AND (v.observacion = 1) '  : '';
 
+			if(!empty($input['estadoUsuario']) && ($input['estadoUsuario'] == 1 || $input['estadoUsuario'] == 2)){
+				$filtros .= $input['estadoUsuario'] == 1  ? ' AND r.idUsuario IN(SELECT idUsuario FROM list_usuarios_activos)' : ''; 
+				$filtros .= $input['estadoUsuario'] == 2  ? ' AND r.idUsuario NOT IN(SELECT idUsuario FROM list_usuarios_activos)' : ''; 
+			}else{
+				$filtros .= !empty($input['estadoUsuario']) && $input['estadoUsuario'] == 3  ? ' AND 1<>1 ' : ''; 
+			}
+
 			// DATOS DEMO
 			if( $sessIdTipoUsuario != 4 ){
 				if( empty($sessDemo) ) $filtros .=  " AND r.demo = 0";
@@ -51,8 +58,9 @@ class M_rutas extends MY_Model{
 
 		$sql = "
 			DECLARE
-				@fecIni date='{$input['fecIni']}',
-				@fecFin date='{$input['fecFin']}';
+				@fecIni DATE='{$input['fecIni']}',
+				@fecFin DATE='{$input['fecFin']}',
+				@hoy DATE = GETDATE();
 
 			WITH list_fotos_no_modulacion as (
 				SELECT DISTINCT v.idVisita, 
@@ -64,9 +72,17 @@ class M_rutas extends MY_Model{
 				JOIN trade.aplicacion_modulo_grupo mg ON mg.idModuloGrupo=m.idModuloGrupo
 				WHERE  mg.idModuloGrupo<>9 
 				and r.fecha between @fecIni and isnull(@fecFin,r.fecha)
+			), list_usuarios_activos as(
+				SELECT DISTINCT
+				u.idUsuario
+				FROM
+				trade.usuario u 
+				JOIN trade.usuario_historico uh ON uh.idUsuario = u.idUsuario
+				WHERE General.dbo.fn_fechaVigente (uh.fecIni,uh.fecFin,@hoy,@hoy) = 1 AND uh.idProyecto = {$sessIdProyecto}
 			)
 			SELECT DISTINCT
 				CONVERT(VARCHAR(10),r.fecha,103) fecha
+				, CASE WHEN r.idUsuario NOT IN(SELECT idUsuario FROM list_usuarios_activos) THEN 1 ELSE 0 END cesado
 				, r.idUsuario cod_usuario
 				, em.idEmpleado cod_empleado
 				, r.nombreUsuario
@@ -159,6 +175,8 @@ class M_rutas extends MY_Model{
 				, v.tarea
 				, v.evidenciaFotografica
 				, lfn.contFotos fotosOtrosModulos
+				, ctp.idClienteTipo
+				, ctp.nombre subCanal
 
 				{$segmentacion['columnas_bd']}
 
@@ -182,6 +200,8 @@ class M_rutas extends MY_Model{
 				)
 			) AND ch.idProyecto = {$sessIdProyecto}
 			JOIN trade.canal ca ON ca.idCanal = v.idCanal
+			LEFT JOIN trade.segmentacionNegocio sn ON sn.idSegNegocio = ch.idSegNegocio
+			LEFT JOIN trade.cliente_tipo ctp ON sn.idClienteTipo = ctp.idClienteTipo
 			LEFT JOIN trade.grupoCanal gc ON ca.idGrupoCanal = gc.idGrupoCanal
 
 			LEFT JOIN trade.encargado e ON e.idEncargado = r.idEncargado

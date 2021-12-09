@@ -114,13 +114,18 @@ class Basemadre extends MY_Controller{
 		$input['idProyecto']= !empty($this->session->userdata('idProyecto'))? $this->session->userdata('idProyecto') :"";
 
 		// 
-	
+		$rs_basemadre_distribuidoras = $this->model->obtener_maestros_basemadre_distribuidoras($input);
+
 		$rs_basemadre = $this->model->obtener_maestros_basemadre($input);
 
 		$html='';
 		if ( !empty($rs_basemadre)) {
 			$array=array();
 			$array['htmlClienteActivar'] = $this->htmlClienteActivar;
+
+			foreach ($rs_basemadre_distribuidoras as $kb => $row) {
+				$array['listaDistribuidoras'][$row['idClienteHist']][] = $row['distribuidorasSucursal'];
+			}
 
 			foreach ($rs_basemadre as $kb => $row) {
 				$array['listaBasemadre'][$row['idClienteHist']] = $row;

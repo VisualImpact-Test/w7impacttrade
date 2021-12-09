@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 class M_carga_masiva_general extends CI_Model{
-	
+	public $sessBDCuenta="";
 	public function obtener_tipo_carga($tipo){
 		$sql = "SELECT * FROM trade.TipoCargaMasiva WHERE idTipoCarga=$tipo ";
 		return $this->db->query($sql);
@@ -171,7 +171,32 @@ class M_carga_masiva_general extends CI_Model{
 	
 	public function obtener_carpetas_visitas(){
 
-		$sql ="SELECT idCarga,idTipoUsuario,carpeta FROM {$this->sessBDCuenta}.trade.cargaProgramacionRutas WHERE estado=1";
+		$sql ="
+		
+			SELECT 
+				idCarga,idTipoUsuario,carpeta,idCuenta
+			FROM
+				Impacttrade_aje.trade.cargaProgramacionRutas 
+			WHERE estado=1
+
+			UNION
+
+			SELECT 
+				idCarga,idTipoUsuario,carpeta,idCuenta
+			FROM
+				Impacttrade_pg.trade.cargaProgramacionRutas 
+			WHERE estado=1
+
+			UNION
+
+			SELECT 
+				idCarga,idTipoUsuario,carpeta,idCuenta
+			FROM
+				Impacttrade_small.trade.cargaProgramacionRutas 
+			WHERE estado=1
+		
+		
+		";
 
 		return $this->db->query($sql)->result_array();
 	}
@@ -288,7 +313,34 @@ class M_carga_masiva_general extends CI_Model{
 	
 	public function obtener_carpetas_exclusiones(){
 
-		$sql ="SELECT idCarga,idTipoUsuario,carpeta FROM {$this->sessBDCuenta}.trade.cargaExclusionesRutas WHERE estado=1";
+		$sql ="
+				SELECT 
+					idCarga,idTipoUsuario,carpeta,idCuenta
+				FROM 
+					Impacttrade_aje.trade.cargaExclusionesRutas
+				WHERE 
+					estado=1
+				
+				UNION
+
+				SELECT 
+					idCarga,idTipoUsuario,carpeta,idCuenta
+				FROM 
+					Impacttrade_pg.trade.cargaExclusionesRutas
+				WHERE 
+					estado=1
+
+				UNION
+
+					SELECT 
+					idCarga,idTipoUsuario,carpeta,idCuenta
+				FROM 
+					Impacttrade_small.trade.cargaExclusionesRutas
+				WHERE 
+					estado=1
+					
+					
+				";
 
 		return $this->db->query($sql)->result_array();
 	}

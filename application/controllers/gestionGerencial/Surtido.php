@@ -48,7 +48,7 @@ class Surtido extends MY_Controller{
 		$input['proyecto_filtro'] = $data->{'proyecto_filtro'};
 		$input['grupoCanal_filtro'] = $data->{'grupoCanal_filtro'};
 		$input['canal_filtro'] = $data->{'canal_filtro'};
-
+		$input['subcanal'] = $data->{'subcanal_filtro'};
 		$input['tipoUsuario_filtro'] = empty($data->{'tipoUsuario_filtro'}) ? '' : $data->{'tipoUsuario_filtro'};
 		$input['usuario_filtro'] = empty($data->{'usuario_filtro'}) ? '' : $data->{'usuario_filtro'};
 

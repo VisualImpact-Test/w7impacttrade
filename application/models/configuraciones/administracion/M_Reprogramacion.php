@@ -46,7 +46,23 @@ class M_Reprogramacion extends MY_Model
 			}
 		}
 
+		if(!empty($post['estadoUsuario']) && ($post['estadoUsuario'] == 1 || $post['estadoUsuario'] == 2)){
+			$filtros .= $post['estadoUsuario'] == 1  ? ' AND dr.idUsuario IN(SELECT idUsuario FROM list_usuarios_activos)' : ''; 
+			$filtros .= $post['estadoUsuario'] == 2  ? ' AND dr.idUsuario NOT IN(SELECT idUsuario FROM list_usuarios_activos)' : ''; 
+		}else{
+			$filtros .= !empty($post['estadoUsuario']) && $post['estadoUsuario'] == 3  ? ' AND 1<>1 ' : ''; 
+		}
+
 		$sql = "
+			DECLARE @fecha DATE=GETDATE();
+			WITH list_usuarios_activos as(
+				SELECT DISTINCT
+				u.idUsuario
+				FROM
+				trade.usuario u 
+				JOIN trade.usuario_historico uh ON uh.idUsuario = u.idUsuario
+				WHERE General.dbo.fn_fechaVigente (uh.fecIni,uh.fecFin,@fecha,@fecha) = 1 AND uh.idProyecto = {$post['idProyectoFiltro']}
+			)
 			SELECT c.idCliente,
 				dvr.idVisitaReprogramacion,
 				dvr.idVisita,

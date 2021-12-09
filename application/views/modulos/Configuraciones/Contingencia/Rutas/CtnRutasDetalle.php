@@ -5,6 +5,7 @@
 					<th class="text-center align-middle noVis" rowspan="3">#</th>
 					<th class="text-center align-middle" rowspan="3">FECHA</th>
 					<th class="text-center align-middle" rowspan="3">COD<br>USUARIO</th>
+					<th class="text-center align-middle hideCol"  rowspan="3" >ESTADO USUARIO</th>
 					<th class="text-center align-middle" rowspan="3">USUARIO</th>
 					<th class="text-center align-middle " rowspan="3">GRUPO CANAL</th>
 					<th class="text-center align-middle" rowspan="3">CANAL</th>

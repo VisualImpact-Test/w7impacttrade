@@ -930,10 +930,13 @@ class M_precios extends CI_Model{
 		}else if(empty($post["ch-precio-activo"]) && empty($post["ch-precio-inactivo"])){
 			$filtros .= " AND vpd.precio IS NOT NULL AND vpd.precio IS NULL";
 		}
+		$filtros .= !empty($post['grupoCanal_filtro']) ? ' AND gc.idGrupoCanal='.$post['grupoCanal_filtro'] : '';
+		$filtros .= !empty($post['canal_filtro']) ? ' AND ca.idCanal='.$post['canal_filtro'] : '';
+		$filtros .= !empty($post['subcanal_filtro']) ? ' AND ct.idClienteTipo='.$post['subcanal_filtro'] : '';
 
 		$filtros .= !empty($post['tipoUsuario_filtro']) ? " AND uh.idTipoUsuario=".$post['tipoUsuario_filtro'] : "";
 		$filtros .= !empty($post['usuario_filtro']) ? " AND uh.idUsuario=".$post['usuario_filtro'] : "";
-
+		
 		$filtros .= !empty($post['distribuidoraSucursal_filtro']) ? ' AND ds.idDistribuidoraSucursal='.$post['distribuidoraSucursal_filtro'] : '';
 		$filtros .= !empty($post['distribuidora_filtro']) ? ' AND d.idDistribuidora='.$post['distribuidora_filtro'] : '';
 		$filtros .= !empty($post['zona_filtro']) ? ' AND z.idZona='.$post['zona_filtro'] : '';
@@ -957,7 +960,7 @@ class M_precios extends CI_Model{
 				ubi.distrito,
 				gc.nombre AS grupoCanal,
 				ca.nombre AS canal,
-				sc.nombre subCanal,
+				ct.nombre subCanal,
 				r.idUsuario,
 				r.nombreUsuario,
 				ut.nombre AS tipoUsuario,
@@ -1026,6 +1029,7 @@ class M_precios extends CI_Model{
 			$filtros .= !empty($params['proyecto_filtro']) ? ' AND r.idProyecto='.$params['proyecto_filtro'] : '';
 			$filtros .= !empty($params['grupoCanal_filtro']) ? ' AND ca.idGrupoCanal='.$params['grupoCanal_filtro'] : '';
 			$filtros .= !empty($params['canal_filtro']) ? ' AND ca.idCanal='.$params['canal_filtro'] : '';
+			
 			// $filtros .= ' AND dvd.quiebre='.$params['quiebre'];
 
 			$filtros_ch .= !empty($params['distribuidora_filtro']) ? ' AND d.idDistribuidora='.$params['distribuidora_filtro'] : '';

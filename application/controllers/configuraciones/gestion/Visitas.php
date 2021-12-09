@@ -100,6 +100,13 @@ class Visitas extends MY_Controller{
 		$input['cadena'] = !empty($data['cadena_filtro']) ? $data['cadena_filtro'] : '';
 		$input['banner'] = !empty($data['banner_filtro']) ? $data['banner_filtro'] : '';
 
+		if(empty($data['chk-usuario-inactivo']) || empty($data['chk-usuario-activo']) ){
+			$input['estadoUsuario'] = empty($data['chk-usuario-activo']) ? 2 : 1;
+		}
+		if(empty($data['chk-usuario-inactivo']) && empty($data['chk-usuario-activo']) ){
+			$input['estadoUsuario'] = 3;
+		}
+
 		/*======*/
 		switch ($tipoGestor) {
 			case 1:
@@ -1619,12 +1626,14 @@ class Visitas extends MY_Controller{
 		}
 		$total = $sum;
 
+		$idCuenta = $_SESSION['idCuenta'];
 		$carga = array();
 		$carga = array(
 			'idTipoUsuario' => $idTipoUsuario,
 			'carpeta' => $nombre_carpeta,
 			'idUsuarioRegistro' => $this->session->idUsuario,
-			'totalRegistros' => $total
+			'totalRegistros' => $total,
+			'idCuenta' => $idCuenta
 		);
 
 		$this->db->insert("{$this->sessBDCuenta}.trade.cargaProgramacionRutas",$carga);
@@ -1756,12 +1765,15 @@ class Visitas extends MY_Controller{
 		}
 		$total = $sum;
 
+		$idCuenta = $_SESSION['idCuenta'];
+
 		$carga = array();
 		$carga = array(
 			'idTipoUsuario' => $idTipoUsuario,
 			'carpeta' => $nombre_carpeta,
 			'idUsuarioRegistro' => $this->session->idUsuario,
-			'totalRegistros' => $total
+			'totalRegistros' => $total,
+			'idCuenta' => $idCuenta
 		);
 
 		$this->db->insert("{$this->sessBDCuenta}.trade.cargaExclusionesRutas",$carga);

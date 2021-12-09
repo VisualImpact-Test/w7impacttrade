@@ -121,7 +121,7 @@ class M_productos extends My_Model
 		if (!empty($post['id'])) {
 			$filtros .= " AND ".$this->tablas['elemento']['id']." = " . $post['id'];
 		} else {
-			$filtros .= " AND p.estado = 1";
+			$filtros .= "";
 		}
 
 		if(!empty($post['cuenta']))$filtros .= " AND c.idCuenta=".$post['cuenta'];
@@ -141,6 +141,7 @@ class M_productos extends My_Model
                 JOIN trade.cuenta c ON c.idCuenta = p.idCuenta
                 LEFT JOIN trade.producto_envase e ON e.idEnvase = p.idEnvase
               	{$filtros}
+				ORDER BY p.idProducto DESC
 			";
 		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => $this->tablas['elemento']['tabla'] ];
 		return $this->db->query($sql);
@@ -747,7 +748,9 @@ class M_productos extends My_Model
 		$sql = "
 				SELECT gc.*
 				FROM trade.grupoCanal gc
-				JOIN trade.proyectoGrupoCanal pgc ON pgc.idGrupoCanal = gc.idGrupoCanal AND pgc.idProyecto = {$idProyecto}
+				JOIN trade.proyectoGrupoCanal pgc ON pgc.idGrupoCanal = gc.idGrupoCanal 
+					AND pgc.idProyecto = {$idProyecto}
+					AND pgc.estado = 1
 				{$filtros}
 			";
 
@@ -1162,7 +1165,7 @@ class M_productos extends My_Model
                 p.*
                 FROM
                 ".$this->tablas['categoria']['tabla']." p
-				JOIN  {$this->sessBDCuenta}.trade.list_categoria_marca cm ON cm.idCategoria = p.idCategoria AND cm.idProyecto = {$idProyecto}
+				LEFT JOIN  {$this->sessBDCuenta}.trade.list_categoria_marca cm ON cm.idCategoria = p.idCategoria AND cm.idProyecto = {$idProyecto}
                 {$filtros}
 			";
 

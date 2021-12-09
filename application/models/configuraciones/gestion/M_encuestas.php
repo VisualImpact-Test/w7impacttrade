@@ -168,7 +168,7 @@ class M_encuestas extends My_Model
 				$input[] = [
 					'idListEncuesta' => $idLista,
 					'idEncuesta' =>$value['sl_encuesta'],
-
+					'obligatorio' =>$value['sl_obligatorio'],
 				];
 			}
 		}
@@ -213,7 +213,7 @@ class M_encuestas extends My_Model
 					$input[] = [
 						$this->tablas['lista']['id'] => $idLista,
 						$this->tablas['encuesta']['id'] =>$value['elemento_lista'],
-						
+						"obligatorio" => $value['obligatorio']
 					];
 				}
 			}
@@ -508,7 +508,8 @@ class M_encuestas extends My_Model
 		$sql = "
 				SELECT 
 				e.*
-				,lstd.idListEncuestaDet 
+				,lstd.idListEncuestaDet
+				,lstd.obligatorio
 				FROM 
 				{$this->sessBDCuenta}.trade.encuesta e
 				JOIN {$this->sessBDCuenta}.trade.list_encuestaDet lstd ON lstd.idEncuesta = e.idEncuesta
@@ -852,26 +853,27 @@ class M_encuestas extends My_Model
 	
 	
 	public function obtenerCanalCuenta($post){
-		$filtros = "WHERE 1 = 1";
-			if (!empty($post['idCuenta'])) $filtros .= " AND ch.idCuenta= " . $post['idCuenta'];
-		
-		$sql ="
-		SELECT DISTINCT
-			gc.idGrupoCanal,
-			gc.nombre as 'grupoCanal',
-			ca.idCanal
-			,ca.nombre
-			,ch.idCuenta
-		FROM 
-			".getClienteHistoricoCuenta()." ch
-			JOIN trade.segmentacionNegocio sn
-				ON sn.idSegNegocio = ch.idSegNegocio
-			JOIN trade.canal ca
-				ON ca.idCanal=sn.idCanal 
-			JOIN trade.grupoCanal gc 
-			    ON gc.idGrupoCanal=ca.idGrupoCanal
-				{$filtros}
-		ORDER BY gc.idGrupoCanal
+		$idProyecto = $this->sessIdProyecto;
+
+		$filtro = "";
+			$filtro .= getPermisos('grupoCanal', $idProyecto);
+
+			if( !empty($idProyecto) ) $filtro .= " AND pgc.idProyecto = ".$idProyecto;
+			if( !empty($input['idGrupoCanal']) ) $filtro .= " AND gca.idGrupoCanal = ".$input['idGrupoCanal'];
+
+		$sql = "
+			SELECT
+				gca.idGrupoCanal,
+				gca.nombre grupoCanal,
+				ca.nombre,
+				ca.idCanal,
+				py.idCuenta
+			FROM trade.grupoCanal gca
+			JOIN trade.proyectoGrupoCanal pgc ON  gca.idGrupoCanal = pgc.idGrupoCanal AND pgc.estado = 1
+			JOIN trade.canal ca	ON ca.idGrupoCanal = pgc.idGrupoCanal 
+			JOIN trade.proyecto py ON py.idProyecto = pgc.idProyecto AND py.estado = 1
+			WHERE gca.estado = 1 {$filtro}
+			ORDER BY gca.nombre
 		";
 
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => getClienteHistoricoCuenta() ];
@@ -976,13 +978,21 @@ class M_encuestas extends My_Model
 
 	public function getTipoUsuario($post = 'nulo')
 	{
-		$sql = "
-			SELECT 
-				tu.idTipoUsuario,
-				tu.nombre
-			FROM  trade.usuario_tipo tu 
-			WHERE tu.estado = 1
-			";
+		$idProyecto = $this->sessIdProyecto;
+		$idCuenta = $this->sessIdCuenta;
+		$filtro = "";
+
+		if( !empty($idCuenta) ){
+			$filtro .= " AND tuc.idCuenta = {$idCuenta}";
+		}
+
+		$sql = "SELECT 
+				tu.idTipoUsuario, 
+				tu.nombre 
+				FROM trade.usuario_tipo tu 
+				JOIN trade.tipoUsuarioCuenta tuc ON tuc.idTipoUsuario = tu.idTipoUsuario
+				WHERE tu.estado = 1{$filtro} 
+				ORDER BY tu.nombre";
 
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.usuario_tipo' ];
 		return $this->db->query($sql);

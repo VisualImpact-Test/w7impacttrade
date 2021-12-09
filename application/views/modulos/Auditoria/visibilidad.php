@@ -201,11 +201,15 @@ if (!empty($obligatorios)) {
 
 					<td class="text-right">
 						<?
-						$porcentajeObli = 0;
-						if (isset($resultados_obligatorios[$row['idVisita']]['porcentajeEo']))
-							$porcentajeObli = $resultados_obligatorios[$row['idVisita']]['porcentajeEo'];
-
-						echo "{$porcentajeObli}%";
+						if($row['estadoIncidencia']==1){
+							echo "-";
+						}else{
+							$porcentajeObli = 0;
+							if (isset($resultados_obligatorios[$row['idVisita']]['porcentajeEo']))
+								$porcentajeObli = $resultados_obligatorios[$row['idVisita']]['porcentajeEo'];
+	
+							echo "{$porcentajeObli}%";
+						}
 						?>
 					</td>
 					<td class="text-right">

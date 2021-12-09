@@ -19,7 +19,9 @@
             <div class='col-xs-12 col-sm-12 col-md-12 col-lg-12 mb-2'>
                 <div class="form-check form-check-inline">
                     <input id="todos" class="form-check-input checkPadre" data-checkhijo="modulosMovil" type="checkbox" value="">
-                    <label for="todos" class="form-check-label">Todos</label>
+                    <b style="text-transform: uppercase;">
+                        <label for="todos" class="form-check-label">Todos</label>
+                    </b>
                 </div>
             </div>
 

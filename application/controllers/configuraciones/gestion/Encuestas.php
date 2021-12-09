@@ -48,11 +48,13 @@ class Encuestas extends MY_Controller
 		$config = array();
 		$config['css']['style'] = [
 			'assets/libs/dataTables-1.10.20/datatables',
+			'assets/libs/bootstraptoggle/bootstrap4-toggle.min',
 			'assets/libs/handsontable@7.4.2/dist/handsontable.full.min',
 			'assets/libs/handsontable@7.4.2/dist/pikaday/pikaday'
 		];
 		$config['js']['script'] = [
 			'assets/libs/datatables/responsive.bootstrap4.min',
+			'assets/libs/bootstraptoggle/bootstrap4-toggle.min',
 			'assets/custom/js/core/datatables-defaults',
 			'assets/libs/handsontable@7.4.2/dist/handsontable.full.min',
 			'assets/libs/handsontable@7.4.2/dist/languages/all',
@@ -868,20 +870,27 @@ class Encuestas extends MY_Controller
 			],
 			'colWidths' => 200,
         ];
-        
+        $flag = [
+			0 => "NO",
+			1 => "SÍ",
+		];
+
 		$HT[1] = [
 			'nombre' => 'Encuesta',
 			'data' => [
                 ['idLista' => null
                 , 'elemento_lista' => null
+                , 'obligatorio' => null
                 ]
 			],
             'headers' => ['Id Lista'
                 , 'Elemento'
+                , 'Obligatorio'
             ],
 			'columns' => [
 				['data' => 'idLista', 'type' => 'numeric', 'placeholder' => 'ID Lista', 'width' => 100],
 				['data' => 'elemento_lista', 'type' => 'myDropdown', 'placeholder' => 'Encuesta', 'source' => $elementos],
+				['data' => 'obligatorio', 'type' => 'myDropdown', 'placeholder' => 'Obligatorio', 'source' => $flag],
                 
 			],
 			'colWidths' => 200,
@@ -976,7 +985,8 @@ class Encuestas extends MY_Controller
 
                 if($row['idLista'] == $value['idLista']){
                     $multiDataRefactorizada[] = [
-                        'elemento_lista' => $row[$this->m_encuestas->tablas['encuesta']['id']]
+                        'elemento_lista' => $row[$this->m_encuestas->tablas['encuesta']['id']],
+                        'obligatorio' => empty($row["obligatorio"]) || $row["obligatorio"] == "NO"? 0 : 1,
                     ];
 
                 }

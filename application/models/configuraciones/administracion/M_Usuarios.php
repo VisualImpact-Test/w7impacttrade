@@ -718,12 +718,14 @@ class M_usuarios extends My_Model
 	public function getMenusYGrupoMenus()
 	{
 		$filtros = '';
-		(!empty($this->flag_ti)) ? $filtros.=" AND mo.flag_ti IS NULL OR mo.flag_ti = 0": "" ;
+		$ti = $this->flag_ti;
+		(empty($ti)) ? $filtros.=" AND mo.flag_ti IS NULL OR mo.flag_ti = 0 ": "" ;
 		$sql = "
 			SELECT mo.idMenuOpcion, 
 				mo.nombre, 
 				mo.idGrupoMenu, 
-				gm.nombre grupoMenu
+				gm.nombre grupoMenu,
+				mo.cssIcono icono
 			FROM trade.menuOpcion mo
 				JOIN trade.grupoMenu gm ON gm.idGrupoMenu = mo.idGrupoMenu
 				JOIN trade.intranet_menu im ON im.idMenuOpcion=mo.idMenuOpcion AND im.idIntranet=1
@@ -1022,7 +1024,9 @@ class M_usuarios extends My_Model
 	public function getCuentas()
 	{
 		$sql = "
-			SELECT *
+			SELECT 
+			idCuenta AS id,
+			nombre
 			FROM trade.cuenta
 			WHERE estado = 1;
 		";

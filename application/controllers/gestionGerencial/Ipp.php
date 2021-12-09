@@ -107,6 +107,7 @@ class Ipp extends MY_Controller{
     		, 'sl-proyecto' => $this->sessIdProyecto
     		, 'sl-grupoCanal' => $data->{'grupoCanal_filtro'}
     		, 'sl-canal' => $data->{'canal_filtro'}
+			, 'subCanal' => $data->{'subcanal_filtro'}
     		, 'sl-tienda' => !empty($data->{'sl-tienda'}) ? $data->{'sl-tienda'} : ''
     		, 'sl-departamento' => $data->{'sl-departamento'}
     		, 'sl-provincia' => $data->{'sl-provincia'}
@@ -196,6 +197,7 @@ class Ipp extends MY_Controller{
     		, 'sl-proyecto' => $this->sessIdProyecto
     		, 'sl-grupoCanal' => $data->{'grupoCanal_filtro'}
     		, 'sl-canal' => $data->{'canal_filtro'}
+			, 'subCanal' => $data->{'subcanal_filtro'}
     		, 'sl-tienda' => !empty($data->{'sl-tienda'}) ? $data->{'sl-tienda'} : ''
     		, 'sl-departamento' => $data->{'sl-departamento'}
     		, 'sl-provincia' => $data->{'sl-provincia'}
@@ -277,6 +279,7 @@ class Ipp extends MY_Controller{
     		, 'sl-proyecto' => $this->sessIdProyecto
     		, 'sl-grupoCanal' => $data->{'grupoCanal_filtro'}
     		, 'sl-canal' => $data->{'canal_filtro'}
+			, 'subCanal' => $data->{'subcanal_filtro'}
     		, 'sl-tienda' => !empty($data->{'sl-tienda'}) ? $data->{'sl-tienda'} : ''
     		, 'sl-departamento' => $data->{'sl-departamento'}
     		, 'sl-provincia' => $data->{'sl-provincia'}
@@ -356,6 +359,7 @@ class Ipp extends MY_Controller{
     		, 'sl-proyecto' => $this->sessIdProyecto
     		, 'sl-grupoCanal' => $data->{'grupoCanal_filtro'}
     		, 'sl-canal' => $data->{'canal_filtro'}
+			, 'subCanal' => $data->{'subcanal_filtro'}
     		, 'sl-tienda' => !empty($data->{'sl-tienda'}) ? $data->{'sl-tienda'} : ''
     		, 'sl-departamento' => $data->{'sl-departamento'}
     		, 'sl-provincia' => $data->{'sl-provincia'}

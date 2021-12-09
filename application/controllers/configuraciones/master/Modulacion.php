@@ -1387,13 +1387,18 @@ class Modulacion extends MY_Controller{
 		$total = $sum;
 
 		$carga = array();
+		$idCuenta=$this->session->userdata('idCuenta') ;
+		
 		$carga = array(
 			'idPermiso' => $idPermiso,
 			'fecIni' => $fecIni,
 			'fecFin' => $fecFin,
 			'carpeta' => $nombre_carpeta,
 			'totalRegistros' => $total,
+			'idCuenta' => $idCuenta
 		);
+
+		
 
 		$this->db->insert("{$this->sessBDCuenta}.trade.cargaModulacion",$carga);
 

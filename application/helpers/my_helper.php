@@ -1236,8 +1236,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 					$ci->email->cc($email['cc']);
 				}
 
-				// $bcc = array( 'jefry.mallma@visualimpact.com.pe');
-				// $ci->email->bcc($bcc);
+				$bcc = array( 'jefry.mallma@visualimpact.com.pe');
+				$ci->email->bcc($bcc);
 
 				$ci->email->subject($email['asunto']);
 				$ci->email->message($email['contenido']);
@@ -1450,11 +1450,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 						, pl.idPlaza
 						, z.nombre AS zona
 						, ds.idDistribuidoraSucursal
+						, ubpl.provincia ciudadPlaza
 						';
 
 					$join .= " LEFT JOIN trade.plaza pl ON pl.idPlaza = sct.idPlaza";
 					$join .= " LEFT JOIN trade.zona z ON ch.idZona = z.idZona";
 					$join .= " LEFT JOIN trade.distribuidoraSucursal ds ON ds.idDistribuidoraSucursal = sctd.idDistribuidoraSucursal ";
+					$join .= " LEFT JOIN General.dbo.ubigeo ubpl ON ubpl.cod_ubigeo = pl.cod_ubigeo ";
 
 					$orderBy = 'pl.nombre,z.nombre';
 				};
@@ -1464,7 +1466,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 				$tiposegmentacion = 'moderno';
 				$str_permisos = getPermisosUsuario(['segmentacion' => 3]);
 				!empty($str_permisos) ? $filtro_permiso .= " AND scm.idBanner IN ({$str_permisos})": '';
-				$join .= " JOIN trade.segmentacionClienteModerno scm ON ch.idSegClienteModerno = scm.idSegClienteModerno {$str_permisos} ";
+				$join .= " JOIN trade.segmentacionClienteModerno scm ON ch.idSegClienteModerno = scm.idSegClienteModerno {$filtro_permiso} ";
 
 				if ($grupoCanal == 'HSM' || $grupoCanal == 'Moderno') {
 					array_push(

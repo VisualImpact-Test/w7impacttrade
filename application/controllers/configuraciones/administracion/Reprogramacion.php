@@ -64,6 +64,12 @@ class Reprogramacion extends MY_Controller
 			'idProyectoFiltro' => ['selectRequerido'],
 			'txt-fechas' => ['requerido'],
 		];
+		if(empty($post['chk-usuario-inactivo']) || empty($post['chk-usuario-activo']) ){
+			$post['estadoUsuario'] = empty($post['chk-usuario-activo']) ? 2 : 1;
+		}
+		if(empty($post['chk-usuario-inactivo']) && empty($post['chk-usuario-activo']) ){
+			$post['estadoUsuario'] = 3;
+		}
 
 		$validaciones = verificarValidacionesBasicas($elementosAValidar, $post);
 

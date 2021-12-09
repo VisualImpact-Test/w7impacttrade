@@ -6,7 +6,7 @@
 			<th class="text-center" rowspan="2">#</th>
 			<th class="text-center <?=$verClientesActivar;?>" colspan="3">OPCIONES</th>
 			<th class="text-center" colspan="5">DATOS GENERALES</th>
-			<th class="text-center" colspan="7">DATOS HISTÓRICOS</th>
+			<th class="text-center" colspan="8">DATOS HISTÓRICOS</th>
 			<th class="text-center" colspan="4">DATOS UBICACIÓN</th>
 		</tr>
 		<tr>
@@ -27,6 +27,7 @@
 			<th class="text-center">PROYECTO</th>
 			<th class="text-center">CANAL</th>
 			<th class="text-center">CLIENTE TIPO</th>
+			<th class="text-center">DISTRIBUIDORA - SUCURSAL</th>
 
 			<th class="text-center">DIRECCIÓN</th>
 			<th class="text-center">DEPARTAMENTO</th>
@@ -68,6 +69,9 @@
 				<td class="text-center"><?=(!empty($basemadre['proyecto'])?$basemadre['proyecto']:'-');?></td>
 				<td class="text-center"><?=(!empty($basemadre['canal'])?$basemadre['canal']:'-');?></td>
 				<td class="text-center"><?=(!empty($basemadre['clienteTipo'])?$basemadre['clienteTipo']:'-');?></td>
+				<td class="text-center">
+					<?=(!empty($listaDistribuidoras[$basemadre['idClienteHist']])? implode(" , ",$listaDistribuidoras[$basemadre['idClienteHist']]) : '-' );?>
+				</td>
 				<td class=""><?=(!empty($basemadre['direccion'])?$basemadre['direccion']:'-');?></td>
 				<td class=""><?=(!empty($basemadre['departamento'])?$basemadre['departamento']:'-');?></td>
 				<td class=""><?=(!empty($basemadre['provincia'])?$basemadre['provincia']:'-');?></td>

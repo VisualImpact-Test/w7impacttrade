@@ -17,8 +17,8 @@ class M_visibilidad extends MY_Model{
 			$filtros .= !empty($input['grupoCanal_filtro']) ? ' AND ca.idGrupoCanal='.$input['grupoCanal_filtro'] : '';
 			$filtros .= !empty($input['canal_filtro']) ? ' AND v.idCanal='.$input['canal_filtro'] : '';
 
-			$filtros .= !empty($input['subcanal_filtro']) ? " AND subca.idSubCanal=".$input['subcanal_filtro'] : "";
-
+			// $filtros .= !empty($input['subcanal_filtro']) ? " AND subca.idSubCanal=".$input['subcanal_filtro'] : "";
+			$filtros .= !empty($input['subcanal']) ? ' AND ct.idClienteTipo='.$input['subcanal'] : '';
 
 			$filtros .= !empty($input['tipoUsuario_filtro']) ? " AND uh.idTipoUsuario=".$input['tipoUsuario_filtro'] : "";
 			$filtros .= !empty($input['usuario_filtro']) ? " AND uh.idUsuario=".$input['usuario_filtro'] : "";
@@ -63,7 +63,7 @@ class M_visibilidad extends MY_Model{
 			, v.direccion
 			, gc.idGrupoCanal
 			, gc.nombre grupoCanal
-			, subca.nombre subCanal
+			, ct.nombre subCanal
 			{$segmentacion['columnas_bd']}
 
 		FROM {$this->sessBDCuenta}.trade.data_ruta r
@@ -85,6 +85,8 @@ class M_visibilidad extends MY_Model{
 			AND ch.idProyecto = {$input['proyecto_filtro']}
 		LEFT JOIN trade.segmentacionNegocio segneg ON segneg.idSegNegocio = ch.idSegNegocio
 		LEFT JOIN trade.subCanal subca ON subca.idSubCanal = segneg.idSubcanal
+		LEFT JOIN trade.cliente_tipo ct
+				ON ct.idClienteTipo = segneg.idClienteTipo
 		{$segmentacion['join']}
 
 		WHERE r.estado=1 

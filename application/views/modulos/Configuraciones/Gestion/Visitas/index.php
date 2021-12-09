@@ -66,7 +66,7 @@
 				<button id="btn-visitaExcluirActivar" class="btn btn-outline-trade-visual border-0" title="Desactivar Exclusion" style="display:none;">
 					<i class="fas fa-check-circle"></i>
 				</button>
-				
+
 				<button id="btn-visitaContingencia" class="btn btn-outline-trade-visual border-0" title="HABILITAR CONTINGENCIA VISITA" style="display:none;"><i class="fas fa-user-clock"></i></button>
 				<button id="btn-visitaContingenciaDes" class="btn btn-outline-trade-visual border-0" title="DESHABILITAR CONTINGENCIA VISITA" style="display:none;"><i class="fas fa-user-times"></i></button>
 				<button id="btn-cargaMasivaRutas" class="btn btn-outline-trade-visual border-0" title="Carga masiva visitas excel" style=""><i class="fas fa-plus-square"></i></button>
@@ -87,12 +87,13 @@
 								</div>
 							</div>
 						</div>
-						
+
 						<div class="mb-2 mr-sm-2  position-relative form-group ">
 
 							<select id="tipoUsuario_filtro" name="tipoUsuario_filtro" class="form-control form-control-sm my_select2Full sl-width-150">
-								<? foreach ($tipoUsuario as $key => $user): ?>
-									<option value="<?=$user['idTipoUsuario']?>"><?=$user['nombre']?></option>
+								<option value="">-- Tipo Usuario --</option>
+								<? foreach ($tipoUsuario as $key => $user) : ?>
+									<option value="<?= $user['idTipoUsuario'] ?>"><?= $user['nombre'] ?></option>
 								<? endforeach ?>
 							</select>
 						</div>
@@ -105,22 +106,34 @@
 						</div>
 
 						<div class="mb-2 mr-sm-2  position-relative form-group " id="combo_grupocanal">
-							<?= getFiltros(['grupoCanal' => ['label' => 'Grupo Canal', 'name' => 'grupo_filtro', 'id' => 'grupo_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '' ]]) ?>
+							<?= getFiltros(['grupoCanal' => ['label' => 'Grupo Canal', 'name' => 'grupo_filtro', 'id' => 'grupo_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]) ?>
 						</div>
-						<div class="mb-2 mr-sm-2  position-relative form-group "  id="combo_canal">
-							<?=getFiltros(['canal' => ['label' => 'Canal', 'name' => 'canal_filtro', 'id' => 'canal_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]) ?>
+						<div class="mb-2 mr-sm-2  position-relative form-group " id="combo_canal">
+							<?= getFiltros(['canal' => ['label' => 'Canal', 'name' => 'canal_filtro', 'id' => 'canal_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]) ?>
 						</div>
 
 						<div class="mb-2 mr-sm-2 position-relative form-group">
-							<select id="usuario" name="usuario" class="ui my_select2Full" style="width:100%" title="Usuario">																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																	  
+							<select id="usuario" name="usuario" class="ui my_select2Full" style="width:100%" title="Usuario">
 								<option value="">-- Usuario --</option>
 								<? foreach ($listaUsuarios as $key => $user) : ?>
 									<option value="<?= $user['idUsuario'] ?>"><?= $user['nombreUsuario'] ?></option>
 								<? endforeach ?>
 							</select>
 						</div>
+						<div class="mb-2 mr-sm-2 position-relative form-group chk_cesados">
+							<label for="ch-quiebre-inactivo"> Estado Usuarios: </label> <br>
+							<div class="btn-group btn-group-toggle w-100 " data-toggle="buttons">
+								<label class="btn btn-outline-secondary custom_tooltip">
+									<span class="tooltiptextButton">Usuarios Cesados</span>
+									<input type="checkbox" name="chk-usuario-inactivo" id="chk-usuario-inactivo" autocomplete="off" checked="checked"> Cesados </i>
+								</label>
+								<label class="btn btn-outline-secondary  custom_tooltip">
+									<span class="tooltiptextButton">Usuarios Vigentes</span>
+									<input type="checkbox" name="chk-usuario-activo" id="chk-usuario-activo" autocomplete="off" checked="checked"> Activos </i>
+								</label>
+							</div>
+						</div>
 						<div class="filtros_secundarios">
-							
 							<div class="filtros_generados">
 								<h5 class="mt-1 mb-1 text-bold-500"><i class="fal fa-table"></i> Filtros Generados</h5>
 								<div class="filtros_gc filtros_HFS d-none">
@@ -157,12 +170,12 @@
 							</div>
 						</div>
 
-						
+
 						<div class="mb-2 mr-sm-2 position-relative form-group">
-							<input id="cod_usuario" name="cod_usuario" class="form-control" style="width:100%" title="CODIGO USUARIO" placeholder="CODIGO USUARIO"> 
+							<input id="cod_usuario" name="cod_usuario" class="form-control" style="width:100%" title="CODIGO USUARIO" placeholder="CODIGO USUARIO">
 						</div>
 						<div class="mb-2 mr-sm-2 position-relative form-group">
-							<input id="cod_cliente" name="cod_cliente" class="form-control" style="width:100%" title="CODIGO CLIENTE" placeholder="CODIGO CLIENTE" > 
+							<input id="cod_cliente" name="cod_cliente" class="form-control" style="width:100%" title="CODIGO CLIENTE" placeholder="CODIGO CLIENTE">
 						</div>
 					</div>
 				</div>

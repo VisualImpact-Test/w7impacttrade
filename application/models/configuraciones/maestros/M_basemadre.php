@@ -9,6 +9,71 @@ class M_basemadre extends My_Model{
 		parent::__construct();
 	}
 
+	public function obtener_maestros_basemadre_distribuidoras($input=array()){
+		$filtros = "";
+			//$filtros .= !empty($input['proyecto_filtro']) ? " AND p.idProyecto=".$input['proyecto_filtro'] : "";
+			$filtros .= !empty($input['canal_filtro']) ? " AND cn.idCanal=".$input['canal_filtro'] : "";
+			$filtros .= !empty($input['idCuenta']) ? " AND cu.idCuenta=".$input['idCuenta'] : "";
+			$filtros .= !empty($input['idProyecto']) ? " AND p.idProyecto=".$input['idProyecto'] : "";
+
+			if(!empty($input['clientes'])){
+				
+				$array=array(); $clientes=array(); $i=0;
+				$array=explode("\r\n",($input['clientes']));
+				$fl="";
+				$array_res=array();
+				if(is_array($array)){
+					$fl=" AND ch.nombreComercial IN ('";
+
+					foreach($array as $row){
+						array_push($array_res,preg_replace("/\s+/u", " ", $row));
+					}
+					$string_=implode("','",$array_res);
+					$fl=$fl.$string_."')";
+				}else{
+					$cl=trim($input['clientes']);
+					$fl=" AND ch.nombreComercial IN ('". preg_replace("/\s+/u", " ", $cl) . "' )'";
+				}
+				$filtros .=$fl;
+			}
+			
+		$sql = "DECLARE @fecha DATE=GETDATE(), @fecIni DATE='".$input['fecIni']."', @fecFin DATE='".$input['fecFin']."';
+		------
+		SELECT 
+			DISTINCT 
+			ch.idClienteHist
+			, ch.idCliente
+			, dd.nombre+'-'+ubid.distrito  distribuidorasSucursal
+		FROM trade.cliente c 
+		JOIN ImpactTrade_pg.trade.cliente_historico ch ON ch.idCliente=c.idCliente
+		JOIN trade.cuenta cu ON cu.idCuenta=ch.idCuenta
+		JOIN trade.proyecto p ON p.idProyecto=ch.idProyecto
+
+		JOIN trade.segmentacionClienteTradicionalDet sct ON sct.idSegClienteTradicional=ch.idSegClienteTradicional
+		JOIN trade.distribuidorasucursal dss ON dss.idDistribuidoraSucursal=sct.idDistribuidoraSucursal
+		JOIN trade.distribuidora dd ON dd.idDistribuidora=dss.idDistribuidora
+		JOIN General.dbo.Ubigeo ubid ON ubid.cod_ubigeo=dss.cod_ubigeo
+
+		WHERE c.estado=1 
+		{$filtros}
+		--AND @fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin,@fecha)
+		AND (
+			ch.fecIni <= ISNULL( ch.fecFin, @fecFin)
+			AND (
+				ch.fecIni BETWEEN @fecIni AND @fecFin 
+				OR
+				ISNULL( ch.fecFin, @fecFin ) BETWEEN @fecIni AND @fecFin 
+				OR
+				@fecIni BETWEEN ch.fecIni AND ISNULL( ch.fecFin, @fecFin ) 
+				OR
+				@fecFin BETWEEN ch.fecIni AND ISNULL( ch.fecFin, @fecFin )
+			)
+		)
+		ORDER BY ch.idClienteHist DESC";
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.cliente' ];
+		return $this->db->query($sql)->result_array();
+	}
+
 	public function obtener_maestros_basemadre($input=array()){
 		$filtros = "";
 			//$filtros .= !empty($input['proyecto_filtro']) ? " AND p.idProyecto=".$input['proyecto_filtro'] : "";
@@ -84,7 +149,6 @@ class M_basemadre extends My_Model{
 			)
 		)
 		ORDER BY ch.idClienteHist DESC";
-
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.cliente' ];
 		return $this->db->query($sql)->result_array();
 	}

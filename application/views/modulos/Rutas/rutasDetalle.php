@@ -13,6 +13,7 @@
 				<th rowspan="2" class="text-center">PERFIL USUARIO</th>
 				<th rowspan="2" class="text-center hideCol">COD<br>EMPLEADO</th>
 				<th rowspan="2" class="text-center">COD<br>USUARIO</th>
+				<th rowspan="2" class="text-center hideCol">ESTADO USUARIO</th>
 				<th rowspan="2" class="text-center">NOMBRE USUARIO</th>
 				<th rowspan="2" class="text-center">GRUPO CANAL</th>
 				<th rowspan="2" class="text-center">CANAL</th>

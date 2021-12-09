@@ -25,6 +25,7 @@ class M_premiaciones extends MY_Model{
 		(!empty($input['idPremiacion'])) ? $filtros .= " AND vp.idPremiacion = ".$input['idPremiacion'] : "";
 		(!empty($input['idGrupoCanal'])) ? $filtros .= " AND gc.idGrupoCanal = ".$input['idGrupoCanal'] : "";
 		(!empty($input['idCanal'])) ? $filtros .= " AND ca.idCanal = ".$input['idCanal'] : "";
+		(!empty($input['subcanal'])) ? $filtros .= " AND ct.idClienteTipo = ".$input['subcanal'] : "";
 
 		$filtros .= !empty($input['tipoUsuario']) ? " AND uh.idTipoUsuario=".$input['tipoUsuario'] : "";
 		$filtros .= !empty($input['usuario']) ? " AND uh.idUsuario=".$input['usuario'] : "";
@@ -76,7 +77,7 @@ class M_premiaciones extends MY_Model{
 				, vp.codigo
 				, vp.monto
 				, vp.premiado
-
+				, ct.nombre subCanal
 				,vp.idVisitaPremiacion
 				,vp.estado
 				,vp.latitud as latitud_visita
@@ -102,6 +103,8 @@ class M_premiaciones extends MY_Model{
 					AND ch.idProyecto={$proyecto}
 				LEFT JOIN trade.segmentacionNegocio sn
 					ON sn.idSegNegocio = ch.idSegNegocio
+				LEFT JOIN trade.cliente_tipo ct
+					ON ct.idClienteTipo = sn.idClienteTipo
 				LEFT JOIN trade.canal ca
 					ON ca.idCanal = v.idCanal
 				LEFT JOIN trade.grupoCanal gc

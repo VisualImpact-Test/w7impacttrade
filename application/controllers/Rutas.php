@@ -79,6 +79,12 @@ class Rutas extends MY_Controller{
 		$input['inc_desactivado'] = !empty($data->{'inc_desactivado'})? true : false ;
 		$input['obs'] = !empty($data->{'obs'})? true : false ;
 
+		if(empty($data->{'chk-usuario-inactivo'}) || empty($data->{'chk-usuario-activo'}) ){
+			$input['estadoUsuario'] = empty($data->{'chk-usuario-activo'}) ? 2 : 1;
+		}
+		if(empty($data->{'chk-usuario-inactivo'}) && empty($data->{'chk-usuario-activo'}) ){
+			$input['estadoUsuario'] = 3;
+		}
 		$rs_visitas = $this->model->obtener_visitas($input);
 
 		$html = '';
@@ -154,7 +160,9 @@ class Rutas extends MY_Controller{
 						$condicion = $row['condicion'];
 						$condicion_ = '';
 						$condicion_f = '';
-	
+
+						$cesado = !empty($row['cesado']) ? "text-danger" : "" ;
+
 						if ($condicion == 0) {
 							$condicion_ = 'SV <span class="color-F" ><i class="fa fa-circle" ></i></span>';
 							$condicion_f = 'SV';
@@ -176,7 +184,8 @@ class Rutas extends MY_Controller{
 							!empty($row['tipoUsuario']) ? "<p class='text-left'>{$row['tipoUsuario']}</p>" : '-', 
 							!empty($row['cod_empleado']) ? "<p class='text-center'>{$row['cod_empleado']}</p>" : '-', 
 							!empty($row['cod_usuario']) ? "<p class='text-center'>{$row['cod_usuario']}</p>" : '-', 
-							!empty($row['nombreUsuario']) ? "<p class='text-left'>{$row['nombreUsuario']}</p>" : '-', 
+							!empty($row['cesado']) ? "<h4 class='text-center'><span class=' badge badge-danger'>Cesado</span></h4>" : "<h4 class='text-center'><span class='badge badge-primary'>Activo</span></h4>", 
+							!empty($row['nombreUsuario']) ? "<p class='text-left {$cesado}'> {$row['nombreUsuario']} </p>" : '-', 
 							!empty($row['grupoCanal']) ? "<p class='text-left'>{$row['grupoCanal']}</p>" : '-', 
 							!empty($row['canal']) ? "<p class='text-left'>{$row['canal']}</p>" : '-', 
 							!empty($row['subCanal']) ? "<p class='text-left'>{$row['subCanal']}</p>" : '-',

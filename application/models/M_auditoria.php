@@ -23,6 +23,8 @@ class M_auditoria extends MY_Model{
 		$filtros .= !empty($input['usuario_filtro']) ? ' AND r.idUsuario IN ('.$input['usuario_filtro'].')': '';
 		$filtros .= !empty($input['frecuencia_filtro']) ? ' AND v.idFrecuencia='.$input['frecuencia_filtro'] : '';
 
+		$filtros .= !empty($input['subcanal']) ? ' AND ct.idClienteTipo='.$input['subcanal'] : '';
+
 		$sessIdTipoUsuario = $this->idTipoUsuario;
 		if( $sessIdTipoUsuario != 4 ) $filtros .=  " AND r.demo = 0";
 		
@@ -46,7 +48,7 @@ class M_auditoria extends MY_Model{
 				, gc.nombre AS grupoCanal
 				, v.idCanal
 				, v.canal
-				, sc.nombre AS subCanal
+				, ct.nombre AS subCanal
 				, ch.idZona
 				, i.nombreIncidencia
 				, i.observacion

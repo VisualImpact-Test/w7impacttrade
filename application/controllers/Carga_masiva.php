@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Carga_masiva extends CI_Controller
 {
-	
+	public $sessBDCuenta="";
 	public function __construct(){
 		parent::__construct();
 		$this->load->model('m_carga_masiva','model');
@@ -17,6 +17,7 @@ class Carga_masiva extends CI_Controller
 		
 		$carpetas = $this->model->obtener_carpetas();
 		foreach($carpetas as $row){
+			$this->cambiarBaseDatos($row['idCuenta']);
 			$ruta = 'public/csv/modulacion/'.$row['carpeta'];
 			$rutaFiles = 'public/csv/modulacion/'.$row['carpeta'].'/archivos/';
 			$directorio_INS = opendir($rutaFiles);
@@ -142,6 +143,7 @@ class Carga_masiva extends CI_Controller
 		$array_detalle=array();
 		$idCarga='';
 		foreach($data as $row){
+			
 			$array_cabecera[$row['idCliente']]['idCliente']=$row['idCliente'];
 			$array_cabecera[$row['idCliente']]['idPermiso']=$row['idPermiso'];
 			$array_cabecera[$row['idCliente']]['fecIni']=$row['fecIni'];
@@ -262,6 +264,7 @@ class Carga_masiva extends CI_Controller
 		if(count($carpetas)>0){
 			//marcar en proceso
 			foreach($carpetas as $row){
+				$this->cambiarBaseDatos($row['idCuenta']);
 				$where =array();
 				$where['idCarga']=$row['idCarga'];
 				$params =array();
@@ -272,7 +275,9 @@ class Carga_masiva extends CI_Controller
 			//convertir a detalle
 			foreach($carpetas as $row){
 				if( empty($row['totalClientes']) || $row['totalClientes']=='0' ){
-	
+					$this->cambiarBaseDatos($row['idCuenta']);
+
+
 					$ruta = 'public/csv/rutas/'.$row['carpeta'];
 					$rutaFiles = 'public/csv/rutas/'.$row['carpeta'].'/archivos/';
 					$directorio_INS = opendir($rutaFiles);
@@ -457,6 +462,7 @@ class Carga_masiva extends CI_Controller
 
 			//marcar estado 0
 			foreach($data as $row){
+				$this->cambiarBaseDatos($row['idCuenta']);
 				$where =array();
 				$where['idCarga']=$row['idCarga'];
 				$params =array();
@@ -468,6 +474,7 @@ class Carga_masiva extends CI_Controller
 			
 			foreach($data as $row){
 				if($row['totalClientes']>0 && ( empty($row['total_procesados']) || $row['total_procesados']=='0' )){
+					$this->cambiarBaseDatos($row['idCuenta']);
 
 					if($row['generado']==1){
 
@@ -684,6 +691,7 @@ class Carga_masiva extends CI_Controller
 		if(count($carpetas)>0){
 			//marcar en proceso
 			foreach($carpetas as $row){
+				$this->cambiarBaseDatos($row['idCuenta']);
 				$where =array();
 				$where['idCarga']=$row['idCarga'];
 				$params =array();
@@ -694,7 +702,7 @@ class Carga_masiva extends CI_Controller
 			//convertir a detalle
 			foreach($carpetas as $row){
 				if( empty($row['totalClientes']) || $row['totalClientes']=='0' ){
-	
+					$this->cambiarBaseDatos($row['idCuenta']);
 					$ruta = 'public/csv/permisos/'.$row['carpeta'];
 					$rutaFiles = 'public/csv/permisos/'.$row['carpeta'].'/archivos/';
 					$directorio_INS = opendir($rutaFiles);
@@ -845,6 +853,7 @@ class Carga_masiva extends CI_Controller
 		if(count($data)>0){
 			//marcar estado 0
 			foreach($data as $row){
+				$this->cambiarBaseDatos($row['idCuenta']);
 				$where =array();
 				$where['idCarga']=$row['idCarga'];
 				$params =array();
@@ -854,7 +863,7 @@ class Carga_masiva extends CI_Controller
 
 
 			foreach($data as $row){
-
+				$this->cambiarBaseDatos($row['idCuenta']);
 				$params=array();
 				$params['idCarga']=$row['idCarga'];
 				$data_det_cliente = $this->model->carga_permisos_det_clientes($params)->result_array();
@@ -1070,6 +1079,7 @@ class Carga_masiva extends CI_Controller
 		if(count($carpetas)>0){
 			//marcar en proceso
 			foreach($carpetas as $row){
+				$this->cambiarBaseDatos($row['idCuenta']);
 				$where =array();
 				$where['idCarga']=$row['idCarga'];
 				$params =array();
@@ -1080,6 +1090,7 @@ class Carga_masiva extends CI_Controller
 			//convertir a detalle
 			foreach($carpetas as $row){
 				if( empty($row['totalClientes']) || $row['totalClientes']=='0' ){
+					$this->cambiarBaseDatos($row['idCuenta']);
 	
 					$ruta = 'public/csv/clientes/'.$row['carpeta'];
 					$clienteFiles = 'public/csv/clientes/'.$row['carpeta'].'/archivos/';
@@ -1481,6 +1492,7 @@ class Carga_masiva extends CI_Controller
 
 			//marcar estado 0
 			foreach($data as $row){
+				$this->cambiarBaseDatos($row['idCuenta']);
 				$where =array();
 				$where['idCarga']=$row['idCarga'];
 				$params =array();
@@ -1492,7 +1504,7 @@ class Carga_masiva extends CI_Controller
 			
 			foreach($data as $row){
 				if($row['totalClientes']>0 && ( empty($row['total_procesados']) || $row['total_procesados']=='0' )){
-
+					$this->cambiarBaseDatos($row['idCuenta']);
 					$params=array();
 					$params['idCarga']=$row['idCarga'];
 					//
@@ -1679,6 +1691,7 @@ class Carga_masiva extends CI_Controller
 		if(count($carpetas)>0){
 			//marcar en proceso
 			foreach($carpetas as $row){
+				$this->cambiarBaseDatos($row['idCuenta']);
 				$where =array();
 				$where['idCarga']=$row['idCarga'];
 				$params =array();
@@ -1689,7 +1702,7 @@ class Carga_masiva extends CI_Controller
 			//convertir a detalle
 			foreach($carpetas as $row){
 				if( empty($row['totalClientes']) || $row['totalClientes']=='0' ){
-	
+					$this->cambiarBaseDatos($row['idCuenta']);
 					$ruta = 'public/csv/iniciativas/'.$row['carpeta'];
 					$rutaFiles = 'public/csv/iniciativas/'.$row['carpeta'].'/archivos/';
 					$directorio_INS = opendir($rutaFiles);
@@ -1866,6 +1879,7 @@ class Carga_masiva extends CI_Controller
 		if(count($data)>0){
 			//marcar estado 0
 			foreach($data as $row){
+				$this->cambiarBaseDatos($row['idCuenta']);
 				$where =array();
 				$where['idCarga']=$row['idCarga'];
 				$params =array();
@@ -1875,7 +1889,7 @@ class Carga_masiva extends CI_Controller
 
 			
 			foreach($data as $row){
-
+				$this->cambiarBaseDatos($row['idCuenta']);
 				$params=array();
 				$params['idCarga']=$row['idCarga'];
 				$data_det_cliente = $this->model->carga_iniciativa_det_clientes($params)->result_array();
@@ -2001,6 +2015,7 @@ class Carga_masiva extends CI_Controller
 		if(count($carpetas)>0){
 			//marcar en proceso
 			foreach($carpetas as $row){
+				$this->cambiarBaseDatos($row['idCuenta']);
 				$where =array();
 				$where['idCarga']=$row['idCarga'];
 				$params =array();
@@ -2011,7 +2026,7 @@ class Carga_masiva extends CI_Controller
 			//convertir a detalle
 			foreach($carpetas as $row){
 				if( empty($row['totalClientes']) || $row['totalClientes']=='0' ){
-	
+					$this->cambiarBaseDatos($row['idCuenta']);
 					$ruta = 'public/csv/clientesproyecto/'.$row['carpeta'];
 					$clienteFiles = 'public/csv/clientesproyecto/'.$row['carpeta'].'/archivos/';
 					$directorio_INS = opendir($clienteFiles);
@@ -2162,6 +2177,7 @@ class Carga_masiva extends CI_Controller
 
 			//marcar estado 0
 			foreach($data as $row){
+				$this->cambiarBaseDatos($row['idCuenta']);
 				$where =array();
 				$where['idCarga']=$row['idCarga'];
 				$params =array();
@@ -2173,7 +2189,7 @@ class Carga_masiva extends CI_Controller
 			
 			foreach($data as $row){
 				if($row['totalClientes']>0 && ( empty($row['total_procesados']) || $row['total_procesados']=='0' )){
-
+					$this->cambiarBaseDatos($row['idCuenta']);
 					$params=array();
 					$params['idCarga']=$row['idCarga'];
 
@@ -2318,6 +2334,20 @@ class Carga_masiva extends CI_Controller
 		}
 	}
 
+	public function cambiarBaseDatos($idCuenta){
+		if($idCuenta==2){
+			$this->sessBDCuenta="ImpactTrade_aje";
+			$this->model->sessBDCuenta="ImpactTrade_aje";
+		}
+		else if($idCuenta==3){
+			$this->sessBDCuenta="ImpactTrade_pg";
+			$this->model->sessBDCuenta="ImpactTrade_pg";
+		}
+		else  {
+			$this->sessBDCuenta="ImpactTrade_small";
+			$this->model->sessBDCuenta="ImpactTrade_small";
+		}
+	}
 	
 
 }

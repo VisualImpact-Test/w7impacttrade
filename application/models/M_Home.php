@@ -485,7 +485,7 @@ class M_Home extends MY_Model{
             , oc.idOcurrencia
             , oc.nombre ocurrencia
         FROM 
-            ImpactTrade_bd.trade.data_asistencia a
+            {$this->sessBDCuenta}.trade.data_asistencia a
             JOIN master.tipoAsistencia tia ON a.idTipoAsistencia=tia.idTipoAsistencia
             LEFT JOIN master.ocurrencias oc ON oc.idOcurrencia=a.idOcurrencia AND oc.estado=1 AND oc.flagAsistencia=1
         WHERE
@@ -527,7 +527,7 @@ class M_Home extends MY_Model{
         LEFT JOIN trade.grupoCanal gc ON gc.idGrupoCanal = ca.idGrupoCanal
         LEFT JOIN trade.proyecto py ON py.idProyecto = uh.idProyecto
         LEFT JOIN trade.cuenta cu ON cu.idCuenta = py.idCuenta
-        WHERE uh.idTipoUsuario = 1 AND u.demo = 0 AND u.estado = 1 AND uh.idAplicacion IN (1, 4, 8)
+        WHERE uh.idTipoUsuario IN(1,18) AND u.demo = 0 AND u.estado = 1 AND uh.idAplicacion IN (1, 4, 8)
         {$filtros}
         ";
 
@@ -575,7 +575,7 @@ class M_Home extends MY_Model{
             JOIN trade.grupoCanal gc ON gc.idGrupoCanal = c.idGrupoCanal
             WHERE r.fecha = @fechaHoy
             {$filtros}
-            AND r.idTipoUsuario = 1
+            AND r.idTipoUsuario IN(1,18)
         ), lista_programados AS (
             SELECT
                 lr.idUsuario

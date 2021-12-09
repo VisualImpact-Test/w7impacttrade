@@ -50,6 +50,7 @@ class Auditoria extends MY_Controller{
 
 		$input['idGrupoCanal'] = $data->{'grupo_filtro'};
 		$input['idCanal'] = $data->{'canal_filtro'};
+		$input['subcanal'] = $data->{'subcanal_filtro'};
 
 		$input['distribuidora_filtro'] = empty($data->{'distribuidora_filtro'}) ? '' : $data->{'distribuidora_filtro'};
 		$input['zona_filtro'] = empty($data->{'zona_filtro'}) ? '' : $data->{'zona_filtro'};
@@ -60,6 +61,8 @@ class Auditoria extends MY_Controller{
 		$input['tipoUsuario_filtro'] = $data->{'tipoUsuario_filtro'};
 		$input['usuario_filtro'] = !empty($data->{'usuario_filtro'}) ? (is_array($data->{'usuario_filtro'}) ? implode(",",$data->{'usuario_filtro'}) : $data->{'usuario_filtro'}) : '' ;
 		$input['frecuencia_filtro'] = $data->{'frecuencia_filtro'} ;
+
+
 
 		$data = [];
 		$data['visibColumn'] = $input['visibColumn'];
@@ -432,7 +435,7 @@ class Auditoria extends MY_Controller{
 
 		$input['idGrupoCanal'] = $data->{'grupo_filtro'};
 		$input['idCanal'] = $data->{'canal_filtro'};
-		$input['idClienteTipo'] = $data->{'sl_tipo_cliente'};
+		$input['idClienteTipo'] = $data->{'subcanal_filtro'};
 
 		$array = array();
 		$array['distribuidoras'] = $this->model->listar_distribuidoras($input)->result_array();
@@ -497,7 +500,7 @@ class Auditoria extends MY_Controller{
 
 		$input['distSucursal'] = $data['distSucursal'];
 		$input['canal'] = $data['canal'];
-		$input['idClienteTipo'] = $data['sl_tipo_cliente'];
+		$input['idClienteTipo'] = $data['subcanal_filtro'];
 
 		if($data['tipo'] == 'cbm'){
 			$array['clientes'] = $this->model->detalle_cobertura_auditores($input)->result_array();
@@ -1095,17 +1098,17 @@ class Auditoria extends MY_Controller{
 			$val++;
 			
 			$objPHPExcel->setActiveSheetIndex(0)
-						->setCellValue($val.$i,(!empty($total_eo_ad[$row['idVisita']]) ? count($total_eo_ad[$row['idVisita']]) : 0));
+						->setCellValue($val.$i,(  ($row['estadoIncidencia'] == 1) ? "-"  : (!empty($total_eo_ad[$row['idVisita']]) ? count($total_eo_ad[$row['idVisita']]) : 0 )  ));
 			$val++;
 			
 			$objPHPExcel->setActiveSheetIndex(0)
-						->setCellValue($val.$i,(!empty($total_eo_si[$row['idVisita']]) ? count($total_eo_si[$row['idVisita']]) : 0));
+						->setCellValue($val.$i,(  ($row['estadoIncidencia'] == 1) ? "-" :  (!empty($total_eo_si[$row['idVisita']]) ? count($total_eo_si[$row['idVisita']]) : 0)  ));
 			$val++;
 			$objPHPExcel->setActiveSheetIndex(0)
-						->setCellValue($val.$i,(!empty($total_eo_no[$row['idVisita']]) ? count($total_eo_no[$row['idVisita']]) : 0));
+						->setCellValue($val.$i,(  ($row['estadoIncidencia'] == 1) ? "-" : (!empty($total_eo_no[$row['idVisita']]) ? count($total_eo_no[$row['idVisita']]) : 0) ));
 			$val++;
 			$objPHPExcel->setActiveSheetIndex(0)
-						->setCellValue($val.$i,(!empty($total_eo[$row['idVisita']]) ? count($total_eo[$row['idVisita']]) : 0));
+						->setCellValue($val.$i,(  ($row['estadoIncidencia'] == 1) ? "-" : (!empty($total_eo[$row['idVisita']]) ? count($total_eo[$row['idVisita']]) : 0) ));
 			$val++;
 			
 			
@@ -1170,11 +1173,13 @@ class Auditoria extends MY_Controller{
 			}
 			
 			$porcentajeObli = 0;
-					if (isset($resultados_obligatorios[$row['idVisita']]['porcentajeEo']))
-						$porcentajeObli = $resultados_obligatorios[$row['idVisita']]['porcentajeEo'];
-
+					
+					if (isset($resultados_obligatorios[$row['idVisita']]['porcentajeEo'])){
+						$porcentajeObli = ($resultados_obligatorios[$row['idVisita']]['porcentajeEo']);
+					}
+					
 					$objPHPExcel->setActiveSheetIndex(0)
-						->setCellValue($val.$i,$porcentajeObli.'%');
+						->setCellValue($val.$i, (  ($row['estadoIncidencia'] == 1)? "-" : $porcentajeObli.'%' ));
 						$objPHPExcel->getActiveSheet()->getStyle($val.$i.':'.$val.$i)->applyFromArray($estilo_numeros);
 						$val++;
 

@@ -49,7 +49,7 @@ class M_encuesta extends MY_Model
 		$filtros .= !empty($input['idProyecto']) ? ' AND py.idProyecto = '.$input['idProyecto'] : '';
 		$filtros .= !empty($input['idGrupoCanal']) ? ' AND ca.idGrupoCanal = '.$input['idGrupoCanal'] : '';
 		$filtros .= !empty($input['idCanal']) ? ' AND ca.idCanal = '.$input['idCanal'] : '';
-
+		$filtros .= !empty($input['subcanal']) ? ' AND ct.idClienteTipo='.$input['subcanal'] : '';
 		$filtros .= !empty($input['distribuidora_filtro']) ? ' AND d.idDistribuidora='.$input['distribuidora_filtro'] : '';
 		$filtros .= !empty($input['zona_filtro']) ? ' AND z.idZona='.$input['zona_filtro'] : '';
 		$filtros .= !empty($input['plaza_filtro']) ? ' AND pl.idPlaza='.$input['plaza_filtro'] : '';
@@ -101,6 +101,8 @@ class M_encuesta extends MY_Model
 				, ti.nombre incidencia
 				, v.encuesta encuestado
 				, v.horaIni
+				, ct.idClienteTipo
+				, ct.nombre subCanal
 				--, e.idEncuesta
 				--, e.nombre encuesta
 				{$segmentacion['columnas_bd']}

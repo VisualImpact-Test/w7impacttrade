@@ -459,7 +459,7 @@ class M_Fotos extends MY_Model
 				,py.nombre proyecto
 				{$columnas}
 			FROM list_visitasFotos v
-			LEFT JOIN lista_clientes ch ON v.idCliente = ch.idCliente
+			JOIN lista_clientes ch ON v.idCliente = ch.idCliente
 			LEFT JOIN trade.canal ca ON ca.idCanal=v.idCanal
 			LEFT JOIN trade.grupoCanal gca ON ca.idGrupoCanal=gca.idGrupoCanal
 			LEFT JOIN trade.proyecto py ON py.idProyecto = v.idProyecto

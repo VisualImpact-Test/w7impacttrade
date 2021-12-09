@@ -54,7 +54,8 @@ class Premiaciones extends MY_Controller
 			'idPremiacion' => $post['sel-premiacion'], 
 			'idGrupoCanal' => $post['grupoCanal_filtro'], 
 			'idCanal' => $post['canal_filtro'],
-			
+			'subcanal' => $post['subcanal_filtro'],
+
 			'tipoUsuario' => empty($post['tipoUsuario_filtro']) ? '' : $post['tipoUsuario_filtro'],
 			'usuario' => empty($post['usuario_filtro']) ? '' : $post['usuario_filtro'],
 			

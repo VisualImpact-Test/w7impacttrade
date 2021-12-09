@@ -71,6 +71,10 @@
                             <span class="tooltiptext">Canal</span>
                             <?= getFiltros(['canal' => ['label' => 'Canal', 'name' => 'canal_filtro', 'id' => 'canal_filtro', 'data' => false, 'select2' => 'my_select2Full', 'html' => '']]) ?>
                         </div>
+                        <div class="mb-2 mr-sm-2 position-relative form-group custom_tooltip">
+                            <span class="tooltiptext">Canal</span>
+                            <?= getFiltros(['tipoCliente' => ['label' => 'Subcanal', 'name' => 'idClienteTipo', 'id' => 'idClienteTipo', 'data' => false, 'select2' => 'my_select2Full', 'html' => '']]) ?>
+                        </div>
 						
                         <div class="mb-2 mr-sm-2  position-relative form-group filtros_asistencia custom_tooltip">
 							<span class="tooltiptext">Tipo Usuario</span>
@@ -90,15 +94,6 @@
                                 <option value="">-- Tipo Foto --</option>
                                 <?php foreach ($tipoFotos as $row) { ?>
                                     <option value="<?= $row['idTipoFoto'] ?>"><?= $row['nombre'] ?></option>
-                                <?php } ?>
-                            </select>
-                        </div>
-                        <div class="mb-2 mr-sm-2 position-relative form-group custom_tooltip">
-                            <span class="tooltiptext">Tipo Cliente</span>
-                            <select class="pt-0 custom-select my_select2Full" name="idClienteTipo" id="idClienteTipo">
-                                <option value="">-- Tipo Cliente --</option>
-                                <?php foreach ($tipoCliente as $row) { ?>
-                                    <option value="<?= $row['idClienteTipo'] ?>"><?= $row['nombre'] ?></option>
                                 <?php } ?>
                             </select>
                         </div>

@@ -82,6 +82,13 @@ class Rutas extends MY_Controller{
 		$input['fecha'] = $data->{'txt-fechas_simple'};
 		$input['grupoCanal_filtro'] = $data->{'grupoCanal_filtro'};
 
+		if(empty($data->{'chk-usuario-inactivo'}) || empty($data->{'chk-usuario-activo'}) ){
+			$input['estadoUsuario'] = empty($data->{'chk-usuario-activo'}) ? 2 : 1;
+		}
+		if(empty($data->{'chk-usuario-inactivo'}) && empty($data->{'chk-usuario-activo'}) ){
+			$input['estadoUsuario'] = 3;
+		}
+
 		$rs_visitas = $this->model->obtener_rutas_visitas($input);
 		$segmentacion = getSegmentacion(['grupoCanal_filtro' => $input['grupoCanal_filtro']]);
 
@@ -109,8 +116,8 @@ class Rutas extends MY_Controller{
 			$ix=1;$listaUsuarioModulo = $array['listaUsuarioModulo'];$e=0;
 			foreach ($array['listaVisitas'] as $ku => $row) {
 
+				$cesado = !empty($row['cesado']) ? "text-danger" : "" ;
 				//HORARIOS-
-				
 					//$incidencia = isset($row['estadoIncidencia']) ? ( $row['estadoIncidencia']==1 ? 'checked':'' ): '';
 					$incidencia = isset($row['estadoIncidencia']) ? ( $row['estadoIncidencia']==1 ?'checked':''): '';
 					$bloqueado="";
@@ -184,7 +191,8 @@ class Rutas extends MY_Controller{
 					$ix++, 
 					!empty($row['fecha'])?$row['fecha']:'-',
 					!empty($row['codUsuario'])?$row['codUsuario']:'-',
-					!empty($row['usuario'])?$row['usuario']:'-',
+					!empty($row['cesado']) ? "<h4 class='text-center'><span class=' badge badge-danger'>Cesado</span></h4>" : "<h4 class='text-center'><span class='badge badge-primary'>Activo</span></h4>", 
+					!empty($row['usuario']) ? "<p class='text-left {$cesado}'> {$row['usuario']} </p>" : '-', 
 					!empty($row['grupoCanal'])?$row['grupoCanal']:'-',
 					!empty($row['canal'])?$row['canal']:'-',
 				];
@@ -1227,8 +1235,19 @@ class Rutas extends MY_Controller{
 
 		//ACTUALIZAR VISITA INCIDENCIA
 		$arrayParams = array();
-		if (!empty($horaInicio)) { $arrayParams['horaIni'] = $horaInicio; };
-		if (!empty($horaFin)) { $arrayParams['horaFin'] = $horaFin; };
+		if (!empty($horaInicio)) 
+		{ 
+			$arrayParams['horaIni'] = $horaInicio; 
+			$arrayParams['porContingencia'] = true; 
+			$arrayParams['idUsuarioContingencia'] = $this->idUsuario; 
+		};
+		
+		if (!empty($horaFin)) 
+		{ 
+			$arrayParams['horaFin'] = $horaFin;
+			$arrayParams['porContingencia'] = true; 
+			$arrayParams['idUsuarioContingencia'] = $this->idUsuario; 
+		};
 		$arrayWhere = array('idVisita' => $idVisita);
 		$arrayUpdateVisita['arrayParams'] = $arrayParams;
 		$arrayUpdateVisita['arrayWhere'] = $arrayWhere;

@@ -60,7 +60,7 @@ class Promociones extends MY_Controller{
 		$input['proyecto_filtro'] = $data->{'proyecto_filtro'};
 		$input['grupoCanal_filtro'] = $data->{'grupoCanal_filtro'};
 		$input['canal_filtro'] = $data->{'canal_filtro'};
-
+		$input['subcanal'] = $data->{'subcanal_filtro'};
 		$input['distribuidora_filtro'] = empty($data->{'distribuidora_filtro'}) ? '' : $data->{'distribuidora_filtro'};
 		$input['zona_filtro'] = empty($data->{'zona_filtro'}) ? '' : $data->{'zona_filtro'};
 		$input['plaza_filtro'] = empty($data->{'plaza_filtro'}) ? '' : $data->{'plaza_filtro'};
@@ -155,7 +155,7 @@ class Promociones extends MY_Controller{
 		$input['proyecto_filtro'] = $data->{'proyecto_filtro'};
 		$input['grupoCanal_filtro'] = $data->{'grupoCanal_filtro'};
 		$input['canal_filtro'] = $data->{'canal_filtro'};
-
+		$input['subcanal'] = $data->{'subcanal_filtro'};
 		$input['distribuidora_filtro'] = empty($data->{'distribuidora_filtro'}) ? '' : $data->{'distribuidora_filtro'};
 		$input['zona_filtro'] = empty($data->{'zona_filtro'}) ? '' : $data->{'zona_filtro'};
 		$input['plaza_filtro'] = empty($data->{'plaza_filtro'}) ? '' : $data->{'plaza_filtro'};

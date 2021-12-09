@@ -107,11 +107,12 @@ class Encuesta extends MY_Controller
 		$params['idCuenta'] = empty($post['cuenta_filtro']) ? "" : $post['cuenta_filtro'];
 		$params['idProyecto'] = empty($post['proyecto_filtro']) ? "" : $post['proyecto_filtro'];
 		$params['idGrupoCanal'] = empty($post['grupo_filtro']) ? "" : $post['grupo_filtro'];
+		$params['subcanal'] = empty($post['subcanal_filtro']) ? "" : $post['subcanal_filtro'];
 		$params['idCanal'] = empty($post['canal_filtro']) ? "" : $post['canal_filtro'];
 		$params['idEncuesta'] = empty($post['idEncuesta']) ? "" : $post['idEncuesta'];
 		$params['tipoPregunta'] = empty($post['tipoPregunta']) ? "" : $post['tipoPregunta'];
 		$params['txt-fechas'] = empty($post['txt-fechas']) ? "" : $post['txt-fechas'];
-
+	
 		$params['distribuidora_filtro'] = empty($post['distribuidora_filtro']) ? '' : $post['distribuidora_filtro'];
 		$params['zona_filtro'] = empty($post['zona_filtro']) ? '' : $post['zona_filtro'];
 		$params['plaza_filtro'] = empty($post['plaza_filtro']) ? '' : $post['plaza_filtro'];

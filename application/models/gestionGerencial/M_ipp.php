@@ -81,6 +81,7 @@ class M_ipp extends CI_Model{
     	if( !empty($input['sl-proyecto']) ) $filtros.=" AND r.idProyecto =".$input['sl-proyecto'];
     	if( !empty($input['sl-grupoCanal']) ) $filtros.=" AND cn.idGrupoCanal =".$input['sl-grupoCanal'];
     	if( !empty($input['sl-canal']) ) $filtros.=" AND cn.idCanal =".$input['sl-canal'];
+    	if( !empty($input['subCanal']) ) $filtros.=" AND ctp.idClienteTipo =".$input['subCanal'];
     	if( !empty($input['sl-tienda']) ) $filtros.=" AND c.idCliente =".$input['sl-tienda'];
     	if( !empty($input['sl-departamento']) ) $filtros.=" AND ubi.cod_departamento =".$input['sl-departamento'];
     	if( !empty($input['sl-provincia']) ) $filtros.=" AND ubi.cod_provincia =".$input['sl-provincia'];
@@ -113,7 +114,9 @@ class M_ipp extends CI_Model{
 		JOIN {$this->sessBDCuenta}.trade.ipp_criterio cc ON cc.idCriterio=ip.idCriterio
 
 		JOIN {$this->sessBDCuenta}.trade.cliente_historico ch ON ch.idCliente = c.idCliente
-		AND r.fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin,r.fecha) AND ch.flagCartera=1
+			AND r.fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin,r.fecha) AND ch.flagCartera=1
+		LEFT JOIN trade.segmentacionNegocio sn ON sn.idSegNegocio = ch.idSegNegocio AND sn.estado = 1
+		LEFT JOIN trade.cliente_tipo ctp ON sn.idClienteTipo = ctp.idClienteTipo
 
 		WHERE r.estado=1 AND r.demo=0
 		AND r.fecha BETWEEN @fecIni AND @fecFin
@@ -151,6 +154,7 @@ class M_ipp extends CI_Model{
     	if( !empty($input['sl-proyecto']) ) $filtros.=" AND r.idProyecto =".$input['sl-proyecto'];
     	if( !empty($input['sl-grupoCanal']) ) $filtros.=" AND cn.idGrupoCanal =".$input['sl-grupoCanal'];
     	if( !empty($input['sl-canal']) ) $filtros.=" AND cn.idCanal =".$input['sl-canal'];
+		if( !empty($input['subCanal']) ) $filtros.=" AND ctp.idClienteTipo =".$input['subCanal'];
     	if( !empty($input['sl-tienda']) ) $filtros.=" AND c.idCliente =".$input['sl-tienda'];
     	if( !empty($input['sl-departamento']) ) $filtros.=" AND ubi.cod_departamento =".$input['sl-departamento'];
     	if( !empty($input['sl-provincia']) ) $filtros.=" AND ubi.cod_provincia =".$input['sl-provincia'];
@@ -251,6 +255,7 @@ class M_ipp extends CI_Model{
 							, cc.idCriterio
 							, cn.idCanal
 							, a.objetivo
+							, ctp.nombre subCanal
 						FROM 
 							{$this->sessBDCuenta}.trade.data_ruta r WITH(NOLOCK)
 							JOIN {$this->sessBDCuenta}.trade.data_visita v 
@@ -278,6 +283,8 @@ class M_ipp extends CI_Model{
 								ON ch.idCliente = c.idCliente
 								AND r.fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin,r.fecha) 
 								AND ch.flagCartera=1
+							LEFT JOIN trade.segmentacionNegocio sn ON sn.idSegNegocio = ch.idSegNegocio AND sn.estado = 1
+							LEFT JOIN trade.cliente_tipo ctp ON sn.idClienteTipo = ctp.idClienteTipo
 							JOIN (
 								SELECT DISTINCT
 									anio,idMes,o.objetivo

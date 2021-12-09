@@ -11,7 +11,7 @@ var Productos = {
             Productos.eventos();
             Gestion.urlActivo = 'configuraciones/gestion/Productos/';
             $(".card-body > ul > li > a[class*='active']").click();
-
+            $('.btn-Consultar').click();
 
             //seleccionar cuenta
             // if($('#cuenta_producto option').length>=2){
@@ -20,19 +20,22 @@ var Productos = {
             // }
         });
 
-        $('.btnReporte').on('click', function(e){
-			e.preventDefault();
-			var opcion = $(this).attr("data-value");
+        // $('.btnReporte').on('click', function(e){
+		// 	e.preventDefault();
+		// 	var opcion = $(this).attr("data-value");
 
-			if ( opcion==1 ) {
-				$('.tipoGrafica').hide(500);
-				$('.tipoDetallado').show(500);
-				$('#idTipoFormato').val(1);
-			} else if ( opcion==2 ) {
-				$('.tipoGrafica').show(500);
-				$('.tipoDetallado').hide(500);
-				$('#idTipoFormato').val(2);
-			}
+		// 	if ( opcion==1 ) {
+		// 		$('.tipoGrafica').hide(500);
+		// 		$('.tipoDetallado').show(500);
+		// 		$('#idTipoFormato').val(1);
+		// 	} else if ( opcion==2 ) {
+		// 		$('.tipoGrafica').show(500);
+		// 		$('.tipoDetallado').hide(500);
+		// 		$('#idTipoFormato').val(2);
+		// 	}
+        // });
+        $(document).on('dblclick', '.card-body > ul > li > a', function (e) {
+			$('.btn-Consultar').click()
         });
         
 
@@ -113,9 +116,6 @@ var Productos = {
             Gestion.funcionActualizarActivo = 'actualizar' + Productos.tabSeleccionado
             Gestion.funcionGuardarCargaMasivaActivo = 'guardarCargaMasiva' + Productos.tabSeleccionado
 
-            if($("#"+Gestion.idContentActivo).find('.noResultado').length > 0){
-                $('.btn-Consultar').click()
-            }
             setTimeout(function(){
                 if(Gestion.$dataTable[Gestion.idContentActivo]){
                     Gestion.$dataTable[Gestion.idContentActivo].columns.adjust();

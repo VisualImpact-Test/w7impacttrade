@@ -68,7 +68,7 @@
 						</div>
 						<div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip">
 							<span class="tooltiptext">SubCanal</span>
-							<?= getFiltros(['subCanal' => ['label' => 'Sub Canal', 'name' => 'subcanal_filtro', 'id' => 'subcanal_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]); ?>
+							<?= getFiltros(['tipoCliente' => ['label' => 'Sub Canal', 'name' => 'subcanal_filtro', 'id' => 'subcanal_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]); ?>
 						</div>
 						<div class="mb-2 mr-sm-2  position-relative form-group filtros_asistencia custom_tooltip">
 							<span class="tooltiptext">Tipo Usuario</span>
@@ -100,6 +100,19 @@
 								<span class="tooltiptextButton">Visitas con fotos registradas</span>
 								<input type="checkbox"  name="foto" id="foto" autocomplete="off"> <i class= "fas fa-images"></i>
 							</label>
+						</div>
+						<div class="mb-2 mr-sm-2 position-relative form-group chk_cesados">
+							<label for="ch-quiebre-inactivo"> Estado Usuarios: </label> <br>
+							<div class="btn-group btn-group-toggle w-100 " data-toggle="buttons">
+								<label class="btn btn-outline-secondary custom_tooltip">
+									<span class="tooltiptextButton">Usuarios Cesados</span>
+									<input type="checkbox" name="chk-usuario-inactivo" id="chk-usuario-inactivo" autocomplete="off" checked="checked"> Cesados </i>
+								</label>
+								<label class="btn btn-outline-secondary  custom_tooltip">
+									<span class="tooltiptextButton">Usuarios Vigentes</span>
+									<input type="checkbox" name="chk-usuario-activo" id="chk-usuario-activo" autocomplete="off" checked="checked" > Activos </i>
+								</label>
+							</div>
 						</div>
 						<div class="content-visib mb-2 mr-sm-2  form-group row pl-3">
 							<div class="pl-2 col-6">

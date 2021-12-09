@@ -513,10 +513,20 @@ class M_control extends MY_Model{
 	}
 	public function get_tiposUsuario($input = array()){
 		$idProyecto = $this->sessIdProyecto;
-
+		$idCuenta = $this->sessIdCuenta;
 		$filtro = "";
 
-		$sql = "SELECT tu.idTipoUsuario AS id, tu.nombre FROM trade.usuario_tipo tu WHERE tu.estado = 1{$filtro} ORDER BY tu.nombre";
+		if( !empty($idCuenta) ){
+			$filtro .= " AND tuc.idCuenta = {$idCuenta}";
+		}
+
+		$sql = "SELECT 
+				tu.idTipoUsuario AS id, 
+				tu.nombre 
+				FROM trade.usuario_tipo tu 
+				JOIN trade.tipoUsuarioCuenta tuc ON tuc.idTipoUsuario = tu.idTipoUsuario
+				WHERE tu.estado = 1{$filtro} 
+				ORDER BY tu.nombre";
 		return $this->db->query($sql)->result_array();
 	}
 

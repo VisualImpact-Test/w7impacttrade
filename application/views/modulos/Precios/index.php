@@ -76,10 +76,6 @@
                                 <span class="tooltiptext">Canal</span>
                                 <?= getFiltros(['canal' => ['label' => 'Canal', 'name' => 'canal_filtro', 'id' => 'canal_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]) ?>
                             </div>
-                            <div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip">
-                                <span class="tooltiptext">Sub Canal</span>
-                                <?= getFiltros(['subCanal' => ['label' => 'Sub Canal', 'name' => 'subcanal_filtro', 'id' => 'subcanal_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]); ?>
-                            </div>
                             <div class="filtros_secundarios">
                                 <div class="filtros_generados">
                                     <h5 class="mt-1 mb-1 text-bold-500"><i class="fal fa-table"></i> Filtros Generados</h5>

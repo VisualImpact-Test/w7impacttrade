@@ -9,10 +9,16 @@ class M_visitas extends MY_Model{
 		parent::__construct();
 	}
 
-	public function obtener_lista_rutas($input=array()){
+	public function obtener_lista_rutas($input=array())
+	{
+
+		$sessIdTipoUsuario = $this->idTipoUsuario;
+		$sessDemo = $this->demo;
+
 		$filtros = "";
 		$filtros.= !empty($input['listaCuentas']) ? " AND r.idCuenta IN (".$input['listaCuentas'].")":"";
 		$filtros.= !empty($input['listaProyectos']) ? " AND r.idProyecto IN (".$input['listaProyectos'].")":"";
+		
 		$filtros.= !empty($input['cuenta']) ? " AND r.idCuenta=".$input['cuenta']:"";
 		$filtros.= !empty($input['proyecto']) ? " AND r.idProyecto=".$input['proyecto']:"";
 		$filtros.= !empty($input['usuario']) ? " AND r.idUsuario=".$input['usuario']:"";
@@ -28,11 +34,32 @@ class M_visitas extends MY_Model{
 		$filtros.= !empty($input['plaza']) ? " AND uhpl.idPlaza=".$input['plaza']:"";
 		$filtros.= !empty($input['banner']) ? " AND uhb.idBanner=".$input['banner']:"";
 
+		if(!empty($input['estadoUsuario']) && ($input['estadoUsuario'] == 1 || $input['estadoUsuario'] == 2)){
+			$filtros .= $input['estadoUsuario'] == 1  ? ' AND r.idUsuario IN(SELECT idUsuario FROM list_usuarios_activos)' : ''; 
+			$filtros .= $input['estadoUsuario'] == 2  ? ' AND r.idUsuario NOT IN(SELECT idUsuario FROM list_usuarios_activos)' : ''; 
+		}else{
+			$filtros .= !empty($input['estadoUsuario']) && $input['estadoUsuario'] == 3  ? ' AND 1<>1 ' : ''; 
+		}
+		
+		if( $sessIdTipoUsuario != 4 ){
+			if( empty($sessDemo) ) $filtros .=  " AND r.demo = 0";
+			else $filtros .=  " AND (r.demo = 0 OR r.idUsuario = {$this->idUsuario})";
+		}
+
 		$sql = "
 		DECLARE @fecha DATE=GETDATE(), @fecIni DATE='".$input['fecIni']."', @fecFin DATE='".$input['fecFin']."';
+		WITH list_usuarios_activos as(
+			SELECT DISTINCT
+			u.idUsuario
+			FROM
+			trade.usuario u 
+			JOIN trade.usuario_historico uh ON uh.idUsuario = u.idUsuario
+			WHERE General.dbo.fn_fechaVigente (uh.fecIni,uh.fecFin,@fecha,@fecha) = 1 AND uh.idProyecto IN (".$input['listaProyectos'].")
+		)
 		SELECT DISTINCT
 			r.idRuta
 			, CONVERT(VARCHAR,r.fecha,103) AS fecha
+			, CASE WHEN r.idUsuario NOT IN(SELECT idUsuario FROM list_usuarios_activos) THEN 1 ELSE 0 END cesado
 			, r.idUsuario
 			, r.nombreUsuario
 			, r.numVisita
@@ -45,12 +72,6 @@ class M_visitas extends MY_Model{
 			, py.nombre AS proyecto
 			, ec.idUsuario AS idUsuarioEncargado
 			, u.apePaterno+' '+u.apeMaterno+' '+u.nombres AS nombreUsuarioEncargado
-			--, uhc.idCanal
-			--, uhb.idBanner
-			--, uh.idTipoUsuario
-			--, uhds.idDistribuidoraSucursal
-			--, uhpl.idPlaza
-			--, uhz.idZona
 		FROM {$this->sessBDCuenta}.trade.data_ruta r
 		LEFT JOIN trade.cuenta c ON c.idCuenta=r.idCuenta
 		LEFT JOIN trade.proyecto py ON py.idProyecto=r.idProyecto
@@ -67,7 +88,7 @@ class M_visitas extends MY_Model{
 		LEFT JOIN trade.distribuidoraSucursal ds ON ds.idDistribuidoraSucursal = uhds.idDistribuidoraSucursal
 		LEFT JOIN trade.usuario_historicoPlaza uhpl ON uhpl.idUsuarioHist = uh.idUsuarioHist
 		LEFT JOIN trade.usuario_historicoZona  uhz ON uhz.idUsuarioHist = uh.idUsuarioHist
-		WHERE 1=1 --AND r.demo=0
+		WHERE 1=1 
 		AND r.fecha BETWEEN @fecIni AND @fecFin
 		{$filtros}
 		ORDER BY fecha, nombreUsuario ASC";
@@ -76,7 +97,12 @@ class M_visitas extends MY_Model{
 		return $this->db->query($sql)->result_array();
 	}
 
-	public function obtener_lista_visitas($input=array()){
+	public function obtener_lista_visitas($input=array())
+	{
+
+		$sessIdTipoUsuario = $this->idTipoUsuario;
+		$sessDemo = $this->demo;
+
 		$filtros = "";
 		$filtros.= !empty($input['listaCuentas']) ? " AND r.idCuenta IN (".$input['listaCuentas'].")":"";
 		$filtros.= !empty($input['listaProyectos']) ? " AND r.idProyecto IN (".$input['listaProyectos'].")":"";
@@ -97,6 +123,10 @@ class M_visitas extends MY_Model{
 		$filtros.= !empty($input['plaza']) ? " AND pl.idPlaza=".$input['plaza']:"";
 		$filtros.= !empty($input['banner']) ? " AND b.idBanner=".$input['banner']:"";
 		
+		if( $sessIdTipoUsuario != 4 ){
+			if( empty($sessDemo) ) $filtros .=  " AND r.demo = 0";
+			else $filtros .=  " AND (r.demo = 0 OR r.idUsuario = {$this->idUsuario})";
+		}
 
 		$cliente_historico = getClienteHistoricoCuenta();
 		$segmentacion = getSegmentacion(['grupoCanal_filtro' => $input['grupoCanal']]);
@@ -132,7 +162,7 @@ class M_visitas extends MY_Model{
 		LEFT JOIN General.dbo.ubigeo ubi ON ubi.cod_ubigeo=ds.cod_ubigeo
 		LEFT JOIN trade.canal cn ON cn.idCanal=v.idCanal
 		LEFT JOIN trade.zona z ON z.idZona = v.idZona
-		WHERE 1=1 AND r.estado=1 --AND r.demo=0
+		WHERE 1=1 AND r.estado=1 AND v.estado = 1
 		{$filtros} 
 		AND r.fecha BETWEEN @fecIni AND @fecFin
 		ORDER BY r.fecha ASC";
@@ -648,15 +678,14 @@ class M_visitas extends MY_Model{
 	public function obtener_tipo_usuario($idProyecto){
 		$sql="
 			SELECT DISTINCT
-				  idTipoUsuario
-				, nombre 
+				  ut.idTipoUsuario
+				, ut.nombre 
 			FROM 
-				trade.usuario_tipo 
+				trade.usuario_tipo ut
+				JOIN trade.tipoUsuarioCuenta utc ON utc.idTipoUsuario = ut.idTipoUsuario
 			WHERE 
-				idTipoUsuario IN (
-					SELECT idTipoUsuario FROM trade.tipo_usuario_proyecto WHERE idProyectoGeneral=$idProyecto
-				) 
-				AND estado=1
+				ut.estado=1
+				AND utc.idCuenta = {$this->sessIdCuenta}
 		";
 		return $this->db->query($sql)->result_array();
 	}

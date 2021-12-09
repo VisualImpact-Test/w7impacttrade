@@ -27,7 +27,7 @@ class M_iniciativas extends MY_Model{
 		$filtros .= !empty($input['proyecto']) ? ' AND r.idProyecto='.$input['proyecto'] : '';
 		$filtros .= !empty($input['grupoCanal']) ? ' AND ca.idGrupoCanal='.$input['grupoCanal'] : '';
 		$filtros .= !empty($input['canal']) ? ' AND v.idCanal='.$input['canal'] : '';
-		$filtros .= !empty($input['subcanal']) ? ' AND sn.idSubCanal='.$input['subcanal'] : '';
+		$filtros .= !empty($input['subcanal']) ? ' AND ct.idClienteTipo ='.$input['subcanal'] : '';
 
 		$filtros .= !empty($input['tipoUsuario']) ? " AND uh.idTipoUsuario=".$input['tipoUsuario'] : "";
 		$filtros .= !empty($input['usuario']) ? " AND uh.idUsuario=".$input['usuario'] : "";
@@ -110,7 +110,7 @@ class M_iniciativas extends MY_Model{
 				, ISNULL(id.producto, 0) AS cuentaConProducto
 				, c.codDist
 				, c.codCliente
-				, subca.nombre subCanal
+				, ct.nombre subCanal
 				{$segmentacion['columnas_bd']}
 
 			FROM 
@@ -133,6 +133,8 @@ class M_iniciativas extends MY_Model{
 					AND ch.idProyecto={$idProyecto}
 				LEFT JOIN trade.segmentacionNegocio sn
 					ON sn.idSegNegocio = ch.idSegNegocio
+				LEFT JOIN trade.cliente_tipo ct
+					ON ct.idClienteTipo = sn.idClienteTipo
 				JOIN trade.canal ca
 					ON ca.idCanal = v.idCanal
 				LEFT JOIN trade.grupoCanal gc

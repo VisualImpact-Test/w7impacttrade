@@ -7,6 +7,7 @@ class Home extends MY_Controller {
 		parent::__construct();
 		$this->load->model('M_Home', 'model');
 		$this->load->model('M_muro', 'm_muro');
+		$this->load->model('M_control', 'm_control');
 	}
 	
 	public function index()
@@ -81,8 +82,22 @@ class Home extends MY_Controller {
 		$post = json_decode($this->input->post('data'), true);
 		$result = $this->result;
 		$array = array();
+		$gruposCanal = $this->m_control->get_grupoCanal(['idGrupoCanal' => $post['grupoCanal']]);
+		$cobertura = [
+			'totalCartera' =>0,
+			'totalCobertura' =>0,
+			'carteraHoy' =>0,
+			'coberturaHoy' =>0,
+		];
+		foreach ($gruposCanal as $v) {
+			$post['grupoCanal'] = $v['id'];
+			$cobertura_tmp = $this->model->get_cobertura($post)->row_array();
+			$cobertura['totalCartera'] += $cobertura_tmp['totalCartera'];
+			$cobertura['totalCobertura'] += $cobertura_tmp['totalCobertura'];
+			$cobertura['carteraHoy'] += $cobertura_tmp['carteraHoy'];
+			$cobertura['coberturaHoy'] += $cobertura_tmp['coberturaHoy'];
+		}
 
-		$cobertura = $this->model->get_cobertura($post)->row_array();
 		$array['cobertura']= $cobertura;
 
 		$result['data']['html']=$this->load->view("home/cobertura", $array, true);
@@ -97,8 +112,34 @@ class Home extends MY_Controller {
 		$post = json_decode($this->input->post('data'), true);
 		$result = $this->result;
 		$array = array();
-
-		$efectividad = $this->model->get_efectividad($post)->row_array();
+		$gruposCanal = $this->m_control->get_grupoCanal(['idGrupoCanal' => $post['grupoCanal']]);
+		$efectividad = [
+			'totalProg' =>0,
+			'totalEfectiva' =>0,
+			'totalIncidencia' =>0,
+			'totalProcesos' =>0,
+			'totalNoVisitados' =>0,
+			'totalProgHoy' =>0,
+			'totalEfectivaHoy' =>0,
+			'totalIncidenciaHoy' =>0,
+			'totalProcesoHoy' =>0,
+			'totalNoVisitadosHoy' =>0,
+		];
+		foreach ($gruposCanal as $v) {
+			$post['grupoCanal'] = $v['id'];
+			$efectividad_tmp = $this->model->get_efectividad($post)->row_array();
+			$efectividad['totalProg'] += $efectividad_tmp['totalProg'];
+			$efectividad['totalEfectiva'] += $efectividad_tmp['totalEfectiva'];
+			$efectividad['totalIncidencia'] += $efectividad_tmp['totalIncidencia'];
+			$efectividad['totalProcesos'] += $efectividad_tmp['totalProcesos'];
+			$efectividad['totalNoVisitados'] += $efectividad_tmp['totalNoVisitados'];
+			// Hoy
+			$efectividad['totalProgHoy'] += $efectividad_tmp['totalProgHoy'];
+			$efectividad['totalEfectivaHoy'] += $efectividad_tmp['totalEfectivaHoy'];
+			$efectividad['totalIncidenciaHoy'] += $efectividad_tmp['totalIncidenciaHoy'];
+			$efectividad['totalProcesoHoy'] += $efectividad_tmp['totalProcesoHoy'];
+			$efectividad['totalNoVisitadosHoy'] += $efectividad_tmp['totalNoVisitadosHoy'];
+		}
 		$array['efectividad']= $efectividad;
 		$array['fecha']= $post['fecha'];
 

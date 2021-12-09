@@ -55,7 +55,7 @@ class CheckProductos extends MY_Controller{
 		$input['proyecto_filtro'] = $data->{'proyecto_filtro'};
 		$input['grupoCanal_filtro'] = $data->{'grupoCanal_filtro'};
 		$input['canal_filtro'] = $data->{'canal_filtro'};
-
+		$input['subcanal'] = $data->{'subcanal_filtro'};
 		if(isset( $data->{'idElemento'})){
 			$elementos = $data->{'idElemento'};
 			if(is_array($elementos)){
@@ -83,7 +83,8 @@ class CheckProductos extends MY_Controller{
 
 		$html = '';
 		$array['visitas'] = $rs_visitas;
-
+		$segmentacion = getSegmentacion($input);
+		$result['data']['grupoCanal'] = $segmentacion['grupoCanal'];
 		if(!empty($rs_visitas)){
 			$array=array();
 			$array['visitas'] = $rs_visitas;
@@ -101,8 +102,6 @@ class CheckProductos extends MY_Controller{
 				$array['lista'][$list['idVisita']][$list['idProducto']]='1';
 			}
 
-			$segmentacion = getSegmentacion($input);
-			
 			$array['segmentacion'] = $segmentacion;
 			$html = $this->load->view("modulos/gestionGerencial/checkProducto/detalle_checklist",$array,true);
 			$result['data']['grupoCanal'] = $segmentacion['grupoCanal'];
@@ -123,7 +122,7 @@ class CheckProductos extends MY_Controller{
 			],
 			// 'dom' => '<"ui icon input"f>tip',
 		];
-	
+		
 		echo json_encode($result);
 	}
 
@@ -168,6 +167,7 @@ class CheckProductos extends MY_Controller{
 		$input['proyecto_filtro'] = $data->{'proyecto_filtro'};
 		$input['grupoCanal_filtro'] = $data->{'grupoCanal_filtro'};
 		$input['canal_filtro'] = $data->{'canal_filtro'};
+		$input['subcanal'] = $data->{'subcanal_filtro'};
 		$input['flagPropios'] = !empty($data->{'ck-propios'}) ? true : '';
 		$input['flagCompetencia'] = !empty($data->{'ck-competencia'}) ? true : '';
 
@@ -196,15 +196,16 @@ class CheckProductos extends MY_Controller{
 
 		$html = '';
 		$array['quiebres'] = $rs_quiebres;
+		$segmentacion = getSegmentacion($input);
+		$result['data']['grupoCanal'] = $segmentacion['grupoCanal'];
 
 		if(!empty($rs_quiebres)){
 			$array = [];
 			$array['quiebres'] = $rs_quiebres;
-			$segmentacion = getSegmentacion($input);
+			
 			$array['segmentacion'] = $segmentacion;
 
 			$html = $this->load->view("modulos/gestionGerencial/checkProducto/detalle_quiebres",$array,true);
-			$result['data']['grupoCanal'] = $segmentacion['grupoCanal'];
 		} else {
 			$html = getMensajeGestion('noRegistros');
 		}
@@ -237,7 +238,7 @@ class CheckProductos extends MY_Controller{
 		$input['grupoCanal_filtro'] = $data->{'grupoCanal_filtro'};
 		$input['canal_filtro'] = $data->{'canal_filtro'};
 		// $input['quiebre'] = empty($data->{'ch-quiebre'}) ? 0 : 1;
-
+		$input['subcanal'] = $data->{'subcanal_filtro'};
 		$input['distribuidora_filtro'] = empty($data->{'distribuidora_filtro'}) ? '' : $data->{'distribuidora_filtro'};
 		$input['zona_filtro'] = empty($data->{'zona_filtro'}) ? '' : $data->{'zona_filtro'};
 		$input['plaza_filtro'] = empty($data->{'plaza_filtro'}) ? '' : $data->{'plaza_filtro'};
@@ -258,15 +259,16 @@ class CheckProductos extends MY_Controller{
 
 		$html = '';
 		$array['quiebres'] = $rs_quiebres;
-
+		$segmentacion = getSegmentacion($input);
+		$result['data']['grupoCanal'] = $segmentacion['grupoCanal'];
+		
 		if(!empty($rs_quiebres)){
 			$array = [];
 			$array['quiebres'] = $rs_quiebres;
-			$segmentacion = getSegmentacion($input);
 			$array['segmentacion'] = $segmentacion;
 
 			$html = $this->load->view("modulos/gestionGerencial/checkProducto/detalle_fifo",$array,true);
-			$result['data']['grupoCanal'] = $segmentacion['grupoCanal'];
+			
 		} else {
 			$html = getMensajeGestion('noRegistros');
 		}
@@ -308,6 +310,7 @@ class CheckProductos extends MY_Controller{
 		$input['proyecto_filtro'] = $data->{'proyecto_filtro'};
 		$input['grupoCanal_filtro'] = $data->{'grupoCanal_filtro'};
 		$input['canal_filtro'] = $data->{'canal_filtro'};
+		$input['subcanal'] = $data->{'subcanal_filtro'};
 		$input['flagPropios'] = !empty($data->{'ck-propios'}) ? true : '';
 		$input['flagCompetencia'] = !empty($data->{'ck-competencia'}) ? true : '';
 
@@ -503,6 +506,7 @@ class CheckProductos extends MY_Controller{
 		$input['proyecto_filtro'] = $data->{'proyecto_filtro'};
 		$input['grupoCanal_filtro'] = $data->{'grupoCanal_filtro'};
 		$input['canal_filtro'] = $data->{'canal_filtro'};
+		$input['subcanal'] = $data->{'subcanal_filtro'};
 		// $input['quiebre'] = empty($data->{'ch-quiebre'}) ? 0 : 1;
 
 		$input['distribuidora_filtro'] = empty($data->{'distribuidora_filtro'}) ? '' : $data->{'distribuidora_filtro'};

@@ -107,7 +107,7 @@ class M_basemadre extends MY_Model{
 				$filtros .= !empty($input['cartera']) ? ' AND ch.flagCartera='.$input['cartera'] : ' AND ch.flagCartera=0';
 				$filtros .= !empty($input['grupoCanal']) ? ' AND gc.idGrupoCanal='.$input['grupoCanal'] : '';
 				$filtros .= !empty($input['canal']) ? ' AND ca.idCanal='.$input['canal'] : '';
-				$filtros .= !empty($input['subcanal']) ? ' AND subc.idSubCanal='.$input['subcanal'] : '';
+				$filtros .= !empty($input['subcanal']) ? ' AND ctp.idClienteTipo='.$input['subcanal'] : '';
 				$filtros .= !empty($input['tipoUsuario_filtro']) ? ' AND tu.idTipoUsuario='.$input['tipoUsuario_filtro'] : '';
 				$filtros .= !empty($input['usuario_filtro']) ? ' AND u.idUsuario='.$input['usuario_filtro'] : '';
 				$filtros .= !empty($input['distribuidora_filtro']) ? ' AND d.idDistribuidora='.$input['distribuidora_filtro'] : '';
@@ -137,7 +137,8 @@ class M_basemadre extends MY_Model{
 			, ub.departamento, ub.provincia, ub.distrito, LTRIM(RTRIM(ub.cod_departamento)) AS cod_departamento
 			, gc.idGrupoCanal, gc.nombre grupoCanal
 			, ca.idCanal, ca.nombre canal
-			, subc.idSubCanal, subc.nombre subCanal
+			, ctp.idClienteTipo
+			, ctp.nombre subCanal
 			, map.id_anychartmaps idMap
 			, cu.nombre cuenta
 			, py.nombre proyecto

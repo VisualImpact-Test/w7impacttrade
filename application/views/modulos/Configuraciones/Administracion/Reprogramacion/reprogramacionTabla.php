@@ -7,7 +7,7 @@
                 <th rowspan="2" class="text-center">OPCIONES</th>
                 <th colspan="6" class="text-center">PUNTO DE VENTA</th>
                 <th colspan="2" class="text-center">VISITA</th>
-                <th colspan="8" class="text-center">SOLICITUD</th>
+                <th colspan="9" class="text-center">SOLICITUD</th>
                 <th colspan="4" class="text-center">REPROGRAMACIÓN</th>
             </tr>
 
@@ -24,6 +24,7 @@
 
                 <th class="text-center">TIPO DOCUMENTO</th>
                 <th class="text-center">DOCUMENTO</th>
+                <th class="text-center">ESTADO USUARIO</th>
                 <th class="text-center">TIPO USUARIO</th>
                 <th class="text-center">USUARIO</th>
                 <th class="text-center">HORA</th>
@@ -75,8 +76,9 @@
                     <td><?= !empty($value['frecuencia']) ? $value['frecuencia'] : '-' ?></td>
                     <td><?= !empty($value['tipoDocumento']) ? $value['tipoDocumento'] : '-' ?></td>
                     <td class="colNumerica text-center"><?= !empty($value['numDocumento']) ? $value['numDocumento'] : '-' ?></td>
+                    <td class="text-center"><?= (!empty($value['cesado']) ? "<h4 class='text-center'><span class=' badge badge-danger'>Cesado</span></h4>" : "<h4 class='text-center'><span class='badge badge-primary'>Activo</span></h4>") ?></td>
                     <td><?= !empty($value['tipoUsuario']) ? $value['tipoUsuario'] : '-' ?></td>
-                    <td><?= !empty($value['nombreCompleto']) ? $value['nombreCompleto'] : '-' ?></td>
+                    <td class="<?!empty($row['cesado']) ? 'text-danger': ''?>" ><?= !empty($value['nombreCompleto']) ? $value['nombreCompleto'] : '-' ?></td>
                     <td class="colNumerica" data-order="<?= strtotime($value['hora']) ?>"><?= !empty($value['hora']) ? time_change_format($value['hora']) : '-' ?></td>
                     <td><?= !empty($value['motivoReprogramacion']) ? $value['motivoReprogramacion'] : '-' ?></td>
                     <td><?= !empty($value['observacion']) ? $value['observacion'] : '-' ?></td>

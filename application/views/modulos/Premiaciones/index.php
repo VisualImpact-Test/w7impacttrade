@@ -71,6 +71,10 @@
 							<span class="tooltiptext">Canal</span>
 							<?= getFiltros(['canal' => ['label' => 'Canal', 'name' => 'canal_filtro', 'id' => 'canal_filtro', 'data' => false, 'select2' => 'ui my_select2Full', 'html' => '']]) ?>
 						</div>
+						<div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip">
+							<span class="tooltiptext">Canal</span>
+							<?= getFiltros(['tipoCliente' => ['label' => 'Subcanal', 'name' => 'subcanal_filtro', 'id' => 'subcanal_filtro', 'data' => false, 'select2' => 'ui my_select2Full', 'html' => '']]) ?>
+						</div>
 						<div class="mb-2 mr-sm-2 position-relative form-group custom_tooltip">
 							<span class="tooltiptext">Premiaciones</span>
 							<select id="sel-premiacion" class="ui my_select2Full" name="sel-premiacion" title="Premiación (Todo)">
