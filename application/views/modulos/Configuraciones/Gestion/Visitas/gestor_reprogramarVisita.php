@@ -43,13 +43,14 @@
 										<thead>
 											<tr>
 												<th class="text-center align-middle" rowspan="2">#</th>
-												<th class="text-center align-middle" colspan="2">NUEVA RUTA</th>
+												<th class="text-center align-middle" colspan="3">NUEVA RUTA</th>
 												<th class="text-center align-middle" colspan="3">ACTUAL RUTA</th>
 												<th class="text-center align-middle" colspan="2">DATOS CLIENTE</th>
 											</tr>
 											<tr>
 												<th class="text-center align-middle">FECHA NUEVO</th>
 												<th class="text-center align-middle">USUARIO NUEVO</th>
+												<th class="text-center align-middle">TIPO USUARIO</th>
 												<th class="text-center align-middle">ESTADO</th>
 												<th class="text-center align-middle">FECHA</th>
 												<th class="text-center align-middle">USUARIO</th>
@@ -60,7 +61,7 @@
 										<tbody>
 											<? $ix=1; ?>
 											<? foreach ($listaVisitas as $klr => $row): ?>
-												<tr class="tr-reprogramarVisita" data-ruta="<?=$row['idRuta']?>" data-visita="<?=$row['idVisita']?>">
+												<tr class="tr-reprogramarVisita" data-ruta="<?=$row['idRuta']?>" data-visita="<?=$row['idVisita']?> " data-disponible = "<?= empty($row['horaIni']) ? 1 : 0 ?>">
 													<td class="text-center"><?=$ix++;?><input type="hidden" name="flagProgramar" value="<?=(empty($row['horaIni'])?'1':'0')?>"></td>
 													<td class="text-center">
 														<? if ( empty($row['horaIni'])): ?>
@@ -72,12 +73,23 @@
 													<td class="text-center">
 														<? if (empty($row['horaIni'])): ?>
 															<select class="form-control slWidth my-select2-usuarios" id="usuario-<?=$row['idRuta']?>-<?=$row['idCliente']?>" name="usuario" patron="requerido">
-																<option value="">-- Usuario --</option>
 																<? foreach ($listaUsuarios as $klu => $usuario): ?>
 																	<? $usuarioSelected = ($row['idUsuario']==$usuario['idUsuario']?'selected':''); ?>
 																	<option value="<?=$usuario['idUsuario']?>" <?=$usuarioSelected?>><?=$usuario['nombreUsuario']?></option>
 																<? endforeach ?>
 															</select>
+														<? else: ?>
+															<span><strong>-</strong></span>
+														<? endif ?>
+													</td>
+													<td class="text-center">
+														<? if (empty($row['horaIni'])): ?>
+														<select class="form-control slWidth my-select2-tipousuario" id="tipoUsuario-<?=$row['idRuta']?>-<?=$row['idCliente']?>" name="tipoUsuario" patron="requerido">
+															<? foreach ($listaTiposUsuario[$row['idUsuario']] as $klut => $tipoUsuario): ?>
+																<? $usuarioTipoSelected = ($row['idTipoUsuario']==$tipoUsuario['idTipoUsuario']?' selected':''); ?>
+																<option value="<?=$tipoUsuario['idTipoUsuario']?>" <?=$usuarioTipoSelected?>><?=$tipoUsuario['tipoUsuario']?></option>
+															<? endforeach ?>
+														</select>
 														<? else: ?>
 															<span><strong>-</strong></span>
 														<? endif ?>
@@ -110,7 +122,11 @@
 </form>
 <script>
 	$('.my-select2-usuarios').select2({
-		dropdownParent: $("div.modal-content"),
+		dropdownParent: $("#frm-gestorReprogramarRutaVisita"),
+		width: '100%'
+	});
+	$('.my-select2-tipousuario').select2({
+		dropdownParent: $("#frm-gestorReprogramarRutaVisita"),
 		width: '100%'
 	});
 </script>

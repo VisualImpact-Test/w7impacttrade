@@ -358,6 +358,8 @@ class M_rutas extends My_Model{
 	}
 
 	public function insertar_visita_ruta($params){
+		$demo = $this->demo;
+
 		$sql="
 			DECLARE
 			@fecha DATE,
@@ -370,17 +372,22 @@ class M_rutas extends My_Model{
 				@num=COUNT(idRuta)
 			FROM {$this->sessBDCuenta}.trade.data_ruta
 			WHERE idUsuario={$params['idUsuario']}
-			AND fecha=@fecha AND idCuenta = {$params['idCuenta']} AND idProyecto = {$params['idProyecto']};
+			AND fecha=@fecha AND idCuenta = {$params['idCuenta']} 
+			AND idProyecto = {$params['idProyecto']}
+			AND idTipoUsuario = {$params['idTipoUsuario']};
 
 			IF( @num=0 )BEGIN
-				INSERT INTO {$this->sessBDCuenta}.trade.data_ruta (fecha,idUsuario,idEncargado,idProyecto,idCuenta) VALUES (@fecha,{$params['idUsuario']},null,{$params['idProyecto']},{$params['idCuenta']})
+				INSERT INTO {$this->sessBDCuenta}.trade.data_ruta (fecha,idUsuario,idTipoUsuario,idEncargado,idProyecto,idCuenta) VALUES (@fecha,{$params['idUsuario']},{$params['idTipoUsuario']},null,{$params['idProyecto']},{$params['idCuenta']})
 			END
 
 			SELECT
 				@idRuta=idRuta
 			FROM {$this->sessBDCuenta}.trade.data_ruta
 			WHERE idUsuario={$params['idUsuario']}
-			AND fecha=@fecha AND idProyecto = {$params['idProyecto']} AND idCuenta = {$params['idCuenta']};
+			AND fecha=@fecha 
+			AND idProyecto = {$params['idProyecto']}
+			AND idCuenta = {$params['idCuenta']}
+			AND idTipoUsuario = {$params['idTipoUsuario']};
 
 			SELECT
 				@num=COUNT(idVisita)
@@ -421,6 +428,21 @@ class M_rutas extends My_Model{
 	////ERRORES
 	public function obtener_rutas_no_procesado($id){
 		$sql="SELECT * FROM {$this->sessBDCuenta}.trade.cargaRutaNoProcesados where idCarga= $id";
+		return $this->db->query($sql)->result_array();
+	}
+
+	public function obtener_tipo_usuario(){
+		$sql="
+			SELECT DISTINCT
+				  ut.idTipoUsuario
+				, ut.nombre 
+			FROM 
+				trade.usuario_tipo ut
+				JOIN trade.tipoUsuarioCuenta utc ON utc.idTipoUsuario = ut.idTipoUsuario
+			WHERE 
+				ut.estado=1
+				AND utc.idCuenta = {$this->sessIdCuenta}
+		";
 		return $this->db->query($sql)->result_array();
 	}
 

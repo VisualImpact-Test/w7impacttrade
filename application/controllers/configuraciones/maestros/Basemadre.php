@@ -16,7 +16,7 @@ class Basemadre extends MY_Controller{
 
 	public function index(){
 		$this->aSessTrack[] = [ 'idAccion' => 4 ];
-
+		$idTipoUsuario = $this->idTipoUsuario;
 		if (in_array($this->idTipoUsuario, [4,10])) {
 			$this->htmlClienteActivar=true;
 			$this->htmlTranferirAgregados=true;
@@ -107,6 +107,7 @@ class Basemadre extends MY_Controller{
 		$input = array();
 		$input['fecIni'] = $fechas[0];
 		$input['fecFin'] = $fechas[1];
+		$input['grupoCanal_filtro'] = $data->{'grupoCanal_filtro'};
 		$input['canal_filtro'] = $data->{'canal_filtro'};
 		$input['clientes'] = $data->{'txt-nombres'};
 		//$input['proyecto_filtro'] = $data->{'proyecto_filtro'};
@@ -2904,6 +2905,8 @@ class Basemadre extends MY_Controller{
 		if (in_array($this->idTipoUsuario, [4,10])) {
 			$this->htmlTranferirAgregados=true;
 		}
+		ini_set('memory_limit','4096M');
+		set_time_limit(0);
 
 		$result = $this->result;
 		$data = json_decode($this->input->post('data'));
@@ -3369,6 +3372,7 @@ class Basemadre extends MY_Controller{
 		if (!empty($rs_segmentacion)) {
 			$array['flagClienteTradicional'] = $rs_segmentacion[0]['flagClienteTradicional'];
 			$array['flagClienteModerno'] = $rs_segmentacion[0]['flagClienteModerno'];
+			$array['flagClienteMayorista'] = $rs_segmentacion[0]['flagClienteMayorista'];
 		}
 
 		$idProyecto=$this->session->userdata('idProyecto');
@@ -3554,6 +3558,159 @@ class Basemadre extends MY_Controller{
 					->setCellValue('V1', 'PLAZA')
 					->setCellValue('W1', 'DISTRIBUIDORA SUCURSAL 1');
 
+		header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+		header('Content-Disposition: attachment;filename="basemadre_formato.xlsx"');
+		header('Set-Cookie: fileDownload=true; path=/');
+		header('Cache-Control: max-age=60, must-revalidate');
+		header ('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
+		header ('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT'); // always modified
+		header ('Cache-Control: cache, must-revalidate'); // HTTP/1.1
+		header ('Pragma: public'); // HTTP/1.0
+		$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+		$objWriter->save('php://output');	
+		////
+	}
+	public function generar_formato_carga_masiva_alternativa_mayorista(){
+		////
+		error_reporting(E_ALL);
+		ini_set('display_errors', TRUE);
+		ini_set('display_startup_errors', TRUE);
+		ini_set('memory_limit', '1024M');
+		set_time_limit(0);
+		
+		/** Include PHPExcel */
+		require_once '../phpExcel/Classes/PHPExcel.php';
+
+		$objPHPExcel = new PHPExcel();
+
+		/**ESTILOS**/
+		$estilo_cabecera_visita =  
+			array(
+				'alignment' => array(
+					'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+					'vertical' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER
+				),
+				'fill' => array(
+					'type' => PHPExcel_Style_Fill::FILL_SOLID,
+					'color' => array('rgb' => '920000')
+				),
+				'font'  => array(
+					'color' => array('rgb' => 'ffffff'),
+					'size'  => 11,
+					'name'  => 'Calibri'
+				)
+			);
+		
+		$estilo_cabecera_disponibilidad = 
+			array(
+				'alignment' => array(
+					'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+					'vertical' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER
+				),
+				'fill' => array(
+					'type' => PHPExcel_Style_Fill::FILL_SOLID,
+					'color' => array('rgb' => '558636')
+				),
+				'font'  => array(
+					'color' => array('rgb' => 'ffffff'),
+					'size'  => 11,
+					'name'  => 'Calibri'
+				)
+			);
+		
+		$estilo_cabecera_visibilidad = 
+			array(
+				'alignment' => array(
+					'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+					'vertical' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER
+				),
+				'fill' => array(
+					'type' => PHPExcel_Style_Fill::FILL_SOLID,
+					'color' => array('rgb' => '001636')
+				),
+				'font'  => array(
+					'color' => array('rgb' => 'ffffff'),
+					'size'  => 11,
+					'name'  => 'Calibri'
+				)
+			);
+			
+		$estilo_cabecera_accesibilidad = 
+			array(
+				'alignment' => array(
+					'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+					'vertical' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER
+				),
+				'fill' => array(
+					'type' => PHPExcel_Style_Fill::FILL_SOLID,
+					'color' => array('rgb' => '00ced1')
+				),
+				'font'  => array(
+					'color' => array('rgb' => 'ffffff'),
+					'size'  => 11,
+					'name'  => 'Calibri'
+				)
+			);
+		
+		$style_gris =
+			array(
+				'alignment' => array(
+					'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+					'vertical' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER
+				),
+				'fill' => array(
+					'type' => PHPExcel_Style_Fill::FILL_SOLID,
+					'color' => array('rgb' => 'd4d0cd')
+				),
+				'font'  => array(
+					'color' => array('rgb' => 'ffffff'),
+					'size'  => 11,
+					'name'  => 'Calibri'
+				)
+			);
+		$style_disponibles =
+			array(
+				'alignment' => array(
+					'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+					'vertical' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER
+				),
+				'fill' => array(
+					'type' => PHPExcel_Style_Fill::FILL_SOLID,
+					'color' => array('rgb' => 'ffffff')
+				),
+				'font'  => array(
+					'color' => array('rgb' => '000000'),
+					'size'  => 11,
+					'name'  => 'Calibri'
+				)
+			);
+			
+		/**FIN ESTILOS**/
+		
+		$objPHPExcel->setActiveSheetIndex(0)
+					->setCellValue('A1', 'NOMBRE COMERCIAL')
+					->setCellValue('B1', 'RAZON SOCIAL')
+					->setCellValue('C1', 'RUC')
+					->setCellValue('D1', 'DNI')
+					->setCellValue('E1', 'DEPARTAMENTO')
+					->setCellValue('F1', 'PROVINCIA')
+					->setCellValue('G1', 'DISTRITO')
+					->setCellValue('H1', 'DIRECCION')
+					->setCellValue('I1', 'REFERENCIA')
+					->setCellValue('J1', 'LATITUD')
+					->setCellValue('K1', 'LONGITUD')
+					->setCellValue('L1', 'ZONA PELIGROSA')
+					->setCellValue('M1', 'CODIGO CLIENTE')
+					->setCellValue('N1', 'CLIENTE CARTERA')
+					->setCellValue('O1', 'FECHA INICIO')
+					->setCellValue('P1', 'FECHA FIN')
+					->setCellValue('Q1', 'FRECUENCIA')
+					->setCellValue('R1', 'ZONA')
+					->setCellValue('S1', 'GRUPO CANAL')
+					->setCellValue('T1', 'CANAL')
+					->setCellValue('U1', 'CLIENTE TIPO')
+					->setCellValue('V1', 'PLAZA');
+					
 		header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 		header('Content-Disposition: attachment;filename="basemadre_formato.xlsx"');
 		header('Set-Cookie: fileDownload=true; path=/');

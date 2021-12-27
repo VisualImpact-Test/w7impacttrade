@@ -636,6 +636,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 				if( isset($get['tipoUsuario']) && $get['tipoUsuario']['data'] ){
 					$aDatos['tipoUsuario'] = $CI->m_control->get_tiposUsuario();
 				}
+				if( isset($get['usuario']) && $get['usuario']['data'] ){
+					$aDatos['usuario'] = $CI->m_control->get_usuarios();
+				}
 				if( isset($get['frecuencia']) && $get['frecuencia']['data'] ){
 					$aDatos['frecuencia'] = $CI->m_control->get_frecuencia();
 				}
@@ -707,6 +710,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 								{if(!empty($selected) && $row['id'] == $selected ){
 									$select = "selected ";
 								}
+							}elseif($idx == 'tipoUsuario')
+								{if(!empty($selected) && $row['id'] == $selected ){
+									$select = "selected ";
+								}
+							}elseif($idx == 'usuario')
+								{if(!empty($selected) && $row['id'] == $selected ){
+									$select = "selected ";
+								}
 							}
 
 							$selectHtml .= '<option value="'.$oId.'" '.$select.'>'.$oValue.'</option>';
@@ -742,6 +753,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 				'colaborador' => array('label' => 'Colaborador', 'name' => 'idUsuario'),
 				'tipoCliente' => array('label' => 'Tipo Cliente', 'name' => 'idTipoCliente'),
 				'tipoUsuario' => array('label' => 'Tipo Usuario', 'name' => 'idTipoUsuario'),
+				'usuario' => array('label' => 'Usuario', 'name' => 'idUsuario'),
 				'frecuencia' => array('label' => 'Frecuencia', 'name' => 'idFrecuencia'),
 			);
 
@@ -1586,3 +1598,43 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 		return ' <a href="javascript:;" style="margin-right:3px;font-size: 15px;" class="lk-show-foto" data-modulo="'.$modulo.'" data-foto="' . $foto . '" ><i class="'.$icono.'" ></i></a> ';
 	}
+
+	function getDistanciaMaps($input = [])
+	{
+		$km = rad2deg(acos((sin(deg2rad($input['lat1']))*sin(deg2rad($input['lat2']))) + (cos(deg2rad($input['lat1']))*cos(deg2rad($input['lat2']))*cos(deg2rad($input['long1']-$input['long2'])))));
+		return $km;
+	}
+	function distance($lat1, $lon1, $lat2, $lon2, $unit) {
+		if (($lat1 == $lat2) && ($lon1 == $lon2)) {
+		  return 0;
+		}
+		else {
+		  $theta = $lon1 - $lon2;
+		  $dist = sin(deg2rad($lat1)) * sin(deg2rad($lat2)) +  cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * cos(deg2rad($theta));
+		  $dist = acos($dist);
+		  $dist = rad2deg($dist);
+		  $miles = $dist * 60 * 1.1515;
+		  $unit = strtoupper($unit);
+	  
+		  if ($unit == "K") {
+			return ($miles * 1.609344);
+		  } else if ($unit == "N") {
+			return ($miles * 0.8684);
+		  } else {
+			return $miles;
+		  }
+		}
+	}
+	function kmtom($km)
+	{
+		$m = $km * 1000;
+		$result = '';
+		if($m >= 1000){
+			$result = round($m / 1000,2).' km';
+		}else{
+			$result = round($m,2).' m';
+		}
+
+		return $result;
+	}
+

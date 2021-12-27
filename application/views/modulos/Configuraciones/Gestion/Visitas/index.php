@@ -89,31 +89,25 @@
 						</div>
 
 						<div class="mb-2 mr-sm-2  position-relative form-group ">
-
-							<select id="tipoUsuario_filtro" name="tipoUsuario_filtro" class="form-control form-control-sm my_select2Full sl-width-150">
-								<option value="">-- Tipo Usuario --</option>
-								<? foreach ($tipoUsuario as $key => $user) : ?>
-									<option value="<?= $user['idTipoUsuario'] ?>"><?= $user['nombre'] ?></option>
-								<? endforeach ?>
-							</select>
-						</div>
-						<div class="mb-2 mr-sm-2  position-relative form-group ">
-
+							
 							<?= getFiltros(['cuenta' => ['label' => 'Cuenta', 'name' => 'cuenta_filtro', 'id' => 'cuenta_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]) ?>
 						</div>
 						<div class="mb-2 mr-sm-2  position-relative form-group ">
 							<?= getFiltros(['proyecto' => ['label' => 'Proyecto', 'name' => 'proyecto_filtro', 'id' => 'proyecto_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]) ?>
 						</div>
-
+						
 						<div class="mb-2 mr-sm-2  position-relative form-group " id="combo_grupocanal">
 							<?= getFiltros(['grupoCanal' => ['label' => 'Grupo Canal', 'name' => 'grupo_filtro', 'id' => 'grupo_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]) ?>
 						</div>
 						<div class="mb-2 mr-sm-2  position-relative form-group " id="combo_canal">
 							<?= getFiltros(['canal' => ['label' => 'Canal', 'name' => 'canal_filtro', 'id' => 'canal_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]) ?>
 						</div>
-
+						<div class="mb-2 mr-sm-2  position-relative form-group filtros_asistencia custom_tooltip">
+							<span class="tooltiptext">Tipo Usuario</span>
+							<?= getFiltros(['tipoUsuario' => ['label' => 'Tipo usuario', 'name' => 'tipoUsuario_filtro', 'id' => 'tipoUsuario_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]) ?>
+						</div>
 						<div class="mb-2 mr-sm-2 position-relative form-group">
-							<select id="usuario" name="usuario" class="ui my_select2Full" style="width:100%" title="Usuario">
+							<select id="usuario_filtro_ruta" name="usuario_filtro_ruta" class="ui my_select2Full" style="width:100%" title="Usuario">
 								<option value="">-- Usuario --</option>
 								<? foreach ($listaUsuarios as $key => $user) : ?>
 									<option value="<?= $user['idUsuario'] ?>"><?= $user['nombreUsuario'] ?></option>

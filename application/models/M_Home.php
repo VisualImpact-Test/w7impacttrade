@@ -573,7 +573,7 @@ class M_Home extends MY_Model{
             JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta
             JOIN trade.canal c ON c.idCanal = v.idCanal
             JOIN trade.grupoCanal gc ON gc.idGrupoCanal = c.idGrupoCanal
-            WHERE r.fecha = @fechaHoy
+            WHERE r.fecha = @fechaHoy AND r.demo = 0
             {$filtros}
             AND r.idTipoUsuario IN(1,18)
         ), lista_programados AS (

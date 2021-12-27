@@ -541,6 +541,33 @@ class M_control extends MY_Model{
 		if(!$demo){
 			$filtro_demo = " AND u.demo = 0";
 		}
+		!empty($idProyecto) ? $filtros .= " AND uh.idProyecto = {$idProyecto}" : "";
+		!empty($params['idTipousuario']) ? $filtros .= " AND uh.idTipoUsuario = {$params['idTipousuario']}" : "";
+		$sql = "
+		DECLARE @fecha DATE = GETDATE();
+		SELECT DISTINCT 
+		u.idUsuario id
+		,ISNULL((ISNULL(u.nombres,'') + ' ' + ISNULL(u.apePaterno,'') + ' ' + ISNULL(u.apeMaterno,'')),' ')  nombre
+		FROM trade.usuario u
+		JOIN trade.usuario_historico uh ON uh.idUsuario = u.idUsuario 
+			--AND General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,@fecha,@fecha) = 1
+		WHERE u.estado=1
+		{$filtros}
+		{$filtro_demo}
+		ORDER BY u.idUsuario DESC";
+		return $this->db->query($sql)->result_array();
+	}
+	public function get_usuarios_multi($params = [])
+	{
+		
+		$idCuenta = $this->sessIdCuenta;
+		$idProyecto = $this->sessIdProyecto;
+	
+		$filtros = '';
+		$demo = $this->demo;$filtro_demo = '';
+		if(!$demo){
+			$filtro_demo = " AND u.demo = 0";
+		}
 		!empty($params['input']) ? $filtros .= " AND (u.nombres LIKE('%".$params['input']."%') 
 												OR u.apePaterno LIKE('%".$params['input']."%') 
 												OR u.apeMaterno LIKE('%".$params['input']."%')
@@ -556,7 +583,7 @@ class M_control extends MY_Model{
 		{$filtros}
 		{$filtro_demo}
 		ORDER BY u.idUsuario DESC";
-		return $this->db->query($sql);
+		return $this->db->query($sql)->result_array();
 	}
 
 	public function getPermisosTradicional($input = array()){

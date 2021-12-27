@@ -16,8 +16,8 @@ class M_visitas extends MY_Model{
 		$sessDemo = $this->demo;
 
 		$filtros = "";
-		$filtros.= !empty($input['listaCuentas']) ? " AND r.idCuenta IN (".$input['listaCuentas'].")":"";
-		$filtros.= !empty($input['listaProyectos']) ? " AND r.idProyecto IN (".$input['listaProyectos'].")":"";
+		// $filtros.= !empty($input['listaCuentas']) ? " AND r.idCuenta IN (".$input['listaCuentas'].")":"";
+		// $filtros.= !empty($input['listaProyectos']) ? " AND r.idProyecto IN (".$input['listaProyectos'].")":"";
 		
 		$filtros.= !empty($input['cuenta']) ? " AND r.idCuenta=".$input['cuenta']:"";
 		$filtros.= !empty($input['proyecto']) ? " AND r.idProyecto=".$input['proyecto']:"";
@@ -42,7 +42,7 @@ class M_visitas extends MY_Model{
 		}
 		
 		if( $sessIdTipoUsuario != 4 ){
-			if( empty($sessDemo) ) $filtros .=  " AND r.demo = 0";
+			if( empty($sessDemo) ) $filtros .=  " AND (r.demo = 0 OR r.demo IS NULL)";
 			else $filtros .=  " AND (r.demo = 0 OR r.idUsuario = {$this->idUsuario})";
 		}
 
@@ -72,7 +72,9 @@ class M_visitas extends MY_Model{
 			, py.nombre AS proyecto
 			, ec.idUsuario AS idUsuarioEncargado
 			, u.apePaterno+' '+u.apeMaterno+' '+u.nombres AS nombreUsuarioEncargado
+			, SUM(CASE WHEN v.horaIni IS NOT NULL THEN 1 ELSE 0 END) OVER (PARTITION BY r.idRuta) visitasData
 		FROM {$this->sessBDCuenta}.trade.data_ruta r
+		LEFT JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta = r.idRuta
 		LEFT JOIN trade.cuenta c ON c.idCuenta=r.idCuenta
 		LEFT JOIN trade.proyecto py ON py.idProyecto=r.idProyecto
 		LEFT JOIN trade.encargado ec ON ec.idEncargado=r.idEncargado
@@ -104,8 +106,8 @@ class M_visitas extends MY_Model{
 		$sessDemo = $this->demo;
 
 		$filtros = "";
-		$filtros.= !empty($input['listaCuentas']) ? " AND r.idCuenta IN (".$input['listaCuentas'].")":"";
-		$filtros.= !empty($input['listaProyectos']) ? " AND r.idProyecto IN (".$input['listaProyectos'].")":"";
+		// $filtros.= !empty($input['listaCuentas']) ? " AND r.idCuenta IN (".$input['listaCuentas'].")":"";
+		// $filtros.= !empty($input['listaProyectos']) ? " AND r.idProyecto IN (".$input['listaProyectos'].")":"";
 		
 		$filtros.= !empty($input['cuenta']) ? " AND r.idCuenta=".$input['cuenta']:"";
 		$filtros.= !empty($input['proyecto']) ? " AND r.idProyecto=".$input['proyecto']:"";
@@ -124,7 +126,7 @@ class M_visitas extends MY_Model{
 		$filtros.= !empty($input['banner']) ? " AND b.idBanner=".$input['banner']:"";
 		
 		if( $sessIdTipoUsuario != 4 ){
-			if( empty($sessDemo) ) $filtros .=  " AND r.demo = 0";
+			if( empty($sessDemo) ) $filtros .=  " AND (r.demo = 0 OR r.demo IS NULL)";
 			else $filtros .=  " AND (r.demo = 0 OR r.idUsuario = {$this->idUsuario})";
 		}
 
@@ -133,9 +135,18 @@ class M_visitas extends MY_Model{
 
 		$sql = "
 		DECLARE @fecha DATE=GETDATE(), @fecIni DATE='".$input['fecIni']."', @fecFin DATE='".$input['fecFin']."';
+		WITH list_usuarios_activos as(
+			SELECT DISTINCT
+			u.idUsuario
+			FROM
+			trade.usuario u 
+			JOIN trade.usuario_historico uh ON uh.idUsuario = u.idUsuario
+			WHERE General.dbo.fn_fechaVigente (uh.fecIni,uh.fecFin,@fecha,@fecha) = 1 AND uh.idProyecto IN (".$input['listaProyectos'].")
+		)
 		SELECT 
 			r.idRuta
 			, CONVERT(VARCHAR,r.fecha,103) AS fecha
+			, CASE WHEN r.idUsuario NOT IN(SELECT idUsuario FROM list_usuarios_activos) THEN 1 ELSE 0 END cesado
 			, r.idUsuario
 			, r.nombreUsuario
 			, r.numVisita
@@ -154,6 +165,7 @@ class M_visitas extends MY_Model{
 			, v.estado
 			, v.idTipoExclusion
 			, v.flagContingencia
+			, v.horaIni
 		FROM {$this->sessBDCuenta}.trade.data_ruta r
 		JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
 		LEFT JOIN trade.plaza pl ON pl.idPlaza=v.idPlaza
@@ -319,7 +331,14 @@ class M_visitas extends MY_Model{
 	public function obtener_verificacion_existente($input=array()){
 
 		$query = $this->db->select('idRuta,idProyecto,idCuenta')
-				->where( array('idUsuario'=>$input['idUsuario'],'fecha'=>$input['fecha'], 'estado'=>1 ) )
+				->where( 
+						array(
+						'idUsuario'=>$input['idUsuario'],
+						'idTipoUsuario'=>$input['idTipoUsuario'],
+						'fecha'=>$input['fecha'], 
+						'estado'=>1 
+						) 
+				)
 				->get("{$this->sessBDCuenta}.trade.data_ruta");
 
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_ruta" ];
@@ -403,6 +422,7 @@ class M_visitas extends MY_Model{
 			, r.nombreUsuario
 			, r.numVisita
 			, r.estado
+			, r.idTipoUsuario
 		FROM {$this->sessBDCuenta}.trade.data_ruta r
 		WHERE 1=1 --AND r.demo=0
 		{$filtros}
@@ -419,21 +439,60 @@ class M_visitas extends MY_Model{
 		$filtros.= !empty($input['listaProyectos']) ? " AND uh.idProyecto IN (".$input['listaProyectos'].")":"";
 		$filtros.= !empty($input['idUsuario']) ? " AND u.idUsuario IN (".$input['idUsuario'].")":"";
 
+		$demo = $this->demo;$filtro_demo = '';
+		if(!$demo){
+			$filtro_demo = " AND u.demo = 0";
+		}
 		$sql=" 
 		DECLARE @fecha DATE=GETDATE();
 		----
 		SELECT DISTINCT
 			uh.idUsuario
-			, u.apePaterno+' '+u.apeMaterno+' '+u.nombres AS nombreUsuario
+			, CONVERT(VARCHAR,u.idUsuario) + ' - ' + u.apePaterno+' '+u.apeMaterno+' '+u.nombres AS nombreUsuario
 		FROM trade.usuario_historico uh
 		JOIN trade.aplicacion ap ON ap.idAplicacion=uh.idAplicacion
 		JOIN trade.usuario u ON u.idUsuario=uh.idUsuario
 		LEFT JOIN trade.proyecto py ON py.idProyecto=uh.idProyecto
 		WHERE uh.estado=1
+		--AND @fecha BETWEEN uh.fecIni AND ISNULL(uh.fecFin,@fecha)
+		AND ap.estado=1 AND ap.flagAndroid=1
+		AND u.estado=1 
+		{$filtros}
+		{$filtro_demo}";
+
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.usuario' ];
+		return $this->db->query($sql)->result_array();
+	}
+	public function obtener_lista_usuarios_reprogramar($input=array()){
+		$filtros = "";
+		$filtros.= !empty($input['listaCuentas']) ? " AND py.idCuenta IN (".$input['listaCuentas'].")":"";
+		$filtros.= !empty($input['listaProyectos']) ? " AND uh.idProyecto IN (".$input['listaProyectos'].")":"";
+		$filtros.= !empty($input['idUsuario']) ? " AND u.idUsuario IN (".$input['idUsuario'].")":"";
+
+		$demo = $this->demo;$filtro_demo = '';
+		if(!$demo){
+			$filtro_demo = " AND u.demo = 0";
+		}
+		$sql=" 
+		DECLARE @fecha DATE=GETDATE();
+		----
+		SELECT DISTINCT
+			uh.idUsuario
+			, CONVERT(VARCHAR,u.idUsuario) + ' - ' + u.apePaterno+' '+u.apeMaterno+' '+u.nombres AS nombreUsuario
+			, uh.idTipoUsuario
+			, ut.nombre tipoUsuario
+		FROM trade.usuario_historico uh
+		JOIN trade.aplicacion ap ON ap.idAplicacion=uh.idAplicacion
+		JOIN trade.usuario u ON u.idUsuario=uh.idUsuario
+		LEFT JOIN trade.proyecto py ON py.idProyecto=uh.idProyecto
+		LEFT JOIN trade.usuario_tipo ut ON ut.idTipoUsuario = uh.idTipoUsuario
+		WHERE uh.estado=1
 		AND @fecha BETWEEN uh.fecIni AND ISNULL(uh.fecFin,@fecha)
 		AND ap.estado=1 AND ap.flagAndroid=1
-		AND u.estado=1 --AND u.demo=0
-		{$filtros}";
+		AND u.estado=1 
+		AND uh.idAplicacion <> 2 
+		{$filtros}
+		{$filtro_demo}";
 
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.usuario' ];
 		return $this->db->query($sql)->result_array();
@@ -570,6 +629,7 @@ class M_visitas extends MY_Model{
 		SELECT 
 			r.idRuta
 			, CONVERT(VARCHAR,r.fecha,103) AS fecha
+			, r.idTipoUsuario
 			, r.idUsuario
 			, r.nombreUsuario
 			, r.numVisita
@@ -582,7 +642,8 @@ class M_visitas extends MY_Model{
 			, v.horaFin
 		FROM {$this->sessBDCuenta}.trade.data_ruta r
 		JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
-		WHERE 1=1 --AND r.demo=0
+		WHERE 1=1 
+		--AND r.demo=0
 		{$filtros}
 		ORDER BY r.fecha, r.idUsuario ASC
 		";
@@ -906,6 +967,29 @@ class M_visitas extends MY_Model{
 			SELECT * FROM {$this->sessBDCuenta}.trade.cargaProgramacionRutasDet  WHERE idCarga=$id AND comentario <>''
 		";
 		return $this->db->query($sql)->result_array();
+	}
+
+	public function checkRutaConData($input)
+	{
+		$sql = "
+		SELECT DISTINCT
+			r.idRuta
+			, CONVERT(VARCHAR,r.fecha,103) AS fecha
+			, r.idUsuario
+			, r.nombreUsuario
+			, r.tipoUsuario
+			--, v.idVisita
+			--, v.horaIni
+			-- , DENSE_RANK() OVER (PARTITION BY  r.idRuta order BY v.idVisita) + DENSE_RANK() OVER (PARTITION BY r.idRuta order BY v.idVisita desc) - 1
+			, COUNT (v.idVisita) OVER (PARTITION BY r.idRuta) cantVisitas
+		FROM ImpactTrade_pg.trade.data_ruta r
+		LEFT JOIN ImpactTrade_pg.trade.data_visita v ON v.idRuta = r.idRuta
+		WHERE 1=1 
+		AND v.horaIni IS NOT NULL
+		AND r.idRuta IN({$input['idRutasString']})
+		";
+		return $this->db->query($sql)->result_array();
+		
 	}
 	
 }

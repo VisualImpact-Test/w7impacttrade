@@ -1065,6 +1065,7 @@ class Rutas extends MY_Controller{
 
 		$html='';
 		$array=array();
+		$array['tiposUsuario'] = $this->model->obtener_tipo_usuario();
 		$html .= $this->load->view("modulos/configuraciones/master/rutas/cargaMasivaRutas", $array, true);
 		//Result
 		$result['result']=1;
@@ -1463,6 +1464,7 @@ class Rutas extends MY_Controller{
 						$params['fecha']=$r['fecha'];
 						$params['idCliente']=$r['idCliente'];
 						$params['idUsuario']=$r['idUsuario'];
+						$params['idTipoUsuario']= $data['tipoUsuario'];
 
 						$res=$this->model->insertar_visita_ruta($params);
 						if($res){
@@ -1734,7 +1736,7 @@ class Rutas extends MY_Controller{
 			$i++;
 		}
 		$array['data_carga']= $data_carga;
-
+		$array['tiposUsuario'] = $this->model->obtener_tipo_usuario();
 		$html.= $this->load->view("modulos/configuraciones/master/rutas/registrar_masivo_alternativa", $array, true);
 
 		$result['msg']['title'] = 'GENERAR CARGA RUTAS';
@@ -1924,6 +1926,7 @@ class Rutas extends MY_Controller{
 		
 		$fecIni = $_POST['fecIni'];
 		$fecFin = $_POST['fecFin'];
+		
 		$generado = $_POST['generado'];
 
 

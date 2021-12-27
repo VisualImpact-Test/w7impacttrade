@@ -510,9 +510,10 @@ class Usuarios extends MY_Controller
 		];
 		$validaciones = verificarValidacionesBasicas($elementosAValidar, $post);
 		if ($this->m_usuarios->checkUsuarioHistoricoActivoRepetido($post)) {
-			$mensajeRepetidoActivo = "Ya existe un historico activo de este usuario con el mismo proyecto y aplicacion";
+			$mensajeRepetidoActivo = "Ya existe un historico activo de este usuario con el mismo proyecto,aplicacion y tipo de usuario";
 			$validaciones['proyectoHistorico'][] = $mensajeRepetidoActivo;
 			$validaciones['aplicacionHistorico'][] = $mensajeRepetidoActivo;
+			$validaciones['tipoUsuarioHistorico'][] = $mensajeRepetidoActivo;
 		}
 
 		$result['data']['validaciones'] = $validaciones;

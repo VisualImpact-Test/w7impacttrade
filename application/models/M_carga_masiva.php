@@ -330,6 +330,7 @@ class M_carga_masiva extends CI_Model{
 	}
 
 	public function insertar_visita_ruta($params){
+
 		$sql="
 			DECLARE
 			@fecha DATE,
@@ -342,17 +343,23 @@ class M_carga_masiva extends CI_Model{
 				@num=COUNT(idRuta)
 			FROM {$this->sessBDCuenta}.trade.data_ruta
 			WHERE idUsuario={$params['idUsuario']}
-			AND fecha=@fecha AND idCuenta = {$params['idCuenta']} AND idProyecto = {$params['idProyecto']};
+			AND fecha=@fecha 
+			AND idCuenta = {$params['idCuenta']} 
+			AND idProyecto = {$params['idProyecto']}
+			AND idTipoUsuario = {$params['idTipoUsuario']};
 
 			IF( @num=0 )BEGIN
-				INSERT INTO {$this->sessBDCuenta}.trade.data_ruta (fecha,idUsuario,idEncargado,idProyecto,idCuenta) VALUES (@fecha,{$params['idUsuario']},null,{$params['idProyecto']},{$params['idCuenta']})
+				INSERT INTO {$this->sessBDCuenta}.trade.data_ruta (fecha,idUsuario,idTipoUsuario,idEncargado,idProyecto,idCuenta) VALUES (@fecha,{$params['idUsuario']},{$params['idTipoUsuario']},null,{$params['idProyecto']},{$params['idCuenta']})
 			END
 
 			SELECT
 				@idRuta=idRuta
 			FROM {$this->sessBDCuenta}.trade.data_ruta
 			WHERE idUsuario={$params['idUsuario']}
-			AND fecha=@fecha AND idProyecto = {$params['idProyecto']} AND idCuenta = {$params['idCuenta']};
+			AND fecha=@fecha 
+			AND idProyecto = {$params['idProyecto']} 
+			AND idCuenta = {$params['idCuenta']}
+			AND idTipoUsuario = {$params['idTipoUsuario']};
 
 			SELECT
 				@num=COUNT(idVisita)

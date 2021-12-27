@@ -261,6 +261,8 @@ class Carga_masiva extends CI_Controller
 		
 		$carpetas = $this->model->carga_ruta_no_procesado()->result_array();
 
+		$tipoUsuario = $_POST['tipoUsuario'];
+
 		if(count($carpetas)>0){
 			//marcar en proceso
 			foreach($carpetas as $row){
@@ -500,6 +502,7 @@ class Carga_masiva extends CI_Controller
 												$params['fecha']=$r_d['fecha'];
 												$params['idCliente']=$r['idCliente'];
 												$params['idUsuario']=$r_d['idUsuario'];
+												$params['idTipoUsuario'] = $tipoUsuario;
 						
 												$res=$this->model->insertar_visita_ruta($params);
 											}
@@ -1209,16 +1212,16 @@ class Carga_masiva extends CI_Controller
 											$this->model->insertar_carga_cliente_no_procesado($insert);
 											continue;
 										}
-										if( empty($clienteTipo) ){
-											$insert=array();
-											$insert['idCarga']=$row['idCarga'];
-											($nombreComercial!=null)? $insert['nombreComercial']=$nombreComercial :null ;
-											($razonSocial!=null)? $insert['razonSocial']=$razonSocial :null ;
-											$insert['tipoError']='La fila no contiene el Cliente Tipo.';
-											$insert['datoIngresado']=$clienteTipo;
-											$this->model->insertar_carga_cliente_no_procesado($insert);
-											continue;
-										}
+										// if( empty($clienteTipo) ){
+										// 	$insert=array();
+										// 	$insert['idCarga']=$row['idCarga'];
+										// 	($nombreComercial!=null)? $insert['nombreComercial']=$nombreComercial :null ;
+										// 	($razonSocial!=null)? $insert['razonSocial']=$razonSocial :null ;
+										// 	$insert['tipoError']='La fila no contiene el Cliente Tipo.';
+										// 	$insert['datoIngresado']=$clienteTipo;
+										// 	$this->model->insertar_carga_cliente_no_procesado($insert);
+										// 	continue;
+										// }
 
 
 										//
@@ -1244,6 +1247,9 @@ class Carga_masiva extends CI_Controller
 											$cadena = (isset($cliente[21]) && !empty($cliente[21])) ? trim($cliente[21]) : NULL;
 											$banner = (isset($cliente[22]) && !empty($cliente[22])) ? trim($cliente[22]) : NULL;
 			
+										}else if($row['tipo']=="3"){
+
+											$plaza = (isset($cliente[21]) && !empty($cliente[21])) ? trim($cliente[21]) : NULL;
 										}
 
 						

@@ -20,6 +20,7 @@
 			<th class="text-center align-middle">EXCLUIDO</th>
 			<th class="text-center align-middle">FECHA</th>
 			<th class="text-center align-middle">ID USUARIO</th>
+			<th class="text-center align-middle">ESTADO USUARIO</th>
 			<th class="text-center align-middle">USUARIO</th>
 			<th class="text-center align-middle">ID CLIENTE</th>
 			<th class="text-center align-middle">CLIENTE</th>
@@ -36,7 +37,7 @@
 			$mensajeEstado = $row['estado'] == 1 ? 'Activo' : 'Inactivo';
 			$iconoBotonEstado = $row['estado'] == 1 ? 'fal fa-lg fa-toggle-on' : 'fal fa-lg fa-toggle-off';
 		?>
-			<tr>
+			<tr > 
 				<td class="text-center"><?=$ix++;?></td>
 				<td class="text-center">
 					<div class="custom-checkbox custom-control" visita="<?=$row['idVisita']?>">
@@ -77,7 +78,8 @@
 				<td class="text-center"><?=(!empty($estadoExclusion)?$estadoExclusion:'-')?></td>
 				<td class="text-center"><?=(!empty($row['fecha'])?$row['fecha']:'-')?></td>
 				<td class="text-center"><?=(!empty($row['idUsuario'])?$row['idUsuario']:'-')?></td>
-				<td class=""><?=(!empty($row['nombreUsuario'])?$row['nombreUsuario']:'-')?></td>
+				<td class="text-center"><?= (!empty($row['cesado']) ? "<h4 class='text-center'><span class=' badge badge-danger'>Cesado</span></h4>" : "<h4 class='text-center'><span class='badge badge-primary'>Activo</span></h4>") ?></td>
+				<td class="<?=!empty($row['cesado']) ? 'text-danger': ''?>"><?=(!empty($row['nombreUsuario'])?$row['nombreUsuario']:'-')?></td>
 				<td class="text-center"><?=(!empty($row['idCliente'])?$row['idCliente']:'-')?></td>
 				<td class=""><?=(!empty($row['razonSocial'])?$row['razonSocial']:'-')?></td>
 				<td class="text-center"><?=(!empty($row['canal'])?$row['canal']:'-')?></td>

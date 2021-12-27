@@ -407,6 +407,8 @@ class Carga_masiva_general extends CI_Controller{
 		set_time_limit(0);
 		
 		$carpetas = $this->model->obtener_carpetas_visitas();
+		$idProyecto = $this->session->userdata('idProyecto');
+		
 		///
 		foreach($carpetas as $row){
 			$this->cambiarBaseDatos($row['idCuenta']);
@@ -461,13 +463,16 @@ class Carga_masiva_general extends CI_Controller{
 									}else if(count($validar_visita)>0){
 										$mensaje = 'Ya cuenta con una visita registrada en la fecha indicada.';
 									}else{
-										$idRuta = $this->model->obtener_ruta($idUsuario,$fecha);
+										$idRuta = $this->model->obtener_ruta($idUsuario,$fecha,$idTipoUsuario);
 										if(!empty($idRuta['idRuta'])){
 											$idRuta_i = $idRuta['idRuta'];
 										}else{
 											$array = array();
 											$array = array(
 												'idUsuario'=>$idUsuario,
+												'idTipoUsuario'=>$idTipoUsuario,
+												'idCuenta'=>$row['idCuenta'],
+												'idProyecto'=>$row['idProyecto'],
 												'fecha'=>$fecha,
 											);
 											$this->model->registrar_detalle("{$this->sessBDCuenta}.trade.data_ruta",$array);

@@ -6,34 +6,40 @@
 				CARGA MASIVA DE CLIENTES
 			</div>
 
-<br><br>
-	<div class="col-md-12">
-		<div class="row">
-			<div class="col-md-4 col-sm-4 col-xs-4" >
-				<label>FECHA INICIO</label>
-				<input type="text" class="form-control input-sm fecha" id="fecha_ini" readonly name="fecha_ini" value="<?= isset($data[0]['fecIni'])? $data[0]['fecIni'] :  DATE('d/m/Y');?>">
+			<br><br>
+			<div class="col-md-12">
+				<label for="tipo">Tipo Usuario</label>
+				<select  class="form-control" name="tipo" id="tipo">
+					<?= htmlSelectOptionArray2(['query'=>$tiposUsuario,'id'=>'idTipoUsuario','value'=>'nombre'])?>
+				</select>
+			</div>
+			<div class="col-md-12">
+				<div class="row">
+					<div class="col-md-4 col-sm-4 col-xs-4">
+						<label>FECHA INICIO</label>
+						<input type="text" class="form-control input-sm fecha" id="fecha_ini" readonly name="fecha_ini" value="<?= isset($data[0]['fecIni']) ? $data[0]['fecIni'] :  DATE('d/m/Y'); ?>">
+					</div>
+
+					<div class="col-md-4 col-sm-4 col-xs-4">
+						<label>FECHA FIN</label>
+						<input type="text" class="form-control input-sm fecha" id="fecha_fin" readonly name="fecha_fin" value="<?= isset($data[0]['fecFin']) ? $data[0]['fecFin'] :  ''; ?>">
+					</div>
+					<div class="col-md-4 col-sm-4 col-xs-4">
+						<label>GENERACION</label><BR>
+						<div class="position-relative form-check form-check-inline">
+							<label class="form-check-label">
+								<input type="radio" name="ch-generacion" value="diaria" class="form-check-input"> Diaria</label>
+						</div>
+						<div class="position-relative form-check form-check-inline">
+							<label class="form-check-label">
+								<input type="radio" name="ch-generacion" value="completa" class="form-check-input"> Completa</label>
+						</div>
+					</div>
+				</div>
 			</div>
 
-			<div class="col-md-4 col-sm-4 col-xs-4" >
-				<label>FECHA FIN</label>
-				<input type="text" class="form-control input-sm fecha" id="fecha_fin" readonly name="fecha_fin" value="<?= isset($data[0]['fecFin'])? $data[0]['fecFin'] :  '';?>">
-			</div>
-			<div class="col-md-4 col-sm-4 col-xs-4" >
-				<label>GENERACION</label><BR>
-				<div class="position-relative form-check form-check-inline">
-					<label class="form-check-label">
-						<input type="radio" name="ch-generacion" value="diaria" class="form-check-input"> Diaria</label>
-				</div>
-				<div class="position-relative form-check form-check-inline">
-					<label class="form-check-label">
-						<input type="radio" name="ch-generacion" value="completa" class="form-check-input"> Completa</label>
-				</div>
-			</div>
-		</div>
-	</div>
-	
 
-			
+
 			<div class="card-body">
 				<div class="">
 					<div class="alert alert-warning" role="alert">
@@ -46,11 +52,13 @@
 					</div>
 				</div>
 				<div class="row">
-					<button type="button" data-toggle="collapse" id="btn-descargarRutasFormato" class="btn-outline-primary border-0" style="padding:10px;margin-left:10px;border-radius: 13px;outline: blue;">  Descargar Formato</button>
+					<button type="button" data-toggle="collapse" id="btn-descargarRutasFormato" class="btn-outline-primary border-0" style="padding:10px;margin-left:10px;border-radius: 13px;outline: blue;"> Descargar Formato</button>
 				</div>
 				<div class="tab-content">
-					<div class="table-responsive"><!-- style="width: 100%;"-->
-						<div id="cargaMasivaRutas"></div><!--style="overflow: auto;"-->
+					<div class="table-responsive">
+						<!-- style="width: 100%;"-->
+						<div id="cargaMasivaRutas"></div>
+						<!--style="overflow: auto;"-->
 					</div>
 				</div>
 			</div>
@@ -58,60 +66,59 @@
 	</div>
 </div>
 <script>
-$(document).ready(function() {
-	$('#fecha_ini').daterangepicker({
-		locale: {
-			"format": "DD/MM/YYYY",
-			"applyLabel": "Aplicar",
-			"cancelLabel": "Cerrar",
-			"daysOfWeek": ["Do","Lu","Ma","Mi","Ju","Vi","Sa"],
-			"monthNames": ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Setiembre","Octubre","Noviembre","Diciembre"],
-			"firstDay": 1
-		},
-		parentEl :"div.modal-content",
-		singleDatePicker: true,
-		//startDate: start_date,
-		showDropdowns: false,
-		autoApply: true,
-		//autoUpdateInput: false,
+	$(document).ready(function() {
+		$('#fecha_ini').daterangepicker({
+			locale: {
+				"format": "DD/MM/YYYY",
+				"applyLabel": "Aplicar",
+				"cancelLabel": "Cerrar",
+				"daysOfWeek": ["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sa"],
+				"monthNames": ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Setiembre", "Octubre", "Noviembre", "Diciembre"],
+				"firstDay": 1
+			},
+			parentEl: "div.modal-content",
+			singleDatePicker: true,
+			//startDate: start_date,
+			showDropdowns: false,
+			autoApply: true,
+			//autoUpdateInput: false,
+		});
+
+		$('#fecha_fin').daterangepicker({
+			locale: {
+				'format': 'DD/MM/YYYY',
+				'daysOfWeek': ["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sa"],
+				'monthNames': ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Setiembre", "Octubre", "Noviembre", "Diciembre"],
+			},
+			parentEl: "div.modal-content",
+			singleDatePicker: true,
+			autoUpdateInput: false,
+		});
+
+		$('#fecha_fin').on('apply.daterangepicker', function(ev, picker) {
+			var control = $(this);
+			var name = control.attr('name');
+			var fecha_inicio = $("#fecha_ini").val();
+			var dateB = moment(picker.startDate.format('YYYY-MM-DD'));
+			var dateC = moment(moment(fecha_inicio, "DD/MM/YYYY").format('YYYY-MM-DD'));
+			var diferencia = dateB.diff(dateC, 'days');
+			if (diferencia >= 0) control.val(picker.startDate.format('DD/MM/YYYY'));
+			else control.val('');
+		});
+
+		$('#fecha_fin').on('blur.daterangepicker', function(ev, picker) {
+			var control = $(this);
+			var fecha = control.val();
+			if (!moment(fecha, 'DD/MM/YYYY', true).isValid()) control.val('');
+
+			var fecha_inicio = $("#fecha_ini").val();
+			var dateB = moment(moment(fecha, "DD/MM/YYYY").format('YYYY-MM-DD'));
+			var dateC = moment(moment(fecha_inicio, "DD/MM/YYYY").format('YYYY-MM-DD'));
+			var diferencia = dateB.diff(dateC, 'days');
+			if (diferencia < 0) control.val('');
+		});
+
 	});
-	
-	$('#fecha_fin').daterangepicker({
-		locale: {
-		'format': 'DD/MM/YYYY',
-		'daysOfWeek': ["Do","Lu","Ma","Mi","Ju","Vi","Sa"],
-		'monthNames': ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Setiembre","Octubre","Noviembre","Diciembre"],
-		},
-		parentEl :"div.modal-content",
-		singleDatePicker: true,
-		autoUpdateInput: false,
-	});	
-
-	$('#fecha_fin').on('apply.daterangepicker', function(ev,picker){
-		var control=$(this);
-		var name=control.attr('name');
-		var fecha_inicio = $("#fecha_ini").val();
-		var dateB = moment(picker.startDate.format('YYYY-MM-DD'));
-		var dateC = moment(moment(fecha_inicio, "DD/MM/YYYY").format('YYYY-MM-DD'));
-		var diferencia  = dateB.diff(dateC, 'days');
-		if( diferencia>=0 ) control.val(picker.startDate.format('DD/MM/YYYY'));
-		else control.val('');
-	});
-
-	$('#fecha_fin').on('blur.daterangepicker', function(ev,picker){
-		var control=$(this);
-		var fecha=control.val();
-		if( !moment(fecha,'DD/MM/YYYY',true).isValid() ) control.val('');
-
-		var fecha_inicio = $("#fecha_ini").val();
-		var dateB = moment(moment(fecha, "DD/MM/YYYY").format('YYYY-MM-DD'));
-		var dateC = moment(moment(fecha_inicio, "DD/MM/YYYY").format('YYYY-MM-DD'));
-		var diferencia  = dateB.diff(dateC, 'days');
-		if(diferencia<0) control.val('');
-	});
-	
-});
-
 </script>
 <script>
 

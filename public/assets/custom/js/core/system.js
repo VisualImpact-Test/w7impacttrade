@@ -156,6 +156,10 @@ var _aSelectAll = {
 				'encargado',
 				'colaborador'
 			],
+		'tipoUsuario': [
+				'usuario',
+				'encargado',
+			],
 		'encargado': [
 				'colaborador'
 			]
@@ -1239,6 +1243,49 @@ var View={
 					return false;
 				}
 
+				$.each(aCombosExist, function(i_cbx, v_cbx){
+					if( typeof(a['data'][i_cbx]) == 'object' ){
+						$.each(a['data'][i_cbx], function(i, v){
+							var options = '<option value="' + v['id'] + '">' + v['nombre'] + '</option>';
+							$('.flt_' + i_cbx).append(options);
+						});
+					}
+				})
+			});
+
+		});
+
+		$(document).on('change', '.flt_tipoUsuario', function(e){
+			var control = $(this);
+			var aCombos = _aSelectAll['tipoUsuario'];
+
+			var aCombosHead = [ 'usuario', 'encargado' ];
+			var aCombosExist = {};
+			$.each(aCombos, function(i,v){
+				if( $('.flt_' + v).length > 0 ){
+					$('.flt_' + v).find('option').not(':first').remove();
+					$('.flt_' + v).val('').change();
+
+					if( $.inArray(v, aCombosHead) != -1 ){
+						aCombosExist[v] = 1;
+					}
+				}
+			});
+
+			var idProyecto = $('.flt_proyecto').val() ? $('.flt_proyecto').val() : 0;
+			var idTipousuario = control.val();
+
+			if( idTipousuario.length == 0 ){
+				return false;
+			}
+
+			var data = { 'data': JSON.stringify({ 'idProyecto': idProyecto, idTipousuario , 'combos': aCombosExist }) };
+			var url = 'control/get_combos';
+			
+			$.when( Fn.ajax_filtros({ 'data': data, 'url': url, 'control': control }) ).then(function(a){
+				if( a['result'] == null ){
+					return false;
+				}
 				$.each(aCombosExist, function(i_cbx, v_cbx){
 					if( typeof(a['data'][i_cbx]) == 'object' ){
 						$.each(a['data'][i_cbx], function(i, v){

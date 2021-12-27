@@ -790,8 +790,9 @@ var Modulacion = {
 						arrayDataClientes.push(Modulacion.handsontable.getDataAtRow(ix));
 					}
 				}
+				let tipoUsuario = $('#tipo').val();
 				var dataArrayCargaMasiva = arrayDataClientes;
-				var data = {'generacion':generacion,'clientes':dataArrayCargaMasiva,'fecIni':$('#fecha_ini').val(),'fecFin':$('#fecha_fin').val()}
+				var data = {'generacion':generacion,'clientes':dataArrayCargaMasiva,'fecIni':$('#fecha_ini').val(),'fecFin':$('#fecha_fin').val(),tipoUsuario}
 				var jsonString = {'data': JSON.stringify(data)};
 				var configAjax = {'url':Modulacion.url+'registrarMasivo', 'data':jsonString};
 		
@@ -902,6 +903,7 @@ var Modulacion = {
 		var file_data = $('#archivo').prop('files')[0];
 		var generado = $('input[name="generado"]:checked').val();
 		var fecFin = $('#fecha_fin').val();
+		var tipoUsuario = $('#tipo').val();
 		var validar=true;
 		
 		console.log(file_data);
@@ -940,6 +942,7 @@ var Modulacion = {
 			form_data.append('file', file_data); 
 			form_data.append('fecIni', fecIni); 
 			form_data.append('fecFin', fecFin); 
+			form_data.append('tipoUsuario', tipoUsuario); 
 			form_data.append('generado', generado); 
 
 			if((formato[1]=='csv')||(formato[1]=='CSV')){	
@@ -978,6 +981,8 @@ var Modulacion = {
 	ejecutarBat: function(){
 		$.ajax({
 			type: "POST",
+			dataType: 'json',
+			data: {tipoUsuario:$('#tipo').val()},   
 			url: site_url+'public/bat/bat_rutas.php',
 			success: function(data) {
 				console.log('listo');

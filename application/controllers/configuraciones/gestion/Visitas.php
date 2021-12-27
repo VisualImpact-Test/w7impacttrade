@@ -72,7 +72,7 @@ class Visitas extends MY_Controller{
 		$input['proyecto'] = isset($data['proyecto_filtro']) ? $data['proyecto_filtro']:NULL;
 		$input['grupoCanal'] = isset($data['grupo_filtro']) ? $data['grupo_filtro']:NULL;
 		$input['canal'] = isset($data['canal_filtro']) ? $data['canal_filtro']:NULL;
-		$input['usuario'] = isset($data['usuario']) ? $data['usuario']:NULL;
+		$input['usuario'] = isset($data['usuario_filtro_ruta']) ? $data['usuario_filtro_ruta']:NULL;
 		/****/
 
 		/////HFS
@@ -500,6 +500,7 @@ class Visitas extends MY_Controller{
 		$html='';
 		$arrayVerificacion = array();
 		$arrayVerificacion['idUsuario'] = $data->{'usuario'};
+		$arrayVerificacion['idTipoUsuario'] = $data->{'tipoUsuario'};
 		$arrayVerificacion['fecha'] = $data->{'fecha'};
 		$arrayVerificacion['idCuenta'] = $this->session->userdata('idCuenta');
 		$arrayVerificacion['idProyecto'] = $this->session->userdata('idProyecto');
@@ -628,6 +629,7 @@ class Visitas extends MY_Controller{
 				//VERIFICAMOS LA EXISTENCIA DE ESA RUTA 
 				$arrayVerificacion = array();
 				$arrayVerificacion['idUsuario'] = $rs_ruta[0]['idUsuario'];
+				$arrayVerificacion['idTipoUsuario'] = $rs_ruta[0]['idTipoUsuario'];
 				$arrayVerificacion['fecha'] = $dataForm->{'nuevaFecha'};
 				$arrayVerificacion['idCuenta'] = $this->session->userdata('idCuenta');
 				$arrayVerificacion['idProyecto'] = $this->session->userdata('idProyecto');
@@ -708,6 +710,14 @@ class Visitas extends MY_Controller{
 		if ( !empty($dataListaRutas)) {
 			$input=array();
 			$input['idRutasString'] = implode(",", $dataListaRutas);
+
+			$rutasData = $this->model->checkRutaConData($input);
+
+			if(!empty($rutasData)){
+				$array['rutasData'] = $rutasData;
+				$html = $this->load->view("modulos/configuraciones/gestion/visitas/gestor_validacionRutaConData", $array, true);
+				goto responder;
+			}
 			$input['listaCuentas']=implode(',', $this->permisos['cuenta']);
 			$input['listaProyectos']=implode(',', $this->permisos['proyecto']);
 		
@@ -716,14 +726,24 @@ class Visitas extends MY_Controller{
 			$array=array();
 			$array['listaRutas'] = $rs_rutas;
 
-			$rs_listaUsuarios = $this->model->obtener_lista_usuarios($input);
-			$array['listaUsuarios'] = $rs_listaUsuarios;
+			$rs_listaUsuarios = $this->model->obtener_lista_usuarios_reprogramar($input);
+
+			foreach ($rs_listaUsuarios as $k => $v) {
+				$array['listaUsuarios'][$v['idUsuario']]['idUsuario'] = $v['idUsuario'];
+				$array['listaUsuarios'][$v['idUsuario']]['nombreUsuario'] = $v['nombreUsuario'];
+
+				$array['listaTiposUsuario'][$v['idUsuario']][$v['idTipoUsuario']]['idTipoUsuario'] = $v['idTipoUsuario'];
+				$array['listaTiposUsuario'][$v['idUsuario']][$v['idTipoUsuario']]['tipoUsuario'] = $v['tipoUsuario'];
+
+			}
+			// $array['listaUsuarios'] = $rs_listaUsuarios;
 
 			$html = $this->load->view("modulos/configuraciones/gestion/visitas/gestor_reprogramarRuta", $array, true);
 		} else {
 			$html = getMensajeGestion('noRegistros');
 		}
 		
+		responder:
 		$result['result']=1;
 		$result['msg']['title'] = 'REPROGRAMAR RUTA';
 		$result['data']['html'] = $html;
@@ -739,19 +759,21 @@ class Visitas extends MY_Controller{
 		$dataRutas = $data->{'dataRutas'};
 
 		$html='';
-
 		if (!empty($dataRutas)) {
 			$rowUpdated=0; $rowUpdatedError=0;
-
+			
 			foreach ($dataRutas as $klr => $ruta) {
+				$rs_ruta = $this->model->obtener_ruta_actual($ruta->{'ruta'});
 				$idRuta = ( isset($ruta->{'ruta'}) && !empty($ruta->{'ruta'}) ) ? $ruta->{'ruta'} : NULL;
 				$idUsuario = ( isset($ruta->{'usuario'}) && !empty($ruta->{'usuario'}) ) ? $ruta->{'usuario'} : NULL;
+				$idTipoUsuario = ( isset($ruta->{'tipoUsuario'}) && !empty($ruta->{'tipoUsuario'}) ) ? $ruta->{'tipoUsuario'} : NULL;
 				$idUsuarioTexto = ( isset($ruta->{'usuarioTexto'}) && !empty($ruta->{'usuarioTexto'}) ) ? $ruta->{'usuarioTexto'} : NULL;
 				$fecha = ( isset($ruta->{'fecha'}) && !empty($ruta->{'fecha'}) ) ? $ruta->{'fecha'} : $data->{'fechaGrupal'};
 
 				//VERIFICAMOS LA EXISTENCIA DE ESA RUTA 
 				$arrayVerificacion = array();
 				$arrayVerificacion['idUsuario'] = $idUsuario;
+				$arrayVerificacion['idTipoUsuario'] = $idTipoUsuario;
 				$arrayVerificacion['fecha'] = $fecha;
 				$arrayVerificacion['estado'] = 1;
 
@@ -760,7 +782,11 @@ class Visitas extends MY_Controller{
 				if ( empty($rs_verificacionRuta)) {
 					//ACTUALIZAMOS LA RUTA
 					$arrayUpdateRuta=array();
-					$arrayUpdateRuta['arrayParams'] = array('idUsuario'=>$idUsuario, 'fecha'=>$fecha);
+					$arrayUpdateRuta['arrayParams'] = array(
+						'idUsuario'=>$idUsuario, 
+						'idTipoUsuario'=>$idTipoUsuario,
+						'fecha'=>$fecha,
+					);
 					$arrayUpdateRuta['arrayWhere'] = array('idRuta'=>$idRuta);
 
 					$updateRuta = $this->model->update_reprogramar_ruta($arrayUpdateRuta);
@@ -929,8 +955,17 @@ class Visitas extends MY_Controller{
 			$array=array();
 			$array['listaVisitas'] = $rs_visitas;
 
-			$rs_listaUsuarios = $this->model->obtener_lista_usuarios($input);
-			$array['listaUsuarios'] = $rs_listaUsuarios;
+			$rs_listaUsuarios = $this->model->obtener_lista_usuarios_reprogramar($input);
+
+			foreach ($rs_listaUsuarios as $k => $v) {
+				$array['listaUsuarios'][$v['idUsuario']]['idUsuario'] = $v['idUsuario'];
+				$array['listaUsuarios'][$v['idUsuario']]['nombreUsuario'] = $v['nombreUsuario'];
+
+				$array['listaTiposUsuario'][$v['idUsuario']][$v['idTipoUsuario']]['idTipoUsuario'] = $v['idTipoUsuario'];
+				$array['listaTiposUsuario'][$v['idUsuario']][$v['idTipoUsuario']]['tipoUsuario'] = $v['tipoUsuario'];
+
+			}
+			// $array['listaUsuarios'] = $rs_listaUsuarios;
 
 			$html = $this->load->view("modulos/configuraciones/gestion/visitas/gestor_reprogramarVisita", $array, true);
 		} else {
@@ -958,14 +993,18 @@ class Visitas extends MY_Controller{
 					$idRuta = ( isset($visita->{'ruta'}) && !empty($visita->{'ruta'}) ) ? $visita->{'ruta'} : NULL;
 					$idVisita = ( isset($visita->{'visita'}) && !empty($visita->{'visita'}) ) ? $visita->{'visita'} : NULL;
 					$idUsuario = ( isset($visita->{'usuario'}) && !empty($visita->{'usuario'}) ) ? $visita->{'usuario'} : NULL;
+					$idTipoUsuario = ( isset($visita->{'tipoUsuario'}) && !empty($visita->{'tipoUsuario'}) ) ? $visita->{'tipoUsuario'} : NULL;
 					$idUsuarioTexto = ( isset($visita->{'usuarioTexto'}) && !empty($visita->{'usuarioTexto'}) ) ? $visita->{'usuarioTexto'} : NULL;
 					$fecha = ( isset($visita->{'fecha'}) && !empty($visita->{'fecha'}) ) ? $visita->{'fecha'} : $data->{'fechaGrupal'};
 					$idCliente = ( isset($visita->{'cliente'}) && !empty($visita->{'cliente'}) ) ? $visita->{'cliente'} : NULL;
 					$idClienteTexto = ( isset($visita->{'clienteTexto'}) && !empty($visita->{'clienteTexto'}) ) ? $visita->{'clienteTexto'} : NULL;
 
+					$rs_ruta = $this->model->obtener_ruta_actual($idRuta);
+
 					//VERIFICACIÓN DE LA EXISTENCIA DE LA RUTA
 					$arrayVerificacion = array();
 					$arrayVerificacion['idUsuario'] = $idUsuario;
+					$arrayVerificacion['idTipoUsuario'] = $idTipoUsuario;
 					$arrayVerificacion['fecha'] = $fecha;
 					$arrayVerificacion['estado'] = 1;
 
@@ -977,6 +1016,7 @@ class Visitas extends MY_Controller{
 						//INSERTAMOS LA RUTA
 						$arrayInsertarRuta=array();
 						$arrayInsertarRuta['idUsuario'] = $idUsuario;
+						$arrayInsertarRuta['idTipoUsuario'] = $idTipoUsuario;
 						$arrayInsertarRuta['fecha'] = $fecha;
 						if(!empty($obtener_data_ruta)){
 							$arrayInsertarRuta['idCuenta'] = $obtener_data_ruta['idCuenta'];
@@ -1115,7 +1155,8 @@ class Visitas extends MY_Controller{
 				$inputBusqueda['idUsuario'] = (isset($row[0]) && !empty($row[0]))? $row[0]:NULL;
 				$inputBusqueda['fecha'] = (isset($row[1]) && !empty($row[1]))? $row[1]:NULL;
 
-				$rs_verificarRuta = $this->model->obtener_verificacion_existente($inputBusqueda);
+				
+				$rs_verificarRuta = $this->model->obtener_verificacion_existente($inputBusqueda); //Verificar en pruebas
 				if (!empty($rs_verificarRuta)) {
 					$contDuplicados++;
 					$htmlDuplicados .= '<div class="alert alert-warning fade show" role="alert"> <i class="fas fa-exclamation-triangle"></i> EL COLABORADOR INGRESADO CON ID USUARIO <strong>'.$inputBusqueda['idUsuario'] .'</strong> CON LA FECHA <strong>'.$inputBusqueda['fecha'].'</strong> YA SE ENCUENTRA REGISTRADO.</div>';
@@ -1174,6 +1215,13 @@ class Visitas extends MY_Controller{
 			array_push($array['listaUsuarios'], $row['idUsuario']);
 		}
 		
+		$rs_listaUsuarios = $this->model->obtener_tipo_usuario($input);
+		$array['listaTipoUsuario']=array();
+		foreach ($rs_listaUsuarios as $klu => $row) {
+			array_push($array['listaTipoUsuario'], $row['idTipoUsuario']);
+		}
+		$array['tiposUsuario'] = $rs_listaUsuarios;
+		
 		$input['fecha'] = date('d/m/Y');
 
 		$rs_clientes = $this->model->obtener_lista_clientes($input);
@@ -1201,6 +1249,7 @@ class Visitas extends MY_Controller{
 		$idCuenta=$this->session->userdata('idCuenta');
 		$idProyecto=$this->session->userdata('idProyecto');
 
+		$idTipoUsuario = $_POST['tipoUsuario'];
 		if ( !empty($data)) {
 			$contNoRegistrados = 0;
 			foreach ($data as $klu => $row) {
@@ -1211,6 +1260,8 @@ class Visitas extends MY_Controller{
 
 				$inputBusqueda['fecha'] = (isset($row[0]) && !empty($row[0]))? $row[0]:NULL;
 				$idCliente = (isset($row[2]) && !empty($row[2]))? $row[2]:NULL;
+				$inputBusqueda['idTipoUsuario'] = $idTipoUsuario;
+
 				$rs_verificarRuta = $this->model->obtener_verificacion_existente($inputBusqueda);
 				
 
@@ -1221,12 +1272,15 @@ class Visitas extends MY_Controller{
 						$inputBusquedaCliente = array();
 						$inputBusquedaCliente['fecha'] = date('d/m/Y');
 						$inputBusquedaCliente['idCliente'] = $idCliente;
+						
 						$rs_clientes = $this->model->obtener_lista_clientes($inputBusquedaCliente);
 
 				
 						if ( !empty($rs_clientes)) {
 							$arrayInsertarRuta=array();
 							$arrayInsertarRuta['idUsuario']=$inputBusqueda['idUsuario'];
+							$arrayInsertarRuta['idTipoUsuario']=$inputBusqueda['idTipoUsuario'];
+							$arrayInsertarRuta['demo']=$this->demo;
 							$arrayInsertarRuta['fecha']=$inputBusqueda['fecha'];
 							$arrayInsertarRuta['idCuenta']=$idCuenta;
 							$arrayInsertarRuta['idProyecto']=$idProyecto;
@@ -1271,7 +1325,7 @@ class Visitas extends MY_Controller{
 					$inputBusqueda['idUsuario'] = $idUsuario;
 					$inputBusqueda['fecha'] = (isset($row[0]) && !empty($row[0]))? $row[0]:NULL;
 					$idCliente = (isset($row[2]) && !empty($row[2]))? $row[2]:NULL;
-
+					$inputBusqueda['idTipoUsuario'] = $idTipoUsuario;
 					$rs_verificarRuta = $this->model->obtener_verificacion_existente($inputBusqueda);
 					if (!empty($rs_verificarRuta)) {
 						//HAY REGISTRO DE DATA
@@ -1627,13 +1681,15 @@ class Visitas extends MY_Controller{
 		$total = $sum;
 
 		$idCuenta = $_SESSION['idCuenta'];
+		$idProyecto = $_SESSION['idProyecto'];
 		$carga = array();
 		$carga = array(
 			'idTipoUsuario' => $idTipoUsuario,
 			'carpeta' => $nombre_carpeta,
 			'idUsuarioRegistro' => $this->session->idUsuario,
 			'totalRegistros' => $total,
-			'idCuenta' => $idCuenta
+			'idCuenta' => $idCuenta,
+			'idProyecto' => $idProyecto	
 		);
 
 		$this->db->insert("{$this->sessBDCuenta}.trade.cargaProgramacionRutas",$carga);

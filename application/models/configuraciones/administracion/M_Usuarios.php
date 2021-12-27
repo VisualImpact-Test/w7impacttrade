@@ -52,7 +52,7 @@ class M_usuarios extends My_Model
 		if (!empty($post['numDocumentoFiltro'])) $filtros .= " AND u.numDocumento LIKE '%" . $post['numDocumentoFiltro'] . "%'";
 		if (!empty($post['nombresApellidosFiltro'])) $filtros .= " AND u.nombres + ' - ' + u.apePaterno + ' - ' + u.apeMaterno LIKE '%" . $post['nombresApellidosFiltro'] . "%'";
 
-		$filtrosRRHH = " WHERE (e.flag = 'nuevo' OR e.flag = 'activo' OR e.flag IS NULL)";
+		$filtrosRRHH = " WHERE (e.flag = 'nuevo' OR e.flag = 'activo' OR e.flag IS NULL OR e.flag = 'cesado')";
 		if($this->session->idTipoUsuario==4){
 			$filtrosRRHH .= !empty($post['usuariosActivos']) ? " AND u.historicoActivo = 1 " : "AND (u.historicoActivo = 0 OR u.historicoActivo IS NULL)";
 		} else{
@@ -63,8 +63,12 @@ class M_usuarios extends My_Model
 		if (!empty($post['numDocumentoFiltro'])) $filtrosRRHH .= " AND (e.numTipoDocuIdent LIKE '%" . $post['numDocumentoFiltro'] . "%' OR u.numDocumento LIKE '%" . $post['numDocumentoFiltro'] . "%')";
 		if (!empty($post['nombresApellidosFiltro'])) $filtrosRRHH .= " AND (e.nombres + ' - ' + e.apePaterno + ' - ' + e.apeMaterno LIKE '%" . $post['nombresApellidosFiltro'] . "%' OR u.nombres + ' - ' + u.apePaterno + ' - ' + u.apeMaterno LIKE '%" . $post['nombresApellidosFiltro'] . "%')";
 
+		$fechas = explode('-', $post['txt-fechas']);
+		$fechaIni = $fechas[0];
+		$fechaFin = $fechas[1];
+
 		$sql = "
-		DECLARE @fecIni DATE= GETDATE(), @fecFin DATE= GETDATE();
+		DECLARE @fecIni DATE= '{$fechaIni}', @fecFin DATE= '{$fechaFin}';
 		WITH usuariosTrade
 			 AS (SELECT DISTINCT u.idUsuario, 
 						u.idTipoDocumento, 
@@ -1062,14 +1066,17 @@ class M_usuarios extends My_Model
 		$idUsuario = $post['idUsuario'];
 		$idAplicacion = !empty($post['aplicacionHistorico']) ? $post['aplicacionHistorico'] : 0;
 		$idProyecto = !empty($post['proyectoHistorico']) ? $post['proyectoHistorico'] : 0;
+		$idTipoUsuario = !empty($post['tipoUsuarioHistorico']) ? $post['tipoUsuarioHistorico'] : 0;
+		$fechaIni = $post['fechaInicio'];
 		$sql = "
-			DECLARE @fecIni DATE= GETDATE(), @fecFin DATE= GETDATE();
+			DECLARE @fecIni DATE= '{$fechaIni}', @fecFin DATE= '{$fechaIni}';
 			SELECT *
 			FROM trade.usuario_historico uh
 			WHERE fn.datesBetween(uh.fecIni, uh.fecFin, @fecIni, @fecFin) = 1
 			AND uh.idUsuario = $idUsuario
 			AND uh.idAplicacion = $idAplicacion
 			AND uh.idProyecto = $idProyecto
+			AND uh.idTipoUsuario = $idTipoUsuario
 		";
 
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.usuario_historico' ];

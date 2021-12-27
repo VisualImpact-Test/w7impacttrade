@@ -241,7 +241,7 @@ class M_scorecard extends MY_Model{
 					
 				WHERE
 					1=1
-					AND r.demo = 0
+					AND (r.demo = 0 OR r.demo IS NULL)
 					AND v.estado = 1
 					AND r.estado = 1
 					{$subfiltros}
@@ -305,9 +305,18 @@ class M_scorecard extends MY_Model{
 		}
 
 		$sql = "
-			DECLARE @fecIni date='".$fecIni."',@fecFin date='".$fecFin."';
+			DECLARE @fecha DATE = GETDATE(),@fecIni date='".$fecIni."',@fecFin date='".$fecFin."';
+				WITH list_usuarios_activos as(
+					SELECT DISTINCT
+					u.idUsuario
+					FROM
+					trade.usuario u 
+					JOIN trade.usuario_historico uh ON uh.idUsuario = u.idUsuario
+					WHERE General.dbo.fn_fechaVigente (uh.fecIni,uh.fecFin,@fecha,@fecha) = 1 AND uh.idProyecto IN (".$input['idProyecto'].")
+				)
 				SELECT DISTINCT 
 					  v.idCliente
+					, CASE WHEN r.idUsuario NOT IN(SELECT idUsuario FROM list_usuarios_activos) THEN 1 ELSE 0 END cesado
 					, gc.idGrupoCanal
 					, gc.nombre grupoCanal
 					, ca.idCanal
@@ -364,7 +373,7 @@ class M_scorecard extends MY_Model{
 					{$segmentacion['join']}
 				WHERE
 					1=1
-					AND r.demo = 0
+					AND (r.demo = 0 OR r.demo IS NULL)
 					AND v.estado = 1
 					AND r.estado = 1
 					{$subfiltros}
@@ -374,6 +383,7 @@ class M_scorecard extends MY_Model{
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visita" ];
 		return $this->db->query($sql)->result_array();
 	}
+	
 	public function obtener_cartera_seg($input = array() ){
 		$fecIni = $input['fecIni'];
 		$fecFin = $input['fecFin'];

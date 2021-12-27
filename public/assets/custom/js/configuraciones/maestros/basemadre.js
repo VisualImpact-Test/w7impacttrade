@@ -1163,9 +1163,15 @@ var Basemadre = {
 			if(tipo=="1"){
 				$("#div_formato_trad").show();
 				$("#div_formato_moder").hide();
-			}else{
+				$("#div_formato_may").hide();
+			}else if(tipo=="2"){ 
 				$("#div_formato_trad").hide();
 				$("#div_formato_moder").show();
+				$("#div_formato_may").hide();
+			}else if(tipo=="3"){
+				$("#div_formato_trad").hide();
+				$("#div_formato_moder").hide();
+				$("#div_formato_may").show();
 			}
 
 		});

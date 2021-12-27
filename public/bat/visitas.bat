@@ -1,1 +1,1 @@
-C:\apache24\PHP\php7\php.exe -f "C:\apache24\htdocs\impactTrade\index.php" carga_masiva_general procesar_visitas
+C:\wamp64\bin\php\php7.1.33\php-win.exe -f "C:\wamp64\visualimpact_test\w7impacttrade\index.php" carga_masiva_general procesar_visitas

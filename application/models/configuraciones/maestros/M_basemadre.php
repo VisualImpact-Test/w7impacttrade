@@ -12,7 +12,7 @@ class M_basemadre extends My_Model{
 	public function obtener_maestros_basemadre_distribuidoras($input=array()){
 		$filtros = "";
 			//$filtros .= !empty($input['proyecto_filtro']) ? " AND p.idProyecto=".$input['proyecto_filtro'] : "";
-			$filtros .= !empty($input['canal_filtro']) ? " AND cn.idCanal=".$input['canal_filtro'] : "";
+			// $filtros .= !empty($input['canal_filtro']) ? " AND cn.idCanal=".$input['canal_filtro'] : "";
 			$filtros .= !empty($input['idCuenta']) ? " AND cu.idCuenta=".$input['idCuenta'] : "";
 			$filtros .= !empty($input['idProyecto']) ? " AND p.idProyecto=".$input['idProyecto'] : "";
 
@@ -77,6 +77,7 @@ class M_basemadre extends My_Model{
 	public function obtener_maestros_basemadre($input=array()){
 		$filtros = "";
 			//$filtros .= !empty($input['proyecto_filtro']) ? " AND p.idProyecto=".$input['proyecto_filtro'] : "";
+			$filtros .= !empty($input['grupoCanal_filtro']) ? " AND gc.idGrupoCanal =".$input['grupoCanal_filtro'] : "";
 			$filtros .= !empty($input['canal_filtro']) ? " AND cn.idCanal=".$input['canal_filtro'] : "";
 			$filtros .= !empty($input['idCuenta']) ? " AND cu.idCuenta=".$input['idCuenta'] : "";
 			$filtros .= !empty($input['idProyecto']) ? " AND p.idProyecto=".$input['idProyecto'] : "";
@@ -131,6 +132,7 @@ class M_basemadre extends My_Model{
 		LEFT JOIN trade.proyecto p ON p.idProyecto=ch.idProyecto
 		LEFT JOIN trade.segmentacionNegocio sg ON sg.idSegNegocio=ch.idSegNegocio
 		LEFT JOIN trade.canal cn ON cn.idCanal=sg.idCanal
+		LEFT JOIN trade.grupoCanal gc ON gc.idGrupoCanal = cn.idGrupoCanal
 		LEFT JOIN trade.cliente_tipo ctp ON sg.idClienteTipo = ctp.idClienteTipo
 		LEFT JOIN General.dbo.ubigeo ubi ON ubi.cod_ubigeo=ch.cod_ubigeo
 		WHERE c.estado=1 
@@ -151,6 +153,7 @@ class M_basemadre extends My_Model{
 		ORDER BY ch.idClienteHist DESC";
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.cliente' ];
 		return $this->db->query($sql)->result_array();
+		
 	}
 
 	public function update_estado_basemadre($input=array()){
@@ -1462,7 +1465,10 @@ class M_basemadre extends My_Model{
 	}
 
 	public function obtener_segmentacion_cliente($idUsuario){
-		$sql = "SELECT usc.flagClienteTradicional, usc.flagClienteModerno
+		$sql = "SELECT 
+		usc.flagClienteTradicional
+		, usc.flagClienteModerno
+		, usc.flagClienteMayorista
 		FROM trade.usuario_segmentacionCliente usc
 		WHERE usc.estado=1 AND usc.idUsuario={$idUsuario}
 		ORDER BY usc.idUsuarioSegCliente DESC";

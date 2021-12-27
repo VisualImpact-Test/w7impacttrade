@@ -30,10 +30,10 @@ var Visitas = {
 
 	dataListaClientes: [],
 
-
 	secciones: ['Rutas'	,'Visitas'],
 	contentSeleccionado:"tab-content-0",
 
+	usuariosTipo: [],
 	load: function(){
 		// $('#usuario').parent().find('span.select2-container').addClass('sl-width-250');
 		$('#combo_ciudad_whls').hide();
@@ -45,6 +45,16 @@ var Visitas = {
 		$('#combo_banner').hide();		
 		$("#cod_cliente").hide();	
 
+		$(document).on("change",".my-select2-usuarios",function(){
+			let idUsuario = $(this).val();;
+
+			let html = '';
+			$.each(Visitas.usuariosTipo[idUsuario],function(k,v){
+				html += `<option value = "${v.idTipoUsuario}">${v.tipoUsuario}</option>`;
+			});
+			
+			$(this).closest('tr').find('.my-select2-tipousuario').html(html);
+		});
 		//$('#tipoUsuario').change(function(e){
 		$(document).on('change','#tipoUsuario_filtro', function(){
         	var control = $(this);
@@ -1108,6 +1118,7 @@ var Visitas = {
 				Fn.showModal({ id:modalId,show:true,title:a.msg.title,content:message,btn:btn, width:'90%'});
 				//HANDSONTABLE
 				var sourceUsuarios = Visitas.dataListaUsuarios;
+				var sourceTiposUsuario = Visitas.dataListaTipoUsuario;
 				var sourceClientes = Visitas.dataListaClientes;
 				var container = document.getElementById('nuevoPuntoMasivoVisita');
 
@@ -1188,7 +1199,7 @@ var Visitas = {
 				var settings = {
 					licenseKey: 'non-commercial-and-evaluation',
 					data: null,
-					dataSchema: {idUsuario:null, fecha:null, cliente:null},
+					dataSchema: {idUsuario:null, tipoUsuario:null,fecha:null, cliente:null},
 					colHeaders: ['FECHA','ID USUARIO(*)','ID CLIENTE'],
 					startRows: 10,
 					language: 'es-MX',
@@ -1571,12 +1582,14 @@ var Visitas = {
 			var ruta = tr.data('ruta');
 			var fechaNueva = tr.find('input[name="fecha"]').val();
 			var usuarioNuevo = tr.find('select[name="usuario"]').val();
+			var tipoUsuarioNuevo = tr.find('select[name="tipoUsuario"]').val();
 			var usuarioNuevoText = tr.find('select[name="usuario"] option:selected').text();
 
 			arrayRuta = {
 				'ruta': ruta
 				,'fecha':fechaNueva
 				,'usuario':usuarioNuevo
+				,'tipoUsuario':tipoUsuarioNuevo
 				,'usuarioTexto':usuarioNuevoText
 			};
 
@@ -1719,12 +1732,18 @@ var Visitas = {
 		var fechaGrupal = $('#fechaNuevaGrupal').val();
 
 		$('.tr-reprogramarVisita').each( function(row){
+
 			var tr = $(this);
+			if(tr.data("disponible") != 1){
+				return;
+			}
+
 			var ruta = tr.data('ruta');
 			var visita = tr.data('visita');
 			var flagProgramar = tr.find('input[name="flagProgramar"]').val();
 			var fechaNueva = tr.find('input[name="fecha"]').val();
 			var usuarioNuevo = tr.find('select[name="usuario"]').val();
+			var tipoUsuarioNuevo = tr.find('select[name="tipoUsuario"]').val();
 			var usuarioNuevoText = tr.find('select[name="usuario"] option:selected').text();
 			var cliente = tr.find('input[name="cliente"]').val();
 			var clienteText = tr.find('input[name="clienteTexto"]').val();
@@ -1735,6 +1754,7 @@ var Visitas = {
 				,'flagProgramar': flagProgramar
 				,'fecha':fechaNueva
 				,'usuario':usuarioNuevo
+				,'tipoUsuario':tipoUsuarioNuevo
 				,'usuarioTexto':usuarioNuevoText
 				,'cliente':cliente
 				,'clienteTexto':clienteText
@@ -1868,9 +1888,9 @@ var Visitas = {
 				arrayDataRutasVisitas.push(Visitas.handsontable.getDataAtRow(ix));
 			}
 		}
-
+		var tipoUsuario = $('#tipo').val();
 		var dataArrayCargaMasiva = arrayDataRutasVisitas;
-		var jsonString = {'data': JSON.stringify(dataArrayCargaMasiva)};
+		var jsonString = {'data': JSON.stringify(dataArrayCargaMasiva),tipoUsuario};
 		var configAjax = {'url':Visitas.url+'guardarNuevoPuntoMasivoRutaVisita', 'data':jsonString};
 
 		$.when(Fn.ajax(configAjax)).then(function(a){

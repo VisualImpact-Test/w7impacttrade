@@ -63,7 +63,7 @@
 					<td class="text-center"><?= (!empty($row['fecha']) ? $row['fecha'] : '-') ?></td>
 					<td class="text-center"><?= (!empty($row['idUsuario']) ? $row['idUsuario'] : '-') ?></td>
 					<td class="text-center"><?= (!empty($row['cesado']) ? "<h4 class='text-center'><span class=' badge badge-danger'>Cesado</span></h4>" : "<h4 class='text-center'><span class='badge badge-primary'>Activo</span></h4>") ?></td>
-					<td class="<?!empty($row['cesado']) ? 'text-danger': ''?>"><?= (!empty($row['nombreUsuario']) ? $row['nombreUsuario'] : '-') ?></td>
+					<td class="<?=!empty($row['cesado']) ? 'text-danger': ''?>"><?= (!empty($row['nombreUsuario']) ? $row['nombreUsuario'] : '-') ?></td>
 					<td class="text-center"><?= (!empty($row['tipoUsuario']) ? $row['tipoUsuario'] : '-') ?></td>
 					<td class="text-center"><?= (!empty($row['numVisita']) ? $row['numVisita'] : '-') ?></td>
 					<td class="text-center"><?= (!empty($row['idUsuarioEncargado']) ? $row['idUsuarioEncargado'] : '-') ?></td>

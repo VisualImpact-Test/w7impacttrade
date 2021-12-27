@@ -14,6 +14,7 @@
 						<th>COORDINADOR ZONAL</th>
 						<th>SUPERVISOR</th>
 						<th>COD USUARIO</th>
+						<th>ESTADO USUARIO</th>
 						<th>NOMBRE USUARIO</th>
 						<th>GRUPO CANAL</th>
 						<th>CANAL</th>
@@ -79,7 +80,8 @@
 						<td style="text-align:left;"><?=$coordinador?></td>
 						<td style="text-align:left;"><?=$supervisor?></td>
 						<td style="text-align:center;"><?=!empty($row['idUsuario'])? $row['idUsuario'] : ' - ' ?></td>
-						<td style="text-align:left;"><?=!empty($row['nombreUsuario'])? $row['nombreUsuario'] : ' - ' ?></td>
+						<td class="text-center"><?= (!empty($row['cesado']) ? "<h4 class='text-center'><span class=' badge badge-danger'>Cesado</span></h4>" : "<h4 class='text-center'><span class='badge badge-primary'>Activo</span></h4>") ?></td>
+						<td class="<?=!empty($row['cesado']) ? 'text-danger': ''?>" style="text-align:left;"><?=!empty($row['nombreUsuario'])? $row['nombreUsuario'] : ' - ' ?></td>
 						<td style="text-align:left;"><?=$row['grupoCanal']?></td>
 						<td style="text-align:left;"><?=$row['canal']?></td>
 						<td style="text-align:left;"><?=$row['subcanal']?></td>

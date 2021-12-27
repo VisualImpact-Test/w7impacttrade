@@ -6,9 +6,11 @@
 					<?
 					$formato_trad=( isset($flagClienteTradicional))? ( ($flagClienteTradicional=="1")? true:false ) : false;
 					$formato_moder=( isset($flagClienteModerno))? ( ($flagClienteModerno=="1")? true:false ) : false;
+					$formato_may=( isset($flagClienteMayorista))? ( ($flagClienteMayorista=="1")? true:false ) : false;
 
 					$ver_formato_trad=false;
 					$ver_formato_mode=false;
+					$ver_formato_may=false;
 
 					if($formato_trad && $formato_moder){
 						$ver_formato_trad=true;
@@ -33,6 +35,10 @@
 											<label class="form-check-label">
 												<input type="radio" name="ch-tipo" value="1" class="form-check-input ch-tipo" <?= ($ver_formato_trad==true) ? "checked" : ""  ?>> TRADICIONAL</label>
 										</div>
+										<div class="position-relative form-check form-check-inline" style="<?= ($formato_may==true) ? "" : "display:none"  ?>;">
+											<label class="form-check-label">
+												<input type="radio" name="ch-tipo" value="3" class="form-check-input ch-tipo" <?= ($ver_formato_may==true) ? "checked" : ""  ?>> MAYORISTA</label>
+										</div>
 										<div class="position-relative form-check form-check-inline" style="<?= ($formato_moder==true) ? "" : "display:none"  ?>;">
 											<label class="form-check-label">
 												<input type="radio" name="ch-tipo" value="2" class="form-check-input ch-tipo" <?= ($ver_formato_mode==true) ? "checked" : ""  ?>> MODERNO</label>
@@ -54,6 +60,10 @@
 									</div>
 
 									<a class="btn btn-link btn-sm" id="div_formato_trad" target="_blank" style="<?= ($ver_formato_trad==true) ? "" : "display:none;"  ?>" href="<?=base_url()?>configuraciones/maestros/basemadre/generar_formato_carga_masiva_alternativa_tradicional">
+										<i class="fal fa-file-csv fa-lg"></i> Descargar Formato
+									</a>
+
+									<a class="btn btn-link btn-sm" id="div_formato_may" target="_blank" style="<?= ($ver_formato_may==true) ? "" : "display:none;"  ?>" href="<?=base_url()?>configuraciones/maestros/basemadre/generar_formato_carga_masiva_alternativa_mayorista">
 										<i class="fal fa-file-csv fa-lg"></i> Descargar Formato
 									</a>
 

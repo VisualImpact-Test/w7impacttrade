@@ -174,15 +174,15 @@ class M_carga_masiva_general extends CI_Model{
 		$sql ="
 		
 			SELECT 
-				idCarga,idTipoUsuario,carpeta,idCuenta
+				idCarga,idTipoUsuario,carpeta,idCuenta,idProyecto
 			FROM
-				Impacttrade_aje.trade.cargaProgramacionRutas 
+				Impacttrade_aje.trade.cargaProgramacionRutas
 			WHERE estado=1
 
 			UNION
 
 			SELECT 
-				idCarga,idTipoUsuario,carpeta,idCuenta
+				idCarga,idTipoUsuario,carpeta,idCuenta,idProyecto
 			FROM
 				Impacttrade_pg.trade.cargaProgramacionRutas 
 			WHERE estado=1
@@ -190,7 +190,7 @@ class M_carga_masiva_general extends CI_Model{
 			UNION
 
 			SELECT 
-				idCarga,idTipoUsuario,carpeta,idCuenta
+				idCarga,idTipoUsuario,carpeta,idCuenta,idProyecto
 			FROM
 				Impacttrade_small.trade.cargaProgramacionRutas 
 			WHERE estado=1
@@ -284,13 +284,14 @@ class M_carga_masiva_general extends CI_Model{
 					AND @fecha = r.fecha
 					AND r.idUsuario=$idUsuario
 					AND v.idCliente=$idCliente
+					AND r.idTipoUsuario = $idTipoUsuario
 		
 		";
 
 		return $this->db->query($sql)->result_array();
 	}
 	
-	public function obtener_ruta($idUsuario,$fecha){
+	public function obtener_ruta($idUsuario,$fecha,$idTipoUsuario = ''){
 		$sql="
 			DECLARE @fecha DATE ='".$fecha."';
 			SELECT 
@@ -300,6 +301,7 @@ class M_carga_masiva_general extends CI_Model{
 			WHERE
 				idUsuario=$idUsuario
 				AND fecha=@fecha
+				AND idTipoUsuario = $idTipoUsuario
 		";
 		return $this->db->query($sql)->row_array();
 	}
@@ -357,6 +359,7 @@ class M_carga_masiva_general extends CI_Model{
 				r.fecha='".$fecha."'
 				AND r.idUsuario=".$idUsuario."
 				AND v.idCliente=".$idCliente."
+				AND r.idTipoUsuario = $idTipoUsuario
 		";
 		
 		return $this->db->query($sql)->row_array();

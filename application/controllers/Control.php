@@ -81,6 +81,9 @@ class Control extends MY_Controller{
 				if( isset($input['combos']['colaborador']) ){
 					$data['colaborador'] = $this->m_control->get_colaborador($input);
 				}
+				if( isset($input['combos']['usuario']) ){
+					$data['usuario'] = $this->m_control->get_usuarios($input);
+				}
 
 				$result['data'] = $data;
 				
@@ -235,7 +238,7 @@ class Control extends MY_Controller{
 	public function json_usuarios(){
 		$result = $this->result;
 		$get = $this->input->get();
-		$result['items']= $this->m_control->get_usuarios($get)->result_array();
+		$result['items']= $this->m_control->get_usuarios_multi($get)->result_array();
 
 		echo json_encode($result);
 	}

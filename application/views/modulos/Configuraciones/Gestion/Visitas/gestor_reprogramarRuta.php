@@ -37,12 +37,13 @@
 										<thead>
 											<tr>
 												<th class="text-center align-middle" rowspan="2">#</th>
-												<th class="text-center align-middle" colspan="2">NUEVA RUTA</th>
+												<th class="text-center align-middle" colspan="3">NUEVA RUTA</th>
 												<th class="text-center align-middle" colspan="2">ACTUAL RUTA</th>
 											</tr>
 											<tr>
 												<th class="text-center align-middle">FECHA NUEVO</th>
 												<th class="text-center align-middle">USUARIO NUEVO</th>
+												<th class="text-center align-middle">TIPO USUARIO</th>
 												<th class="text-center align-middle">FECHA</th>
 												<th class="text-center align-middle">USUARIO</th>
 											</tr>
@@ -50,17 +51,25 @@
 										<tbody>
 											<? $ix=1; ?>
 											<? foreach ($listaRutas as $klr => $row): ?>
-												<tr class="tr-reprogramarRuta" data-ruta="<?=$row['idRuta']?>">
+												<tr class="tr-reprogramarRuta" data-ruta="<?=$row['idRuta']?>" data-usuario = "<?=$row['idUsuario']?>">
 													<td class="text-center"><?=$ix++;?></td>
 													<td class="text-center">
 														<input type="date" name="fecha" id="fecha-<?=$row['idRuta']?>" placeholder="Fecha" class="form-control" patron="requerido" value="<?=date("d/m/Y")?>">
 													</td>
 													<td class="text-center">
 														<select class="form-control slWidth my-select2-usuarios" id="usuario-<?=$row['idRuta']?>" name="usuario" patron="requerido">
-															<option value="">-- Usuario --</option>
 															<? foreach ($listaUsuarios as $klu => $usuario): ?>
 																<? $usuarioSelected = ($row['idUsuario']==$usuario['idUsuario']?'selected':''); ?>
 																<option value="<?=$usuario['idUsuario']?>" <?=$usuarioSelected?>><?=$usuario['nombreUsuario']?></option>
+															<? endforeach ?>
+														</select>
+														
+													</td>
+													<td class="text-center">
+														<select class="form-control slWidth my-select2-tipousuario" id="tipoUsuario-<?=$row['idRuta']?>" name="tipoUsuario" patron="requerido">
+															<? foreach ($listaTiposUsuario[$row['idUsuario']] as $klut => $tipoUsuario): ?>
+																<? $usuarioTipoSelected = ($row['idTipoUsuario']==$tipoUsuario['idTipoUsuario']?' selected':''); ?>
+																<option value="<?=$tipoUsuario['idTipoUsuario']?>" <?=$usuarioTipoSelected?>><?=$tipoUsuario['tipoUsuario']?></option>
 															<? endforeach ?>
 														</select>
 													</td>
@@ -81,7 +90,14 @@
 </form>
 <script>
 	$('.my-select2-usuarios').select2({
-		dropdownParent: $("div.modal-content"),
+		dropdownParent: $("#frm-gestorReprogramarRutaVisita"),
 		width: '100%'
+	});
+	$('.my-select2-tipousuario').select2({
+		dropdownParent: $("#frm-gestorReprogramarRutaVisita"),
+		width: '100%'
+	});
+	$(document).ready(function(){
+		Visitas.usuariosTipo = <?=json_encode($listaTiposUsuario)?>
 	});
 </script>
