@@ -6,6 +6,7 @@ class CheckProductos extends MY_Controller{
 	public function __construct(){
 		parent::__construct();
 		$this->load->model('gestionGerencial/M_checkproductos','model');
+		$this->load->model('m_control','m_control');
 	}
 
 	public function index()
@@ -79,8 +80,6 @@ class CheckProductos extends MY_Controller{
 
 		$rs_visitas = $this->model->obtener_visitas($input);
 
-
-
 		$html = '';
 		$array['visitas'] = $rs_visitas;
 		$segmentacion = getSegmentacion($input);
@@ -103,6 +102,7 @@ class CheckProductos extends MY_Controller{
 			}
 
 			$array['segmentacion'] = $segmentacion;
+			$array['hideCol'] = $this->m_control->getHideColProyecto();
 			$html = $this->load->view("modulos/gestionGerencial/checkProducto/detalle_checklist",$array,true);
 			$result['data']['grupoCanal'] = $segmentacion['grupoCanal'];
 		} else {

@@ -174,7 +174,8 @@ class M_visitas extends MY_Model{
 		LEFT JOIN General.dbo.ubigeo ubi ON ubi.cod_ubigeo=ds.cod_ubigeo
 		LEFT JOIN trade.canal cn ON cn.idCanal=v.idCanal
 		LEFT JOIN trade.zona z ON z.idZona = v.idZona
-		WHERE 1=1 AND r.estado=1 AND v.estado = 1
+		WHERE 1=1 
+		AND r.estado=1 
 		{$filtros} 
 		AND r.fecha BETWEEN @fecIni AND @fecFin
 		ORDER BY r.fecha ASC";
@@ -992,5 +993,39 @@ class M_visitas extends MY_Model{
 		
 	}
 	
+	public function cambioEstadoMasivoVisitas($params = [])
+	{
+
+		$sql = "
+		SELECT 
+		v.idVisita
+		FROM
+		{$this->sessBDCuenta}.trade.data_ruta r
+		JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta
+		WHERE 
+		r.idUsuario = {$params['idUsuario']}
+		AND r.fecha = '{$params['fecha']}' 
+		AND r.idTipoUsuario = {$params['idTipoUsuario']}
+		AND v.idCliente = {$params['idCliente']}
+		";
+
+		$visita = $this->db->query($sql)->row_array();
+
+		$update = [];
+
+		if(!empty($visita['idVisita'])){
+			$update = [
+				'tabla' => 'visitas',
+				'idVisita' => $visita['idVisita'],
+				'estado' => $params['estado'],
+
+			];
+
+			return $this->update_estado_ruta_visita($update);
+		}
+
+		return false;
+		
+	}
 }
 ?>

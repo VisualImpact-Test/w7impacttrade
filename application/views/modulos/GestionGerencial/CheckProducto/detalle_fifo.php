@@ -4,19 +4,20 @@
             <tr>
                 <th class="text-center align-middle noVis">#</th>
                 <th class="text-center align-middle">FECHA</th>
-                <th class="text-center align-middle">GRUPO CANAL</th>
-                <th class="text-center align-middle">CANAL</th>
-                <th class="text-center align-middle hideCol">SUBCANAL</th>
+                <th class="text-center align-middle hideCol">GRUPO CANAL</th>
+                <th class="text-center align-middle hideCol">CANAL</th>
+                <th class="text-center align-middle hideCol excel-borrar">SUBCANAL</th>
                 <?$nroHeaders = 9;?>
                 <? foreach ($segmentacion['headers'] as $k => $v) { ?>
                     <? $nroHeaders++;?>
-                    <th class="text-center align-middle"><?= strtoupper($v['header']) ?></th>
+                    <th class="text-center align-middle <?= $v['header'] == 'Banner'? 'hideCol' : '' ?>" ><?= strtoupper($v['header']) ?></th>
                 <? } ?>
-                <th class="text-center align-middle">COD VISUAL</th>
-                <th class="text-center align-middle hideCol">COD <?=$this->sessNomCuentaCorto?></th>
+                <th class="text-center align-middle hideCol">COD VISUAL</th>
+                <th class="text-center align-middle ">COD <?=$this->sessNomCuentaCorto?></th>
                 <th class="text-center align-middle">PDV</th>
+                <th class="text-center align-middle">COD PROD <?=$this->sessNomCuentaCorto?></th>
                 <th class="text-center align-middle">PRODUCTO</th>
-                <th class="text-center align-middle">UNIDAD MEDIDA</th>
+                <th class="text-center align-middle hideCol">UNIDAD MEDIDA</th>
                 <th class="text-center align-middle">CANTIDAD POR VENCER</th>
                 <th class="text-center align-middle">FECHA VENCIMIENTO</th>
                 <th class="text-center align-middle">DÍAS PARA VENCIMIENTO</th>
@@ -39,6 +40,7 @@
                     <td class="text-center"><?= (!empty($row['idCliente']) ? $row['idCliente'] : '-') ?></td>
                     <td class="text-center"><?= (!empty($row['codCliente']) ? $row['codCliente'] : '-') ?></td>
                     <td class="text-left"><?= (!empty($row['razonSocial']) ? $row['razonSocial'] : '-') ?></td>
+                    <td class="text-center"><?= (!empty($row['ean']) ? $row['ean'] : '-') ?></td>
                     <td class="text-left"><?= (!empty($row['producto']) ? $row['producto'] : '-') ?></td>
                     <td class="text-left"><?= (!empty($row['unidadMedida']) ? $row['unidadMedida'] : '-') ?></td>
                     <td class="text-center"><?= (!empty($row['cantidadVencida']) ? $row['cantidadVencida'] : '-') ?></td>

@@ -19,7 +19,7 @@ class M_iniciativatrad extends My_Model
 			'elementoIniciativa' => ['tabla'=>'trade.elementoVisibilidadTrad','id'=>'idElementoVis'],
 			'motivoIniciativa' => ['tabla'=>'trade.estadoIniciativaTrad','id'=>'idEstadoIniciativa'],
 			'listaDetElemento' =>['tabla'=>"{$this->sessBDCuenta}.trade.list_iniciativaTradDetElemento",'id'=>'idListIniciativaTradDetEle'],
-			'motivoElementoVisibilidad' => ['tabla'=>'trade.motivoElementoVisibilidadTrad','id'=>'idMotivoElementoVis'],
+			'motivoElementoVisibilidad' => ['tabla'=>"{$this->sessBDCuenta}.trade.motivoElementoVisibilidadTrad",'id'=>'idMotivoElementoVis'],
 			'iniciativaTradElemento' => ['tabla'=>"{$this->sessBDCuenta}.trade.iniciativaTradElemento",'id'=>'idIniciativaTradElemento'],
 		];
 		$this->CI = &get_instance();
@@ -667,10 +667,10 @@ class M_iniciativatrad extends My_Model
 				$arrayDetalle['estado'] = 1;
 
 				//validar existencia
-				$rs = $this->db->get_where('trade.motivoElementoVisibilidadTrad',$arrayDetalle)->result_array();
+				$rs = $this->db->get_where("{$this->sessBDCuenta}.trade.motivoElementoVisibilidadTrad",$arrayDetalle)->result_array();
 				if($rs==null){ 
 					//insertar la motivo a elemento
-					$table = 'trade.motivoElementoVisibilidadTrad';
+					$table = "{$this->sessBDCuenta}.trade.motivoElementoVisibilidadTrad";
 					$this->db->trans_begin();
 
 						$insert = $this->db->insert($table, $arrayDetalle);
@@ -1301,11 +1301,11 @@ class M_iniciativatrad extends My_Model
 			SELECT
 				e.idEstadoIniciativa 
 				, det.nombre
-				from  trade.motivoElementoVisibilidadTrad e 
+				from  {$this->sessBDCuenta}.trade.motivoElementoVisibilidadTrad e 
 				JOIN trade.estadoIniciativaTrad det ON e.idEstadoIniciativa = det.idEstadoIniciativa
 				WHERE 1=1 {$filtros}  
 			";
-		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.motivoElementoVisibilidadTrad', 'id' => null ];
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.motivoElementoVisibilidadTrad", 'id' => null ];
 		return $this->db->query($sql);
 	}
 

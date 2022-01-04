@@ -37,6 +37,7 @@ if(empty($idCuenta) || $idCuenta != 2){
 			<div class="card-body p-0">
 				<ul class="nav nav-tabs nav-justified">
 					<li class="nav-item btnReporte" id="tipoReporte" name="tipoReporte" url="visibilidad">
+						<input type="hidden" id="txtcuenta" value="<?=$this->sessIdCuenta?>">
 						<a data-toggle="tab" href="javascript:;" class="active nav-link aFechaHome" data-value="1">
 							<i class="fad fa-calendar-alt fa-lg" style="margin-right:5px;"></i>
 							<input class="form-control input-sm txt-fecha fechaHome" type="text" name="fechaHome" patron="requerido" value="<?= date('d/m/Y') ?>">

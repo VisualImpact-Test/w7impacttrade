@@ -423,7 +423,7 @@ class M_Fotos extends MY_Model
 				{$segmentacion['columnas_bd']}
 			FROM trade.cliente cli
 			JOIN {$cliente_historico} ch ON cli.idCliente = ch.idCliente
-			JOIN General.dbo.ubigeo ubi01 ON ch.cod_ubigeo = ubi01.cod_ubigeo
+			LEFT JOIN General.dbo.ubigeo ubi01 ON ch.cod_ubigeo = ubi01.cod_ubigeo
 			LEFT JOIN trade.segmentacionNegocio sn ON sn.idSegNegocio = ch.idSegNegocio
 			LEFT JOIN trade.cliente_tipo ct ON ct.idClienteTipo = sn.idClienteTipo
 			{$segmentacion['join']}
@@ -433,13 +433,13 @@ class M_Fotos extends MY_Model
 			)
 			SELECT DISTINCT
 				v.idVisita
-				,ch.departamento
-				,ch.provincia
-				,ch.distrito
+				,ISNULL(ch.departamento,'') departamento
+				,ISNULL(ch.provincia,'') provincia
+				,ISNULL(ch.distrito,'') distrito
 				,v.idCliente
-				,ch.codCliente
+				,ISNULL(ch.codCliente,'-') codCliente
 				,ch.razonSocial
-				,ch.direccion
+				,ISNULL(ch.direccion,'-') direccion
 				,v.fecha
 				,v.idUsuario
 				,v.usuario

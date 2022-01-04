@@ -50,6 +50,7 @@ class M_control extends MY_Model{
 			JOIN trade.usuario_historico uh ON py.idProyecto = uh.idProyecto
 				AND @fecha BETWEEN uh.fecIni AND ISNULL(uh.fecFin, @fecha)
 				AND uh.idAplicacion IN(2)
+				AND uh.estado = 1
 			WHERE cu.idCuenta = {$input['idCuenta']}
 			AND py.idProyecto = {$input['idProyecto']}
 			AND uh.idUsuario = ".$this->session->userdata('idUsuario');
@@ -78,6 +79,7 @@ class M_control extends MY_Model{
 		JOIN trade.usuario_historico uh ON py.idProyecto = uh.idProyecto
 			AND @fecha BETWEEN uh.fecIni AND ISNULL(uh.fecFin, @fecha)
 			AND uh.idAplicacion IN(2)
+			AND uh.estado = 1
 		WHERE py.estado = 1{$filtro} 
 		AND uh.idUsuario = ".$this->session->userdata('idUsuario')."
 		ORDER BY py.nombre";
@@ -699,7 +701,7 @@ class M_control extends MY_Model{
 				CONVERT(varchar,fechaActualizacion,103) fechaActualizacion,
 				CASE WHEN (fechaActualizacion IS NOT NULL) THEN 1 ELSE 0 END actualizado
 			FROM 
-				trade.peticionActualizarVisitas
+				{$this->sessBDCuenta}.trade.peticionActualizarVisitas
 			WHERE idProyecto={$input['idProyecto']}
 			ORDER BY fechaIni DESC,idPeticion DESC;";
 		return $this->db->query($sql)->result_array();
@@ -713,7 +715,7 @@ class M_control extends MY_Model{
 				CONVERT(varchar,fechaActualizacion,103) fechaActualizacion,
 				CASE WHEN (fechaActualizacion IS NOT NULL) THEN 1 ELSE 0 END actualizado
 			FROM 
-				trade.peticionActualizarVisitas
+				{$this->sessBDCuenta}.trade.peticionActualizarVisitas
 			WHERE estado=1 and fechaActualizacion is null
 			ORDER BY fechaIni DESC;";
 		return $this->db->query($sql)->result_array();
@@ -742,7 +744,7 @@ class M_control extends MY_Model{
 
 		$sql = "
 			DECLARE @fecha date=GETDATE();
-			UPDATE trade.peticionActualizarVisitas
+			UPDATE {$this->sessBDCuenta}.trade.peticionActualizarVisitas
 				SET estado=0
 			WHERE 
 				idPeticion={$post['idPeticion']}
@@ -755,7 +757,7 @@ class M_control extends MY_Model{
 
 		$sql = "
 			DECLARE @fecha date=GETDATE();
-			UPDATE trade.peticionActualizarVisitas
+			UPDATE {$this->sessBDCuenta}.trade.peticionActualizarVisitas
 				SET estado=0,fechaActualizacion=GETDATE(),hora=GETDATE(),porcentaje={$post['porcentaje']}
 			WHERE 
 				idPeticion={$post['idPeticion']}
@@ -770,12 +772,105 @@ class M_control extends MY_Model{
 			'fechaIni' => trim($post['fechaIni']),
 			'fechaFin' => trim($post['fechaFin']),
 			'idUsuario' => trim($post['idUsuario']),
-			'estado' => 1
+			'estado' => 1,
+			'idCuenta' => trim($post['idCuenta'])
 		];
 
-		$insert = $this->db->insert("trade.peticionActualizarVisitas", $insert);
+		$insert = $this->db->insert("{$this->sessBDCuenta}.trade.peticionActualizarVisitas", $insert);
 		return $insert;
 	}
 
 
+	public function obtenerUsuariosPermisosDistribuidoraSucursal($input)
+	{
+		$fecIni = $input['fecIni'];
+		$fecFin = $input['fecFin'];
+
+		$sql = "
+		DECLARE @fecIni date='".$fecIni."',@fecFin date='".$fecFin."';
+		SELECT DISTINCT
+		u.idUsuario
+		,ISNULL(u.nombres,'') + ' ' +ISNULL(u.apePaterno,'') + ' ' +ISNULL(u.apeMaterno,'') nombreUsuario
+		,u.numDocumento
+		,uhds.idDistribuidoraSucursal
+		,ut.idTipoUsuario
+		,ut.nombre tipoUsuario
+		FROM trade.usuario u 
+		JOIN trade.usuario_historico uh ON uh.idUsuario = u.idUsuario AND uh.idTipoUsuario IN(2,11,17) AND General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,@fecIni,@fecFin)=1
+		JOIN trade.usuario_tipo ut ON ut.idTipoUsuario = uh.idTipoUsuario
+		JOIN trade.usuario_historicoDistribuidoraSucursal uhds ON uhds.idUsuarioHist = uh.idUsuarioHist AND uhds.estado = 1
+		";
+		return $this->db->query($sql)->result_array();
+	}
+	public function obtenerUsuariosPermisosPlaza($input)
+	{
+		$fecIni = $input['fecIni'];
+		$fecFin = $input['fecFin'];
+
+		$sql = "
+		DECLARE @fecIni date='".$fecIni."',@fecFin date='".$fecFin."';
+		SELECT DISTINCT
+		u.idUsuario
+		,ISNULL(u.nombres,'') + ' ' +ISNULL(u.apePaterno,'') + ' ' +ISNULL(u.apeMaterno,'') nombreUsuario
+		,u.numDocumento
+		,uhp.idPlaza
+		,ut.idTipoUsuario
+		,ut.nombre tipoUsuario
+		FROM trade.usuario u 
+		JOIN trade.usuario_historico uh ON uh.idUsuario = u.idUsuario AND uh.idTipoUsuario IN(2,11,17) AND General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,@fecIni,@fecFin)=1
+		JOIN trade.usuario_tipo ut ON ut.idTipoUsuario = uh.idTipoUsuario
+		JOIN trade.usuario_historicoPlaza uhp ON uhp.idUsuarioHist = uh.idUsuarioHist
+		";
+		return $this->db->query($sql)->result_array();
+	}
+	public function obtenerUsuariosPermisosBanner($input)
+	{
+		$fecIni = $input['fecIni'];
+		$fecFin = $input['fecFin'];
+
+		$sql = "
+		DECLARE @fecIni date='".$fecIni."',@fecFin date='".$fecFin."';
+		SELECT DISTINCT
+		u.idUsuario
+		,ISNULL(u.nombres,'') + ' ' +ISNULL(u.apePaterno,'') + ' ' +ISNULL(u.apeMaterno,'') nombreUsuario
+		,u.numDocumento
+		,uhb.idBanner
+		,ut.idTipoUsuario
+		,ut.nombre tipoUsuario
+		FROM trade.usuario u 
+		JOIN trade.usuario_historico uh ON uh.idUsuario = u.idUsuario AND uh.idTipoUsuario IN(2,11,17) AND General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,@fecIni,@fecFin)=1
+		JOIN trade.usuario_tipo ut ON ut.idTipoUsuario = uh.idTipoUsuario
+		JOIN trade.usuario_historicoBanner uhb ON uhb.idUsuarioHist = uh.idUsuarioHist
+		";
+		return $this->db->query($sql)->result_array();
+	}
+
+	public function getHideColProyecto($input = [])
+	{
+		$idCuenta = $this->sessIdCuenta;
+		$idProyecto = $this->sessIdProyecto;
+		$sql = "
+			SELECT
+			nombre
+			FROM
+			trade.hideColProyecto
+			WHERE estado = 1
+			AND idCuenta = {$idCuenta}
+		UNION
+			SELECT
+			nombre
+			FROM
+			trade.hideColProyecto
+			WHERE estado = 1
+			AND idProyecto = {$idProyecto}
+			;";
+		
+		$rs = $this->db->query($sql)->result_array();
+		$hideCols = [];
+		foreach ($rs as $k => $v) {
+			$hideCols[$v['nombre']] = true;
+		}
+
+		return $hideCols;
+	}
 }

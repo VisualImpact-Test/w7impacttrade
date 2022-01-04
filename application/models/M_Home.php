@@ -552,7 +552,7 @@ class M_Home extends MY_Model{
         }
 
         if(!empty($params['grupoCanal'])){$filtros.= " AND gc.idGrupoCanal = {$params['grupoCanal']} ";}
-        if(!empty($params['canal'])){$filtros.= " AND c.idCanal = {$params['canal']} ";}
+        if(!empty($params['canal'])){$filtros.= " AND c.idCanal IN ({$params['canal']}) ";}
 
         $sql = "
         DECLARE @fechaHoy DATE = '{$params['fecha']}';

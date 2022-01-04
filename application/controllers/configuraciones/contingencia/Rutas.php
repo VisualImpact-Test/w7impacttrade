@@ -243,8 +243,8 @@ class Rutas extends MY_Controller{
 					'data' => $new_data,
 					'columnDefs' => 
 					[ 
-						0 => ["className"=> 'text-left',"targets" => [2,3,4,5,6,7,10] ],
-						1 => ["className"=> 'text-center',"targets" => '_all' ],
+						0 => ["className"=> 'text-center',"targets" => '_all' ],
+						1 => ["className"=> 'text-left',"targets" => [3,4,5,6,7,10,13] ],
 						// 2 => ["visible"=> false,"targets" => [4,5,8,9,18,22,23,24,25,26,34] ],
 					],
 
@@ -273,6 +273,200 @@ class Rutas extends MY_Controller{
 					$html = getMensajeGestion('noRegistros');
 					break;	
 			}
+		} else {
+			$html = getMensajeGestion('noRegistros');
+			$result['data']['html'] = $html;
+		}
+
+		$this->aSessTrack = $this->model->aSessTrack;
+		respuesta:
+		echo json_encode($result);
+	}
+	public function filtrar_moderno(){
+		$result = $this->result;
+		$data  = json_decode($this->input->post('data'));
+		
+		$input = array();
+		$input['fecha'] = $data->{'txt-fechas_simple'};
+		$input['grupoCanal_filtro'] = $data->{'grupoCanal_filtro'};
+
+		if(empty($data->{'chk-usuario-inactivo'}) || empty($data->{'chk-usuario-activo'}) ){
+			$input['estadoUsuario'] = empty($data->{'chk-usuario-activo'}) ? 2 : 1;
+		}
+		if(empty($data->{'chk-usuario-inactivo'}) && empty($data->{'chk-usuario-activo'}) ){
+			$input['estadoUsuario'] = 3;
+		}
+
+		$rs_visitas = $this->model->obtener_rutas_visitas($input);
+		$segmentacion = getSegmentacion(['grupoCanal_filtro' => $input['grupoCanal_filtro']]);
+
+		$html = getMensajeGestion('noRegistros');
+
+		if ( !empty($rs_visitas)) {
+			$result['result'] = 1;
+			$array=array();
+
+			foreach ($rs_visitas as $kv => $row) {
+				$array['listaVisitas'][$row['idVisita']] = $row;
+			}
+
+			$rs_usuario_modulos = $this->model->obtener_modulos_usuario($input);
+
+			if ( empty($rs_usuario_modulos)) {
+				goto respuesta;
+			}
+			foreach ($rs_usuario_modulos as $klum => $row) {
+				$array['listaUsuarioModulo'][$row['idUsuario']]['listaModulos'][$row['idModulo']] = $row['idModulo'];
+			}
+
+
+			$new_data = [];
+			$ix=1;$listaUsuarioModulo = $array['listaUsuarioModulo'];$e=0;
+			foreach ($array['listaVisitas'] as $ku => $row) {
+
+				$cesado = !empty($row['cesado']) ? "text-danger" : "" ;
+				//HORARIOS-
+					//$incidencia = isset($row['estadoIncidencia']) ? ( $row['estadoIncidencia']==1 ? 'checked':'' ): '';
+					$incidencia = isset($row['estadoIncidencia']) ? ( $row['estadoIncidencia']==1 ?'checked':''): '';
+					$bloqueado="";
+					$estiloBloqueado="";
+					if ( $incidencia!=="" ) {
+						$estiloBloqueado="tdBloqueado";
+						$bloqueado="disabled";
+					}
+					/****/
+					$textHoraInicio="";
+					if ( !empty($row['horaIni']) ) {
+						$textHoraInicio = $row['horaIni'];
+					} else {
+						$textHoraInicio = "<input type='time' name='horaInicio-".$row['idVisita']."' id='horaInicio-".$row['idVisita']."' class='form-control hora' value=''>";
+						$estiloBloqueado="tdBloqueado";
+						$bloqueado="disabled";
+					}
+
+					$textHoraFin="";
+					if ( !empty($row['horaIni'])) {
+						if ( !empty($row['horaFin'])) {
+							$textHoraFin = $row['horaFin'];
+						} else {
+							$textHoraFin = "<input type='time' name='horaFin-".$row['idVisita']."' id='horaFin-".$row['idVisita']."' class='form-control hora' value=''>";
+						}
+					} else {
+						$textHoraFin='Ingrese<br>Hora Inicio';
+					}
+					if (isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][1]) || isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][12])) $btnEncuesta = ( $row['encuesta']==1 ? 'btn-outline-success' : 'btn-outline-danger' );
+					if (isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][2]) || isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][13])) $btnIpp = ( $row['ipp']==1 ? 'btn-outline-success' : 'btn-outline-danger' );
+					if (isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][3]) || isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][14])) $btnProductos = ( $row['productos']==1 ? 'btn-outline-success' : 'btn-outline-danger' );
+					if (isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][10]) || isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][21])) $btnPrecios = ( $row['precios']==1 ? 'btn-outline-success' : 'btn-outline-danger' );
+					if (isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][7]) || isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][18])) $btnPromociones = ( $row['promociones']==1 ? 'btn-outline-success' : 'btn-outline-danger' );
+					if (isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][5])) $btnSos = ( $row['sos']==1 ? 'btn-outline-success' : 'btn-outline-danger' );
+					if (isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][5]))  $btnSod = ( $row['sod']==1 ? 'btn-outline-success' : 'btn-outline-danger' );
+					if (isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][5])) $btnEncartes = ( $row['encartes']==1 ? 'btn-outline-success' : 'btn-outline-danger' );
+					if (isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][4]) || isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][15])) $btnSeguimientoPlan = ( $row['seguimientoPlan']==1 ? 'btn-outline-success' : 'btn-outline-danger' );
+					if (isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][8]) || isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][19])) $btnDespachos = ( $row['despachos']==1 ? 'btn-outline-success' : 'btn-outline-danger' );
+					if (isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][9]) || isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][20])) $btnFotos = ( $row['moduloFotos']==1 ? 'btn-outline-success' : 'btn-outline-danger' );
+					if (isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][11]))  $btnInventario = ( $row['inventario']==1 ? 'btn-outline-success' : 'btn-outline-danger' );
+					if (isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][16])) $btnVisibilidad = ( $row['visibilidad']==1 ? 'btn-outline-success' : 'btn-outline-danger' );
+					if (isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][24])) $btnMantenimiento = ( $row['mantenimiento']==1 ? 'btn-outline-success' : 'btn-outline-danger' );
+					if (isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][22])) $btnIniciativa = ( $row['iniciativa']==1 ? 'btn-outline-success' : 'btn-outline-danger' );
+					if (isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][23]))   $btnInteligencia = ( $row['inteligencia']==1 ? 'btn-outline-success' : 'btn-outline-danger' );
+					if (isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][25])) $btnOrdenes = ( $row['ordenes']==1 ? 'btn-outline-success' : 'btn-outline-danger' );
+					if (isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][27])) $btnVisibilidadAudit = ( $row['visibilidad_aud']==1 ? 'btn-outline-success' : 'btn-outline-danger' );
+
+					$codUsuario =  !empty($row['codUsuario']) ? $row['codUsuario'] : '';
+					$usuario =  !empty($row['usuario']) ? $row['usuario'] : '';
+
+					$condicion = $row['condicion'];
+					$condicion_ = '';
+					$condicion_f = '';
+
+					if ($condicion == 0 || $condicion == 4) {
+						$condicion_ = 'SV <span class="color-F" ><i class="fa fa-circle" ></i></span>';
+						$condicion_f = 'SV';
+					} elseif ($condicion == 1) {
+						$condicion_ = 'NE <span class="color-N" ><i class="fa fa-circle" ></i></span>';
+						$condicion_f = 'NE';
+					} elseif ($condicion == 2) {
+						$condicion_ = 'IN <span class="color-I" ><i class="fa fa-circle" ></i></span>';
+						$condicion_f = 'IN';
+					} elseif ($condicion == 3) {
+						$condicion_ = 'EF <span class="color-C" ><i class="fa fa-circle" ></i></span>';
+						$condicion_f = 'EF';
+					}
+
+				$new_data[$e] = [
+					//Columnas
+					$ix++, 
+					!empty($row['fecha'])?$row['fecha']:'-',
+					!empty($row['codUsuario'])?$row['codUsuario']:'-',
+					!empty($row['cesado']) ? "<h4 class='text-center'><span class=' badge badge-danger'>Cesado</span></h4>" : "<h4 class='text-center'><span class='badge badge-primary'>Activo</span></h4>", 
+					!empty($row['usuario']) ? "<p class='text-left {$cesado}'> {$row['usuario']} </p>" : '-', 
+					!empty($row['grupoCanal'])?$row['grupoCanal']:'-',
+					!empty($row['canal'])?$row['canal']:'-',
+				];
+				foreach ($segmentacion['headers'] as $k => $v) { 
+					array_push($new_data[$e],
+						!empty($row[($v['columna'])]) ? "<p class='text-left'>{$row[($v['columna'])]}</p>" : '-'
+					);
+			   	}
+				array_push($new_data[$e],
+					!empty($row['departamento'])?$row['departamento']:'-',
+					!empty($row['provincia'])?$row['provincia']:'-',
+					!empty($row['distrito'])?$row['distrito']:'-',
+					!empty($row['pdv'])?$row['pdv']:'-',
+					!empty($row['idCliente'])?$row['idCliente']:'-',
+					!empty($row['codCliente'])?$row['codCliente']:'-',
+					!empty($row['direccion'])?$row['direccion']:'-',
+					"<p class='text-center {$condicion_f}'>{$condicion_}</p>",
+					$textHoraInicio,
+					$textHoraFin,
+					"<button type='button' class='btn border-0 btn-outline-danger saveHorarioVisita' data-visita='{$row['idVisita']}' title='ACTUALIZAR HORARIOS'><i class='fas fa-upload fa-lg'></i></button>",
+					"<input type='checkbox' class='incidenciaVisita' name='incidencia' id='incidenciaVisita-{$row['idVisita']}' data-visita='{$row['idVisita']}' {$incidencia} data-cliente='{$row['pdv']}' data-width='90%'>",
+					(isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][1]) || isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][12]))? "<a href='javascript:;' class='visitaModulo opcionModulo btn border-0 {$btnEncuesta} {$bloqueado}' data-title='ENCUESTA' data-modulo='encuesta' data-visita='{$row['idVisita']}' data-lista='{$row['idListEncuesta']}' data-columna='idListEncuesta' data-cliente='{$row['pdv']}' data-width='90%'><i class='fas fa-check fa-lg'></i></a>": '-', 
+					(isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][2]) || isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][13]))? "<a href='javascript:;' class='visitaModulo opcionModulo btn border-0  {$btnIpp} {$bloqueado}' data-title='IPP' data-modulo='ipp' data-visita='{$row['idVisita']}' data-lista='{$row['idListIpp']}' data-columna='idListIpp' data-cliente='{$row['pdv']}' data-width='90%'><i class='fas fa-check fa-lg'></i></a>": '-',
+					(isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][3]) || isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][14]))? "<a href='javascript:;' class='visitaModulo opcionModulo btn border-0  {$btnProductos} {$bloqueado}' data-title='CHECKLIST PRODUCTOS' data-modulo='productos' data-visita='{$row['idVisita']}' data-lista='{$row['idListProductos']}' data-columna='idListProductos' data-cliente='{$row['pdv']}' data-width='90%'><i class='fas fa-check fa-lg'></i></a>": '-',
+					(isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][10]) || isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][21]))? "<a href='javascript:;' class='visitaModulo opcionModulo btn border-0  {$btnPrecios} {$bloqueado}' data-title='PRECIOS' data-modulo='precios' data-visita='{$row['idVisita']}' data-lista='{$row['idListPrecios']}' data-columna='idListProductos' data-cliente='{$row['pdv']}' data-width='90%'><i class='fas fa-check fa-lg'></i></a>": '-',
+					(isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][7]) || isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][18]))? "<a href='javascript:;' class='visitaModulo opcionModulo btn border-0  {$btnPromociones} {$bloqueado}' data-title='PROMOCIONES' data-modulo='promociones' data-visita='{$row['idVisita']}' data-lista='{$row['idListPromociones']}' data-columna='idListPromociones' data-cliente='{$row['pdv']}' data-width='90%'><i class='fas fa-check fa-lg'></i></a>" : '-',
+					(isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][5])) ? "<a href='javascript:;' class='visitaModulo opcionModulo btn border-0  {$btnSos} {$bloqueado}' data-title='SHARE OF SHELF' data-modulo='sos' data-visita='{$row['idVisita']}' data-lista='{$row['idListSos']}' data-columna='idListVisibilidad' data-cliente='{$row['pdv']}' data-width='90%'><i class='fas fa-check fa-lg'></i></a>": '-',
+					(isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][5])) ? "<a href='javascript:;' class='visitaModulo opcionModulo btn border-0  {$btnSod} {$bloqueado}' data-title='SHARE OF DISPLAY' data-modulo='sod' data-visita='{$row['idVisita']}' data-lista='{$row['idListSod']}' data-columna='idListVisibilidad' data-cliente='{$row['pdv']}' data-width='90%'><i class='fas fa-check fa-lg'></i></a>": '-',
+					(isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][5])) ? "<a href='javascript:;' class='visitaModulo opcionModulo btn border-0  {$btnEncartes} {$bloqueado}' data-title='ENCARTES' data-modulo='encartes' data-visita='{$row['idVisita']}' data-lista='{$row['idListEncartes']}' data-columna='idListVisibilidad' data-cliente='{$row['pdv']}' data-width='50%'><i class='fas fa-check fa-lg'></i></a>": '-',
+					(isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][4]) || isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][15]))? "<a href='javascript:;' class='visitaModulo opcionModulo btn border-0  {$btnSeguimientoPlan} {$bloqueado}' data-title='SEGUIMIENTO DE PLAN' data-modulo='seguimientoPlan' data-visita='{$row['idVisita']}' data-lista='{$row['idListSeguimientoPlan']}' data-columna='idListSeguimientoPlan' data-cliente='{$row['pdv']}' data-width='90%'><i class='fas fa-check fa-lg'></i></a>" : '-',
+					(isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][8]) || isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][19]))? "<a href='javascript:;' class='visitaModulo opcionModulo btn border-0  {$btnDespachos} {$bloqueado}' data-title='DESPACHOS' data-modulo='despachos' data-visita='{$row['idVisita']}' data-lista='{$row['idListDespachos']}' data-columna='idListPromociones' data-cliente='{$row['pdv']}' data-width='90%'><i class='fas fa-check fa-lg'></i></a>": '-',
+					(isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][9]) || isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][20]))? "<a href='javascript:;' class='visitaModulo opcionModulo btn border-0  {$btnFotos} {$bloqueado}' data-title='FOTOS' data-modulo='moduloFotos' data-visita='{$row['idVisita']}' data-lista='{$row['idListFotos']}' data-columna='idListFotos' data-cliente='{$row['pdv']}' data-width='90%'><i class='fas fa-check fa-lg'></i></a>" : '-',
+					(isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][11])) ? "<a href='javascript:;' class='visitaModulo opcionModulo btn border-0  {$btnInventario} {$bloqueado}' data-title='INVENTARIO' data-modulo='inventario' data-visita='{$row['idVisita']}' data-lista='{$row['idListInventario']}' data-columna='idListInventario' data-cliente='{$row['pdv']}' data-width='90%'><i class='fas fa-check fa-lg'></i></a>" : '-',
+					(isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][16])) ? "<a href='javascript:;' class='visitaModulo opcionModulo btn border-0  {$btnVisibilidad} {$bloqueado}' data-title='VISIBILIDAD TRADICIONAL' data-modulo='visibilidadTrad' data-visita='{$row['idVisita']}' data-lista='{$row['idListVisibilidadTrad']}' data-columna='idListVisibilidadTrad' data-cliente='{$row['pdv']}' data-width='90%'><i class='fas fa-check fa-lg'></i></a>": '-',
+					(isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][24])) ? "<a href='javascript:;' class='visitaModulo opcionModulo btn border-0  {$btnMantenimiento} {$bloqueado}' data-title='MANTENIMIENTO CLIENTE' data-modulo='mantenimiento' data-visita='{$row['idVisita']}' data-lista='{$row['idListMantenimiento']}' data-columna='idListMantenimiento' data-cliente='{$row['pdv']}' data-width='90%'><i class='fas fa-check fa-lg'></i></a>" : '-',
+					(isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][22])) ? "<a href='javascript:;' class='visitaModulo opcionModulo btn border-0  {$btnIniciativa} {$bloqueado}' data-title='INICIATIVAS TRADICIONAL' data-modulo='iniciativaTrad' data-visita='{$row['idVisita']}' data-lista='{$row['idListIniciativa']}' data-columna='idListIniciativa' data-cliente='{$row['pdv']}' data-width='90%'><i class='fas fa-check fa-lg'></i></a>" : '-',
+					(isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][23])) ? "<a href='javascript:;' class='visitaModulo opcionModulo btn border-0  {$btnInteligencia} {$bloqueado}' data-title='INTELIGENCIA COMPETITIVA' data-modulo='inteligencia' data-visita='{$row['idVisita']}' data-lista='{$row['idListCategoriaMarcaComp']}' data-columna='idListCategoriaMarcaComp' data-cliente='{$row['pdv']}' data-width='90%'><i class='fas fa-check fa-lg'></i></a>" : '-',
+					(isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][25])) ? "<a href='javascript:;' class='visitaModulo opcionModulo btn border-0  {$btnOrdenes} {$bloqueado}' data-title='ORDENES DE TRABAJO' data-modulo='ordenes' data-visita='{$row['idVisita']}' data-lista='{$row['idListOrdenes']}' data-columna='idListOrdenes' data-cliente='{$row['pdv']}' data-width='90%'><i class='fas fa-check fa-lg'></i></a>" : '-',
+					(isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][27])) ? "<a href='javascript:;' class='visitaModulo opcionModulo btn border-0  {$btnVisibilidadAudit} {$bloqueado}' data-title='VISIBILIDAD AUDITORIA OBLIGATORIA' data-modulo='visibilidad_aud_obl' data-visita='{$row['idVisita']}' data-lista='{$row['idListVisibilidadTradObl']}' data-columna='idListVisibilidadTradObl' data-cliente='{$row['pdv']}' data-width='90%'><i class='fas fa-check fa-lg'></i></a>": '-',
+					(isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][27])) ? "<a href='javascript:;' class='visitaModulo opcionModulo btn border-0  {$btnVisibilidadAudit} {$bloqueado}' data-title='VISIBILIDAD AUDITORIA INICIATIVA' data-modulo='visibilidad_aud_ini' data-visita='{$row['idVisita']}' data-lista='{$row['idListIniciativasTrad']}' data-columna='idListIniciativasTrad' data-cliente='{$row['pdv']}' data-width='90%'><i class='fas fa-check fa-lg'></i></a>": '-',
+					(isset($listaUsuarioModulo[$row['idUsuario']]['listaModulos'][27])) ? "<a href='javascript:;' class='visitaModulo opcionModulo btn border-0  {$btnVisibilidadAudit} {$bloqueado}' data-title='VISIBILIDAD AUDITORIA ADICIONAL' data-modulo='visibilidad_aud_adc' data-visita='{$row['idVisita']}' data-lista='{$row['idListVisibilidadTradAdc']}' data-columna='idListVisibilidadTradAdc' data-cliente='{$row['pdv']}' data-width='90%'><i class='fas fa-check fa-lg'></i></a>": '-'
+					// "<a href='javascript:;' class='opcionCargarData btn border-0 btn-outline-danger' data-title='CARGAR DATA' data-width='90%' data-codUsuario='{$codUsuario}' data-usuario='{$usuario}'><i class='fas fa-upload fa-lg'></i></a>",
+				);
+				$e++;
+			}
+
+			$result['data']['configTable'] =  [
+					'data' => $new_data,
+					'columnDefs' => 
+					[ 
+						0 => ["className"=> 'text-left',"targets" => [3,4,5,6,7,10,13] ],
+						1 => ["className"=> 'text-center',"targets" => '_all' ],
+						// 2 => ["visible"=> false,"targets" => [4,5,8,9,18,22,23,24,25,26,34] ],
+					],
+
+			];
+			  
+			$array['segmentacion'] = $segmentacion;
+		
+			$array['idDataTableDetalle'] = 'tb-contingenciaRutasDetalleGtm';
+
+			$html = $this->load->view("modulos/configuraciones/contingencia/rutas/CtnRutasDetalle", $array, true);
+			$result['data']['views']['contentGtm']['html'] = $html;
+			$result['data']['views']['contentGtm']['datatable'] = 'tb-contingenciaRutasDetalleGtm';
+					
+		
 		} else {
 			$html = getMensajeGestion('noRegistros');
 			$result['data']['html'] = $html;

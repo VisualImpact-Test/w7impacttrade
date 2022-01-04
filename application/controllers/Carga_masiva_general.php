@@ -568,7 +568,7 @@ class Carga_masiva_general extends CI_Controller{
 									$idCliente = utf8_encode($data[2]);
 									$mensaje='';
 									$validar_visita = $this->model->validar_visita_exclusion($idTipoUsuario,$idCliente,$idUsuario,$fecha);
-									if(count($validar_visita)==0){
+									if($validar_visita==null || count($validar_visita)==0){
 										$mensaje = 'No existe la visita.';
 									}else {
 										$idVisita = $validar_visita['idVisita'];

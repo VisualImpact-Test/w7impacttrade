@@ -34,6 +34,8 @@ var Visitas = {
 	contentSeleccionado:"tab-content-0",
 
 	usuariosTipo: [],
+	HT: [],
+	HT_obligatorio: [],
 	load: function(){
 		// $('#usuario').parent().find('span.select2-container').addClass('sl-width-250');
 		$('#combo_ciudad_whls').hide();
@@ -355,6 +357,7 @@ var Visitas = {
 					$("#btn-rutaReprogramar").show();
 
 					$("#btn-visitaCambiarEstado").hide();
+					$("#btn-visitaCambiarEstadoMasivo").hide();
 					$("#btn-visitaReprogramar").hide();
 					$("#btn-visitaCargaMasiva").hide();
 					$("#btn-visitaExcluir").hide();
@@ -372,6 +375,7 @@ var Visitas = {
 					$("#btn-rutaReprogramar").hide();
 		
 					$("#btn-visitaCambiarEstado").show();
+					$("#btn-visitaCambiarEstadoMasivo").show();
 					$("#btn-visitaReprogramar").show();
 					$("#btn-visitaCargaMasiva").show();
 					$("#btn-visitaExcluir").show();
@@ -399,6 +403,7 @@ var Visitas = {
 					$("#btn-rutaReprogramar").show();
 
 					$("#btn-visitaCambiarEstado").hide();
+					$("#btn-visitaCambiarEstadoMasivo").hide();
 					$("#btn-visitaReprogramar").hide();
 					$("#btn-visitaCargaMasiva").hide();
 					$("#btn-visitaExcluir").hide();
@@ -419,6 +424,7 @@ var Visitas = {
 					$("#btn-rutaReprogramar").hide();
 		
 					$("#btn-visitaCambiarEstado").show();
+					$("#btn-visitaCambiarEstadoMasivo").show();
 					$("#btn-visitaReprogramar").show();
 					$("#btn-visitaCargaMasiva").show();
 					$("#btn-visitaExcluir").show();
@@ -1330,6 +1336,138 @@ var Visitas = {
 			$('#grupo_filtro').change();
 			$('#tipoUsuario_filtro').change();
 		});
+
+		$(document).on("click", "#btn-visitaCambiarEstadoMasivo", function (e) {
+			e.preventDefault();
+
+			var config = { 'url': Visitas.url + 'desactivarVisitasMasivamente' };
+			$.when(Fn.ajax(config)).then(function (a) {
+
+				if (a.result === 2) return false;
+
+				++modalId;
+				var fn = 'Fn.showModal({ id:' + modalId + ',show:false });';
+				var fn1 = 'Visitas.confirmarActualizarEstadoVisitas();';
+				Visitas.HT_obligatorio = a.data.obligatorio;
+				var btn = [];
+				btn[0] = { title: 'Cerrar', fn: fn };
+				btn[1] = { title: 'Guardar', fn: fn1 };
+
+				Fn.showModal({ id: modalId, show: true, class: 'modalCargaMasiva', title: a.msg.title, frm: a.data.html, btn: btn, width: a.data.width });
+				HTCustom.llenarHTObjectsFeatures(a.data.ht);
+			});
+		});
+
+		
+	},
+	verificarObligatorioMasivoHT: function($HT){
+		let filas = [];
+		$.each($HT, function(k,v){
+			let obligatorio = Visitas.HT_obligatorio[k];
+			let validaciones = [];
+			filas['completas'] = [];
+			filas['incompletas'] = [];
+			filas['vacias'] = [];
+			$.each(v,function(k2,v2){
+				validaciones[k2] = [];
+				$.each(v2,function(k3,v3){
+					if(obligatorio.indexOf(k3) != -1){
+						if(v3 == undefined){
+						
+						validaciones[k2].push({columna:k3,value:v3});
+						}
+					}
+				}) 
+			});
+			 
+			$.each(validaciones,function(i,x){
+				if(x.length > 0 && x.length < obligatorio.length){
+					filas['incompletas'].push(i+1);
+				}
+				if(x.length == obligatorio.length){
+					filas['vacias'].push(i+1);
+				}
+				if(x.length == 0){
+					filas['completas'].push(i+1);
+				}
+			});
+			
+		})
+		
+		return filas;
+	},
+	confirmarActualizarEstadoVisitas: function(){
+		var contColsInvalid = 0;
+			contColsInvalid = $('#divTablaCargaMasiva .htInvalid').length;
+		var HT = [];
+		$.each(HTCustom.HTObjects, function (i, v) {
+			if (typeof v !== 'undefined') HT.push(v.getSourceData());
+		});
+
+		let filas = Visitas.verificarObligatorioMasivoHT(HT);
+		if(filas['incompletas'].length > 0 ){
+
+			++modalId;
+			var fn='Fn.showModal({ id:'+modalId+',show:false });';
+			var btn=new Array();
+				btn[0]={title:'Cerrar',fn:fn};
+			var message = Fn.message({ 'type': 2, 'message': `Asegúrese de completar los campos obligatorios. Fila(s): ${filas['incompletas'].join()}` });
+			Fn.showModal({ id:modalId,title:'Alerta',frm:message,btn:btn,show:true});
+			return false;
+		}
+		if ( contColsInvalid>0) {
+			++modalId;
+			var fn='Fn.showModal({ id:'+modalId+',show:false });';
+			var btn=new Array();
+				btn[0]={title:'Cerrar',fn:fn};
+			var message = Fn.message({ 'type': 2, 'message': 'Se encontró datos obligatorios que no fueron ingresados, verificar los datos remarcados <label style="color:red">en rojo</label>' });
+			Fn.showModal({ id:modalId,title:'Alerta',frm:message,btn:btn,show:true});
+			return false;
+		} else {
+			++modalId;
+			var fn1='Visitas.actualizarEstadoVisitaMasivamente();Fn.showModal({ id:'+modalId+',show:false });';
+			var fn2='Fn.showModal({ id:'+modalId+',show:false });';
+			var btn=new Array();
+				btn[1]={title:'Continuar',fn:fn1};
+				btn[0]={title:'Cerrar',fn:fn2};
+			var message = Fn.message({ 'type': 3, 'message': '¿Desea continuar con la carga masiva ?' });
+			Fn.showModal({ id:modalId,title:'Alerta',frm:message,btn:btn,show:true});
+		}
+	},
+	actualizarEstadoVisitaMasivamente: function(){
+		var data = Fn.formSerializeObject('formCargaMasiva');
+		var HT = [];
+		$.each(HTCustom.HTObjects, function (i, v) {
+			if (typeof v !== 'undefined') HT.push(v.getSourceData());
+		});
+
+		let filas = Visitas.verificarObligatorioMasivoHT(HT);
+
+		
+		$.each(HT,function(i,v){
+			$.each(filas['vacias'],function(i2,v2){
+				v.splice((v2-1),1);
+			});
+		});
+
+		data['HT'] = HT;
+		
+		var jsonString = { 'data': JSON.stringify(data) };
+		var config = {'url': Visitas.url + 'actualizarEstadoVisitasMasivo' , 'data': jsonString };
+
+		$.when(Fn.ajax(config)).then(function (a) {
+
+			if (a.result === 2) return false;
+
+			++modalId;
+			var fn = 'Fn.showModal({ id:' + modalId + ',show:false });';
+
+			if (a.result == 1) fn += 'Fn.showModal({ id:' + modalId + ',show:false });$(".btn-Consultar").click();';
+
+			var btn = [];
+			btn[0] = { title: 'Cerrar', fn: fn };
+			Fn.showModal({ id: modalId, show: true, title: a.msg.title, btn: btn, frm: a.msg.content });
+		});
 	},
 	guardarContingencia: function(tipoGestor){
 		var data ={ 'tipoGestor': tipoGestor,'dataRutas':Visitas.dataListaRutasActivo, 'dataRutasInactivas':Visitas.dataListaRutasInactivo, 'dataVisitasActivas':Visitas.dataListaVisitasActivo, 'dataVisitasInactivas': Visitas.dataListaVisitasInactivo };
@@ -2009,5 +2147,6 @@ var Visitas = {
 			}
 		});
 	},
+
 }
 Visitas.load();

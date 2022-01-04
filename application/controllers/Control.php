@@ -238,7 +238,7 @@ class Control extends MY_Controller{
 	public function json_usuarios(){
 		$result = $this->result;
 		$get = $this->input->get();
-		$result['items']= $this->m_control->get_usuarios_multi($get)->result_array();
+		$result['items']= $this->m_control->get_usuarios_multi($get);
 
 		echo json_encode($result);
 	}
@@ -261,6 +261,7 @@ class Control extends MY_Controller{
 			$params['fechaFin']=$input['fecFin'];
 			$params['idProyecto'] = $this->sessIdProyecto;
 			$params['idUsuario'] =$this->session->userdata('idUsuario');
+			$params['idCuenta'] =$this->session->userdata('idCuenta');
 
 			$this->m_control->registrar_peticion_actualizar_visitas($params);
 

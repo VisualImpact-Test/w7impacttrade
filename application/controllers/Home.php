@@ -326,6 +326,9 @@ class Home extends MY_Controller {
 
 		$post['idCuenta'] = $this->sessIdCuenta;
 		$post['idProyecto'] = $this->sessIdProyecto;
+		$gruposCanal = $this->m_control->get_grupoCanal(['idGrupoCanal' => $post['grupoCanal']]);
+		$canales = $this->m_control->get_canal(['idCanal' => $post['canal']]);
+		$post['canal'] = implode(',', array_map('array_shift', $canales));
 
 		$data_efectividadPorGtm = $this->model->get_efectividadPorGtm($post);
 

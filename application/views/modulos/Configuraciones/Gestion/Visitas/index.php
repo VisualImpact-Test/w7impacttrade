@@ -51,8 +51,11 @@
 					<i class="fas fa-calendar-edit"></i>
 				</button>
 				<!-- visitas -->
-				<button id="btn-visitaCambiarEstado" class="btn btn-outline-trade-visual border-0" title="Cambiar Estado" style="display:none;">
+				<button id="btn-visitaCambiarEstado" class="btn btn-outline-trade-visual border-0" title="Cambiar Estado " style="display:none;">
 					<i class="fas fa-toggle-on"></i>
+				</button>
+				<button id="btn-visitaCambiarEstadoMasivo" class="btn btn-outline-trade-visual border-0" title="Cambiar Estado Masivamente" style="display:none;">
+					<i class="fas fa-toggle-off"></i>
 				</button>
 				<button id="btn-visitaReprogramar" class="btn btn-outline-trade-visual border-0" title="Reprogramar Visita" style="display:none;">
 					<i class="fas fa-random"></i>

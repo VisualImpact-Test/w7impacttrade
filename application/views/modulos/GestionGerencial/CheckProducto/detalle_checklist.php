@@ -8,24 +8,24 @@
 				<th class="text-center noVis" rowspan="4">#</th>
 				<!-- <th class="text-center" rowspan="4">INHABILITAR / PDF</th> -->
 				<th class="text-center" rowspan="4">FECHA</th>
-				<th class="text-center" rowspan="4">PERFIL USUARIO</th>
+				<th class="text-center <?=!empty($hideCol['tipoUsuario']) ? 'hideCol' : '' ?>" rowspan="4">PERFIL USUARIO</th>
 				<th class="text-center" rowspan="4">NOMBRE USUARIO</th>
-				<th class="text-center" rowspan="4">GRUPO CANAL</th>
-				<th class="text-center" rowspan="4">CANAL</th>
+				<th class="text-center <?=!empty($hideCol['grupoCanal']) ? 'hideCol' : '' ?>" rowspan="4">GRUPO CANAL</th>
+				<th class="text-center <?=!empty($hideCol['canal']) ? 'hideCol' : '' ?>" rowspan="4">CANAL</th>
 				<th class="text-center hideCol" rowspan="4">SUBCANAL</th>
 				<?$nroHeaders = 9;?>
                 <? foreach ($segmentacion['headers'] as $k => $v) { ?>
                     <? $nroHeaders++;?>
-                    <th class="text-center" rowspan="4"><?= strtoupper($v['header']) ?></th>
+                    <th class="text-center <?=!empty($hideCol[$v['columna']]) ? 'hideCol' : '' ?>" rowspan="4"><?= strtoupper($v['header']) ?></th>
                 <? } ?>
 				<th class="text-center hideCol" rowspan="4">DEPARTAMENTO</th>
 				<th class="text-center hideCol" rowspan="4">PROVINCIA</th>
 				<th class="text-center hideCol" rowspan="4">DISTRITO</th>
-				<th class="text-center" rowspan="4">COD VISUAL</th>
+				<th class="text-center <?=!empty($hideCol['idCliente']) ? 'hideCol' : '' ?>" rowspan="4">COD VISUAL</th>
 				<th class="text-center hideCol" rowspan="4">COD <?=$this->sessNomCuentaCorto?></th>
 				<th class="text-center hideCol" rowspan="4">COD PDV</th>
 				<th class="text-center" rowspan="4">PDV</th>
-				<th class="text-center" rowspan="4">TIPO CLIENTE</th>
+				<th class="text-center <?=!empty($hideCol['tipoCliente']) ? 'hideCol' : '' ?>" rowspan="4">TIPO CLIENTE</th>
 				<?
 				$rows = 0;
 				foreach ($categorias as $idCat => $categoria) {

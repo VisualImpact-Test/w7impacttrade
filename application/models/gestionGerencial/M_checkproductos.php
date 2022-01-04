@@ -294,6 +294,7 @@ class M_checkproductos extends MY_Model{
 				, v.direccion
 				, r.nombreUsuario
 				, r.fecha
+				, ele.ean 
 				{$segmentacion['columnas_bd']}
 			FROM {$this->sessBDCuenta}.trade.data_ruta r
 			JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
@@ -318,7 +319,7 @@ class M_checkproductos extends MY_Model{
 			AND r.fecha BETWEEN @fecIni AND @fecFin
 			{$filtros}
 			{$filtro_demo}
-			ORDER BY r.fecha,{$segmentacion['orderBy']},v.razonSocial
+			ORDER BY r.fecha DESC ,{$segmentacion['orderBy']},v.razonSocial
 		";
 
 		$query = $this->db->query($sql);
@@ -386,6 +387,7 @@ class M_checkproductos extends MY_Model{
 				, dvd.cantidadVencida
 				, dvd.fechaVencido
 				, um.nombre unidadMedida
+				, ele.ean
 				, CASE 
 					WHEN dvd.fechaVencido IS NOT NULL THEN  CAST(DATEDIFF(DAY,GETDATE(),dvd.fechaVencido) AS varchar) 
 					WHEN dvd.fechaVencido IS NULL THEN 'No vence'
@@ -419,7 +421,7 @@ class M_checkproductos extends MY_Model{
 			AND (dvd.fechaVencido IS NOT NULL  OR dvd.fechaVencido IS NOT NULL)
 			{$filtro_demo}
 			{$filtros}
-			ORDER BY nombreComercial
+			ORDER BY DATEDIFF(DAY,GETDATE(),dvd.fechaVencido),nombreComercial
 		";
 
 		$query = $this->db->query($sql);

@@ -40,6 +40,10 @@ var Home={
 			).then(function(){
 				Home.mostrar_efectividad();
 			});
+
+			if($("#txtcuenta").val() == 2){
+				//Home.mostrar_efectividad();
+			}
 		});
 
 		$(document).ready(function(){
@@ -260,6 +264,8 @@ var Home={
 		let tipo = $('input[name=tipoEfectividadGtm]:checked').val();
 		let data = { 
 			fecha: $('.fechaHome').val(),
+			grupoCanal: $('#grupo_filtro').val(),
+			canal: $('#canal_filtro').val(),
 			tipo: tipo
 		};
 		let jsonString = { 'data': JSON.stringify(data) };

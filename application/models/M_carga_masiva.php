@@ -122,7 +122,8 @@ class M_carga_masiva extends CI_Model{
 				c.finRegistro,
 				c.generado,
 				c.idCuenta,
-				c.idProyecto
+				c.idProyecto,
+				c.idTipoUsuario
 			FROM 
 				Impacttrade_aje.trade.cargaRuta c
 			WHERE 
@@ -142,7 +143,8 @@ class M_carga_masiva extends CI_Model{
 				c.finRegistro,
 				c.generado,
 				c.idCuenta,
-				c.idProyecto
+				c.idProyecto,
+				c.idTipoUsuario
 			FROM 
 				Impacttrade_pg.trade.cargaRuta c
 			WHERE 
@@ -163,7 +165,8 @@ class M_carga_masiva extends CI_Model{
 				c.finRegistro,
 				c.generado,
 				c.idCuenta,
-				c.idProyecto
+				c.idProyecto,
+				c.idTipoUsuario
 			FROM 
 				Impacttrade_small.trade.cargaRuta c
 			WHERE 
@@ -188,7 +191,8 @@ class M_carga_masiva extends CI_Model{
 				c.finRegistro,
 				c.generado,
 				c.idCuenta,
-				c.idProyecto
+				c.idProyecto,
+				c.idTipoUsuario
 			FROM 
 				ImpactTrade_aje.trade.cargaRuta c
 			WHERE 
@@ -209,7 +213,8 @@ class M_carga_masiva extends CI_Model{
 				c.finRegistro,
 				c.generado,
 				c.idCuenta,
-				c.idProyecto
+				c.idProyecto,
+				c.idTipoUsuario
 			FROM 
 				ImpactTrade_pg.trade.cargaRuta c
 			WHERE 
@@ -231,7 +236,8 @@ class M_carga_masiva extends CI_Model{
 				c.finRegistro,
 				c.generado,
 				c.idCuenta,
-				c.idProyecto
+				c.idProyecto,
+				c.idTipoUsuario
 			FROM 
 				ImpactTrade_small.trade.cargaRuta c
 			WHERE 
@@ -534,7 +540,7 @@ class M_carga_masiva extends CI_Model{
 				c.idProyecto,
 				c.auditoria
 			FROM 
-				{$this->sessBDCuenta}.trade.cargaPermiso c
+				impacttrade_pg.trade.cargaPermiso c
 			WHERE 
 				c.estado = 1 
 		";
@@ -2083,11 +2089,33 @@ class M_carga_masiva extends CI_Model{
 			DECLARE @fecha date=getdate();
 			SELECT  idPeticion,idUsuario,idProyecto,fechaIni,fechaFin,hora,estado,porcentaje,
 				CONVERT(varchar,fechaActualizacion,103) fechaActualizacion,
-				CASE WHEN (fechaActualizacion IS NOT NULL) THEN 1 ELSE 0 END actualizado
+				CASE WHEN (fechaActualizacion IS NOT NULL) THEN 1 ELSE 0 END actualizado,
+				idCuenta
 			FROM 
-				trade.peticionActualizarVisitas
+				ImpactTrade_pg.trade.peticionActualizarVisitas
 			WHERE estado=1 and fechaActualizacion is null
-			ORDER BY fechaIni DESC;";
+			
+			UNION
+			
+			SELECT  idPeticion,idUsuario,idProyecto,fechaIni,fechaFin,hora,estado,porcentaje,
+				CONVERT(varchar,fechaActualizacion,103) fechaActualizacion,
+				CASE WHEN (fechaActualizacion IS NOT NULL) THEN 1 ELSE 0 END actualizado,
+				idCuenta
+			FROM 
+				ImpactTrade_aje.trade.peticionActualizarVisitas
+			WHERE estado=1 and fechaActualizacion is null
+			
+			UNION
+
+			SELECT  idPeticion,idUsuario,idProyecto,fechaIni,fechaFin,hora,estado,porcentaje,
+				CONVERT(varchar,fechaActualizacion,103) fechaActualizacion,
+				CASE WHEN (fechaActualizacion IS NOT NULL) THEN 1 ELSE 0 END actualizado,
+				idCuenta
+			FROM 
+				ImpactTrade_small.trade.peticionActualizarVisitas
+			WHERE estado=1 and fechaActualizacion is null
+			
+			";
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -2096,7 +2124,7 @@ class M_carga_masiva extends CI_Model{
 
 		$sql = "
 			DECLARE @fecha date=GETDATE();
-			UPDATE trade.peticionActualizarVisitas
+			UPDATE {$this->sessBDCuenta}.trade.peticionActualizarVisitas
 				SET estado=0
 			WHERE 
 				idPeticion={$post['idPeticion']}
@@ -2125,7 +2153,7 @@ class M_carga_masiva extends CI_Model{
 	{
 		$sql = "
 			DECLARE @fecha date=GETDATE();
-			UPDATE trade.peticionActualizarVisitas
+			UPDATE {$this->sessBDCuenta}.trade.peticionActualizarVisitas
 				SET estado=0,fechaActualizacion=GETDATE(),hora=GETDATE(),porcentaje={$post['porcentaje']}
 			WHERE 
 				idPeticion={$post['idPeticion']}

@@ -113,7 +113,8 @@ class M_contingenciaAsistencia extends My_Model{
 				
 				JOIN trade.usuario_tipo tu ON uh.idTipoUsuario = tu.idTipoUsuario
 				--LEFT JOIN rrhh.dbo.empleado e ON e.idEmpleado = u.idEmpleado AND e.flag IN ('activo')
-				JOIN rrhh.dbo.empleado e ON e.numTipoDocuIdent = u.numDocumento AND e.flag IN ('activo')
+				LEFT JOIN rrhh.dbo.empleado e ON e.numTipoDocuIdent = u.numDocumento 
+					AND e.flag IN ('activo')
 				LEFT JOIN rrhh.dbo.CargoTrabajo ct ON ct.idCargoTrabajo = e.idCargoTrabajo
 				
 				LEFT JOIN lista_horario lh_1 ON lh_1.idEmpleado = e.idEmpleado

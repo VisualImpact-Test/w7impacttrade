@@ -6,12 +6,12 @@
                 <th class="text-center align-middle">AÑO</th>
                 <th class="text-center align-middle">MES</th>
                 <th class="text-center align-middle">SEMANA</th>
-                <th class="text-center align-middle">GRUPO CANAL</th>
-                <th class="text-center align-middle">CANAL</th>
+                <th class="text-center align-middle <?=!empty($hideCol['grupoCanal']) ? 'hideCol' : '' ?>" >GRUPO CANAL</th>
+                <th class="text-center align-middle <?=!empty($hideCol['canal']) ? 'hideCol' : '' ?>">CANAL</th>
                 <?$nroHeaders = 9;?>
                 <? foreach ($segmentacion['headers'] as $k => $v) { ?>
                     <? $nroHeaders++;?>
-                    <th class="text-center align-middle"><?= strtoupper($v['header']) ?></th>
+                    <th class="text-center align-middle <?=!empty($hideCol[$v['columna']]) ? 'hideCol' : '' ?>"><?= strtoupper($v['header']) ?></th>
                 <? } ?>
                 
                 <th class="text-center align-middle">EMPRESA</th>

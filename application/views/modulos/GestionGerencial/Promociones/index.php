@@ -15,11 +15,11 @@
 						</li>
 					<? } ?>
 				</ul>
-				<? if (empty($tabs)) { ?> <span> <?= createMessage(['type' => 2, 'message' => 'Usted no tiene permisos para ver este módulo']) ?></span><? } ?>
 			</div>
 		</div>
 	</div>
 </div>
+<? if (empty($tabs)) { ?> <span> <?=getMensajeGestion('oops')?></span><? } ?>
 
 <div class="customizer border-left-blue-grey border-left-lighten-4 d-none d-xl-block ">
 	<a href="javascript:;" class="customizer-close"><i class="fal fa-times"></i></a>

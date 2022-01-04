@@ -188,7 +188,8 @@ class M_usuarios extends My_Model
 				uh.fecIni, 
 				uh.fecFin, 
 				a.nombre aplicacion, 
-				a.idAplicacion
+				a.idAplicacion,
+				uh.estado
 			FROM trade.usuario_historico uh
 				LEFT JOIN trade.proyecto p ON p.idProyecto = uh.idProyecto
 				LEFT JOIN trade.cuenta c ON c.idCuenta = p.idCuenta

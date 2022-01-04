@@ -58,7 +58,7 @@ if( $.fn.dataTableExt ){
 				'extend': 'excel',
 				'text': '<i class="fal fa-file-excel"></i> Excel',
 				'exportOptions': {
-						'columns': ':not(.excel-borrar)'
+						'columns': ':visible :not(.excel-borrar)',
 				},
 				'titleAttr': 'Exportar a excel'
 
@@ -78,7 +78,7 @@ if( $.fn.dataTableExt ){
 				},
 				'titleAttr': 'Pantalla completa',
 
-			}
+			},
 		],
 		
 	

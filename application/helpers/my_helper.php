@@ -212,8 +212,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		$aIdGrupoCanal = array(
 				'tradicional' => array(1,4),
 				'mayorista' => array(5),
-				'moderno' => array(2),
-			);
+				'moderno' => array(2,8),
+		);
 
 		$filtro = "";
 
@@ -827,7 +827,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             </div>',
 			'custom' => '<div class="'.(!empty($input['class']) ? $input['class'] : '').'" role="alert">
 							<i class="'.(!empty($input['icono']) ? $input['icono'] : '').'"></i> '.(!empty($input['message']) ? $input['message'] : '').'.
-						</div>'
+						</div>',
+			'oops' => '
+				<div id="notfound">
+					<div class="notfound">
+						<div class="notfound-404">  <h1>Oops!</h1> </div>
+						<h2>Error - Acceso denegado</h2>
+						<p>Asegúrese de estar en el proyecto correcto.</p>
+						<a href="../home">Volver al inicio</a>
+					</div>
+				</div>',
 		];
 
 		return $mensaje[$tipoMensaje];
@@ -1636,5 +1645,61 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		}
 
 		return $result;
+	}
+	function permisos_usuarios_multi($input = []){
+		$CI = &get_instance();
+		$CI->load->model('M_control', 'm_control');
+		
+		$array['usuarios'] = [];
+		foreach ($input['tipoSegmentacion'] as $k => $tipo) {
+			$tipoSegmentacion = $tipo;
+			if($tipoSegmentacion == 'tradicional')
+			{
+				$permisos_usuarios = $CI->m_control->obtenerUsuariosPermisosDistribuidoraSucursal($input);
+				foreach ($permisos_usuarios as $k => $v) {
+					$array['usuarios']['tradicional'][$v['idTipoUsuario']][$v['idDistribuidoraSucursal']] = $v['nombreUsuario'];
+				}
+			} 
+			if($tipoSegmentacion == 'mayorista')
+			{
+				$permisos_usuarios = $CI->m_control->obtenerUsuariosPermisosPlaza($input);
+				foreach ($permisos_usuarios as $k => $v) {
+					$array['usuarios']['mayorista'][$v['idTipoUsuario']][$v['idPlaza']] = $v['nombreUsuario'];
+				}
+			} 
+			if($tipoSegmentacion == 'moderno')
+			{
+				$permisos_usuarios = $CI->m_control->obtenerUsuariosPermisosBanner($input);
+				foreach ($permisos_usuarios as $k => $v) {
+					$array['usuarios']['moderno'][$v['idTipoUsuario']][$v['idBanner']] = $v['nombreUsuario'];
+				}
+			}
+		}
+
+		return $array['usuarios'] ;
+	}
+	function permisos_usuarios($tipoSegmentacion = '',$input = []){
+		$CI = &get_instance();
+		$CI->load->model('M_control', 'm_control');
+
+		$array['usuarios'] = [];
+		if($tipoSegmentacion == 'tradicional'){
+			$permisos_usuarios = $CI->m_control->obtenerUsuariosPermisosDistribuidoraSucursal($input);
+			foreach ($permisos_usuarios as $k => $v) {
+				$array['usuarios']['tradicional'][$v['idTipoUsuario']][$v['idDistribuidoraSucursal']] = $v['nombreUsuario'];
+			}
+		}else if($tipoSegmentacion == 'mayorista'){
+			$permisos_usuarios = $CI->m_control->obtenerUsuariosPermisosPlaza($input);
+			foreach ($permisos_usuarios as $k => $v) {
+				$array['usuarios']['mayorista'][$v['idTipoUsuario']][$v['idPlaza']] = $v['nombreUsuario'];
+			}
+		}else if($tipoSegmentacion == 'moderno'){
+			$permisos_usuarios = $CI->m_control->obtenerUsuariosPermisosBanner($input);
+			foreach ($permisos_usuarios as $k => $v) {
+				$array['usuarios']['moderno'][$v['idTipoUsuario']][$v['idBanner']] = $v['nombreUsuario'];
+			}
+		}
+
+		return $array['usuarios'] ;
 	}
 

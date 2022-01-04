@@ -15,12 +15,11 @@
                         </li>
                     <? } ?>
                 </ul>
-                <? if (empty($tabs)) { ?> <span> <?= createMessage(['type' => 2, 'message' => 'Usted no tiene permisos para ver este módulo']) ?></span><? } ?>
             </div>
         </div>
     </div>
 </div>
-
+<? if (empty($tabs)) { ?> <span> <?=getMensajeGestion('oops')?></span><? } ?>
 <div class="customizer border-left-blue-grey border-left-lighten-4 d-none d-xl-block">
     <a href="javascript:;" class="customizer-close"><i class="fal fa-times"></i></a>
     <a href="javascript:;" class="customizer-toggle box-shadow-3 bg-trade-visual-grad-left text-white">
@@ -187,7 +186,7 @@
                                 <span class="tooltiptext">Semana</span>
                                 <select name="sl_semanas" id="sl_semanas" class="form-control" multiple>
                                     <?
-                                    $primera_semana = $semanaActual - 11;
+                                    $primera_semana = $semanaActual - 7;
                                     foreach ($nsemanas as $k => $v) { ?>
                                         <option value="<?= $v['idSemana'] ?>" <?= ($v['idSemana'] >= $primera_semana && $v['idSemana'] <= $semanaActual) ? 'selected' : '' ?>><?= $v['idSemana'] ?></option>
                                     <? } ?>

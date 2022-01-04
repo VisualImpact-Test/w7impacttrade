@@ -54,7 +54,8 @@ class M_contingenciaRutas extends My_Model{
 		$sessIdTipoUsuario = $this->idTipoUsuario;
 		$sessDemo = $this->demo;
 		$filtros = '';
-		$input['idProyecto'] = $this->sessIdProyecto;
+		// $input['idProyecto'] = $this->sessIdProyecto;
+		$input['idProyecto'] = 3;
 		$filtros .= !empty($input['idCuenta']) ? " AND r.idCuenta=".$input['idCuenta'] : "";
 		$filtros .= !empty($input['idProyecto']) ? " AND r.idProyecto=".$input['idProyecto'] : "";
 		$filtros .= !empty($input['idCanal']) ? " AND v.idCanal=".$input['idCanal'] : "";
@@ -3239,7 +3240,7 @@ class M_contingenciaRutas extends My_Model{
 			JOIN {$this->sessBDCuenta}.trade.iniciativaTrad itr ON itr.idIniciativa=itd.idIniciativa
 			LEFT JOIN {$this->sessBDCuenta}.trade.list_iniciativaTradDetElemento itde ON itde.idListIniciativaTradDet=itd.idListIniciativaTradDet
 			LEFT JOIN trade.elementoVisibilidadTrad eli ON eli.idElementoVis=itde.idElementoVis
-			LEFT JOIN trade.motivoElementoVisibilidadTrad mev ON mev.idElementoVis = eli.idElementoVis
+			LEFT JOIN {$this->sessBDCuenta}.trade.motivoElementoVisibilidadTrad mev ON mev.idElementoVis = eli.idElementoVis
 			LEFT JOIN trade.estadoIniciativaTrad eit ON eit.idEstadoIniciativa = mev.idEstadoIniciativa
 			WHERE 1=1 AND itd.estado=1 AND itde.estado=1 
 			AND it.idListIniciativaTrad=@idLista";

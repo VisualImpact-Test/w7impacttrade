@@ -3,20 +3,22 @@
         <thead>
             <tr>
                 <th class="text-center align-middle noVis">#</th>
-                <th class="text-center align-middle hideCol noVis">CUENTA</th>
-                <th class="text-center align-middle">GRUPO CANAL</th>
-                <th class="text-center align-middle">CANAL</th>
-                <th class="text-center align-middle hideCol">SUBCANAL</th>
+                <th class="text-center align-middle hideCol noVis ">CUENTA</th>
+                <th class="text-center align-middle ">FECHA</th>
+                <th class="text-center align-middle hideCol">GRUPO CANAL</th>
+                <th class="text-center align-middle hideCol">CANAL</th>
+                <th class="text-center align-middle hideCol ">SUBCANAL</th>
                 <?$nroHeaders = 12;?>
                 <? foreach ($segmentacion['headers'] as $k => $v) { ?>
                     <? $nroHeaders++;?>
-                    <th class="text-center align-middle"><?= strtoupper($v['header']) ?></th>
+                    <th class="text-center align-middle <?= $v['header'] == 'Banner'? 'hideCol' : '' ?>"><?= strtoupper($v['header']) ?></th>
                 <? } ?>
-                <th class="text-center align-middle">COD VISUAL</th>
-                <th class="text-center align-middle hideCol">COD <?=$this->sessNomCuentaCorto?></th>
+                <th class="text-center align-middle hideCol">COD VISUAL</th>
+                <th class="text-center align-middle">COD <?=$this->sessNomCuentaCorto?></th>
                 <th class="text-center align-middle">PDV</th>
+                <th class="text-center align-middle">COD PROD <?=$this->sessNomCuentaCorto?></th>
                 <th class="text-center align-middle">PRODUCTO</th>
-                <th class="text-center align-middle">FOTO</th>
+                <th class="text-center align-middle excel-borrar">FOTO</th>
                 <th class="text-center align-middle">MOTIVO</th>
                 <th class="text-center align-middle">QUIEBRE</th>
             </tr>
@@ -35,6 +37,7 @@
                 <tr>
                     <td class="text-center"><?= $i++; ?></td>
                     <td class="text-center"><?= (!empty($row['cuenta']) ? $row['cuenta'] : '-') ?></td>
+                    <td class="text-center"><?= (!empty($row['fecha']) ? date_change_format($row['fecha']) : '-') ?></td>
                     <td class="text-left"><?= (!empty($row['grupoCanal']) ? $row['grupoCanal'] : '-') ?></td>
                     <td class="text-left"><?= (!empty($row['canal']) ? $row['canal'] : '-') ?></td>
                     <td class="text-left"><?= (!empty($row['subCanal']) ? $row['subCanal'] : '-') ?></td>
@@ -44,6 +47,7 @@
                     <td class="text-center"><?= (!empty($row['idCliente']) ? $row['idCliente'] : '-') ?></td>
                     <td class="text-center"><?= (!empty($row['codCliente']) ? $row['codCliente'] : '-') ?></td>
                     <td class="text-left"><?= (!empty($row['razonSocial']) ? $row['razonSocial'] : '-') ?></td>
+                    <td class="text-center"><?= (!empty($row['ean']) ? $row['ean'] : '-') ?></td>
                     <td class="text-left"><?= (!empty($row['producto']) ? $row['producto'] : '-') ?></td>
                     <?
                     $imgFoto = '';

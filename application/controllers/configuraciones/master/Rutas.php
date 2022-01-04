@@ -1928,6 +1928,7 @@ class Rutas extends MY_Controller{
 		$fecFin = $_POST['fecFin'];
 		
 		$generado = $_POST['generado'];
+		$idTipoUsuario = $_POST['tipoUsuario'];
 
 
 		$datetime = date('dmYHis');
@@ -1984,7 +1985,7 @@ class Rutas extends MY_Controller{
 		}
 		$total = $sum;
 
-		$idProyecto=($this->session->userdata('idProyecto')=='13')? '3': $this->session->userdata('idProyecto') ;
+		$idProyecto=$this->session->userdata('idProyecto') ;
 		$idCuenta=$this->session->userdata('idCuenta');
 		$carga = array();
 		$carga = array(
@@ -1995,6 +1996,7 @@ class Rutas extends MY_Controller{
 			'generado' => $generado,
 			'idCuenta' => $idCuenta,
 			'idProyecto' => $idProyecto,
+			'idTipoUsuario' => $idTipoUsuario
 		);
 
 		$this->db->insert("{$this->sessBDCuenta}.trade.cargaRuta",$carga);

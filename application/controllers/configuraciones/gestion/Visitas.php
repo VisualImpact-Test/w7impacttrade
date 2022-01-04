@@ -6,6 +6,7 @@ class Visitas extends MY_Controller{
 	public function __construct(){
 		parent::__construct();
 		$this->load->model('configuraciones/gestion/M_visitas','model');
+		$this->load->model('m_control','m_control');
 	}
 	
 	public function index(){
@@ -26,6 +27,7 @@ class Visitas extends MY_Controller{
 			, 'assets/libs/handsontable@7.4.2/dist/moment/moment'
 			, 'assets/libs/handsontable@7.4.2/dist/pikaday/pikaday'
 			, 'assets/custom/js/core/HTCustom'
+			, 'assets/custom/js/core/gestion'
 			, 'assets/custom/js/configuraciones/gestion/visitas'
 			
 		);
@@ -2051,6 +2053,109 @@ class Visitas extends MY_Controller{
 		echo json_encode($result);
 	}
 
+	public function desactivarVisitasMasivamente()
+	{
+		$result = $this->result;
+		
+		$result['msg']['title'] = 'Cambiar estado';
+
+		$tiposUsuario = $this->m_control->get_tiposUsuario();
+		$refactorizado = [];
+		foreach ($tiposUsuario as $row) {
+			if (!in_array($row['nombre'], $refactorizado)) $refactorizado[] = $row['nombre'];
+		}
+        $tiposUsuario = !empty($refactorizado) ? $refactorizado : [' '];
+
+		$flag = [
+			0 => "ACTIVO",
+			1 => "INACTIVO",
+		];
+
+		//ARMANDO HANDSONTABLE
+		$HT[0] = [
+			'nombre' => 'Visitas',
+			'data' => [
+				[
+				  'fecha' => null, 
+				  'usuario' => null, 
+				  'tipoUsuario' => null, 
+				  'cliente' => null, 
+				  'estado' => null, 
+	
+				]
+			],
+			'headers' => [
+				  'FECHA (*)',
+				  'COD USUARIO (*)',
+				  'TIPO USUARIO (*)',
+				  'COD VISUAL (*)',
+				  'ESTADO',
+
+			],
+			'columns' => [
+				['data' => 'fecha', 'type' => 'myDate', 'placeholder' => 'Fecha', 'width' => 200],
+				['data' => 'usuario', 'type' => 'numeric', 'placeholder' => 'ID usuario', 'width' => 200],
+				['data' => 'tipoUsuario', 'type' => 'myDropdown', 'placeholder' => 'Tipo usuario', 'width' => 200,'source'=>$tiposUsuario],
+				['data' => 'cliente', 'type' => 'numeric', 'placeholder' => 'ID cliente', 'width' => 200],
+				['data' => 'estado', 'type' => 'myDropdown', 'placeholder' => 'Estado', 'width' => 200,'source'=>$flag],
+	
+			],
+			'colWidths' => 200,
+		];
+		
+	
+		//MOSTRANDO VISTA
+		$dataParaVista['hojas'] = [0 => $HT[0]['nombre']];
+		$result['result'] = 1;
+		$result['data']['width'] = '70%';
+		$result['data']['obligatorio'][0] = ['fecha' , 'usuario' , 'tipoUsuario','cliente'];
+		$result['data']['html'] = $this->load->view('modulos/configuraciones/gestion/livestorecheckconf/formCargaMasivaGeneral',$dataParaVista, true);
+		$result['data']['ht'] = $HT;
+
+		echo json_encode($result);
+	}
+
+	public function actualizarEstadoVisitasMasivo(){
+		$this->db->trans_start();
+		$result = $this->result;
+
+		$post = json_decode($this->input->post('data'), true);
+		$result['msg']['title'] = 'Actualizar estado visitas';
+
+		$array['tiposUsuario'] = array();
+
+		$tiposUsuario = $this->m_control->get_tiposUsuario();
+
+		foreach ($tiposUsuario as $key => $row) {
+			$array['tiposUsuario'][$row['nombre']] = $row['id'];
+		}
+
+		foreach ($post['HT'][0] as $key => $value) {
+			
+			$params = [
+				'fecha' => !empty($value['fecha']) ? $value['fecha'] : '-',
+				'idUsuario' => !empty($value['usuario']) ? $value['usuario'] : '-',
+				'idTipoUsuario' => !empty($array['tiposUsuario'][$value['tipoUsuario']]) ? $array['tiposUsuario'][$value['tipoUsuario']] : '-',
+				'idCliente' => !empty($value['cliente']) ? $value['cliente'] : '-',
+				'estado' => !empty($value['estado']) && $value['estado'] == 'ACTIVO' ? true : false, 
+			];
+			
+			$update = $this->model->cambioEstadoMasivoVisitas($params);
+		}
+
+		if (!$update) {
+			$result['result'] = 0;
+			$result['msg']['content'] = getMensajeGestion('cambioEstadoErroneo');
+		} else {
+			$result['result'] = 1;
+			$result['msg']['content'] = getMensajeGestion('cambioEstadoExitoso');
+		}
+
+		$this->db->trans_complete();
+
+		respuesta:
+        echo json_encode($result);
+	}
 
 }
 

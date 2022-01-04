@@ -343,7 +343,7 @@ class Precios extends MY_Controller
 			$array['quiebres'] = $rs_quiebres;
 			$segmentacion = getSegmentacion($input);
 			$array['segmentacion'] = $segmentacion;
-
+			$array['hideCol'] = $this->m_control->getHideColProyecto();
 			$html = $this->load->view("modulos/Precios/tablaDetalladoPrecios",$array,true);
 			$result['data']['grupoCanal'] = $segmentacion['grupoCanal'];
 		} else {

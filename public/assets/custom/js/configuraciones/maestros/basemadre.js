@@ -69,7 +69,7 @@ var Basemadre = {
 
 					Basemadre.contentSeleccionado="tab-content-0";
 
-					$('#btn-filtrarMaestrosBasemadre').click();
+					// $('#btn-filtrarMaestrosBasemadre').click();
 					
                     break;
                 case 2:
@@ -92,7 +92,7 @@ var Basemadre = {
 					$("#filter-content-1").show();
 
 					Basemadre.contentSeleccionado="tab-content-1";
-					$('#btn-filtrarMaestrosClientesAgregados').click();
+					// $('#btn-filtrarMaestrosClientesAgregados').click();
 					
                     break;
 				default:
@@ -1176,9 +1176,9 @@ var Basemadre = {
 
 		});
 
-		$(document).ready(function () {
-			$('#btn-filtrarMaestrosBasemadre').click();
-		});
+		// $(document).ready(function () {
+		// 	$('#btn-filtrarMaestrosBasemadre').click();
+		// });
 	},
 
 	initialize: function() {

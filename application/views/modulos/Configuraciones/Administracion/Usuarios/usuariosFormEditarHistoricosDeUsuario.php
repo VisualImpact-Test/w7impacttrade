@@ -26,7 +26,7 @@
                     </thead>
                     <tbody>
                         <?php foreach ($historicos as $key => $value) { ?>
-                            <tr data-idcuenta="<?= $value['idCuenta'] ?>" data-idaplicacion="<?= $value['idAplicacion'] ?>" data-idproyecto="<?= $value['idProyecto'] ?>" data-idusuariohistorico="<?= $value['idUsuarioHist'] ?>" data-idusuario="<?= $value['idUsuario'] ?>">
+                            <tr class="<?= empty($value['estado']) ? 'text-danger' : '' ?>" data-idcuenta="<?= $value['idCuenta'] ?>" data-idaplicacion="<?= $value['idAplicacion'] ?>" data-idproyecto="<?= $value['idProyecto'] ?>" data-idusuariohistorico="<?= $value['idUsuarioHist'] ?>" data-idusuario="<?= $value['idUsuario'] ?>">
                                 <td class='text-center'>
                                     <button data-menu='Detalles' class="btn btn-EditarHistorico btn-outline-secondary border-0 pl-1 pr-1 pt-0 pb-0" title="Editar Histórico"><i class="fa fa-edit"></i></button>
                                     <button data-menu='Canal' class="btn btn-EditarHistorico btn-outline-secondary border-0 pl-1 pr-1 pt-0 pb-0" title="Editar Canales de Histórico"><i class="fa fa-th"></i></button>

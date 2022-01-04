@@ -189,7 +189,8 @@ class M_asistencia extends MY_Model{
 
 			LEFT JOIN trade.usuario_tipo tu ON uh.idTipoUsuario = tu.idTipoUsuario
 			--LEFT JOIN rrhh.dbo.empleado e ON e.idEmpleado = u.idEmpleado AND e.flag IN ('activo')
-			JOIN rrhh.dbo.empleado e ON e.numTipoDocuIdent = u.numDocumento AND e.flag IN ('activo')
+			LEFT JOIN rrhh.dbo.empleado e ON e.numTipoDocuIdent = u.numDocumento 
+			-- AND e.flag IN ('activo')
 			LEFT JOIN rrhh.dbo.CargoTrabajo ct ON ct.idCargoTrabajo = e.idCargoTrabajo
 			
 			

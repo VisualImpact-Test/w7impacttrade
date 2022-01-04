@@ -472,7 +472,7 @@ class Iniciativatrad extends MY_Controller
 		if (!empty($post['elementosEliminados'])) {
 			$elementosEliminados = $post['elementosEliminados'];
 			if (!is_array($elementosEliminados)) $elementosEliminados = [$elementosEliminados];
-			$delete = $this->model->deleteMasivo('trade.motivoElementoVisibilidadTrad','idMotivoElementoVis', $elementosEliminados);
+			$delete = $this->model->deleteMasivo("{$this->sessBDCuenta}.trade.motivoElementoVisibilidadTrad",'idMotivoElementoVis', $elementosEliminados);
 		}
 		//UPDATE
 		$update = $this->model->actualizarMasivoMotivoElementoVisibilidad($multiDataRefactorizada);
