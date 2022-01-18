@@ -55,10 +55,12 @@ var Home={
 				$.when(
 					Home.mostrar_cartera(),
 					Home.mostrar_efectividad(),
-					Home.generarGraficosAsistencia(),
-					Home.generarGraficosEfectividadGtm()
 				).then(function(){
-					Home.generarGraficosGtm();
+					if($("#txtcuenta").val() == 2){
+						Home.generarGraficosAsistencia(),
+						Home.generarGraficosEfectividadGtm()
+						Home.generarGraficosGtm();
+					}
 				})
 			).then(function(){
 				$('#btn-anuncios').click();

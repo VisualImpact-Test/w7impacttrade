@@ -67,12 +67,15 @@ class Home extends MY_Controller {
 		$config['data']['title']='Inicio';
 		$config['data']['message']='Bienvenido al sistema, '.$this->session->userdata('nombres').' '.$this->session->userdata('ape_paterno');
 
-		$config['data']['fotos'] = $this->model->get_latest_fotos()->result_array();
+		// $config['data']['fotos'] = $this->model->get_latest_fotos()->result_array();
 		$config['data']['idCuenta'] = $post['idCuenta'] = $this->sessIdCuenta;
 		$config['data']['idProyecto'] = $post['idProyecto'] = $this->sessIdProyecto;
 		$post['fecha'] = date('Y-m-d');
 
 		$config['data']['cantidadGtm']= $this->model->get_cantidadGtm($post)['cantidadGtm'];
+
+
+
 		$this->view($config);
 	}
 
@@ -329,8 +332,7 @@ class Home extends MY_Controller {
 		$gruposCanal = $this->m_control->get_grupoCanal(['idGrupoCanal' => $post['grupoCanal']]);
 		$canales = $this->m_control->get_canal(['idCanal' => $post['canal']]);
 		$post['canal'] = implode(',', array_map('array_shift', $canales));
-
-		$data_efectividadPorGtm = $this->model->get_efectividadPorGtm($post);
+		$data_efectividadPorGtm = [];
 
 		if($post['tipo'] == 1){
 			$dataGtm = [];
@@ -350,23 +352,36 @@ class Home extends MY_Controller {
 		}else{
 			$new_data = [];
 
-			foreach ($data_efectividadPorGtm as $key => $value) {
-				$efectivos = !empty($value['efectivos']) ? get_porcentaje($value['programados'], $value['efectivos'], 0).'%' : '0';
-				$ippProgramados = !empty($value['ippProgramados']) ? get_porcentaje($value['ippProgramados'], $value['ippEfectuados'], 0).'%' : '0';
-				$productosProgramados = !empty($value['productosProgramados']) ? get_porcentaje($value['productosProgramados'], $value['productosEfectuados'], 0).'%' : '0';
-				$fotosProgramados = !empty($value['fotosProgramados']) ? get_porcentaje($value['fotosProgramados'], $value['fotosEfectuados'], 0).'%' : '0';
-				$new_data[] = [
-					//Columnas
-					verificarEmpty($value['usuario'], 3),
-					verificarEmpty($value['programados'], 3),
-					$value['efectivos'],
-					$efectivos,
-					$ippProgramados,
-					$productosProgramados,
-					$fotosProgramados,
-				];
+			foreach ($gruposCanal as $gc) {
+				$post['grupoCanal'] = $gc['id'];
+				$data_efectividadPorGtm = $this->model->get_efectividadPorGtm($post);
+
+				foreach ($data_efectividadPorGtm as $key => $value) {
+
+					$efectividad = [
+						'efectivos' =>0,
+						'ippProgramados' =>0,
+						'productosProgramados' =>0,
+						'fotosProgramados' =>0,
+					];
+
+					$efectividad['efectivos'] += !empty($value['efectivos']) ? get_porcentaje($value['programados'], $value['efectivos'], 0) : '0';
+					$efectividad['ippProgramados'] += !empty($value['ippProgramados']) ? get_porcentaje($value['ippProgramados'], $value['ippEfectuados'], 0) : '0';
+					$efectividad['productosProgramados'] += !empty($value['productosProgramados']) ? get_porcentaje($value['productosProgramados'], $value['productosEfectuados'], 0) : '0';
+					$efectividad['fotosProgramados'] += !empty($value['fotosProgramados']) ? get_porcentaje($value['fotosProgramados'], $value['fotosEfectuados'], 0) : '0';
+					$new_data[] = [
+						//Columnas
+						verificarEmpty($value['usuario'], 3),
+						verificarEmpty($value['programados'], 3),
+						$value['efectivos'],
+						$efectividad['efectivos'].'%',
+						$efectividad['ippProgramados'].'%',
+						$efectividad['productosProgramados'].'%',
+						$efectividad['fotosProgramados'].'%',
+					];
+
+				}
 			}
-	
 			$dataParaVista['configTable'] =  [
 				'data' => $new_data,
 				'columnDefs' =>
@@ -417,5 +432,7 @@ class Home extends MY_Controller {
 
 		echo json_encode($result);
 	}
+
+
 
 }

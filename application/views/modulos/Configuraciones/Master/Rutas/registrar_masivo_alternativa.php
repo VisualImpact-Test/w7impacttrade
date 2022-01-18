@@ -5,12 +5,14 @@
 				<form id="frm-registrarRutasMasiva">
 
 					<div class="row">
+						
 						<div class="col-md-12">
 							<label for="tipo">Tipo Usuario</label>
 							<select class="form-control" name="tipo" id="tipo">
 								<?= htmlSelectOptionArray2(['query' => $tiposUsuario, 'id' => 'idTipoUsuario', 'value' => 'nombre']) ?>
 							</select>
 						</div>
+			
 						<div class="col-md-4 col-sm-4 col-xs-4">
 							<label>FECHA INICIO</label>
 							<input type="text" class="form-control input-sm fecha" id="fecha_ini" name="fecha_ini" value="<?= isset($data[0]['fecIni']) ? $data[0]['fecIni'] :  DATE('d/m/Y'); ?>">
@@ -34,11 +36,11 @@
 					</div>
 
 					<div class="row">
-						<div class="col-md-4 col-sm-4 col-xs-4">
+						<div class="col-md-4 col-sm-4 col-xs-4" style="margin-top:17px;">
 							<a href="<?= base_url() ?>configuraciones/master/rutas/generar_formato_carga_masiva_alternativa" class="btn-outline-primary border-0" target="_blank" style="padding:10px;margin-left:10px;border-radius: 13px;outline: blue;"> Descargar Formato</a>
 						</div>
 						<div class="col-md-4 col-sm-4 col-xs-4">
-							<input id="archivo" type="file" name="archivo" accept=".csv" style="margin-left:10px;">
+							<input id="archivo" type="file" name="archivo" accept=".csv" style="margin-left:10px;margin-top:20px;">
 						</div>
 						<div class="col-md-4 col-sm-4 col-xs-4">
 							<button type="button" data-toggle="collapse" class="btn-outline-primary border-0" style="padding:10px;margin-left:10px;border-radius: 13px;outline: blue;" onclick="Modulacion.cargaMasivaAlternativa();">Cargar Data</button>

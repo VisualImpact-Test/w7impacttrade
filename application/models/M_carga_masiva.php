@@ -125,53 +125,9 @@ class M_carga_masiva extends CI_Model{
 				c.idProyecto,
 				c.idTipoUsuario
 			FROM 
-				Impacttrade_aje.trade.cargaRuta c
+				{$this->sessBDCuenta}.trade.cargaRuta c
 			WHERE 
 				c.estado = 1 
-			UNION
-
-			SELECT 
-				c.idCarga,
-				c.fecIni,
-				c.fecFin,
-				c.carpeta,
-				c.totalRegistros,
-				c.totalClientes,
-				c.total_procesados,
-				c.estado,
-				c.fechaRegistro,
-				c.finRegistro,
-				c.generado,
-				c.idCuenta,
-				c.idProyecto,
-				c.idTipoUsuario
-			FROM 
-				Impacttrade_pg.trade.cargaRuta c
-			WHERE 
-				c.estado = 1 
-
-			UNION
-
-			SELECT 
-				c.idCarga,
-				c.fecIni,
-				c.fecFin,
-				c.carpeta,
-				c.totalRegistros,
-				c.totalClientes,
-				c.total_procesados,
-				c.estado,
-				c.fechaRegistro,
-				c.finRegistro,
-				c.generado,
-				c.idCuenta,
-				c.idProyecto,
-				c.idTipoUsuario
-			FROM 
-				Impacttrade_small.trade.cargaRuta c
-			WHERE 
-				c.estado = 1 
-
 		";
 		return $this->db->query($sql);
 	}
@@ -194,52 +150,7 @@ class M_carga_masiva extends CI_Model{
 				c.idProyecto,
 				c.idTipoUsuario
 			FROM 
-				ImpactTrade_aje.trade.cargaRuta c
-			WHERE 
-				c.estado = 1 
-				and (c.procesado IS NULL or c.procesado='0')
-			UNION
-
-			SELECT 
-				c.idCarga,
-				c.fecIni,
-				c.fecFin,
-				c.carpeta,
-				c.totalRegistros,
-				c.totalClientes,
-				c.total_procesados,
-				c.estado,
-				c.fechaRegistro,
-				c.finRegistro,
-				c.generado,
-				c.idCuenta,
-				c.idProyecto,
-				c.idTipoUsuario
-			FROM 
-				ImpactTrade_pg.trade.cargaRuta c
-			WHERE 
-				c.estado = 1 
-				and (c.procesado IS NULL or c.procesado='0')
-
-			UNION
-
-			SELECT 
-				c.idCarga,
-				c.fecIni,
-				c.fecFin,
-				c.carpeta,
-				c.totalRegistros,
-				c.totalClientes,
-				c.total_procesados,
-				c.estado,
-				c.fechaRegistro,
-				c.finRegistro,
-				c.generado,
-				c.idCuenta,
-				c.idProyecto,
-				c.idTipoUsuario
-			FROM 
-				ImpactTrade_small.trade.cargaRuta c
+				{$this->sessBDCuenta}.trade.cargaRuta c
 			WHERE 
 				c.estado = 1 
 				and (c.procesado IS NULL or c.procesado='0')
@@ -313,10 +224,6 @@ class M_carga_masiva extends CI_Model{
 	}
 
 	public function update_carga_ruta($where=array(), $params=array()){
-		
-
-
-
 		$table = "{$this->sessBDCuenta}.trade.cargaRuta";
 		$this->db->trans_begin();
 
@@ -1110,8 +1017,8 @@ class M_carga_masiva extends CI_Model{
 				, d.idDistribuidora
 				, ds.cod_ubigeo
 				, d.nombre+' - '+ ubi.distrito AS distribuidoraSucursal
-			FROM trade.distribuidoraSucursal ds
-			JOIN trade.distribuidora d ON d.idDistribuidora=ds.idDistribuidora
+			FROM impacttrade_bd.trade.distribuidoraSucursal ds
+			JOIN impacttrade_bd.trade.distribuidora d ON d.idDistribuidora=ds.idDistribuidora
 			LEFT JOIN General.dbo.ubigeo ubi ON ubi.cod_ubigeo=ds.cod_ubigeo
 			WHERE ds.estado=1 AND d.estado=1
 		) AS data
@@ -2085,42 +1992,26 @@ class M_carga_masiva extends CI_Model{
 	}
 
 	public function get_peticiones_actualizar_visitas(){
+		$bdCuenta = $this->sessBDCuenta;
 		$sql = "
-			DECLARE @fecha date=getdate();
-			SELECT  idPeticion,idUsuario,idProyecto,fechaIni,fechaFin,hora,estado,porcentaje,
-				CONVERT(varchar,fechaActualizacion,103) fechaActualizacion,
-				CASE WHEN (fechaActualizacion IS NOT NULL) THEN 1 ELSE 0 END actualizado,
-				idCuenta
-			FROM 
-				ImpactTrade_pg.trade.peticionActualizarVisitas
-			WHERE estado=1 and fechaActualizacion is null
-			
-			UNION
-			
-			SELECT  idPeticion,idUsuario,idProyecto,fechaIni,fechaFin,hora,estado,porcentaje,
-				CONVERT(varchar,fechaActualizacion,103) fechaActualizacion,
-				CASE WHEN (fechaActualizacion IS NOT NULL) THEN 1 ELSE 0 END actualizado,
-				idCuenta
-			FROM 
-				ImpactTrade_aje.trade.peticionActualizarVisitas
-			WHERE estado=1 and fechaActualizacion is null
-			
-			UNION
-
-			SELECT  idPeticion,idUsuario,idProyecto,fechaIni,fechaFin,hora,estado,porcentaje,
-				CONVERT(varchar,fechaActualizacion,103) fechaActualizacion,
-				CASE WHEN (fechaActualizacion IS NOT NULL) THEN 1 ELSE 0 END actualizado,
-				idCuenta
-			FROM 
-				ImpactTrade_small.trade.peticionActualizarVisitas
-			WHERE estado=1 and fechaActualizacion is null
-			
-			";
+		DECLARE @fecha date=getdate();
+		SELECT  v.idPeticion,v.idUsuario,v.idProyecto,fechaIni,fechaFin,vd.hora,v.estado,v.porcentaje,
+			CONVERT(varchar,fechaActualizacion,103) fechaActualizacion,
+			CASE WHEN (fechaActualizacion IS NOT NULL) THEN 1 ELSE 0 END actualizado,
+			idCuenta,idRuta
+		FROM 
+			{$this->sessBDCuenta}.trade.peticionActualizarVisitas v
+			JOIN {$this->sessBDCuenta}.trade.peticionActualizarVisitasDet vd
+				ON vd.idPeticion=v.idPeticion
+		WHERE 
+		v.estado=1 
+		";
 		return $this->db->query($sql)->result_array();
 	}
 
 	public function actualizar_peticion_estado($post)
 	{
+		$bdCuenta = $this->sessBDCuenta;
 
 		$sql = "
 			DECLARE @fecha date=GETDATE();
@@ -2135,18 +2026,11 @@ class M_carga_masiva extends CI_Model{
 	public function actualizar_visitas($post)
 	{
 		$sql = "
-			WITH list_visitas AS (
-				SELECT v.idVisita  
-				FROM {$this->sessBDCuenta}.trade.data_ruta r 
-				JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
-				WHERE r.idProyecto={$post['idProyecto']} and r.fecha='{$post['fecha']}'
-			)
 			UPDATE {$this->sessBDCuenta}.trade.data_visita
 			SET estado=estado
-			where idVisita IN (
-				SELECT  idVisita FROM list_visitas
-			);";
-		return $this->db->query($sql)->result_array();
+			where idRuta={$post['idRuta']}"
+			;
+		return $this->db->query($sql);
 	}
 
 	public function actualizar_peticion($post)
@@ -2160,6 +2044,33 @@ class M_carga_masiva extends CI_Model{
 			;";
 		return $this->db->query($sql);
 	}
+
+	public function actualizar_peticion_det($post){
+		$sql = "
+			DECLARE @fecha date=GETDATE();
+			UPDATE {$this->sessBDCuenta}.trade.peticionActualizarVisitasDet
+				SET estado=0,hora=GETDATE()
+			WHERE 
+				idPeticion={$post['idPeticion']} AND idRuta={$post['idRuta']} 
+			;";
+		return $this->db->query($sql);
+	}
+
+	public function data_procesada($post){
+		$sql = "
+		SELECT * FROM (
+			SELECT DISTINCT 
+			COUNT(estado) OVER () total,
+			COUNT(estado) OVER (PARTITION BY estado) procesados, 
+			estado  FROM {$this->sessBDCuenta}.trade.peticionActualizarVisitasDet 
+			WHERE idPeticion={$post['idPeticion']}
+			) a
+		WHERE estado = 0"
+			;
+		return $this->db->query($sql);
+
+	}
+
 
 
 

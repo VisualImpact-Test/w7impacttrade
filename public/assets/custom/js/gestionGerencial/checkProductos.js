@@ -9,7 +9,9 @@ var CheckProductos = {
 	load: function(){
 		$( document ).ready(function() {
 
-			
+			CheckProductos.urlActivo = $(".card-body > ul > li > .active").data("url");
+			CheckProductos.contentDetalle = $(".card-body > ul > li > .active").data("contentdetalle");
+
 			$(".flt_grupoCanal").change();
 			$('.chk_quiebres').hide();
 			$('.chk_fifo').hide();
@@ -49,6 +51,7 @@ var CheckProductos = {
 					})
 				})
 			}
+			
 		});
 		$(document).on('click', '.card-body > ul > li > a', function (e) {
 			var control = $(this);
@@ -83,6 +86,11 @@ var CheckProductos = {
 				$('.chk_fifo').hide();
 			}
 
+			if(CheckProductos.urlActivo == 'filtrarNew'){
+				$('#btn-detallado-excel').show();
+			}else{
+				$('#btn-detallado-excel').hide();
+			}
 		
         });
 
@@ -101,24 +109,9 @@ var CheckProductos = {
 				};
 	
 				Fn.loadReporte_validado(config);
-		
+
 		});
 
-		$(document).on("click",".lk-show-foto",function(){
-			var control = $(this);
-
-			var data = { idVisita: control.data('visita'), cliente: control.data('cliente'), usuario: control.data('usuario'), perfil: control.data('perfil') };
-			var jsonString = { 'data': JSON.stringify(data) };
-			var configAjax = { 'url': checkProductos.url + 'mostrarFotos', 'data': jsonString };
-
-			$.when( Fn.ajax(configAjax) ).then( function(a){
-				++modalId;
-				var fn='Fn.showModal({ id:'+modalId+',show:false });';
-				var btn=new Array();
-					btn[0]={title:'Cerrar',fn:fn};
-				Fn.showModal({ id:modalId,show:true,title:a.msg.title,content:a.data,btn:btn});
-			});
-		});
 
 		$(document).on("click",".lk-foto",function(){
 			var control = $(this);
@@ -175,6 +168,16 @@ var CheckProductos = {
 				Fn.showModal({ id:modalId,show:true,title:a.msg.title,content:a.data,btn:btn});
 			});
 		});
+		$(document).on('click','#btn-detallado-excel', function(e) {
+			e.preventDefault();
+			var data = Fn.formSerializeObject(CheckProductos.frmRutas);
+			var jsonString = { 'data': JSON.stringify(data) };
+			var configAjax = { 'url': CheckProductos.url + 'generarExcel', 'data': jsonString };
+			var url = site_url+CheckProductos.url+'generarExcel';
+
+			$.when(Fn.download(url,jsonString)).then(() => { Fn.showLoading(false) });
+
+		});
 		$(document).on('click','#btn-filtrar-resumen', function(e) {
 			$.when(CheckProductos.mostrarDetalladoResumen()).then(function(){
 				$.when(CheckProductos.mostrarTopCadenasPresencia()).then(function(){
@@ -206,6 +209,32 @@ var CheckProductos = {
 					btn[0]={title:'Cerrar',fn:fn};
 				Fn.showModal({ id:modalId,show:true,title:a.data.title,content:a.data.html,btn:btn, width:"80%"});
 			});
+		});
+
+		$(document).on('click', '.showClientes', function(){
+			let btn = $(this);
+			let seg = btn.data('segmentacion');
+			
+			$(`.trClientes-${seg}`).toggleClass('d-none');
+
+			btn.toggleClass('fa-minus');
+			btn.toggleClass('fa-plus');
+
+			if($(`.trClientes-${seg}`).hasClass('d-none')){
+				$(`.trProductos-seg-${seg}`).addClass('d-none');
+				$(`.showProductos-seg-${seg}`).removeClass('fa-minus');
+				$(`.showProductos-seg-${seg}`).addClass('fa-plus');
+			}
+			
+		});
+		$(document).on('click', '.showProductos', function(){
+			let btn = $(this);
+			let cliente = $(this).data('cliente');
+
+			$(`.trProductos-${cliente}`).toggleClass('d-none');
+
+			btn.toggleClass('fa-minus');
+			btn.toggleClass('fa-plus');
 		});
 	},
 

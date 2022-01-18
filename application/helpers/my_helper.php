@@ -1423,8 +1423,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 				$str_permisos = getPermisosUsuario(['segmentacion' => 1]);
 				
 				!empty($str_permisos) ? $filtro_permiso .= " AND sctd.idDistribuidoraSucursal IN ({$str_permisos})": '';
-				$join .= " JOIN trade.segmentacionClienteTradicional sct ON ch.idSegClienteTradicional = sct.idSegClienteTradicional ";
-				$join .= " JOIN trade.segmentacionClienteTradicionalDet sctd ON sct.idSegClienteTradicional = sctd.idSegClienteTradicional {$filtro_permiso} ";
+				$join .= " JOIN trade.segmentacionClienteTradicional sct WITH(NOLOCK) ON ch.idSegClienteTradicional = sct.idSegClienteTradicional ";
+				$join .= " JOIN trade.segmentacionClienteTradicionalDet sctd WITH(NOLOCK) ON sct.idSegClienteTradicional = sctd.idSegClienteTradicional {$filtro_permiso} ";
 
 				if ($grupoCanal == 'HFS' || $grupoCanal == 'Tradicional') {
 					array_push(
@@ -1445,10 +1445,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 						, z.nombre AS zona
 						';
 					// JOINS para la consulta a base de datos
-					$join .= " LEFT JOIN trade.distribuidoraSucursal ds ON ds.idDistribuidoraSucursal = sctd.idDistribuidoraSucursal ";
-					$join .= " LEFT JOIN trade.distribuidora d ON d.idDistribuidora = ds.idDistribuidora ";
-					$join .= " LEFT JOIN General.dbo.ubigeo ubi1 ON ubi1.cod_ubigeo=ds.cod_ubigeo";
-					$join .= " LEFT JOIN trade.zona z ON ch.idZona = z.idZona";
+					$join .= " LEFT JOIN trade.distribuidoraSucursal ds WITH(NOLOCK) ON ds.idDistribuidoraSucursal = sctd.idDistribuidoraSucursal ";
+					$join .= " LEFT JOIN trade.distribuidora d WITH(NOLOCK) ON d.idDistribuidora = ds.idDistribuidora ";
+					$join .= " LEFT JOIN General.dbo.ubigeo ubi1 WITH(NOLOCK) ON ubi1.cod_ubigeo=ds.cod_ubigeo";
+					$join .= " LEFT JOIN trade.zona z WITH(NOLOCK) ON ch.idZona = z.idZona";
 
 					$orderBy = 'd.nombre,ubi1.provincia';
 				};
@@ -1474,10 +1474,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 						, ubpl.provincia ciudadPlaza
 						';
 
-					$join .= " LEFT JOIN trade.plaza pl ON pl.idPlaza = sct.idPlaza";
-					$join .= " LEFT JOIN trade.zona z ON ch.idZona = z.idZona";
-					$join .= " LEFT JOIN trade.distribuidoraSucursal ds ON ds.idDistribuidoraSucursal = sctd.idDistribuidoraSucursal ";
-					$join .= " LEFT JOIN General.dbo.ubigeo ubpl ON ubpl.cod_ubigeo = pl.cod_ubigeo ";
+					$join .= " LEFT JOIN trade.plaza pl WITH(NOLOCK) ON pl.idPlaza = sct.idPlaza";
+					$join .= " LEFT JOIN trade.zona z WITH(NOLOCK) ON ch.idZona = z.idZona";
+					$join .= " LEFT JOIN trade.distribuidoraSucursal ds WITH(NOLOCK) ON ds.idDistribuidoraSucursal = sctd.idDistribuidoraSucursal ";
+					$join .= " LEFT JOIN General.dbo.ubigeo ubpl WITH(NOLOCK) ON ubpl.cod_ubigeo = pl.cod_ubigeo ";
 
 					$orderBy = 'pl.nombre,z.nombre';
 				};
@@ -1505,8 +1505,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 						';
 
 					// JOINS para la consulta a base de datos
-					$join .= " LEFT JOIN trade.banner ba ON ba.idBanner = scm.idBanner";
-					$join .= " LEFT JOIN trade.cadena cad ON cad.idCadena = ba.idCadena";
+					$join .= " LEFT JOIN trade.banner ba WITH(NOLOCK) ON ba.idBanner = scm.idBanner";
+					$join .= " LEFT JOIN trade.cadena cad WITH(NOLOCK) ON cad.idCadena = ba.idCadena";
 
 					$orderBy = 'cad.nombre,ba.nombre';
 				}
@@ -1701,5 +1701,17 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		}
 
 		return $array['usuarios'] ;
+	}
+
+	function execInBackground($cmd = "",$input = []) {
+		$idCuenta = !empty($input['idCuenta']) ? $input['idCuenta'] : '' ;
+		$idProyecto = !empty($input['idProyecto'])? $input['idProyecto'] : '' ;
+	
+		if (substr(php_uname(), 0, 7) == "Windows"){
+			pclose(popen("start /B ". $cmd." ".$idCuenta. " " . $idProyecto , "r")); 
+		}
+		else {
+			exec($cmd." ".$idCuenta . " > /dev/null &");  
+		}
 	}
 

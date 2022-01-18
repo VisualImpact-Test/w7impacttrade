@@ -110,7 +110,7 @@ class M_cronjob extends CI_Model{
 			ImpactTrade_pg.trade.data_ruta r
 			JOIN ImpactTrade_pg.trade.data_visita v
 				ON r.idRuta = v.idRuta
-                AND r.demo=0
+                AND (r.demo=0 OR r.demo IS NULL)
 			JOIN trade.canal ca 
 				ON ca.idCanal=v.idCanal
 			LEFT JOIN trade.grupoCanal gc 
@@ -140,6 +140,8 @@ class M_cronjob extends CI_Model{
 		WHERE 
 			r.fecha BETWEEN @fecha AND @fecha
             AND r.idProyecto IN(13)
+			AND r.estado = 1
+			AND v.estado = 1
 			{$filtros}
 		";
 

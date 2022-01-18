@@ -36,6 +36,7 @@
 				<th rowspan="2" class="text-center hideCol">LATITUD FINAL</th>
 				<th rowspan="2" class="text-center hideCol">LONGITUD FINAL</th>
 				<th rowspan="2" class="text-center">TIEMPO (MIN)</th>
+				<th rowspan="2" class="text-center">HORA INCIDENCIA</th>
 				<th rowspan="2" class="text-center">INCIDENCIA</th>
 				<th rowspan="2" class="text-center colCondicion">CONDICIÓN</th>
 				<th colspan="19" class="text-center">MÓDULOS</th>

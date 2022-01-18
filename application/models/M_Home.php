@@ -29,7 +29,7 @@ class M_Home extends MY_Model{
         $sessIdTipoUsuario = $this->idTipoUsuario;
 		$sessDemo = $this->demo;
         if( $sessIdTipoUsuario != 4 ){
-            if( empty($sessDemo) ) $filtros .=  " AND r.demo = 0";
+            if( empty($sessDemo) ) $filtros .=  " AND (r.demo = 0 OR r.demo IS NULL)";
             else $filtros .=  " AND (r.demo = 0 OR r.idUsuario = {$this->idUsuario})";
         }
 		$sql = "
@@ -123,7 +123,7 @@ class M_Home extends MY_Model{
         $sessIdTipoUsuario = $this->idTipoUsuario;
 		$sessDemo = $this->demo;
         if( $sessIdTipoUsuario != 4 ){
-            if( empty($sessDemo) ) $filtros .=  " AND r.demo = 0";
+            if( empty($sessDemo) ) $filtros .=  " AND (r.demo = 0 OR r.demo IS NULL)";
             else $filtros .=  " AND (r.demo = 0 OR r.idUsuario = {$this->idUsuario})";
         }
 
@@ -152,12 +152,12 @@ class M_Home extends MY_Model{
             END condicion
     FROM 
         {$this->sessBDCuenta}.trade.data_ruta r WITH(NOLOCK)
-        JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta
+        JOIN {$this->sessBDCuenta}.trade.data_visita v WITH(NOLOCK) ON r.idRuta = v.idRuta
         JOIN ".getClienteHistoricoCuenta()." ch ON ch.idCliente = v.idCliente
             AND r.fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin,r.fecha)
             AND ch.idProyecto = r.idProyecto
-        JOIN trade.canal c ON c.idCanal = v.idCanal
-        JOIN trade.grupoCanal gc ON gc.idGrupoCanal = c.idGrupoCanal
+        JOIN trade.canal c WITH(NOLOCK) ON c.idCanal = v.idCanal
+        JOIN trade.grupoCanal gc WITH(NOLOCK) ON gc.idGrupoCanal = c.idGrupoCanal
         {$segmentacion['join']} 
     WHERE 
         r.fecha BETWEEN @inicio_mes AND @hoy
@@ -227,7 +227,7 @@ class M_Home extends MY_Model{
         $sessIdTipoUsuario = $this->idTipoUsuario;
 		$sessDemo = $this->demo;
         if( $sessIdTipoUsuario != 4 ){
-            if( empty($sessDemo) ) $filtros .=  " AND r.demo = 0";
+            if( empty($sessDemo) ) $filtros .=  " AND (r.demo = 0 OR r.demo IS NULL)";
             else $filtros .=  " AND (r.demo = 0 OR r.idUsuario = {$this->idUsuario})";
         }
 
@@ -258,12 +258,12 @@ class M_Home extends MY_Model{
                 END condicion
         FROM 
             {$this->sessBDCuenta}.trade.data_ruta r WITH(NOLOCK)
-            JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta
-            JOIN ".getClienteHistoricoCuenta()." ch ON ch.idCliente = v.idCliente
+            JOIN {$this->sessBDCuenta}.trade.data_visita v WITH(NOLOCK) ON r.idRuta = v.idRuta
+            JOIN ".getClienteHistoricoCuenta()." ch WITH(NOLOCK) ON ch.idCliente = v.idCliente
                 AND r.fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin,r.fecha)
                 AND ch.idProyecto = r.idProyecto
-            JOIN trade.canal c ON c.idCanal = v.idCanal
-            JOIN trade.grupoCanal gc ON gc.idGrupoCanal = c.idGrupoCanal
+            JOIN trade.canal c WITH(NOLOCK) ON c.idCanal = v.idCanal
+            JOIN trade.grupoCanal gc WITH(NOLOCK) ON gc.idGrupoCanal = c.idGrupoCanal
            {$segmentacion['join']} 
         WHERE 
             r.fecha BETWEEN @inicio_mes AND @hoy
@@ -322,13 +322,15 @@ class M_Home extends MY_Model{
 					, row_number() OVER (PARTITION BY r.idUsuario, r.fecha ORDER BY v.horaIni ASC ) row
 					
 				FROM 
-					{$this->sessBDCuenta}.trade.data_ruta r
-					JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta 
-					JOIN trade.cliente c ON c.idCliente = v.idCliente
+					{$this->sessBDCuenta}.trade.data_ruta r WITH(NOLOCK)
+					JOIN {$this->sessBDCuenta}.trade.data_visita v WITH(NOLOCK) ON r.idRuta = v.idRuta 
+					JOIN trade.cliente c WITH(NOLOCK) ON c.idCliente = v.idCliente
 				WHERE
 					r.fecha BETWEEN @fecIni AND @fecFin
-					AND r.demo = 0 
+					AND (r.demo = 0 OR r.demo IS NULL)
 					AND v.horaIni IS NOT NULL
+                    AND r.estado = 1
+                    AND v.estado = 1
 		),lista_visita_final AS (
 			SELECT DISTINCT
 				r.fecha
@@ -338,12 +340,15 @@ class M_Home extends MY_Model{
 				, c.longitud
 				, row_number() OVER (PARTITION BY r.idUsuario, r.fecha ORDER BY v.horaFin DESC ) row
 			FROM 
-				{$this->sessBDCuenta}.trade.data_ruta r
-				JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta 
-				JOIN trade.cliente c ON c.idCliente = v.idCliente
+				{$this->sessBDCuenta}.trade.data_ruta r WITH(NOLOCK)
+				JOIN {$this->sessBDCuenta}.trade.data_visita v WITH(NOLOCK) ON r.idRuta = v.idRuta 
+				JOIN trade.cliente c WITH(NOLOCK) ON c.idCliente = v.idCliente
 			WHERE
 				r.fecha BETWEEN @fecIni AND @fecFin
-				AND r.demo = 0 AND v.horaFin IS NOT NULL
+				AND (r.demo = 0 OR r.demo IS NULL) 
+                AND v.horaFin IS NOT NULL
+                AND r.estado = 1
+                AND v.estado = 1
 				
 		),lista_horario AS (
 			SELECT 
@@ -419,8 +424,8 @@ class M_Home extends MY_Model{
 			, CONVERT(VARCHAR(8),vf.horaFin) horaFinVisita
 			, CASE WHEN (lh_e.idEmpleado IS NOT NULL ) THEN lh_1.horaIngreso ELSE lh_2.horaIngreso END horarioIng
 			, CASE WHEN (lh_e.idEmpleado IS NOT NULL ) THEN lh_1.horaSalida ELSE lh_2.horaSalida END horarioSal
-		FROM trade.usuario u
-			JOIN trade.usuario_historico uh ON uh.idUsuario = u.idUsuario
+		FROM trade.usuario u WITH(NOLOCK)
+			JOIN trade.usuario_historico uh WITH(NOLOCK) ON uh.idUsuario = u.idUsuario
 			AND (
 				uh.fecIni <= ISNULL( uh.fecFin, @fecFin)
 				AND (
@@ -433,28 +438,28 @@ class M_Home extends MY_Model{
 					@fecFin BETWEEN uh.fecIni AND ISNULL( uh.fecFin, @fecFin )
 				)
 			)
-			LEFT JOIN trade.usuario_historicoCanal uhd ON uhd.idUsuarioHist = uh.idUsuarioHist
-			LEFT JOIN trade.canal ca ON ca.idCanal = uhd.idCanal
-			LEFT JOIN trade.grupoCanal gc ON gc.idGrupoCanal = ca.idGrupoCanal
-			LEFT JOIN trade.proyecto py ON py.idProyecto = uh.idProyecto
-			LEFT JOIN trade.cuenta cu ON cu.idCuenta = py.idCuenta
+			LEFT JOIN trade.usuario_historicoCanal uhd WITH(NOLOCK) ON uhd.idUsuarioHist = uh.idUsuarioHist
+			LEFT JOIN trade.canal ca WITH(NOLOCK) ON ca.idCanal = uhd.idCanal
+			LEFT JOIN trade.grupoCanal gc WITH(NOLOCK) ON gc.idGrupoCanal = ca.idGrupoCanal
+			LEFT JOIN trade.proyecto py WITH(NOLOCK) ON py.idProyecto = uh.idProyecto
+			LEFT JOIN trade.cuenta cu WITH(NOLOCK) ON cu.idCuenta = py.idCuenta
 
-			LEFT JOIN trade.usuario_tipo tu ON uh.idTipoUsuario = tu.idTipoUsuario
-			LEFT JOIN rrhh.dbo.empleado e ON e.idEmpleado = u.idEmpleado AND e.flag IN ('activo')
-			LEFT JOIN rrhh.dbo.CargoTrabajo ct ON ct.idCargoTrabajo = e.idCargoTrabajo
+			LEFT JOIN trade.usuario_tipo tu WITH(NOLOCK) ON uh.idTipoUsuario = tu.idTipoUsuario
+			LEFT JOIN rrhh.dbo.empleado e WITH(NOLOCK) ON e.idEmpleado = u.idEmpleado AND e.flag IN ('activo')
+			LEFT JOIN rrhh.dbo.CargoTrabajo ct WITH(NOLOCK) ON ct.idCargoTrabajo = e.idCargoTrabajo
 
-			LEFT JOIN General.dbo.tiempo t ON t.fecha BETWEEN @fecIni AND @fecFin
+			LEFT JOIN General.dbo.tiempo t WITH(NOLOCK) ON t.fecha BETWEEN @fecIni AND @fecFin
 
-			LEFT JOIN lista_horario lh_1 ON lh_1.idEmpleado = e.idEmpleado AND lh_1.fecha = t.fecha
-			LEFT JOIN lista_horario lh_2 ON lh_2.idEmpleado IS NULL AND lh_2.idCargoTrabajo = ct.idCargoTrabajo
-			LEFT JOIN lista_horario_empleado lh_e ON lh_e.idEmpleado = e.idEmpleado  
+			LEFT JOIN lista_horario lh_1 WITH(NOLOCK) ON lh_1.idEmpleado = e.idEmpleado AND lh_1.fecha = t.fecha
+			LEFT JOIN lista_horario lh_2 WITH(NOLOCK) ON lh_2.idEmpleado IS NULL AND lh_2.idCargoTrabajo = ct.idCargoTrabajo
+			LEFT JOIN lista_horario_empleado lh_e WITH(NOLOCK) ON lh_e.idEmpleado = e.idEmpleado  
 
-			LEFT JOIN rrhh.asistencia.asistencia at ON e.idEmpleado=at.idEmpleado and at.fechaIngreso=t.fecha
+			LEFT JOIN rrhh.asistencia.asistencia at WITH(NOLOCK) ON e.idEmpleado=at.idEmpleado and at.fechaIngreso=t.fecha
 
-			LEFT JOIN rrhh.dbo.Ocurrencias o ON o.idEmpleado = e.idEmpleado
+			LEFT JOIN rrhh.dbo.Ocurrencias o WITH(NOLOCK) ON o.idEmpleado = e.idEmpleado
 				AND t.fecha BETWEEN o.fecInicio AND ISNULL( o.fecTermino, t.fecha)
-			LEFT JOIN rrhh.dbo.TipoOcurrencia toc ON toc.idTipoOcurrencia = o.idTipoOcurrencia
-			LEFT JOIN rrhh.dbo.vacacionesDetalle vd ON  vd.idEmpleado = e.idEmpleado AND vd.estado = 1
+			LEFT JOIN rrhh.dbo.TipoOcurrencia toc WITH(NOLOCK) ON toc.idTipoOcurrencia = o.idTipoOcurrencia
+			LEFT JOIN rrhh.dbo.vacacionesDetalle vd WITH(NOLOCK) ON  vd.idEmpleado = e.idEmpleado AND vd.estado = 1
 				AND t.fecha BETWEEN vd.fecSalida AND ISNULL(vd.fecRetorno, t.fecha)
 			LEFT JOIN lista_visita_inicio vi ON vi.fecha = t.fecha AND u.idUsuario = vi.idUsuario AND vi.row = 1
 			LEFT JOIN lista_visita_final vf ON vf.fecha = t.fecha AND u.idUsuario = vf.idUsuario AND vf.row = 1
@@ -485,9 +490,9 @@ class M_Home extends MY_Model{
             , oc.idOcurrencia
             , oc.nombre ocurrencia
         FROM 
-            {$this->sessBDCuenta}.trade.data_asistencia a
-            JOIN master.tipoAsistencia tia ON a.idTipoAsistencia=tia.idTipoAsistencia
-            LEFT JOIN master.ocurrencias oc ON oc.idOcurrencia=a.idOcurrencia AND oc.estado=1 AND oc.flagAsistencia=1
+            {$this->sessBDCuenta}.trade.data_asistencia a WITH(NOLOCK)
+            JOIN master.tipoAsistencia tia WITH(NOLOCK) ON a.idTipoAsistencia=tia.idTipoAsistencia
+            LEFT JOIN master.ocurrencias oc WITH(NOLOCK) ON oc.idOcurrencia=a.idOcurrencia AND oc.estado=1 AND oc.flagAsistencia=1
         WHERE
             a.fecha = '{$params['fecha']}'
         ORDER BY idUsuario DESC
@@ -544,6 +549,31 @@ class M_Home extends MY_Model{
     public function get_efectividadPorGtm($params = []){
         $filtros ='';
 
+        if(!empty($params['grupoCanal'])){
+            $segmentacion = getSegmentacion(['grupoCanal_filtro' => $params['grupoCanal']]);
+
+            if($segmentacion['tipoSegmentacion'] == "tradicional") 
+            {
+                $filtros .= !empty($params['distribuidora_filtro']) ? ' AND d.idDistribuidora='.$params['distribuidora_filtro'] : '';
+                $filtros .= !empty($params['distribuidoraSucursal_filtro']) ? ' AND ds.idDistribuidoraSucursal='.$params['distribuidoraSucursal_filtro'] : '';
+            }
+
+            if($segmentacion['tipoSegmentacion'] == "mayorista") 
+            {
+                $filtros .= !empty($params['plaza_filtro']) ? ' AND sct.idPlaza='.$params['plaza_filtro'] : '';
+            }
+
+            if($segmentacion['tipoSegmentacion'] == "moderno") 
+            {
+                $filtros .= !empty($params['cadena_filtro']) ? ' AND cad.idCadena='.$params['cadena_filtro'] : '';
+                $filtros .= !empty($params['banner_filtro']) ? ' AND ba.idBanner='.$params['banner_filtro'] : '';
+            }
+
+        }else{
+            $segmentacion['columnas_bd'] = '';
+            $segmentacion['join'] = '';
+        }
+
         if (!empty($params['idProyecto'])) {
             $filtros .= " AND r.idProyecto = {$params['idProyecto']} ";
         }
@@ -569,11 +599,20 @@ class M_Home extends MY_Model{
                 , v.idListProductos
                 , v.productos
                 , v.moduloFotos
-            FROM {$this->sessBDCuenta}.trade.data_ruta r
-            JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta
+                , v.estadoIncidencia
+                , v.numFotos
+            FROM {$this->sessBDCuenta}.trade.data_ruta r WITH(NOLOCK)
+            JOIN {$this->sessBDCuenta}.trade.data_visita v WITH(NOLOCK) ON r.idRuta = v.idRuta
+            JOIN ".getClienteHistoricoCuenta()." ch WITH(NOLOCK) ON ch.idCliente = v.idCliente
+                AND r.fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin,r.fecha)
+                AND ch.idProyecto = r.idProyecto
             JOIN trade.canal c ON c.idCanal = v.idCanal
             JOIN trade.grupoCanal gc ON gc.idGrupoCanal = c.idGrupoCanal
-            WHERE r.fecha = @fechaHoy AND r.demo = 0
+            {$segmentacion['join']}
+            WHERE r.fecha = @fechaHoy 
+            AND (r.demo = 0 OR r.demo IS NULL)
+            AND r.estado = 1
+            AND v.estado = 1
             {$filtros}
             AND r.idTipoUsuario IN(1,18)
         ), lista_programados AS (
@@ -587,7 +626,10 @@ class M_Home extends MY_Model{
                 lr.idUsuario
                 , COUNT(lr.idVisita) AS efectivos
             FROM lista_rutas lr
-            WHERE horaFin IS NOT NULL
+            WHERE horaIni IS NOT NULL 
+            AND horaFin IS NOT NULL 
+            AND numFotos >= 1 
+            AND ISNULL(estadoIncidencia,0) <> 1
             GROUP BY lr.idUsuario
         ), lista_modulos AS (
             SELECT

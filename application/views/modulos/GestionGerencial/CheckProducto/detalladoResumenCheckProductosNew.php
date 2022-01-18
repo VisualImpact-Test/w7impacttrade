@@ -4,7 +4,7 @@
     }
 </style>
 <div class="card-datatable w-100" style="overflow-x: auto;max-height: 590px;padding:0px !important ">
-    <table id="tb-resumen-checkProductos" class="table table-sm table-bordered nowrap" width="100%" style="font-size: 15px;">
+    <table id="tb-resumen-checkProductos" class="d-none table table-sm table-bordered nowrap" width="100%" style="font-size: 15px;">
         <thead>
             <tr>
                 <!-- <th colspan="3" style="text-align:center;">DETALLE DEL <?= $fecIni ?> AL <?= $fecFin ?></th> -->

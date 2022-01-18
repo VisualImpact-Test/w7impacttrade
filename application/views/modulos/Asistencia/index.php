@@ -5,7 +5,7 @@
 			<?= $title ?>
 		</h3>
 		<span>
-			<?=$this->carpetaArchivos?>
+			<?=$this->session->userdata('idCuenta')?>
 		</span>
 	</div>
 	<div class="col-lg-10 d-flex">

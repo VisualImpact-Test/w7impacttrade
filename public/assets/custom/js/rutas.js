@@ -106,7 +106,7 @@ var Rutas = {
 			var fotoUrl=$(this).attr('data-fotoUrl');
 			var hora=$(this).attr('data-hora');
 			var html_content = $(this).attr('data-html');
-			var img='<img src="'+(fotos_url+'/incidencias/'+fotoUrl)+'" class="img-responsive center-block img-thumbnail" />';
+			var img='<img src="'+(fotos_url+'incidencias/'+fotoUrl)+'" class="img-responsive center-block img-thumbnail" />';
 			var html = '';
 					html += '<h4><strong>'+cliente+'</strong></h4>';
 					html += '<p class="user-name">Perfil: '+perfil+' <br />';

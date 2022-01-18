@@ -37,6 +37,8 @@
 						<!-- <button type="button" class="btn btn-outline-trade-visual btn-change" onclick="$('#a-cambiarcuenta').click();" ><i class="fad fa-sync" ></i></button> -->
 					</div>
 				</div>
+				<input id="sessIdCuenta" type="hidden" value="<?=$this->sessIdCuenta?>">
+				<input id="sessIdProyecto" type="hidden" value="<?=$this->sessIdProyecto?>">
 			</li>
 			<?$logoCuenta = $this->session->userdata('logoCuenta');?>
 			<?if(!empty($logoCuenta)){?>
@@ -65,10 +67,13 @@
 					)){
 					?>
 						<a class="dropdown-item" href="javascript:;" id="a-cambiarcuenta"><i class="nav-link-icon fas fa-filter"></i> Cuenta / Proyecto</a>
+			
 					<?}?>
 
 					<?
-					if($this->session->userdata('idUsuario')=="1"){
+						// if($this->session->userdata('idUsuario')=="1"){
+					$flagActualizarlistas = $this->flagactualizarListas;
+					if($flagActualizarlistas){
 						?>
 						<a class="dropdown-item" href="javascript:;" id="a-actualizarVisitas"><i class="nav-link-icon fas fa-sync"></i> Actualizar Visitas</a>
 						<?

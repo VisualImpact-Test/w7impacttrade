@@ -31,9 +31,6 @@
 				<button id="btn-filtrarRutasVisitas" class="btn btn-outline-trade-visual border-0" data-url="filtrar" title="Filtrar">
 					<i class="fas fa-search"></i>
 				</button>
-				<button id="btn-actualizarListas" class="btn btn-outline-trade-visual border-0" title="Actualizar Listas">
-					<i class="fas fa-sync-alt"></i>
-				</button>
 				<!-- rutas -->
 				<button id="btn-rutaCambiarEstado" class="btn btn-outline-trade-visual border-0" title="Cambiar Estado">
 					<i class="fas fa-toggle-on"></i>

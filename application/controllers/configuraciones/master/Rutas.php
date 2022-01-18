@@ -66,7 +66,7 @@ class Rutas extends MY_Controller{
 	
 	public function form_nueva_ruta(){
 		$data = json_decode($this->input->post('data'));
-
+		
 		$input = array();
 		$array = array();
 		$html = '';
@@ -1754,6 +1754,7 @@ class Rutas extends MY_Controller{
 		ini_set('display_startup_errors', TRUE);
 		ini_set('memory_limit', '1024M');
 		set_time_limit(0);
+		$idProyecto= $this->session->idProyecto;
 		
 		/** Include PHPExcel */
 		require_once '../phpExcel/Classes/PHPExcel.php';
@@ -1873,8 +1874,40 @@ class Rutas extends MY_Controller{
 					->setCellValue('F1', 'MIERCOLES')
 					->setCellValue('G1', 'JUEVES')
 					->setCellValue('H1', 'VIERNES')
-					->setCellValue('I1', 'SABADO')
+					->setCellValue('I1', 'SABADO');
+					
+		if($idProyecto==17){
+			$objPHPExcel->setActiveSheetIndex(0)
+					->setCellValue('J1', 'DOMINGO')
+					->setCellValue('K1', 'REFRIGERIO')
+					->setCellValue('L1', 'DESCANSO');
+		}else{
+			$objPHPExcel->setActiveSheetIndex(0)
 					->setCellValue('J1', 'DOMINGO');
+		}
+
+		$i=1;
+		if($idProyecto==17){
+			$horarios = $this->model->obtener_horarios();
+
+			if(count($horarios)>0){
+				$objWorkSheet = $objPHPExcel->createSheet($i);
+				$objWorkSheet->setCellValue('A1', 'IDHORARIO');
+				$objWorkSheet->setCellValue('B1', 'HORA INGRESO');
+				$objWorkSheet->setCellValue('C1', 'HORA SALIDA');
+				$m=2;
+				foreach($horarios as $row){
+					 $objWorkSheet->setCellValue('A'.$m, $row['idHorario']);
+					 $objWorkSheet->setCellValue('B'.$m, $row['horaIni']);
+					 $objWorkSheet->setCellValue('C'.$m, $row['horaFin']);
+					 $m++;
+				}
+				$objWorkSheet->setTitle("HORARIOS");
+		  	}	
+
+		}
+	   $objPHPExcel->setActiveSheetIndex($i);
+	   $i++;
 
 		header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 		header('Content-Disposition: attachment;filename="rutas_formato.xlsx"');

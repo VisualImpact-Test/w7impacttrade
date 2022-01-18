@@ -16,20 +16,24 @@ class CheckProductos extends MY_Controller{
 		$config['nav']['menu_active'] = $idMenu;
 		$config['css']['style'] = array(
 			'assets/custom/css/gestionGerencial/iniciativas',
+			'assets/libs/photoswipe/photoswipe',
 			'assets/libs/tableTools/datatables.min',
+			'assets/libs/photoswipe/default-skin',
+			
 
 		);
 		$config['js']['script'] = array(
 			'assets/libs/fileDownload/jquery.fileDownload',
 			'assets/libs/datatables/responsive.bootstrap4.min',
+			'assets/libs/photoswipe/photoswipe.min',
+			'assets/libs/photoswipe/photoswipe-ui-default.min',
 			'assets/custom/js/core/datatables-defaults',
-			'assets/custom/js/gestionGerencial/checkProductos'
+			'assets/custom/js/gestionGerencial/checkProductos',
 		);
 
 		$config['data']['icon'] = 'far fa-clipboard-list-check';
 		$config['data']['title'] = 'Check Productos';
 		$config['data']['message'] = 'Check Productos';
-		$config['view'] = 'modulos/gestionGerencial/checkProducto/index';
 
 		$params = array();
 		$params['idCuenta'] = $this->session->userdata('idCuenta');
@@ -39,7 +43,13 @@ class CheckProductos extends MY_Controller{
 		$config['data']['motivos'] = $motivos;
 
 		$tabs = getTabPermisos(['idMenuOpcion'=>$idMenu])->result_array();
-		$config['data']['tabs'] = $tabs;
+		
+		if (empty($tabs)) { 
+			$config['view'] =  'oops';
+		}else{
+			$config['data']['tabs'] = $tabs;
+			$config['view'] = 'modulos/gestionGerencial/checkProducto/index';
+		}
 		$this->view($config);
 	}
 
@@ -745,6 +755,369 @@ class CheckProductos extends MY_Controller{
 		}
 
 		return $array['usuarios'] ;
+	}
+
+	public function filtrarNew()
+	{
+		$result = $this->result;
+		$data = json_decode($this->input->post('data'));
+
+		$fechas = explode(' - ', $data->{'txt-fechas'});
+
+		$input = array();
+		$input['fecIni'] = $fechas[0];
+		$input['fecFin'] = $fechas[1];
+
+		$input['proyecto_filtro'] = $data->{'proyecto_filtro'};
+		$input['grupoCanal_filtro'] = $data->{'grupoCanal_filtro'};
+		$input['canal_filtro'] = $data->{'canal_filtro'};
+		$input['subcanal'] = $data->{'subcanal_filtro'};
+		if(isset( $data->{'idElemento'})){
+			$elementos = $data->{'idElemento'};
+			if(is_array($elementos)){
+				$input['idElemento'] = implode(",",$elementos);
+			}else{
+				$input['idElemento'] = $elementos;
+			}
+		}
+
+		$input['distribuidora_filtro'] = empty($data->{'distribuidora_filtro'}) ? '' : $data->{'distribuidora_filtro'};
+		$input['distribuidoraSucursal_filtro'] = !empty($data->{'distribuidoraSucursal_filtro'}) ?$data->{'distribuidoraSucursal_filtro'} : '';
+		$input['zona_filtro'] = empty($data->{'zona_filtro'}) ? '' : $data->{'zona_filtro'};
+		$input['plaza_filtro'] = empty($data->{'plaza_filtro'}) ? '' : $data->{'plaza_filtro'};
+		$input['cadena_filtro'] = empty($data->{'cadena_filtro'}) ? '' : $data->{'cadena_filtro'};
+		$input['banner_filtro'] = empty($data->{'banner_filtro'}) ? '' : $data->{'banner_filtro'};
+		$input['tipoUsuario_filtro'] = $data->{'tipoUsuario_filtro'};
+		$input['usuario_filtro'] = !empty($data->{'usuario_filtro'}) ? (is_array($data->{'usuario_filtro'}) ? implode(",",$data->{'usuario_filtro'}) : $data->{'usuario_filtro'}) : '' ;
+		
+		$input['flagPropios'] = !empty($data->{'ck-propios'}) ? true : '';
+		$input['flagCompetencia'] = !empty($data->{'ck-competencia'}) ? true : '';
+
+		$rs_visitas = $this->model->obtener_visitas($input);
+
+		$html = '';
+		$array['visitas'] = $rs_visitas;
+		$segmentacion = getSegmentacion($input);
+		$result['data']['grupoCanal'] = $segmentacion['grupoCanal'];
+		if(!empty($rs_visitas)){
+			$array=array();
+			$array['visitas'] = $rs_visitas;
+
+			$rs_det=$this->model->obtener_detalle_checklist($input);
+			foreach($rs_det as $det){
+				$array['categorias'][$det['idCategoria']]=$det['categoria'];
+				$array['elementos'][$det['idCategoria']][$det['idProducto']]['nombre']=$det['elemento'];
+				$array['elementos'][$det['idCategoria']][$det['idProducto']]['flagCompetencia']=$det['flagCompetencia'];
+				$array['detalle'][$det['idVisita']][$det['idProducto']] = $det;
+
+				$array['productos'][$det['idCliente']][$det['idProducto']]['idProducto'] = $det['idProducto'];
+				$array['productos'][$det['idCliente']][$det['idProducto']]['nombre'] = $det['elemento'];
+
+				$array['detalle_new'][$det['fecha']][$det['idCliente']][$det['idProducto']] = $det;
+
+
+				
+			}
+
+			$rs_lista=$this->model->obtener_lista_elementos_visibilidad($input);
+			foreach($rs_lista as $list){
+				$array['lista'][$list['idVisita']][$list['idProducto']]='1';
+			}
+
+			foreach($rs_visitas as $v)
+			{
+				$array['fechas'][$v['fecha']]['fecha'] = $v['fecha'];
+				$array['visitasSeg'][$v['idVisita']]['visita'] = $v['idVisita'];
+				
+				if($segmentacion['tipoSegmentacion'] == 'tradicional')
+				{
+						$array['segmentadores'][$v['idDistribuidoraSucursal']]['id'] = $v['idDistribuidoraSucursal'];
+						$array['segmentadores'][$v['idDistribuidoraSucursal']]['nombre'] = $v['distribuidora'].' - '.$v['ciudadDistribuidoraSuc'];
+						
+						$array['clientes'][$v['idDistribuidoraSucursal']][$v['idCliente']]['idCliente'] = $v['idCliente'];
+						$array['clientes'][$v['idDistribuidoraSucursal']][$v['idCliente']]['razonSocial'] = $v['razonSocial'];
+
+						$array['visitasSeg'][$v['idVisita']]['seg'] = $v['idDistribuidoraSucursal'];
+
+				}else if($segmentacion['tipoSegmentacion'] == 'moderno')
+				{
+						$array['segmentadores'][$v['idCadena']]['id'] = $v['idCadena'];
+						$array['segmentadores'][$v['idCadena']]['nombre'] = $v['cadena'];
+
+						$array['clientes'][$v['idCadena']][$v['idCliente']]['idCliente'] = $v['idCliente'];
+						$array['clientes'][$v['idCadena']][$v['idCliente']]['razonSocial'] = $v['razonSocial'];
+
+						$array['visitasSeg'][$v['idVisita']]['seg'] = $v['idCadena'];
+						
+
+				}else if($segmentacion['tipoSegmentacion'] == 'mayorista')
+				{
+						$array['segmentadores'][$v['idPlaza']]['id'] = $v['idPlaza'];
+						$array['segmentadores'][$v['idPlaza']]['nombre'] = $v['plaza'];
+
+						$array['clientes'][$v['idPlaza']][$v['idCliente']]['idCliente'] = $v['idCliente'];
+						$array['clientes'][$v['idPlaza']][$v['idCliente']]['razonSocial'] = $v['razonSocial'];
+						$array['clientes'][$v['idPlaza']][$v['idCliente']][$v['fecha']] = $v['idVisita'];
+
+						$array['visitasSeg'][$v['idVisita']]['seg'] = $v['idPlaza'];
+
+				}
+				
+			}
+			$fotos = [];
+			$presencia = [];
+			foreach ($array['visitasSeg'] as $idSeg => $seg) {
+				if(!empty($array['detalle'][$seg['visita']])){
+					foreach($array['detalle'][$seg['visita']] as $idProd => $prod ){
+						if(!empty($prod['foto']))
+						{
+							$fotos[$prod['fecha'].$seg['seg']][] = [
+								'foto' => $prod['foto'],
+								'usuario' => !empty($prod['nombreUsuario']) ? $prod['nombreUsuario'] :" ",
+								'cliente' => !empty($prod['razonSocial']) ? $prod['razonSocial'] :" ",
+								'motivo' => !empty($prod['motivo']) ? strtoupper($prod['motivo']) :" ",
+								'producto' => !empty($prod['elemento']) ? strtoupper($prod['elemento']) :" ",
+							]; 
+						}
+
+						if(!empty($prod['presencia'])){
+							$presencia[$prod['fecha'].$seg['seg']][] = 1;
+						}
+
+					}
+				}
+			}
+			$array['fotos'] = $fotos;
+			$array['presencia'] = $presencia;
+			$array['segmentacion'] = $segmentacion;
+			$html = $this->load->view("modulos/gestionGerencial/checkProducto/detalle_checklist_new",$array,true);
+			$result['data']['grupoCanal'] = $segmentacion['grupoCanal'];
+		} else {
+			$html = getMensajeGestion('noRegistros');
+		}
+		$result['result'] = 1;
+		$result['data']['views']['contentNewDetallado']['html'] = $html;
+		
+		
+		echo json_encode($result);
+	}
+	public function filtrarNewTableExcel()
+	{
+		$result = $this->result;
+		$data = json_decode($this->input->post('data'));
+
+		$fechas = explode(' - ', $data->{'txt-fechas'});
+
+		$input = array();
+		$input['fecIni'] = $fechas[0];
+		$input['fecFin'] = $fechas[1];
+
+		$input['proyecto_filtro'] = $data->{'proyecto_filtro'};
+		$input['grupoCanal_filtro'] = $data->{'grupoCanal_filtro'};
+		$input['canal_filtro'] = $data->{'canal_filtro'};
+		$input['subcanal'] = $data->{'subcanal_filtro'};
+		if(isset( $data->{'idElemento'})){
+			$elementos = $data->{'idElemento'};
+			if(is_array($elementos)){
+				$input['idElemento'] = implode(",",$elementos);
+			}else{
+				$input['idElemento'] = $elementos;
+			}
+		}
+
+		$input['distribuidora_filtro'] = empty($data->{'distribuidora_filtro'}) ? '' : $data->{'distribuidora_filtro'};
+		$input['distribuidoraSucursal_filtro'] = !empty($data->{'distribuidoraSucursal_filtro'}) ?$data->{'distribuidoraSucursal_filtro'} : '';
+		$input['zona_filtro'] = empty($data->{'zona_filtro'}) ? '' : $data->{'zona_filtro'};
+		$input['plaza_filtro'] = empty($data->{'plaza_filtro'}) ? '' : $data->{'plaza_filtro'};
+		$input['cadena_filtro'] = empty($data->{'cadena_filtro'}) ? '' : $data->{'cadena_filtro'};
+		$input['banner_filtro'] = empty($data->{'banner_filtro'}) ? '' : $data->{'banner_filtro'};
+		$input['tipoUsuario_filtro'] = $data->{'tipoUsuario_filtro'};
+		$input['usuario_filtro'] = !empty($data->{'usuario_filtro'}) ? (is_array($data->{'usuario_filtro'}) ? implode(",",$data->{'usuario_filtro'}) : $data->{'usuario_filtro'}) : '' ;
+		
+		$input['flagPropios'] = !empty($data->{'ck-propios'}) ? true : '';
+		$input['flagCompetencia'] = !empty($data->{'ck-competencia'}) ? true : '';
+
+		$rs_visitas = $this->model->obtener_checklist_excel($input);
+
+		$html = '';
+		$segmentacion = getSegmentacion($input);
+		$result['data']['grupoCanal'] = $segmentacion['grupoCanal'];
+		if(!empty($rs_visitas)){
+			$array=array();$new_data = [];$i = 1;
+
+			foreach ($rs_visitas as $kr => $row) {
+				$new_data[$kr] = [
+					//Columnas
+					$i++, 
+					!empty($row['fecha']) ? "<p class='text-center a'>{$row['fecha']}</p>" : '-',
+					!empty($row['tipoUsuario']) ? "<p class='text-left'>{$row['tipoUsuario']}</p>" : '-', 
+					!empty($row['nombreUsuario']) ? "<p class='text-left'> {$row['nombreUsuario']} </p>" : '-', 
+					!empty($row['grupoCanal']) ? "<p class='text-left'>{$row['grupoCanal']}</p>" : '-', 
+					!empty($row['canal']) ? "<p class='text-left'>{$row['canal']}</p>" : '-', 
+					!empty($row['subCanal']) ? "<p class='text-left'>{$row['subCanal']}</p>" : '-',
+				];
+				foreach ($segmentacion['headers'] as $k => $v) { 
+					array_push($new_data[$kr],
+						!empty($row[($v['columna'])]) ? "<p class='text-left'>{$row[($v['columna'])]}</p>" : '-'
+					);
+				} 
+				array_push($new_data[$kr],
+				!empty($row['ciudad']) ? "<p class='text-left'>{$row['ciudad']}</p>" : '-', 
+				!empty($row['provincia']) ? "<p class='text-left'>{$row['provincia']}</p>" : '-', 
+				!empty($row['distrito']) ? "<p class='text-left'>{$row['distrito']}</p>" : '-', 
+				!empty($row['cod_visual']) ? "<p class='text-center'>{$row['cod_visual']}</p>" : '-', 
+				!empty($row['codCliente']) ? "<p class='text-center'>{$row['codCliente']}</p>" : '-', 
+				!empty($row['codDist']) ? "<p class='text-center'>{$row['codDist']}</p>" : '-', 
+				!empty($row['razonSocial']) ? "<p class='text-left'>{$row['razonSocial']}</p>" : '-'
+				);
+
+
+				$fotoImg = "";
+				if(!empty($row['foto'])){
+					$fotoImg = rutafotoModulo(['foto'=>$row['foto'],'modulo'=>'checklist','icono'=>'fal fa-image-polaroid fa-lg btn-outline-primary btn border-0']); 
+				}
+
+				array_push($new_data[$kr],
+				!empty($row['idProducto']) ? "<p class='text-center'>{$row['idProducto']}</p>" : '-', 
+				!empty($row['elemento']) ? "<p class='text-left'>{$row['elemento']}</p>" : '-', 
+				(isset($row['presencia']) ? ($row['presencia'] == 1) ? "SI": "NO" : '-') ,
+				!empty($row['motivo']) ? "<p class='text-left'>{$row['motivo']}</p>" : '-', 
+				!empty($fotoImg) ? $fotoImg : '-'
+				);
+
+			}
+			
+				
+			$array['segmentacion'] = $segmentacion;
+			$html = $this->load->view("modulos/gestionGerencial/checkProducto/detalle_checklist_new_excel",$array,true);
+			$result['data']['grupoCanal'] = $segmentacion['grupoCanal'];
+			$result['data']['configTable'] =  [
+				'data' => $new_data, 
+			];
+		} else {
+			$html = getMensajeGestion('noRegistros');
+		}
+		$result['result'] = 1;
+		$result['data']['views']['contentDetalladoExcel']['datatable'] = 'tb-newdetalladoExcel';
+		$result['data']['views']['contentDetalladoExcel']['html'] = $html;
+		
+		echo json_encode($result);
+	}
+
+	public function generarExcel()
+	{
+		require_once('../vendor/autoload.php');
+
+		$result = $this->result;
+		$data = json_decode($this->input->post('data'));
+
+		$fechas = explode(' - ', $data->{'txt-fechas'});
+
+		$input = array();
+		$input['fecIni'] = $fechas[0];
+		$input['fecFin'] = $fechas[1];
+
+		$input['proyecto_filtro'] = $data->{'proyecto_filtro'};
+		$input['grupoCanal_filtro'] = $data->{'grupoCanal_filtro'};
+		$input['canal_filtro'] = $data->{'canal_filtro'};
+		$input['subcanal'] = $data->{'subcanal_filtro'};
+		if(isset( $data->{'idElemento'})){
+			$elementos = $data->{'idElemento'};
+			if(is_array($elementos)){
+				$input['idElemento'] = implode(",",$elementos);
+			}else{
+				$input['idElemento'] = $elementos;
+			}
+		}
+
+		$input['distribuidora_filtro'] = empty($data->{'distribuidora_filtro'}) ? '' : $data->{'distribuidora_filtro'};
+		$input['distribuidoraSucursal_filtro'] = !empty($data->{'distribuidoraSucursal_filtro'}) ?$data->{'distribuidoraSucursal_filtro'} : '';
+		$input['zona_filtro'] = empty($data->{'zona_filtro'}) ? '' : $data->{'zona_filtro'};
+		$input['plaza_filtro'] = empty($data->{'plaza_filtro'}) ? '' : $data->{'plaza_filtro'};
+		$input['cadena_filtro'] = empty($data->{'cadena_filtro'}) ? '' : $data->{'cadena_filtro'};
+		$input['banner_filtro'] = empty($data->{'banner_filtro'}) ? '' : $data->{'banner_filtro'};
+		$input['tipoUsuario_filtro'] = $data->{'tipoUsuario_filtro'};
+		$input['usuario_filtro'] = !empty($data->{'usuario_filtro'}) ? (is_array($data->{'usuario_filtro'}) ? implode(",",$data->{'usuario_filtro'}) : $data->{'usuario_filtro'}) : '' ;
+		
+		$input['flagPropios'] = !empty($data->{'ck-propios'}) ? true : '';
+		$input['flagCompetencia'] = !empty($data->{'ck-competencia'}) ? true : '';
+
+		$rs_visitas = $this->model->obtener_checklist_excel($input);
+
+		$segmentacion = getSegmentacion($input);
+		$result['data']['grupoCanal'] = $segmentacion['grupoCanal'];
+
+		$hideCol = $this->m_control->getHideColProyecto();
+
+		$spreadsheet = new PhpOffice\PhpSpreadsheet\Spreadsheet;
+		$sheet = $spreadsheet->getActiveSheet();
+		$colDinamicas = ["G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"];
+
+		//Cabeceras 
+		if(!empty($hideCol['fecha'])){$sheet->getColumnDimension("A")->setWidth(0);};$sheet->setCellValue('A1', 'FECHA');
+		if(!empty($hideCol['tipoUsuario'])){$sheet->getColumnDimension("B")->setWidth(0);};$sheet->setCellValue('B1', 'PERFIL USUARIO'); 
+		if(!empty($hideCol['nombreUsuario'])){$sheet->getColumnDimension("C")->setWidth(0);};$sheet->setCellValue('C1', 'NOMBRE USUARIO'); 
+		if(!empty($hideCol['grupoCanal'])){$sheet->getColumnDimension("D")->setWidth(0);};$sheet->setCellValue('D1', 'GRUPO CANAL'); 
+		if(!empty($hideCol['canal'])){$sheet->getColumnDimension("E")->setWidth(0);};$sheet->setCellValue('E1', 'CANAL'); 
+		if(!empty($hideCol['subcanal'])){$sheet->getColumnDimension("F")->setWidth(0);};$sheet->setCellValue('F1', 'SUBCANAL'); 
+
+		foreach ($segmentacion['headers'] as $k => $v) { 
+			$sheet->setCellValue("{$colDinamicas[$k]}1", strtoupper($v['header'])); 
+			if(!empty($hideCol[$v['columna']])){$sheet->getColumnDimension("{$colDinamicas[$k]}")->setWidth(0);}
+			
+			$lastCol = ($k+1);
+        }
+		
+		if(!empty($hideCol['ciudad'])){$sheet->getColumnDimension("{$colDinamicas[$lastCol]}")->setWidth(0);};$sheet->setCellValue("{$colDinamicas[$lastCol]}1", 'DEPARTAMENTO'); $lastCol += 1; 
+		if(!empty($hideCol['provincia'])){$sheet->getColumnDimension("{$colDinamicas[$lastCol]}")->setWidth(0);};$sheet->setCellValue("{$colDinamicas[$lastCol]}1", 'PROVINCIA'); $lastCol += 1;
+		if(!empty($hideCol['distrito'])){$sheet->getColumnDimension("{$colDinamicas[$lastCol]}")->setWidth(0);};$sheet->setCellValue("{$colDinamicas[$lastCol]}1", 'DISTRITO'); $lastCol += 1;
+		if(!empty($hideCol['cod_visual'])){$sheet->getColumnDimension("{$colDinamicas[$lastCol]}")->setWidth(0);};$sheet->setCellValue("{$colDinamicas[$lastCol]}1", 'COD VISUAL'); $lastCol += 1;
+		if(!empty($hideCol['codCliente'])){$sheet->getColumnDimension("{$colDinamicas[$lastCol]}")->setWidth(0);};$sheet->setCellValue("{$colDinamicas[$lastCol]}1", "COD {$this->sessNomCuentaCorto}"); $lastCol += 1;
+		if(!empty($hideCol['codDist'])){$sheet->getColumnDimension("{$colDinamicas[$lastCol]}")->setWidth(0);};$sheet->setCellValue("{$colDinamicas[$lastCol]}1", "COD PDV"); $lastCol += 1;
+		if(!empty($hideCol['razonSocial'])){$sheet->getColumnDimension("{$colDinamicas[$lastCol]}")->setWidth(0);};$sheet->setCellValue("{$colDinamicas[$lastCol]}1", "PDV"); $lastCol += 1;
+		if(!empty($hideCol['idProducto'])){$sheet->getColumnDimension("{$colDinamicas[$lastCol]}")->setWidth(0);};$sheet->setCellValue("{$colDinamicas[$lastCol]}1", "COD PROD {$this->sessNomCuentaCorto}"); $lastCol += 1;
+		if(!empty($hideCol['elemento'])){$sheet->getColumnDimension("{$colDinamicas[$lastCol]}")->setWidth(0);};$sheet->setCellValue("{$colDinamicas[$lastCol]}1", "PRODUCTO"); $lastCol += 1;
+		if(!empty($hideCol['presencia'])){$sheet->getColumnDimension("{$colDinamicas[$lastCol]}")->setWidth(0);};$sheet->setCellValue("{$colDinamicas[$lastCol]}1", "PRESENCIA"); $lastCol += 1;
+		if(!empty($hideCol['motivo'])){$sheet->getColumnDimension("{$colDinamicas[$lastCol]}")->setWidth(0);};$sheet->setCellValue("{$colDinamicas[$lastCol]}1", "MOTIVO"); $lastCol += 1;
+
+		//Cuerpo del excel
+		foreach ($rs_visitas as $k => $row) {
+			$n_row = ($k+2);
+			$sheet->setCellValue("A{$n_row}", !empty($row['fecha']) ?  date_change_format($row['fecha'])  : '-' );
+			$sheet->setCellValue("B{$n_row}", !empty($row['tipoUsuario']) ? $row['tipoUsuario'] : '-' );
+			$sheet->setCellValue("C{$n_row}", !empty($row['nombreUsuario']) ? $row['nombreUsuario'] : '-');
+			$sheet->setCellValue("D{$n_row}", !empty($row['grupoCanal']) ? $row['grupoCanal'] : '-');
+			$sheet->setCellValue("E{$n_row}", !empty($row['canal']) ? $row['canal'] : '-' );
+			$sheet->setCellValue("F{$n_row}", !empty($row['subCanal']) ? $row['subCanal'] : '-');
+
+			foreach ($segmentacion['headers'] as $h => $v) { 
+				$sheet->setCellValue("{$colDinamicas[$h]}{$n_row}", !empty($row[($v['columna'])]) ? $row[($v['columna'])] : '-'); 
+				$lastCol = ($h+1);
+			}
+			
+			$sheet->setCellValue("{$colDinamicas[$lastCol]}{$n_row}", !empty($row['ciudad']) ? $row['ciudad'] : '-' ); $lastCol += 1; 
+			$sheet->setCellValue("{$colDinamicas[$lastCol]}{$n_row}", !empty($row['provincia']) ? $row['provincia'] : '-' ); $lastCol += 1; 
+			$sheet->setCellValue("{$colDinamicas[$lastCol]}{$n_row}", !empty($row['distrito']) ? $row['distrito'] : '-' ); $lastCol += 1; 
+			$sheet->setCellValue("{$colDinamicas[$lastCol]}{$n_row}", !empty($row['idCliente']) ? $row['idCliente'] : '-' ); $lastCol += 1; 
+			$sheet->setCellValue("{$colDinamicas[$lastCol]}{$n_row}", !empty($row['codCliente']) ? $row['codCliente'] : '-' ); $lastCol += 1; 
+			$sheet->setCellValue("{$colDinamicas[$lastCol]}{$n_row}", !empty($row['codDist']) ? $row['codDist'] : '-' ); $lastCol += 1; 
+			$sheet->setCellValue("{$colDinamicas[$lastCol]}{$n_row}", !empty($row['razonSocial']) ? $row['razonSocial'] : '-' ); $lastCol += 1; 
+			$sheet->setCellValue("{$colDinamicas[$lastCol]}{$n_row}", !empty($row['ean']) ? $row['ean'] : '-' ); $lastCol += 1; 
+			$sheet->setCellValue("{$colDinamicas[$lastCol]}{$n_row}", !empty($row['elemento']) ? $row['elemento'] : '-' ); $lastCol += 1; 
+			$sheet->setCellValue("{$colDinamicas[$lastCol]}{$n_row}", !empty($row['presencia']) ? $row['presencia'] : '-' ); $lastCol += 1; 
+			$sheet->setCellValue("{$colDinamicas[$lastCol]}{$n_row}", !empty($row['motivo']) ? $row['motivo'] : '-' ); $lastCol += 1; 
+		
+		}
+		
+
+		$writer = new PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+		header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+		header('Content-Disposition: attachment;filename="CheckProductos.xlsx"');
+		header('Cache-Control: max-age=0');
+		
+		$writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
+		$writer->save('php://output');
+			
 	}
 
 }

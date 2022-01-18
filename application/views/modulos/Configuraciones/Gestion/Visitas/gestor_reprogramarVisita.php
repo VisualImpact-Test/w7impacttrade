@@ -129,4 +129,7 @@
 		dropdownParent: $("#frm-gestorReprogramarRutaVisita"),
 		width: '100%'
 	});
+
+	Visitas.usuariosTipo=<?=json_encode($listaTiposUsuario)?>;	 
 </script>
+

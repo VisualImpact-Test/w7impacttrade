@@ -22,6 +22,7 @@ class M_Login extends MY_Model{
 			SELECT DISTINCT
 				u.idUsuario
 				, e.idEmpleado
+				, u.flag_actualizarListas
 				, u.apePaterno + ' ' + ISNULL(u.apeMaterno, '') + ' ' + u.nombres apeNom
 				, u.apePaterno + ', ' + u.nombres apeNom_corto
 				, u.apePaterno

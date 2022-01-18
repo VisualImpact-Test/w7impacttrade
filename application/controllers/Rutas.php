@@ -211,6 +211,7 @@ class Rutas extends MY_Controller{
 						!empty($latiFin) ? $latiFin : '-',
 						!empty($longFin) ? $longFin : '-',
 						!empty($row['minutos']) ? $row['minutos'] : '-',
+						!empty($row['incidencia_hora']) ? "<p class='text-center' >{$row['incidencia_hora']} </p>" : '-',
 						$incidencia,
 						"<p class='text-center {$condicion_f}'>{$condicion_}</p>"
 						);

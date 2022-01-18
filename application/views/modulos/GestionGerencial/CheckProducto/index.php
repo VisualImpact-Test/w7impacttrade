@@ -8,6 +8,7 @@
 		display: grid !important;
 	}
 </style>
+
 <div class="row mt-4">
 	<div class="col-lg-4 d-flex justify-content-center align-items-center">
 		<h3 class="card-title mb-3">
@@ -21,7 +22,7 @@
 				<ul class="nav nav-tabs nav-justified">
 					<? foreach ($tabs as $k => $v) { ?>
 						<li class="nav-item btnReporte" id="tipoReporte" name="tipoReporte">
-							<a data-toggle="tab" href="#<?= $v['contenedor'] ?>" class="<?= ($v['orden'] == 1) ? 'active' : '' ?> nav-link" data-value="1" data-url="<?= $v['url'] ?>" data-contentdetalle="<?= $v['contenedor'] ?>"><?= $v['nombre'] ?></a>
+							<a data-toggle="tab" href="#<?= $v['contenedor'] ?>" class="<?= ($k == 0) ? 'active' : '' ?> nav-link" data-value="1" data-url="<?= $v['url'] ?>" data-contentdetalle="<?= $v['contenedor'] ?>"><?= $v['nombre'] ?></a>
 						</li>
 					<? } ?>
 				</ul>
@@ -29,7 +30,7 @@
 		</div>
 	</div>
 </div>
-<? if (empty($tabs)) { ?> <span> <?=getMensajeGestion('oops')?></span><? } ?>
+
 
 <div class="customizer border-left-blue-grey border-left-lighten-4 d-none d-xl-block ">
 	<a href="javascript:;" class="customizer-close"><i class="fal fa-times"></i></a>
@@ -50,6 +51,9 @@
 				</button>
 				<button type="button" class="btn btn-outline-trade-visual border-0 chk_quiebres" data-url="filtrar" id="btn-quiebres-pdf" title="Exportar PDF">
 					<i class="fa fa-file-pdf"></i> <span class="txt_filtro"></span>
+				</button>
+				<button type="button" class="btn btn-outline-trade-visual border-0 " id="btn-detallado-excel" title="Exportar Excel">
+					<i class="fa fa-file-excel"></i> <span class="txt_filtro"></span>
 				</button>
 			</div>
 			<hr>
@@ -118,7 +122,7 @@
 							<div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip chk_quiebres" style="display: none;">
 								<label for="motivo"> Motivo: </label> <br>
 								<select class="form-control ui my_select2Full" id="motivo" name="motivo" multiple>
-									<?=htmlSelectOptionArray2(['query' => $motivos, 'id' => 'idMotivo', 'value' => 'nombre', 'title' => '-- Seleccione --'])?>
+									<?= htmlSelectOptionArray2(['query' => $motivos, 'id' => 'idMotivo', 'value' => 'nombre', 'title' => '-- Seleccione --']) ?>
 								</select>
 							</div>
 							<div class="mb-2 mr-sm-2 position-relative form-group chk_fifo" style="display: none;">
@@ -191,144 +195,144 @@
 	</div>
 </div>
 
-<?if($this->sessIdProyecto == "14"):?>
-<div class="customizer customizerGraphics border-left-blue-grey border-left-lighten-4 d-none d-xl-block ">
-	<a href="javascript:;" class="customizer-close"><i class="fal fa-times"></i></a>
-	<a href="javascript:;" class="customizer-toggle box-shadow-3 bg-trade-visual-grad-left-gray text-white" style="top:150px;">
-		<i class="fal fa-analytics fa-lg "></i>
-	</a>
-	<div class="customizer-content p-2 ps-container ps-theme-dark" data-ps-id="aca1f25c-4ed9-a04b-d154-95a5d6494748" style="zoom: 65%;">
-		<div class="card-header" style="margin-bottom: 14px;">
-			<h3>Resumen Check Productos</h3>
-			<div class="mb-2 mr-sm-2 position-relative form-group px-2">
-				<div class="field">
-					<div class="ui my_calendar">
-						<div class="ui input left icon" style="width:100%">
-							<i class="calendar icon"></i>
-							<input type="text" name="txt-fechas-resumen" id="txt-fechas-resumen" placeholder="Date" value="<?= date("d/m/Y") ?>" class="form-control">
+<? if ($this->sessIdProyecto == "14") : ?>
+	<div class="customizer customizerGraphics border-left-blue-grey border-left-lighten-4 d-none d-xl-block ">
+		<a href="javascript:;" class="customizer-close"><i class="fal fa-times"></i></a>
+		<a href="javascript:;" class="customizer-toggle box-shadow-3 bg-trade-visual-grad-left-gray text-white" style="top:150px;">
+			<i class="fal fa-analytics fa-lg "></i>
+		</a>
+		<div class="customizer-content p-2 ps-container ps-theme-dark" data-ps-id="aca1f25c-4ed9-a04b-d154-95a5d6494748" style="zoom: 65%;">
+			<div class="card-header" style="margin-bottom: 14px;">
+				<h3>Resumen Check Productos</h3>
+				<div class="mb-2 mr-sm-2 position-relative form-group px-2">
+					<div class="field">
+						<div class="ui my_calendar">
+							<div class="ui input left icon" style="width:100%">
+								<i class="calendar icon"></i>
+								<input type="text" name="txt-fechas-resumen" id="txt-fechas-resumen" placeholder="Date" value="<?= date("d/m/Y") ?>" class="form-control">
+							</div>
 						</div>
 					</div>
 				</div>
+				<div class="mb-2 mr-sm-2 position-relative form-group  dv-tipoReporte-resumen">
+					<select name="cb-tipoReporte-resumen" id="cb-tipoReporte-resumen" class="w-100">
+						<option value="2">
+							<h5 class="card-title">
+								<i class="fas fa-store-alt fa-lg"></i> ACUMULADO
+							</h5>
+						</option>
+						<option value="1">
+							<h5 class="card-title">
+								<i class="fas fa-store-alt fa-lg"></i> DIARIO
+							</h5>
+						</option>
+					</select>
+				</div>
+				<div class="mb-2 mr-sm-2 position-relative form-group ">
+					<button type="button" class="btn btn-outline-trade-visual border-0" data-url="filtrar" id="btn-filtrar-resumen" title="Filtrar">
+						<i class="fa fa-search"></i>
+					</button>
+				</div>
 			</div>
-			<div class="mb-2 mr-sm-2 position-relative form-group  dv-tipoReporte-resumen">
-				<select name="cb-tipoReporte-resumen" id="cb-tipoReporte-resumen" class="w-100">
-					<option value="2">
-						<h5 class="card-title">
-							<i class="fas fa-store-alt fa-lg"></i> ACUMULADO
-						</h5>
-					</option>
-					<option value="1">
-						<h5 class="card-title">
-							<i class="fas fa-store-alt fa-lg"></i> DIARIO
-						</h5>
-					</option>
-				</select>
-			</div>
-			<div class="mb-2 mr-sm-2 position-relative form-group ">
-				<button type="button" class="btn btn-outline-trade-visual border-0" data-url="filtrar" id="btn-filtrar-resumen" title="Filtrar">
-					<i class="fa fa-search"></i>
-				</button>
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-lg-9 col-md-12 d-flex">
-				<div class="main-card mb-3 card main-cobertura col-md-12 px-0">
-					<div class="card-group">
-						<div class="card">
-							<div class="text-center card-header d-grid bg-trade-visual-grad-right text-white" style="height: 30px !important;padding:0px !important">
-								<h5 class="card-title">
-									<i class="fas fa-cog fa-lg"></i> OPCIONES
-								</h5>
-							</div>
-							<div class="text-center card-footer botonesTable" style="display: inherit;">
+			<div class="row">
+				<div class="col-lg-9 col-md-12 d-flex">
+					<div class="main-card mb-3 card main-cobertura col-md-12 px-0">
+						<div class="card-group">
+							<div class="card">
+								<div class="text-center card-header d-grid bg-trade-visual-grad-right text-white" style="height: 30px !important;padding:0px !important">
+									<h5 class="card-title">
+										<i class="fas fa-cog fa-lg"></i> OPCIONES
+									</h5>
+								</div>
+								<div class="text-center card-footer botonesTable" style="display: inherit;">
 
+								</div>
+							</div>
+							<div class="card customBoxShadow ">
+								<div class="text-center card-header d-grid bg-trade-visual-grad-center text-white" style="height: 30px !important;padding:0px !important">
+									<h5 class="card-title">
+										<i class="fas fa-store-alt fa-lg"></i> TIENDAS VISITADAS
+									</h5>
+								</div>
+								<div class="text-center card-footer txt-tiendasVisitadas">
+									<h5 class="card-title">
+										0
+									</h5>
+								</div>
+							</div>
+							<div class="card customBoxShadow dv-tipoReporte ">
+								<div class="text-center card-header d-grid bg-trade-visual-grad-left text-white" style="height: 30px !important;padding:0px !important">
+									<h5 class="card-title">
+										<i class="far fa-filter"></i> TIPO REPORTE
+									</h5>
+								</div>
+								<div class="text-center card-footer">
+									<select name="cb-tipoResumen" id="cb-tipoResumen">
+										<option value="presencia">
+											<h5 class="card-title">
+												<i class="fas fa-store-alt fa-lg"></i> PRESENCIA
+											</h5>
+										</option>
+										<option value="quiebres">
+											<h5 class="card-title">
+												<i class="fas fa-store-alt fa-lg"></i> QUIEBRES
+											</h5>
+										</option>
+									</select>
+								</div>
 							</div>
 						</div>
-						<div class="card customBoxShadow ">
-							<div class="text-center card-header d-grid bg-trade-visual-grad-center text-white" style="height: 30px !important;padding:0px !important">
-								<h5 class="card-title">
-									<i class="fas fa-store-alt fa-lg"></i> TIENDAS VISITADAS
-								</h5>
-							</div>
-							<div class="text-center card-footer txt-tiendasVisitadas">
-								<h5 class="card-title">
-									0
-								</h5>
-							</div>
-						</div>
-						<div class="card customBoxShadow dv-tipoReporte ">
-							<div class="text-center card-header d-grid bg-trade-visual-grad-left text-white" style="height: 30px !important;padding:0px !important">
-								<h5 class="card-title">
-									<i class="far fa-filter"></i> TIPO REPORTE
-								</h5>
-							</div>
-							<div class="text-center card-footer">
-								<select name="cb-tipoResumen" id="cb-tipoResumen">
-									<option value="presencia">
-										<h5 class="card-title">
-											<i class="fas fa-store-alt fa-lg"></i> PRESENCIA
-										</h5>
-									</option>
-									<option value="quiebres">
-										<h5 class="card-title">
-											<i class="fas fa-store-alt fa-lg"></i> QUIEBRES
-										</h5>
-									</option>
-								</select>
-							</div>
+						<div class="card-body centrarContenidoDiv vista-resumen-detallado" style="width: 100%;padding:0px !important">
+							<i class="fas fa-spinner-third fa-spin icon-load"></i>
 						</div>
 					</div>
-					<div class="card-body centrarContenidoDiv vista-resumen-detallado" style="width: 100%;padding:0px !important">
-						<i class="fas fa-spinner-third fa-spin icon-load"></i>
+				</div>
+				<div class="col-lg-3 col-md-12 d-flex">
+					<div class="main-card mb-3 card main-efectividad col-md-12 px-0">
+						<div class="card-header bg-trade-visual-grad-left text-white" style="width: 100%;height:30px !important">
+							<h5 class="card-title">
+								<i class="fas fa-tasks fa-lg"></i> TOP 5 CADENAS CON PRESENCIA<sup><?= $this->sessNomCuentaCorto ?></sup>
+							</h5>
+						</div>
+						<div class="card-body centrarContenidoDiv top-cadenas-presencia" style="width: 100%;">
+							<i class="fas fa-spinner-third fa-spin icon-load"></i>
+						</div>
 					</div>
 				</div>
-			</div>
-			<div class="col-lg-3 col-md-12 d-flex">
-				<div class="main-card mb-3 card main-efectividad col-md-12 px-0">
-					<div class="card-header bg-trade-visual-grad-left text-white" style="width: 100%;height:30px !important">
-						<h5 class="card-title">
-							<i class="fas fa-tasks fa-lg"></i> TOP 5 CADENAS CON PRESENCIA<sup><?= $this->sessNomCuentaCorto ?></sup>
-						</h5>
-					</div>
-					<div class="card-body centrarContenidoDiv top-cadenas-presencia" style="width: 100%;">
-						<i class="fas fa-spinner-third fa-spin icon-load"></i>
-					</div>
-				</div>
-			</div>
-			<div class="col-lg-6 col-md-12 d-flex">
-				<div class="main-card mb-3 card main-cobertura col-md-12 px-0">
-					<div class="card-header bg-trade-visual-grad-right text-white" style="width: 100%;height:30px !important">
-						<h5 class="card-title">
-							<i class="fas fa-store-alt fa-lg"></i> TOP 10 PRODUCTOS CON PRESENCIA
-						</h5>
-					</div>
-					<div class="card-body centrarContenidoDiv top-productos-mas-presencia" style="width: 100%;">
-						<i class="fas fa-spinner-third fa-spin icon-load"></i>
+				<div class="col-lg-6 col-md-12 d-flex">
+					<div class="main-card mb-3 card main-cobertura col-md-12 px-0">
+						<div class="card-header bg-trade-visual-grad-right text-white" style="width: 100%;height:30px !important">
+							<h5 class="card-title">
+								<i class="fas fa-store-alt fa-lg"></i> TOP 10 PRODUCTOS CON PRESENCIA
+							</h5>
+						</div>
+						<div class="card-body centrarContenidoDiv top-productos-mas-presencia" style="width: 100%;">
+							<i class="fas fa-spinner-third fa-spin icon-load"></i>
+						</div>
 					</div>
 				</div>
-			</div>
-			<div class="col-lg-6 col-md-12 d-flex">
-				<div class="main-card mb-3 card main-efectividad col-md-12 px-0">
-					<div class="card-header bg-trade-visual-grad-left text-white" style="width: 100%;height:30px !important">
-						<h5 class="card-title">
-							<i class="fas fa-tasks fa-lg"></i> TOP 10 PRODUCTOS CON QUIEBRE
-						</h5>
-					</div>
-					<div class="card-body centrarContenidoDiv top-productos-menos-presencia" style="width: 100%;">
-						<i class="fas fa-spinner-third fa-spin icon-load"></i>
+				<div class="col-lg-6 col-md-12 d-flex">
+					<div class="main-card mb-3 card main-efectividad col-md-12 px-0">
+						<div class="card-header bg-trade-visual-grad-left text-white" style="width: 100%;height:30px !important">
+							<h5 class="card-title">
+								<i class="fas fa-tasks fa-lg"></i> TOP 10 PRODUCTOS CON QUIEBRE
+							</h5>
+						</div>
+						<div class="card-body centrarContenidoDiv top-productos-menos-presencia" style="width: 100%;">
+							<i class="fas fa-spinner-third fa-spin icon-load"></i>
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-</div>
-<?endif;?>
+<? endif; ?>
 
 <div class="main-card mb-3 card ">
 	<div class="card-body p-0">
 		<div class="tab-content" id="content-auditoria">
 			<? foreach ($tabs as $k => $v) { ?>
-				<div class="tab-pane fade <?= ($v['orden'] == 1) ? 'show active' : '' ?>" id="<?= $v['contenedor'] ?>" role="tabpanel">
+				<div class="tab-pane fade <?= ($k == 0) ? 'show active' : '' ?>" id="<?= $v['contenedor'] ?>" role="tabpanel">
 					<?= getMensajeGestion('noResultados') ?>
 				</div>
 			<? } ?>

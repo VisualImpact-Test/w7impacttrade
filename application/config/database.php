@@ -73,16 +73,17 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 $active_group = 'default';
 $query_builder = TRUE;
 
+
 // require_once($_SERVER["DOCUMENT_ROOT"].'/env.php');
 
 $db['default'] = array(
 	'dsn'	=> '',
-	'hostname' => '192.168.1.254',
-	'username' => 'administrador.ti',
-	'password' => 'Wn3*6OrIEg5b',
-	// 'hostname' => '192.168.50.47',
-	// 'username' => 'pruebas.desarrollo',
-	// 'password' => '%&Prueb4asV1',
+	// 'hostname' => '192.168.1.254',
+	// 'username' => 'administrador.ti',
+	// 'password' => 'Wn3*6OrIEg5b',
+	'hostname' => '192.168.50.47',
+	'username' => 'pruebas.desarrollo',
+	'password' => '%&Prueb4asV1',
 	'database' => 'impactTrade_bd',
 	// 'hostname' => '192.168.1.35',
 	// 'username' => 'savisual',

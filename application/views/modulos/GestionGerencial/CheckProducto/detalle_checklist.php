@@ -146,6 +146,7 @@
 												<!--td class="text-center" <?//= ($elemento_pertenece) ? 'style="background: #b2d6f5;"' : '' ?>><?//= (!empty($row_d['stock']) ? $row_d['stock'] : '-') ?></td-->
 												<td class="text-center <?=$color?>" <?= ($elemento_pertenece) ? 'style="background: #b2d6f5;"' : '' ?>><?= (!empty($row_d['motivo']) ? $row_d['motivo'] : '-') ?></td>
 												<?
+												$fotoImg = "";
 												if (!empty($row_d['foto'])) {
 													$fotoImg = rutafotoModulo(['foto'=>$row_d['foto'],'modulo'=>'checklist','icono'=>'fal fa-image-polaroid fa-lg btn-outline-primary btn border-0']); 
 												}

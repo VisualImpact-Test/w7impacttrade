@@ -76,7 +76,8 @@ class M_premiaciones extends MY_Model{
 				, tp.descripcion tipoPremiacion
 				, vp.codigo
 				, vp.monto
-				, vp.premiado
+				, CASE WHEN (vp.premiado = 1) OR (vf.fotoUrl IS NOT NULL AND (vp.monto IS NOT NULL OR vp.monto > 0) ) THEN 1 ELSE 0 END premiado
+				--, vp.premiado
 				, ct.nombre subCanal
 				,vp.idVisitaPremiacion
 				,vp.estado

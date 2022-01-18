@@ -157,7 +157,8 @@ class M_control extends MY_Model{
 			SELECT ca.idCanal AS id, ca.nombre
 			FROM trade.canal ca 
 			JOIN trade.proyectoGrupocanal pgc ON pgc.idGrupoCanal = ca.idGrupoCanal
-			WHERE ca.estado = 1{$filtro} 
+			WHERE ca.estado = 1 
+			{$filtro} 
 			ORDER BY ca.nombre
 		";
 
@@ -505,13 +506,20 @@ class M_control extends MY_Model{
 	public function get_tab_menu_opcion($input = [])
 	{
 		$idProyecto = $this->sessIdProyecto;
-		$where = [
-			'idMenuOpcion' => $input['idMenuOpcion'],
-			'idProyecto' => $idProyecto,
-			'estado' => 1,
-		];
 
-		return $this->db->get_where('trade.tabMenuOpcionProyecto',$where);
+		$sql = "
+		SELECT 
+		*
+		FROM
+		trade.tabMenuOpcionProyecto
+		WHERE 
+		idProyecto = {$idProyecto}
+		AND estado = 1
+		AND idMenuOpcion = {$input['idMenuOpcion']}
+		ORDER BY orden
+		";
+		
+		return $this->db->query($sql);
 	}
 	public function get_tiposUsuario($input = array()){
 		$idProyecto = $this->sessIdProyecto;
@@ -697,13 +705,16 @@ class M_control extends MY_Model{
 		$sql = "
 			DECLARE @fecha date=getdate();
 			SELECT TOP 1  
-				idUsuario,idProyecto,fechaIni,fechaFin,hora,estado,porcentaje,
+				idUsuario,idProyecto,fechaIni,fechaFin,estado,porcentaje,
+				idPeticion,
+				CONVERT(varchar,hora,8) hora,
 				CONVERT(varchar,fechaActualizacion,103) fechaActualizacion,
-				CASE WHEN (fechaActualizacion IS NOT NULL) THEN 1 ELSE 0 END actualizado
+				CASE WHEN (porcentaje >= 100) THEN 1 ELSE 0 END actualizado
 			FROM 
 				{$this->sessBDCuenta}.trade.peticionActualizarVisitas
-			WHERE idProyecto={$input['idProyecto']}
-			ORDER BY fechaIni DESC,idPeticion DESC;";
+			WHERE 
+			idProyecto={$input['idProyecto']}
+			ORDER BY fechaActualizacion DESC,idPeticion DESC;";
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -711,13 +722,14 @@ class M_control extends MY_Model{
 	public function get_peticiones_actualizar_visitas(){
 		$sql = "
 			DECLARE @fecha date=getdate();
-			SELECT  idPeticion,idUsuario,idProyecto,fechaIni,fechaFin,hora,estado,porcentaje,
+			SELECT  idPeticion,idUsuario,idProyecto,fechaIni,fechaFin,estado,porcentaje,
 				CONVERT(varchar,fechaActualizacion,103) fechaActualizacion,
-				CASE WHEN (fechaActualizacion IS NOT NULL) THEN 1 ELSE 0 END actualizado
+				CONVERT(varchar,hora,8) hora,
+				CASE WHEN (porcentaje IS NOT NULL) THEN 1 ELSE 0 END actualizado
 			FROM 
 				{$this->sessBDCuenta}.trade.peticionActualizarVisitas
 			WHERE estado=1 and fechaActualizacion is null
-			ORDER BY fechaIni DESC;";
+			ORDER BY fechaActualizacion DESC,idPeticion DESC;;";
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -773,10 +785,22 @@ class M_control extends MY_Model{
 			'fechaFin' => trim($post['fechaFin']),
 			'idUsuario' => trim($post['idUsuario']),
 			'estado' => 1,
-			'idCuenta' => trim($post['idCuenta'])
+			'idCuenta' => trim($post['idCuenta']),
+			'fechaActualizacion'=> getActualDateTime(),
+			'porcentaje' =>0,
 		];
 
 		$insert = $this->db->insert("{$this->sessBDCuenta}.trade.peticionActualizarVisitas", $insert);
+		return $insert;
+	}
+
+	public function registrar_peticion_actualizar_visitasDet($post)
+	{
+		
+		$sql = "INSERT INTO {$this->sessBDCuenta}.trade.peticionActualizarVisitasDet (idPeticion,idRuta,estado,hora)
+		SELECT '".$post['idPeticion']."',idRuta,1,null FROM {$this->sessBDCuenta}.trade.data_ruta WHERE fecha  BETWEEN '".trim($post['fechaIni'])."' AND '".trim($post['fechaFin'])."' AND idProyecto='".trim($post['idProyecto'])."'";
+
+		$insert = $this->db->query($sql);
 		return $insert;
 	}
 
@@ -872,5 +896,34 @@ class M_control extends MY_Model{
 		}
 
 		return $hideCols;
+	}
+
+	public function get_peticion_actualizar_visitas_det($input = [])
+	{
+		$sql = "
+		SELECT 
+		pdet.idPeticionDet,
+		r.idUsuario,
+		r.idTipoUsuario,
+		r.tipoUsuario, 
+		r.fecha,
+		u.nombres + ' ' + ISNULL(u.apePaterno,'') + ' ' + ISNULL(u.apeMaterno,'') nombreUsuario
+		FROM
+		{$this->sessBDCuenta}.trade.peticionActualizarVisitasDet pdet
+		JOIN {$this->sessBDCuenta}.trade.data_ruta r ON r.idRuta = pdet.idRuta
+		JOIN trade.usuario u ON u.idUsuario = r.idUsuario
+		WHERE 
+		pdet.idPeticion = {$input['idPeticion']}
+		AND pdet.notificado = 0
+		AND hora IS NOT NULL
+		AND (r.demo = 0 OR r.demo IS NULL)
+		ORDER BY r.fecha, r.idUsuario
+		";
+
+		return $this->db->query($sql)->result_array();
+	}
+	
+	public function actualizarNotificacionesPeticion($update){
+		return $this->db->update_batch("{$this->sessBDCuenta}.trade.peticionActualizarVisitasDet",$update,'idPeticionDet');
 	}
 }

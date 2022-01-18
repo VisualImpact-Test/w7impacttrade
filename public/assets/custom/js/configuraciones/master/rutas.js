@@ -982,8 +982,12 @@ var Modulacion = {
 		$.ajax({
 			type: "POST",
 			dataType: 'json',
-			data: {tipoUsuario:$('#tipo').val()},   
-			url: site_url+'public/bat/bat_rutas.php',
+			data: {
+				tipoUsuario:$('#tipo').val(),
+				idCuenta: $("#sessIdCuenta").val(), 
+				idProyecto: $("#sessIdProyecto").val(),	
+			},   
+			url: site_url+'control/bat_rutas',
 			success: function(data) {
 				console.log('listo');
 			}

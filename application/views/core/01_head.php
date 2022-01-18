@@ -18,6 +18,7 @@
 	<link href="assets/custom/css/sidebar-right.css?v=<?=$this->version;?>" rel="stylesheet">
 	<!-- -->
 	<link href="assets/custom/css/main.css?v=<?=$this->version;?>" rel="stylesheet">
+	<link href="assets/custom/css/circle-progress.css?v=<?=$this->version;?>" rel="stylesheet">
 	<!-- -->
 	<!-- <script src="https://kit.fontawesome.com/5ea7d43f0c.js" crossorigin="anonymous"></script> -->
 

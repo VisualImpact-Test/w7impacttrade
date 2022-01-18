@@ -14,7 +14,7 @@ class M_rutas extends My_Model{
 		$modulacion = $this->session->flag_modulacion;
 		$idUsuario = $this->session->idUsuario;
 		$filtros='';
-		$filtros.=!empty($input['id'])?'AND r.idRutaProg='.$input['id']:'';
+		//$filtros.=!empty($input['id'])?'AND r.idRutaProg='.$input['id']:'';
 		if($modulacion!=1){
 			$filtros.='AND r.idUsuarioReg='.$idUsuario;
 		}
@@ -49,8 +49,8 @@ class M_rutas extends My_Model{
 				--LEFT JOIN trade.usuario spoc
 				--	ON spoc.idUsuario = e_spoc.idUsuario
 			WHERE 
-				general.dbo.fn_fechaVigente(r.fecIni,r.fecFin,@fecIni,@fecFin)=1
-				{$filtros}
+				general.dbo.fn_fechaVigente(@fecIni,@fecFin,r.fecIni,r.fecFin)=1
+				--{$filtros}
 		";
 
 		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.master_rutaProgramada" ];
@@ -404,6 +404,7 @@ class M_rutas extends My_Model{
 	}
 
 	public function obtener_estado_carga(){
+		
 		$sql =" 
 			SELECT 
 					*
@@ -418,6 +419,8 @@ class M_rutas extends My_Model{
 				) error
 			FROM 
 				{$this->sessBDCuenta}.trade.cargaRuta cm
+			WHERE 
+				cm.idProyecto={$this->sessIdProyecto}
 				order by cm.idCarga DESC
 
 		";
@@ -443,6 +446,11 @@ class M_rutas extends My_Model{
 				ut.estado=1
 				AND utc.idCuenta = {$this->sessIdCuenta}
 		";
+		return $this->db->query($sql)->result_array();
+	}
+
+	public function obtener_horarios(){
+		$sql ="SELECT idHorario,CONVERT(VARCHAR,horaIni,108) horaIni,CONVERT(VARCHAR,horaFin,108) horaFin FROM ImpactTrade_pg.trade.horarios WHERE estado=1";
 		return $this->db->query($sql)->result_array();
 	}
 

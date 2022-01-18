@@ -38,10 +38,12 @@ class MY_Controller extends CI_Controller{
 	var $flag_externo;
 	var $sessIdDistribuidoraSucursal;
 
+	var $flagactualizarListas;
+
 	public function __construct(){
 		parent::__construct();
-		$this->version = '8.6.6';
-
+		$this->version = '8.7.0';
+		$_SESSION['idCuenta'] = $this->session->userdata('idCuenta');
 		$this->sessId = $this->session->userdata('sessionId');
 		$this->namespace = $this->router->fetch_class();
 		$this->idUsuario = $this->session->userdata('idUsuario');
@@ -63,6 +65,8 @@ class MY_Controller extends CI_Controller{
 		$this->flagGestorDeArchivos = $this->session->userdata('flag_gestorDeArchivos');
 		$this->flag_externo = $this->session->userdata('externo');
 		$this->sessIdDistribuidoraSucursal = $this->session->userdata('idDistribuidoraSucursal');
+
+		$this->flagactualizarListas = $this->session->userdata('flag_actualizarListas');
 
 		$is_ajax = $this->input->is_ajax_request();
 

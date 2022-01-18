@@ -108,6 +108,7 @@ class M_checkproductos extends MY_Model{
 					$filtros .= !empty($input['flagPropios']) ? ' AND ele.flagCompetencia = 0': '';
 					$filtros .= !empty($input['flagCompetencia']) ? ' AND ele.flagCompetencia = 1': '';
 			} 
+
 		}
 
 		$sql = "
@@ -127,6 +128,9 @@ class M_checkproductos extends MY_Model{
 				, um.nombre 'unidadMedida'
 				, ele.flagCompetencia
 				, mo.nombre AS motivo
+				, v.idCliente
+				, r.nombreUsuario
+				, v.razonSocial
 			FROM {$this->sessBDCuenta}.trade.data_ruta r
 			JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
 			JOIN trade.cuenta cu ON cu.idCuenta=r.idCuenta
@@ -138,6 +142,7 @@ class M_checkproductos extends MY_Model{
 			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisitaFoto=dvd.idVisitaFoto
 			LEFT JOIN trade.unidadMedida um ON um.idUnidadMedida = dvd.idUnidadMedida
 			LEFT JOIN trade.motivo mo ON dvd.idMotivo=mo.idMotivo
+			
 			WHERE r.estado=1 AND v.estado=1 
 			AND r.fecha BETWEEN @fecIni AND @fecFin
 			$filtros
@@ -903,6 +908,113 @@ class M_checkproductos extends MY_Model{
 		";
 
 		return $this->db->query($sql)->result_array();
+	}
+
+	public function obtener_checklist_excel($input = [])
+	{
+		$filtros = "";
+		if(empty($input['proyecto_filtro'])){
+		$filtros.= getPermisos('cuenta');
+		}else{
+		$filtros .= !empty($input['idCuenta']) ? ' AND r.idCuenta='.$input['idCuenta'] : '';
+		$filtros .= !empty($input['proyecto_filtro']) ? ' AND r.idProyecto='.$input['proyecto_filtro'] : '';
+		$filtros .= !empty($input['grupoCanal_filtro']) ? ' AND ca.idGrupoCanal='.$input['grupoCanal_filtro'] : '';
+		$filtros .= !empty($input['canal_filtro']) ? ' AND ca.idCanal='.$input['canal_filtro'] : '';
+		$filtros .= !empty($input['subcanal']) ? ' AND ct.idClienteTipo='.$input['subcanal'] : '';
+		$filtros .= !empty($input['distribuidora_filtro']) ? ' AND d.idDistribuidora='.$input['distribuidora_filtro'] : '';
+		$filtros .= !empty($input['zona_filtro']) ? ' AND z.idZona='.$input['zona_filtro'] : '';
+		$filtros .= !empty($input['plaza_filtro']) ? ' AND pl.idPlaza='.$input['plaza_filtro'] : '';
+		$filtros .= !empty($input['cadena_filtro']) ? ' AND cad.idCadena='.$input['cadena_filtro'] : '';
+		$filtros .= !empty($input['banner_filtro']) ? ' AND ba.idBanner='.$input['banner_filtro'] : '';
+		$filtros .= !empty($input['distribuidoraSucursal_filtro']) ? ' AND ds.idDistribuidoraSucursal='.$input['distribuidoraSucursal_filtro'] : '';
+		$filtros .= !empty($input['tipoUsuario_filtro']) ? ' AND r.idTipoUsuario='.$input['tipoUsuario_filtro'] : '';
+		$filtros .= !empty($input['usuario_filtro']) ? ' AND r.idUsuario IN ('.$input['usuario_filtro'].')': '';
+
+			if((!empty($input['flagPropios']) && empty($input['flagCompetencia'])) || (empty($input['flagPropios']) && !empty($input['flagCompetencia']))){
+				$filtros .= !empty($input['flagPropios']) ? ' AND ele.flagCompetencia = 0': '';
+				$filtros .= !empty($input['flagCompetencia']) ? ' AND ele.flagCompetencia = 1': '';
+			} 	
+
+		}
+		$cliente_historico = getClienteHistoricoCuenta();
+		$segmentacion = getSegmentacion($input);
+		$sql = "
+			DECLARE @fecIni date='".$input['fecIni']."',@fecFin date='".$input['fecFin']."';
+		SELECT
+			r.idRuta
+			, r.fecha
+			, us.nombres+' '+us.apePaterno+' '+us.apeMaterno AS supervisor
+			, r.idUsuario
+			, r.nombreUsuario
+			, ut.nombre AS tipoUsuario
+			, v.idVisita
+			, v.canal
+			, v.idCliente
+			, ch.codCliente
+			, c.codDist
+			, v.nombreComercial
+			, v.razonSocial
+			, ct.nombre AS tipoCliente
+			, v.cod_ubigeo
+			, ubi.departamento
+			, ubi.provincia
+			, ubi.distrito
+			, v.direccion
+			, v.idPlaza
+			, dvd.idProducto
+			, ele.nombre 'elemento'
+			, pc.idCategoria
+			, pc.nombre 'categoria'
+			, dvd.presencia
+			, dvd.stock
+			, dvd.idUnidadMedida
+			, vf.fotoUrl 'foto'
+			, um.nombre 'unidadMedida'
+			, ele.flagCompetencia
+			, mo.nombre AS motivo
+			, ct.nombre  subCanal
+			, gca.nombre grupoCanal
+			, ele.ean
+			
+			{$segmentacion['columnas_bd']}
+		FROM {$this->sessBDCuenta}.trade.data_ruta r
+		JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
+		JOIN {$this->sessBDCuenta}.trade.data_visitaProductos dvv ON dvv.idVisita=v.idVisita
+		JOIN {$this->sessBDCuenta}.trade.data_visitaProductosDet dvd ON dvd.idVisitaProductos=dvv.idVisitaProductos
+		JOIN trade.producto ele ON ele.idProducto=dvd.idProducto 
+		JOIN trade.producto_categoria pc ON pc.idCategoria=ele.idCategoria
+		LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisitaFoto=dvd.idVisitaFoto
+		LEFT JOIN trade.unidadMedida um ON um.idUnidadMedida = dvd.idUnidadMedida
+		LEFT JOIN trade.motivo mo ON dvd.idMotivo=mo.idMotivo
+		JOIN trade.cuenta cu ON cu.idCuenta=r.idCuenta
+		JOIN trade.canal ca ON ca.idCanal=v.idCanal
+		JOIN trade.grupoCanal gca ON ca.idGrupoCanal=gca.idGrupoCanal
+		LEFT JOIN General.dbo.ubigeo ubi ON ubi.cod_ubigeo=v.cod_ubigeo
+
+		LEFT JOIN trade.encargado ec ON ec.idEncargado=r.idEncargado
+		LEFT JOIN trade.usuario us ON us.idUsuario=ec.idUsuario
+		LEFT JOIN trade.usuario_tipo ut ON r.idTipoUsuario = ut.idTipoUsuario
+		JOIN {$cliente_historico} ch ON v.idCliente = ch.idCliente
+			AND General.dbo.fn_fechaVigente(ch.fecIni,ch.fecFin,GETDATE(),GETDATE())=1 AND ch.idProyecto = {$input['proyecto_filtro']}
+		LEFT JOIN trade.cliente c ON v.idCliente = c.idCliente
+		LEFT JOIN trade.segmentacionNegocio sn ON sn.idSegNegocio = ch.idSegNegocio
+		LEFT JOIN trade.cliente_tipo ct
+				ON ct.idClienteTipo = sn.idClienteTipo
+		LEFT JOIN trade.subCanal subca ON subca.idSubCanal = sn.idSubcanal
+		{$segmentacion['join']}
+		WHERE r.estado=1 AND v.estado=1 AND r.demo=0
+		AND r.fecha BETWEEN @fecIni AND @fecFin
+		$filtros
+		ORDER BY fecha, departamento, canal, tipoUsuario, supervisor, nombreUsuario  ASC
+		";
+
+		$query = $this->db->query($sql);
+		$result = array();
+		if ( $query ) {
+			$result = $query->result_array();
+		}
+
+		return $result;
 	}
 
 }

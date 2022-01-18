@@ -82,8 +82,10 @@ $.ajaxSetup({
 
 var site_name='impactTrade';
 var site_url=$('base').attr('site_url');
-var fotos_url='http://movil.visualimpact.com.pe/fotos/impactTrade_Android/';
+//var fotos_url='http://movil.visualimpact.com.pe/fotos/impactTrade_Android/';
+var fotos_url= `${site_url}ControlFoto/obtener_carpeta_foto/`;
 var modalId=0;
+var toastId=0;
 var global_masivo = [];
 
 var spanishDateRangePicker = {
@@ -98,6 +100,7 @@ var spanishDateRangePicker = {
 	"daysOfWeek": ["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sa"],
 	"monthNames": ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Setiembre", "Octubre", "Noviembre", "Diciembre"],
 	"firstDay": 1
+	
 }
 
 var singleDatePickerModal = {
@@ -182,10 +185,14 @@ var _aSelectGrupoCanal = {
 	};
 
 var intervalPeticionActualizacion=null;
-
+var intervalEstadoPeticionActualizarVisita = null;
 var View={
 	idModal: 0,
 	load: function(){
+
+		$(document).ready(() => {
+			View.validar_estado_peticion_actualizacion_visita();
+		});
 
 		//if( typeof($BODY)!='undefined' ) $BODY.toggleClass('nav-md nav-sm');
 
@@ -425,10 +432,12 @@ var View={
 				var data=a.data.peticionActualizarVisita;
 
 				var fechaUltimo=null;
+				var horaUltimo=null;
 				var actualizado=false;
 				var porcentaje=0;
 				if(data!=null){
 					fechaUltimo=data['fechaActualizacion'];
+					horaUltimo=data['hora'];
 					actualizado=(data['actualizado']=="1")? true : false;
 					porcentaje= ( (data['porcentaje']!=null)? data['porcentaje'] :0 );
 				}
@@ -442,26 +451,33 @@ var View={
 
 									html += '<div class="col-md-12">';
 										html += '<div class="form-group row">';
-											html += '<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 mb-2">';
-											html += '<label for="fecIniActualizarVisita"><strong>FECHA INICIO:</strong></label>';
+											html += '<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 mb-2">';
+											html += '<label for="fecIniActualizarVisita"><strong>FECHA:</strong></label>';
 												html += '<input id="fecIniActualizarVisita" type="text" class="form-control txt-fecha" value="'+Global.fechaActual()+'">';
 											html += '</div>';
 
-											html += '<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 mb-2">';
+											html += '<div class="d-none col-xs-6 col-sm-6 col-md-6 col-lg-6 mb-2">';
 											html += '<label for="fecFinActualizarVisita"><strong>FECHA FIN:</strong></label>';
-												html += '<input id="fecFinActualizarVisita" type="text" class="form-control txt-fecha" value="'+Global.fechaActual()+'">';
+												html += '<input id="fecFinActualizarVisita" type="text" class="form-control" value="'+Global.fechaActual()+'">';
 											html += '</div>';
 										html += '</div>';
 									html += '</div>';
 
 
 									html += '<div id="divMensajeActualizandoVisitasUltimo"  class="col-md-12" style="padding:5px;'+ ((!actualizado) ? "display:none;" : "")+'" >';
-											html += 'Ultima actualizacion el '+( (fechaUltimo!=null)? fechaUltimo :' - ' );
+											html += `Ultima actualizacion el  ${(fechaUltimo!=null)? fechaUltimo :' - ' } a las ${(horaUltimo!=null)? horaUltimo :' - '}`;
 									html += '</div>';
 
 									html += '<div class="col-md-12">';
-										html += '<meter id="barraprogreso_actualizacion_visita" min="0" max="100" low="0" high="0" optimum="100" value="'+porcentaje+'" style="font-size:20px;width:100%;">';
+										html += '<div class="mb-2 progress">';
+											html += `<div  id="barraprogreso_actualizacion_visita" class="progress-bar bg-success" role="progressbar" aria-valuenow="${porcentaje}" aria-valuemin="0" aria-valuemax="100" style="width: ${porcentaje}%;">${porcentaje}%</div>`;
+										html += '</div>';
+										// html += '<meter id="barraprogreso_actualizacion_visita" min="0" max="100" low="0" high="0" optimum="100" value="'+porcentaje+'" style="font-size:20px;width:100%;">';
 									html += '</div>';
+
+									// <div class="mb-2 progress">
+									// 	<div class="progress-bar bg-success" role="progressbar" aria-valuenow="90.96" aria-valuemin="0" aria-valuemax="100" style="width: 90.96%;">90.96%</div>
+									// </div>
 
 									html += '<div class="col-md-12">';
 										html+='<div id="divMensajeActualizandoVisitas" class="text-center" style="'+ ((actualizado || ( fechaUltimo==null)) ? "display:none;" : "")+'">Actualizando<img src="assets/images/load.gif" /></div>';
@@ -493,54 +509,37 @@ var View={
 					View.idModal = modalId;
 
 					singleDatePickerModal.autoUpdateInput = false;
-					$('.txt-fecha').daterangepicker(singleDatePickerModal, function(chosen_date) {
+					var configDateRangePicker = {
+						locale: {
+							"format": "DD/MM/YYYY",
+							"applyLabel": "Aplicar",
+							"cancelLabel": "Cerrar",
+							"daysOfWeek": ["Do","Lu","Ma","Mi","Ju","Vi","Sa"],
+							"monthNames": ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Setiembre","Octubre","Noviembre","Diciembre"],
+							"firstDay": 1
+						},
+						singleDatePicker: false,
+						showDropdowns: false,
+						autoApply: true,
+					};
+
+					$('.txt-fecha').daterangepicker(configDateRangePicker, function(chosen_date) {
 						$(this.element[0]).val(chosen_date.format('DD/MM/YYYY'));
 					});
-
-					if(intervalPeticionActualizacion!=null){
-						clearInterval(intervalPeticionActualizacion);
+					
+					if(intervalEstadoPeticionActualizarVisita=null){
+						View.validar_estado_peticion_actualizacion_visita();
 					}			
 
-					function validar_estado_peticion_actualizacion_visita() {
-						$.ajax({
-							type: "POST",
-							dataType: 'JSON',
-							url: site_url+'control/get_peticion_actualizar_visitas/',
-							
-							success: function(data) {
-								if(data.result){
-									var res = data.data.peticionActualizarVisita;
-									if(res!=null){
-										var porc=res['porcentaje'];
-										var actualizado=res['actualizado'];
-	
-										$('#barraprogreso_actualizacion_visita').attr('value',porc);
-	
-										if(actualizado){
-											$("#btn-actualizarvisitas-confirm").show();
-											$("#divMensajeActualizandoVisitas").hide();
-											$("#divMensajeActualizandoVisitasUltimo").show();
-											$("#divMensajeActualizandoVisitasUltimo").html('Ultima actualizacion el '+res['fechaActualizacion']);
-											
-										}else{
-											$("#btn-actualizarvisitas-confirm").hide();
-											$("#divMensajeActualizandoVisitas").show();
-											$("#divMensajeActualizandoVisitasUltimo").hide();
-										}
-									}else{
-										$("#btn-actualizarvisitas-confirm").show();
-										$("#divMensajeActualizandoVisitas").hide();
-										$("#divMensajeActualizandoVisitasUltimo").show();
-										$("#divMensajeActualizandoVisitasUltimo").html('Ultima actualizacion el -');
-										
-									}
-									
-								}
-							}
-						});
-					}
+
+					// intervalEstadoPeticionActualizarVisita=setInterval(, 5000);
 					
-					intervalPeticionActualizacion=setInterval(validar_estado_peticion_actualizacion_visita, 10000);
+					if(actualizado){
+						// clearInterval(intervalPeticionActualizacion);
+						$('.container-progress-circle').addClass("d-none");
+					}else{
+						$('.container-progress-circle').removeClass("d-none");
+					}
 			});
 			
 			
@@ -549,10 +548,19 @@ var View={
 
 		$(document).on('click', '#btn-actualizarvisitas-confirm', function(){
 			$("#btn-actualizarvisitas-confirm").hide();
-			var fecIni = $("#fecIniActualizarVisita").val();
-			var fecFin = $("#fecFinActualizarVisita").val();
+			var fechas = $("#fecIniActualizarVisita").val();
+			var fecIni = fechas.split(" - ")[0];
+			var fecFin = fechas.split(" - ")[1];
 
 			if(fecIni!=null && fecFin!=null){
+				$("#barraprogreso_actualizacion_visita").val(0);
+
+				//New Barra
+				$('#barraprogreso_actualizacion_visita').text(``);
+				$('#barraprogreso_actualizacion_visita').css('width',`0%`);
+
+				// View.validar_estado_peticion_actualizacion_visita();
+
 				var data = { data: JSON.stringify({ fecIni: fecIni, fecFin: fecFin }) };
 				$.when( Fn.ajax({ url: 'control/guardar_peticion_actualizar_visitas', data: data }) ).then(function(a){
 					if( a.result == 2 ) return false;
@@ -572,16 +580,25 @@ var View={
 
 										$('#barraprogreso_actualizacion_visita').attr('value',porc);
 
+										//New barra
+										$('#barraprogreso_actualizacion_visita').text(`${porc}%`);
+										$('#barraprogreso_actualizacion_visita').css('width',`${porc}%`);
+
+										$('.progress-circle').attr("data-percentage",Math.round(porc));
+										$('.progress-circle > .progress-value > .dv-progress-value').text(`${porc}%`);
+										
+										
 										if(actualizado){
 											$("#btn-actualizarvisitas-confirm").show();
 											$("#divMensajeActualizandoVisitas").hide();
 											$("#divMensajeActualizandoVisitasUltimo").show();
-											$("#divMensajeActualizandoVisitasUltimo").html('Ultima actualizacion el '+res['fechaActualizacion']);
+											$("#divMensajeActualizandoVisitasUltimo").html(`Ultima actualizacion el ${res['fechaActualizacion']} a las ${res['hora']}`);
 											
 										}else{
 											$("#btn-actualizarvisitas-confirm").hide();
 											$("#divMensajeActualizandoVisitas").show();
 											$("#divMensajeActualizandoVisitasUltimo").hide();
+											intervalEstadoPeticionActualizarVisita = setInterval(View.validar_estado_peticion_actualizacion_visita(), 10000);
 										}
 									}else{
 										$("#btn-actualizarvisitas-confirm").show();
@@ -597,7 +614,9 @@ var View={
 
 						$.ajax({
 							type: "POST",
-							url: site_url+'public/bat/bat_peticion_actualizar_visitas.php',
+							// url: site_url+'public/bat/bat_peticion_actualizar_visitas.php',
+							url: site_url+'control/bat_peticion_actualizar_visitas',
+							data: {idCuenta: $("#sessIdCuenta").val(), idProyecto: $("#sessIdProyecto").val()},
 							success: function(data) {
 								console.log('listo');
 							}
@@ -606,7 +625,9 @@ var View={
 			}
 		
 		});
-
+		$(document).on('click','.progress-circle',() => {
+			$("#a-actualizarVisitas").click();
+		});
 		$(document).on('change', '.rd-cambiarcuenta-cuenta', function(){
 			var idCuenta = $(this).val();
 			var data = { data: JSON.stringify({ idCuenta: idCuenta }) };
@@ -792,6 +813,7 @@ var View={
 			showDropdowns: false,
 			autoApply: true,
 		});
+
 		
 		
 		$('.rango_fechas').daterangepicker({
@@ -1479,7 +1501,159 @@ var View={
 			});
 		}
 	},
+	toast: (config = {}) => {
+		var defaults = { 'type': 0, 
+		'message': '' , 
+		'title': 'ImpactTrade', 
+		'mins': 0,
+		'time':2000,
+		'titleClass': 'bg-primary',
+		};
+		var config = $.extend({}, defaults, config);
+		
+		let icon = '';
+		let iconSize = ' fa-2x';
+		let message = '';
+		let mins = 0;
 
+		switch( Number(config['type']) ){
+			case 0:
+					icon += 'fas fa-times-circle' + iconSize +' text-danger';
+					message += 'Error! ' + config['message'] + '.';
+				break;
+			case 1:
+					icon += 'fas fa-check-circle' + iconSize +' text-success';
+					message += 'Ok! ' + config['message'] + '.';
+				break;
+			case 2:
+					icon += 'fas fa-exclamation-circle' + iconSize +' text-warning';
+					message += 'Alerta! ' + config['message'] + '.';
+				break;
+			case 3:
+					icon += 'fas fa-question-circle' + iconSize +' text-primary';
+					message += config['message'];
+				break;
+			default:
+					icon += 'far fa-comment-alt fa-3x';
+					message += config['message'];
+				break;
+		}
+
+		var html = '';
+			html += `<div class="toast toast-${toastId}" role="alert" aria-live="assertive" aria-atomic="true" data-delay="${config['time']}">`;
+				html += `<div class="toast-header ${config['titleClass']}  text-white">`;
+					html += `<img src="../public/assets/images/icono.png" class="rounded mr-1" alt="..." style= "height: 20px !important">`;
+					html += `<strong class="mr-auto">${config['title']}</strong>`;
+					html += `<small>Hace un momento</small>`;
+					html +=	`<button type="button" class="ml-2 mb-1 close" data-dismiss="toast-${toastId}" aria-label="Close"> <span aria-hidden="true">&times;</span></button>`;
+			 	html += '</div>';
+				html += '<div class="toast-body">';
+					html +=	`${message}`;
+				html += '</div>';
+			html += '</div>';
+
+		$(".toastTopRight").append(html);
+  
+		return true;
+	},
+	validar_estado_peticion_actualizacion_visita: function (config = []) {
+		
+
+		$.ajax({
+			type: "POST",
+			dataType: 'JSON',
+			url: site_url+'control/get_peticion_actualizar_visitas/',
+			
+			success: function(data) {
+				if(data.result){
+					var res = data.data.peticionActualizarVisita;
+					if(res!=null){
+						var porc=res['porcentaje'];
+
+						if(porc < 100){
+							
+							if(intervalEstadoPeticionActualizarVisita!=null){
+								clearInterval(intervalEstadoPeticionActualizarVisita);
+							}			
+
+							intervalEstadoPeticionActualizarVisita = setInterval(View.validar_estado_peticion_actualizacion_visita({validado:1}), 10000);
+						}
+
+						var actualizado=res['actualizado'];
+						var res_det = data.data.peticionActualizarVisitaDet;
+						toastId++
+						var toasts = 0;
+						$.each(res_det, (i,v) => {
+							if(toasts>=1){
+								return;
+							};
+							View.toast({
+								type: 1,
+								message: `Actualizacion completa. Usuario <b>${v.nombreUsuario}</b>`,
+								title: `ImpactTrade ${v.fecha}`,
+								mins: 0,
+							});
+							toasts++;
+						});
+
+						$('.toast-'+toastId).toast('show');
+
+
+						$('#barraprogreso_actualizacion_visita').attr('value',porc);
+						// New Barra
+						$('#barraprogreso_actualizacion_visita').text(`${porc}%`);
+						$('#barraprogreso_actualizacion_visita').css('width',`${porc}%`);
+
+						$('.progress-circle').attr("data-percentage",Math.round(porc));
+						$('.progress-circle > .progress-value > .dv-progress-value').text(`${porc}%`);
+
+						if(actualizado){
+							$("#btn-actualizarvisitas-confirm").show();
+							$("#divMensajeActualizandoVisitas").hide();
+							$("#divMensajeActualizandoVisitasUltimo").show();
+							$("#divMensajeActualizandoVisitasUltimo").html(`Ultima actualizacion el ${res['fechaActualizacion']} a las ${res['hora']}`);
+							
+						}else{
+							$("#btn-actualizarvisitas-confirm").hide();
+							$("#divMensajeActualizandoVisitas").show();
+							$("#divMensajeActualizandoVisitasUltimo").hide();
+						}
+						if(porc >= 100){
+							clearInterval(intervalEstadoPeticionActualizarVisita);
+							$('.container-progress-circle').addClass("d-none");
+							
+							if(config.validado == 1){
+								toastId++;
+								View.toast({
+									type: 1,
+									message: `Se completó la actualización de listas`,
+									title: `ImpactTrade`,
+									mins: 0,
+									time:10000,
+									titleClass: `bg-success`,
+								});
+								$('.toast-'+toastId).toast('show');
+							}
+								
+						}else{
+							$('.container-progress-circle').removeClass("d-none");
+						}
+					}else{
+						$("#btn-actualizarvisitas-confirm").show();
+						$("#divMensajeActualizandoVisitas").hide();
+						$("#divMensajeActualizandoVisitasUltimo").show();
+						$("#divMensajeActualizandoVisitasUltimo").html('Ultima actualizacion el -');
+
+						clearInterval(intervalEstadoPeticionActualizarVisita);
+						$('.container-progress-circle').addClass("d-none");
+
+						
+					}
+					
+				}
+			}
+		});
+	},
 	filtrosGrupoCanal: function(){
 		if( $('.flt_grupoCanal ').length == 0  ){
 			return false;

@@ -264,28 +264,66 @@ class Control extends MY_Controller{
 			$params['idCuenta'] =$this->session->userdata('idCuenta');
 
 			$this->m_control->registrar_peticion_actualizar_visitas($params);
+			
+			$idPeticion = $this->db->insert_id();
+
+			$params['idPeticion'] =$idPeticion;
+
+			$this->m_control->registrar_peticion_actualizar_visitasDet($params);
 
 			$result['result'] = 1;
 
 		echo json_encode($result);
 	}
 
-	public function get_peticion_actualizar_visitas(){
+	public function get_peticion_actualizar_visitas()
+	{
 		$result = $this->result;
 
 		$input=array();
 		$input['idProyecto'] = $this->sessIdProyecto;
 		$rs_peticion=$this->m_control->get_peticion_actualizar_visitas($input);
 		$ultima_pet=null;
+		$ultima_pet_det=null;
+
 		if($rs_peticion!=null){
 			if($rs_peticion[0]!=null){
 				$ultima_pet=$rs_peticion[0];
 			}
 		}
+
+		$idPeticion = $ultima_pet['idPeticion'];
+		$peticionesDet = [];
+		if(!empty($idPeticion)){
+			$ultima_pet_det = $this->m_control->get_peticion_actualizar_visitas_det(['idPeticion' => $idPeticion]);
+
+			foreach($ultima_pet_det as $v){
+				$peticionesDet[] = [
+					'idPeticionDet' => $v['idPeticionDet'],
+					'notificado' => 1,
+				];
+			}
+
+			if(!empty($peticionesDet)){
+				$rs = $this->m_control->actualizarNotificacionesPeticion($peticionesDet);
+			}
+		}
+
 		$result['result'] = 1;
 		$result['data']['peticionActualizarVisita'] = $ultima_pet;
+		$result['data']['peticionActualizarVisitaDet'] = $ultima_pet_det;
 		echo json_encode($result);
 	}
+
+	public function bat_peticion_actualizar_visitas(){
+		execInBackground( RUTA_BAT.'carga_masiva procesar_peticiones_actualizar_visitas',$_POST);
+	}
+
+	public function bat_rutas(){
+		execInBackground( RUTA_BAT.'carga_masiva procesar_archivos_rutas',$_POST);
+	}
+
+
 
 	
 }

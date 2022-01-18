@@ -253,15 +253,13 @@ class Carga_masiva extends CI_Controller
 	}
 
 
-	public function procesar_archivos_rutas(){
+	public function procesar_archivos_rutas($idCuenta){
 		ini_set('display_errors', TRUE);
 		ini_set('display_startup_errors', TRUE);
 		ini_set('memory_limit', '1024M');
 		set_time_limit(0);
-		
+		$this->cambiarBaseDatos($idCuenta);
 		$carpetas = $this->model->carga_ruta_no_procesado()->result_array();
-
-		
 
 		if(count($carpetas)>0){
 			//marcar en proceso
@@ -564,7 +562,7 @@ class Carga_masiva extends CI_Controller
 							foreach($array_detalle[$value_nombre] as  $value_idUsuario  => $row_dn){
 
 								$insert_gtm = array(
-									'idRutaProg' => $idRutaProg
+								'idRutaProg' => $idRutaProg
 								, 'fecIni' => $row['fecIni']
 								, 'idUsuario' => $value_idUsuario
 								);
@@ -572,14 +570,14 @@ class Carga_masiva extends CI_Controller
 									$insert_gtm['fecFin'] = $row['fecFin'];
 								}
 								$this->db->insert("{$this->sessBDCuenta}.trade.master_rutaProgramadaDet",$insert_gtm);
-								$idRutaProgDet = $this->db->insert_id();
+								//$idRutaProgDet = $this->db->insert_id();
 
 								
 								foreach($array_detalle[$value_nombre][$value_idUsuario] as $value_idCliente => $row_dc){
 
 									//insert master_visitaProgramada
 									$insert_visita = array(
-										'idRutaProg' => $idRutaProgDet
+										'idRutaProg' => $idRutaProg
 										, 'idCliente' => $value_idCliente
 									);
 									$this->db->insert("{$this->sessBDCuenta}.trade.master_visitaProgramada", $insert_visita);
@@ -594,7 +592,7 @@ class Carga_masiva extends CI_Controller
 										$domingo = isset($row_dc['domingo'])?$row_dc['domingo']:'';
 
 										//insert master_visitaProgramadaDet
-										if(!empty($lunes) && $lunes==1 ){
+										if(!empty($lunes) && $lunes>=1 ){
 											$insert_visitaDet = array(
 												'idVisitaProg' => $idVisitaProg
 												, 'idDia' => 1
@@ -602,7 +600,7 @@ class Carga_masiva extends CI_Controller
 											$this->db->insert("{$this->sessBDCuenta}.trade.master_visitaProgramadaDet",$insert_visitaDet);
 										}
 
-										if(!empty($martes) && $martes==1){
+										if(!empty($martes) && $martes>=1){
 											$insert_visitaDet = array(
 												'idVisitaProg' => $idVisitaProg
 												, 'idDia' => 2
@@ -610,7 +608,7 @@ class Carga_masiva extends CI_Controller
 											$this->db->insert("{$this->sessBDCuenta}.trade.master_visitaProgramadaDet",$insert_visitaDet);
 										}
 							
-										if(!empty($miercoles) && $miercoles==1 ){
+										if(!empty($miercoles) && $miercoles>=1 ){
 											$insert_visitaDet = array(
 												'idVisitaProg' => $idVisitaProg
 												, 'idDia' => 3
@@ -618,7 +616,7 @@ class Carga_masiva extends CI_Controller
 											$this->db->insert("{$this->sessBDCuenta}.trade.master_visitaProgramadaDet",$insert_visitaDet);
 										}
 									
-										if(!empty($jueves) && $jueves==1 ){
+										if(!empty($jueves) && $jueves>=1 ){
 											$insert_visitaDet = array(
 												'idVisitaProg' => $idVisitaProg
 												, 'idDia' => 4
@@ -626,7 +624,7 @@ class Carga_masiva extends CI_Controller
 											$this->db->insert("{$this->sessBDCuenta}.trade.master_visitaProgramadaDet",$insert_visitaDet);
 										}
 									
-										if(!empty($viernes ) && $viernes==1){
+										if(!empty($viernes ) && $viernes>=1){
 											$insert_visitaDet = array(
 												'idVisitaProg' => $idVisitaProg
 												, 'idDia' => 5
@@ -634,7 +632,7 @@ class Carga_masiva extends CI_Controller
 											$this->db->insert("{$this->sessBDCuenta}.trade.master_visitaProgramadaDet",$insert_visitaDet);
 										}
 
-										if(!empty($sabado) && $sabado==1){
+										if(!empty($sabado) && $sabado>=1){
 											$insert_visitaDet = array(
 												'idVisitaProg' => $idVisitaProg
 												, 'idDia' => 6
@@ -642,7 +640,7 @@ class Carga_masiva extends CI_Controller
 											$this->db->insert("{$this->sessBDCuenta}.trade.master_visitaProgramadaDet",$insert_visitaDet);
 										}
 
-										if(!empty($domingo) && $domingo==1 ){
+										if(!empty($domingo) && $domingo>=1 ){
 											$insert_visitaDet = array(
 												'idVisitaProg' => $idVisitaProg
 												, 'idDia' =>7
@@ -661,7 +659,6 @@ class Carga_masiva extends CI_Controller
 											$params['total_procesados']=$cont_visitas;
 											$this->model->update_carga_ruta($where,$params);
 										}
-
 								}
 								//$cont_visitas+=count($array_detalle[$value_nombre][$value_idUsuario]);
 							}
@@ -2298,45 +2295,34 @@ class Carga_masiva extends CI_Controller
 	}
 
 
-	public function procesar_peticiones_actualizar_visitas(){
-		$rs_peticion=$this->model->get_peticiones_actualizar_visitas();
+	public function procesar_peticiones_actualizar_visitas($idCuenta){
 
+		ini_set('display_errors', TRUE);
+		ini_set('display_startup_errors', TRUE);
+		ini_set('memory_limit', '1024M');
+		set_time_limit(0);
+		$this->cambiarBaseDatos($idCuenta);
+		$rs_peticion=$this->model->get_peticiones_actualizar_visitas();
 		if($rs_peticion!=null){
 			foreach($rs_peticion as $row){
-				$this->cambiarBaseDatos($row['idCuenta']);
 				$params_=array();
 				$params_['idPeticion']=$row['idPeticion'];
+				$params_['idRuta']=$row['idRuta'];
+
+				$this->model->actualizar_visitas($params_);
 				$this->model->actualizar_peticion_estado($params_);
+				$this->model->actualizar_peticion_det($params_);
 
-				$fecFin=new DateTime($row['fechaFin']);
+				$data_procesada = $this->model->data_procesada($params_)->row_array();
+				$total= isset($data_procesada['total'])?$data_procesada['total']:0;
+				$procesados= isset($data_procesada['procesados'])?$data_procesada['procesados']:0;
 
-				$period = new DatePeriod(
-					new DateTime($row['fechaIni']),
-					new DateInterval('P1D'),
-					($fecFin->modify('+1 day'))
-			   	);
-
-				$countFechas=0;
-				$countTotal= iterator_count($period);
-
-				foreach($period as $periodFechas){
-					$fecha=$periodFechas->format('Y-m-d');
-
-
-					$params=array();
-					$params['idProyecto']=$row['idProyecto'];
-					$params['fecha']=$fecha;
-					$this->model->actualizar_visitas($params);
-					$countFechas++;
-
+				$porcentaje= get_porcentaje($total,$procesados);
 					$params2=array();
 					$params2['idPeticion']=$row['idPeticion'];
-					$porc=($countFechas/$countTotal)*100;
+					$porc=$porcentaje;
 					$params2['porcentaje']=$porc;
 					$this->model->actualizar_peticion($params2);
-				}
-
-				
 			}
 		}
 	}
