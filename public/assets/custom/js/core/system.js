@@ -191,7 +191,19 @@ var View={
 	load: function(){
 
 		$(document).ready(() => {
+
+			$.ajax({
+				type: "POST",
+				// url: site_url+'public/bat/bat_peticion_actualizar_visitas.php',
+				url: site_url+'control/bat_peticion_actualizar_visitas',
+				data: {idCuenta: $("#sessIdCuenta").val(), idProyecto: $("#sessIdProyecto").val()},
+				success: function(data) {
+					console.log('listo');
+				}
+			});
+
 			View.validar_estado_peticion_actualizacion_visita();
+
 		});
 
 		//if( typeof($BODY)!='undefined' ) $BODY.toggleClass('nav-md nav-sm');
@@ -553,18 +565,29 @@ var View={
 			var fecFin = fechas.split(" - ")[1];
 
 			if(fecIni!=null && fecFin!=null){
-				$("#barraprogreso_actualizacion_visita").val(0);
-
-				//New Barra
-				$('#barraprogreso_actualizacion_visita').text(``);
-				$('#barraprogreso_actualizacion_visita').css('width',`0%`);
-
-				// View.validar_estado_peticion_actualizacion_visita();
 
 				var data = { data: JSON.stringify({ fecIni: fecIni, fecFin: fecFin }) };
 				$.when( Fn.ajax({ url: 'control/guardar_peticion_actualizar_visitas', data: data }) ).then(function(a){
 					if( a.result == 2 ) return false;
 
+					if( a.result == 0 )
+					{
+						$('body')
+							.toast({
+								class: 'warning',
+								showIcon: true,
+								message: 'No se encontró ninguna visita para actualizar'
+							});
+					$("#btn-actualizarvisitas-confirm").show();
+					return false;
+					}
+
+					$("#barraprogreso_actualizacion_visita").val(0);
+
+					//New Barra
+					$('#barraprogreso_actualizacion_visita').text(``);
+					$('#barraprogreso_actualizacion_visita').css('width',`0%`);
+	
 
 						$.ajax({
 							type: "POST",
@@ -1540,12 +1563,11 @@ var View={
 		}
 
 		var html = '';
-			html += `<div class="toast toast-${toastId}" role="alert" aria-live="assertive" aria-atomic="true" data-delay="${config['time']}">`;
+			html += `<div class="toast toast-${toastId}" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="10000" data-delay="${config['time']}">`;
 				html += `<div class="toast-header ${config['titleClass']}  text-white">`;
 					html += `<img src="../public/assets/images/icono.png" class="rounded mr-1" alt="..." style= "height: 20px !important">`;
 					html += `<strong class="mr-auto">${config['title']}</strong>`;
 					html += `<small>Hace un momento</small>`;
-					html +=	`<button type="button" class="ml-2 mb-1 close" data-dismiss="toast-${toastId}" aria-label="Close"> <span aria-hidden="true">&times;</span></button>`;
 			 	html += '</div>';
 				html += '<div class="toast-body">';
 					html +=	`${message}`;
@@ -1594,9 +1616,24 @@ var View={
 								mins: 0,
 							});
 							toasts++;
+
+							// $('body')
+							// 	.toast({
+							// 		title: `ImpactTrade ${v.fecha}`,
+							// 		message: `Actualizacion completa. Usuario <b>${v.nombreUsuario}</b>`,
+							// 		showProgress: 'bottom',
+							// 		classProgress: 'blue',
+							// 		closeIcon: true,
+							// 	})
+;
 						});
 
-						$('.toast-'+toastId).toast('show');
+						$('.toast-'+toastId).toast({
+							closeIcon: true,
+							classProgress: 'blue',
+							showProgress: 'bottom',
+
+						});
 
 
 						$('#barraprogreso_actualizacion_visita').attr('value',porc);
@@ -1623,16 +1660,41 @@ var View={
 							$('.container-progress-circle').addClass("d-none");
 							
 							if(config.validado == 1){
-								toastId++;
-								View.toast({
-									type: 1,
-									message: `Se completó la actualización de listas`,
-									title: `ImpactTrade`,
-									mins: 0,
-									time:10000,
-									titleClass: `bg-success`,
-								});
-								$('.toast-'+toastId).toast('show');
+								// toastId++;
+								// View.toast({
+								// 	type: 1,
+								// 	message: `Se completó la actualización de listas`,
+								// 	title: `ImpactTrade`,
+								// 	mins: 0,
+								// 	time:10000,
+								// 	titleClass: `bg-success`,
+								// });
+								// $('.toast-'+toastId).toast('show');
+
+								$('body')
+									.toast({
+										message: `Se completó la actualización de listas`,
+										displayTime: 0,
+										position: "bottom right",
+										class: 'white',
+										actions:	[{
+											text: 'Aceptar',
+											icon: 'check',
+											class: 'green',
+											click: function() {
+												$('body').toast(
+													{
+														message:'<b>Se confirmó la actualización de listas</b>',
+														class: 'green',
+														position: "bottom right",
+													}
+												);
+											}
+										},
+									
+										]
+									})
+								;
 							}
 								
 						}else{

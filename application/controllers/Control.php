@@ -263,6 +263,13 @@ class Control extends MY_Controller{
 			$params['idUsuario'] =$this->session->userdata('idUsuario');
 			$params['idCuenta'] =$this->session->userdata('idCuenta');
 
+			$rutas = $this->m_control->verificar_rutas_proyecto($params)->result_array();
+			if(empty($rutas)){
+				$result['result'] = 0;
+				echo json_encode($result);
+				exit();
+			}
+
 			$this->m_control->registrar_peticion_actualizar_visitas($params);
 			
 			$idPeticion = $this->db->insert_id();

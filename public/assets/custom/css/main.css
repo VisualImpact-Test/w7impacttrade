@@ -971,4 +971,10 @@ td,
 .toast {
   opacity: 1 !important;
 }
+.ui.toast-container{
+  z-index: 1010 !important;
+}
+.ui.toast-container.top.right {
+  top: 4.857143em !important;
+}
 

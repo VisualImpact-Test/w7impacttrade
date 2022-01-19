@@ -796,14 +796,25 @@ class M_control extends MY_Model{
 
 	public function registrar_peticion_actualizar_visitasDet($post)
 	{
-		
+	
 		$sql = "INSERT INTO {$this->sessBDCuenta}.trade.peticionActualizarVisitasDet (idPeticion,idRuta,estado,hora)
 		SELECT '".$post['idPeticion']."',idRuta,1,null FROM {$this->sessBDCuenta}.trade.data_ruta WHERE fecha  BETWEEN '".trim($post['fechaIni'])."' AND '".trim($post['fechaFin'])."' AND idProyecto='".trim($post['idProyecto'])."'";
-
 		$insert = $this->db->query($sql);
 		return $insert;
+
 	}
 
+	public function verificar_rutas_proyecto($post){
+		$sql = "
+		SELECT
+		idRuta
+		FROM
+		{$this->sessBDCuenta}.trade.data_ruta 
+		WHERE fecha  BETWEEN '".trim($post['fechaIni'])."' AND '".trim($post['fechaFin'])."' 
+		AND idProyecto='".trim($post['idProyecto'])."'
+		";
+		return $this->db->query($sql);
+	}
 
 	public function obtenerUsuariosPermisosDistribuidoraSucursal($input)
 	{

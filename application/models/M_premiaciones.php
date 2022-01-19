@@ -51,13 +51,14 @@ class M_premiaciones extends MY_Model{
 		$sql = "
 			DECLARE
 				  @fecIni DATE = '".$input['fecIni']."'
-				, @fecFin DATE = '".$input['fecFin']."'
-			SELECT 
+				, @fecFin DATE = '".$input['fecFin']."';
+			WITH lista_premiaciones AS (
+					SELECT 
 				DISTINCT
 				  gc.idGrupoCanal
 				, gc.nombre grupoCanal
 				, ca.nombre canal
-
+				, v.idVisita
 				, v.idCliente
 				, v.razonSocial
 				, r.idUsuario
@@ -123,6 +124,19 @@ class M_premiaciones extends MY_Model{
 			{$filtro_demo}
 			AND r.estado = 1 
 			AND v.estado = 1{$filtros}
+		),
+		lista_premiaciones_fotos AS(
+
+			SELECT 
+				lst.*,
+				ROW_NUMBER() OVER (PARTITION BY fotoUrl ORDER BY idVisita) fotos
+			FROM lista_premiaciones lst
+		)
+		SELECT 
+		*
+		FROM
+		lista_premiaciones_fotos 
+		WHERE fotos <= 1
 		";
 		return $this->query($sql);
 	}

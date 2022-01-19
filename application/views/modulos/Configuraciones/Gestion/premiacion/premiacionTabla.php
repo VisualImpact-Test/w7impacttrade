@@ -2,8 +2,8 @@
     <table class="table table-striped table-bordered nowrap" width="100%">
         <thead>
             <tr>
-                <th></th>
-                <th></th>
+                <th class="noVis"></th>
+                <th class="noVis"></th>
                 <th class="text-center">OPCIONES</th>
                 <th class="text-center">NOMBRE</th>
                 <th class="text-center">FECHA INICIO</th>
@@ -14,7 +14,7 @@
             <?php foreach ($resultados as $value) {
 
             ?>
-                <tr data-id="<?= $value['idPremiacion'] ?>" >t
+                <tr data-id="<?= $value['idPremiacion'] ?>" >
                     <td></td>
                     <td></td>
                     <td>

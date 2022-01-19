@@ -58,7 +58,7 @@ class Rutas extends MY_Controller{
 			$result['data']['html'] = $html;
 			$result['data']['datatable'] = 'tb-modulacion';
 		} else {
-			$html .='<div class="alert alert-danger" role="alert"><i class="fas fa-info-circle"></i> NO SE HA GENERADO NINGÚN RESULTADO.</div>';
+			$html = getMensajeGestion('noRegistros');
 			$result['data']['html'] = $html;
 		}
 		echo json_encode($result);

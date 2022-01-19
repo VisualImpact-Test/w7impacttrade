@@ -320,7 +320,7 @@ class Carga_masiva extends CI_Controller
 											$insert['idCarga']=$row['idCarga'];
 											($data[2]!=null)? ( is_numeric($data[2])? $insert['idCliente']=$data[2] :null ) : null;
 											$insert['tipoError']='Dato no valido.';
-											$insert['datoIngresado']="";
+											$insert['datoIngresado']="NO SE INSERTÓ EL ID USUARIO";
 	
 											$this->model->insertar_carga_ruta_no_procesado($insert);
 											$cont++;
@@ -333,24 +333,29 @@ class Carga_masiva extends CI_Controller
 												$insert['idCarga']=$row['idCarga'];
 												($data[2]!=null)? ( is_numeric($data[2])? $insert['idCliente']=$data[2] :null ) : null;
 												$insert['tipoError']='Dato no valido.';
-												$insert['datoIngresado']=$data[1];
+												$insert['datoIngresado']="El idUsuario: {$data[1]} no es válido";
 	
 												$this->model->insertar_carga_ruta_no_procesado($insert);
 												$cont++;
 												continue;
 											}
 											else{
-	
-												$validar_cliente="SELECT * FROM trade.usuario WHERE idUsuario = ".$data[1];
-												$res = $this->db->query($validar_cliente)->row_array();
-												if(count($res)>0){
+												$params = [
+													'idUsuario' => $data[1],
+													'idProyecto'=> $row['idProyecto'],
+													'fecIni' => $row['fecIni'],
+													'fecFin' => $row['fecFin'],
+													'idTipoUsuario'=> $row['idTipoUsuario'],
+												];
+												$validar_usuario = $this->model->validar_usuario_historico($params);
+												if($validar_usuario){
 													$arrayBody[$j]['idUsuario']=$data[1];
 												}else{
 													$insert=array();
 	
 													$insert['idCarga']=$row['idCarga'];
 													($data[2]!=null)? ( is_numeric($data[2])? $insert['idCliente']=$data[2] :null ) : null;
-													$insert['tipoError']='No encontrado.';
+													$insert['tipoError']="Por favor verifique que el usuario {$data[1]} tenga un histórico activo con el Proyecto({$row['idProyecto']}) y Tipo de Usuario({$row['idTipoUsuario']}) indicados";
 													$insert['datoIngresado']=$data[1];
 	
 													$this->model->insertar_carga_ruta_no_procesado($insert);
@@ -366,8 +371,8 @@ class Carga_masiva extends CI_Controller
 	
 											$insert['idCarga']=$row['idCarga'];
 											($data[1]!=null)? ( is_numeric($data[1])? $insert['idUsuario']=$data[1] :null ) : null;
-											$insert['tipoError']='Dato no valido.';
-											$insert['datoIngresado']="";
+											$insert['tipoError']='COD CLIENTE NO INGRESADO.';
+											$insert['datoIngresado']="NO SE INSERTÓ EL COD CLIENTE";
 	
 											$this->model->insertar_carga_ruta_no_procesado($insert);
 											$cont++;
@@ -379,8 +384,8 @@ class Carga_masiva extends CI_Controller
 	
 												$insert['idCarga']=$row['idCarga'];
 												($data[1]!=null)? ( is_numeric($data[1])? $insert['idUsuario']=$data[1] :null ) : null;
-												$insert['tipoError']='Dato no valido.';
-												$insert['datoIngresado']=$data[2];
+												$insert['tipoError']='COD CLIENTE NO VÁLIDO.';
+												$insert['datoIngresado']="EL COD CLIENTE: {$data[2]} NO ES VÁLIDO";
 	
 												$this->model->insertar_carga_ruta_no_procesado($insert);
 												$cont++;
@@ -535,6 +540,7 @@ class Carga_masiva extends CI_Controller
 						//GENERAR LAS VISITAS
 
 						$params=array();
+						$cont_visitas=0;
 						$params['idCarga']=$row['idCarga'];
 						//
 						$data_det = $this->model->carga_ruta_det($params)->result_array();
@@ -558,7 +564,7 @@ class Carga_masiva extends CI_Controller
 							$idRutaProg = $this->db->insert_id();
 
 							//insert master_rutaProgramadaDet
-							$cont_visitas=0;
+							
 							foreach($array_detalle[$value_nombre] as  $value_idUsuario  => $row_dn){
 
 								$insert_gtm = array(
@@ -2317,7 +2323,7 @@ class Carga_masiva extends CI_Controller
 				$total= isset($data_procesada['total'])?$data_procesada['total']:0;
 				$procesados= isset($data_procesada['procesados'])?$data_procesada['procesados']:0;
 
-				$porcentaje= get_porcentaje($total,$procesados);
+					$porcentaje= get_porcentaje($total,$procesados);
 					$params2=array();
 					$params2['idPeticion']=$row['idPeticion'];
 					$porc=$porcentaje;
@@ -2325,6 +2331,8 @@ class Carga_masiva extends CI_Controller
 					$this->model->actualizar_peticion($params2);
 			}
 		}
+
+
 	}
 
 	public function cambiarBaseDatos($idCuenta){

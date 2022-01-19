@@ -481,7 +481,7 @@ var Modulacion = {
 					btn[1]={title:'Cerrar',fn:fn2};
 				var message = Fn.message({ 'type': 3, 'message': '¿Desea generar las Rutas/Visitas del dia de hoy?' });
 				Fn.showModal({ id:modalId,title:'Alerta',content:message,btn:btn,show:true});
-				Visitas.idModal = modalId;
+				Modulacion.idModal = modalId;
 		});
 	
 		$(document).on('click','#btn-cargaMasivaRutas',function(e){
@@ -987,7 +987,7 @@ var Modulacion = {
 				idCuenta: $("#sessIdCuenta").val(), 
 				idProyecto: $("#sessIdProyecto").val(),	
 			},   
-			url: site_url+'control/bat_rutas',
+			url: site_url+'carga_masiva/procesar_archivos_rutas/'+$("#sessIdCuenta").val(),
 			success: function(data) {
 				console.log('listo');
 			}

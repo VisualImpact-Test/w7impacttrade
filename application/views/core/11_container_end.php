@@ -2,7 +2,7 @@
 
 	<div class="d-none" aria-live="polite" aria-atomic="true" style="position: relative; min-height: 200px;">
 		<!-- Position it -->
-		<div class="toastTopRight" style="position: absolute; top: 0; right: 0;">
+		<div class="toastTopRight" style="position: absolute; top: 50; right: 0;">
 		</div>
 	</div>
 	<div class="fab-container container-progress-circle d-none">

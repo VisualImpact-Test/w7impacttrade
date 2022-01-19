@@ -2071,6 +2071,28 @@ class M_carga_masiva extends CI_Model{
 
 	}
 
+	public function validar_usuario_historico($params)
+	{
+		$sql = "
+		DECLARE 
+		@fecIni DATE = '{$params['fecIni']}', 
+		@fecFin DATE = '{$params['fecFin']}';
+		SELECT
+		u.idUsuario
+		FROM
+		trade.usuario u
+		JOIN trade.usuario_historico uh ON u.idUsuario = uh.idUsuario
+		WHERE
+		uh.idProyecto = {$params['idProyecto']}
+		AND General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,@fecIni,@fecFin) = 1
+		AND u.idUsuario = {$params['idUsuario']}
+		AND uh.idTipoUsuario = {$params['idTipoUsuario']}
+		";
+		$rs = $this->db->query($sql)->row_array();
+		return (!empty($rs)) ? true: false ;
+
+	}
+
 
 
 
