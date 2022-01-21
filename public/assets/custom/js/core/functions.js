@@ -1343,6 +1343,37 @@ var Fn = {
 		var g = Math.floor(Math.random() * 255);
 		var b = Math.floor(Math.random() * 255);
 		return "rgb(" + r + "," + g + "," + b + ")";
+	},
+
+	showAlert: (config = {}) => {
+
+	var defaults = { 
+		'type': 'info', 
+		'message': 'Mensaje de prueba', 
+		'duration':15000,
+		'parent':'body'
+	};
+	var config = $.extend({}, defaults, config);
+
+	let duration = config['duration'];
+	let message = config['message'];
+	let type = config['type'];
+
+		if (!message) return false;
+		if (!type) type = 'info';
+		$("<div class='alert alert-message alert-" +
+			type +
+			" data-alert alert-dismissible'>" +
+			"<button class='close alert-link' data-dismiss='alert'>&times;</button>" +
+			message + " </div>").hide().appendTo(config['parent']).fadeIn(300);
+		if (duration === undefined) {
+			duration = 5000;
+		}
+		if (duration !== false) {
+			$(".alert-message").delay(duration).fadeOut(500, function() {
+				$(this).remove();
+			});
+		}
 	}
 
 }

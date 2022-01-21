@@ -236,6 +236,7 @@ class M_encuesta extends MY_Model
 			
 			AND r.fecha between @fecIni AND @fecFin 
 		$filtros
+		ORDER BY respuesta
 		";
 		return $this->db->query($sql);
 	}

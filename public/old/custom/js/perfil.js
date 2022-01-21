@@ -1,5 +1,0 @@
-var Perfil = {
-
-
-}
-Precios.load();

@@ -53,7 +53,7 @@ class M_premiaciones extends MY_Model{
 				  @fecIni DATE = '".$input['fecIni']."'
 				, @fecFin DATE = '".$input['fecFin']."';
 			WITH lista_premiaciones AS (
-					SELECT 
+			SELECT 
 				DISTINCT
 				  gc.idGrupoCanal
 				, gc.nombre grupoCanal
@@ -397,13 +397,14 @@ class M_premiaciones extends MY_Model{
 		$sql = "
 			DECLARE
 				  @fecIni DATE = '".$input['fecIni']."'
-				, @fecFin DATE = '".$input['fecFin']."'
+				, @fecFin DATE = '".$input['fecFin']."';
+			WITH lista_premiaciones AS (
 			SELECT 
 				DISTINCT
 				  gc.idGrupoCanal
 				, gc.nombre grupoCanal
 				, ca.nombre canal
-
+				, v.idVisita
 				, v.idCliente
 				, v.razonSocial
 				, r.idUsuario
@@ -422,8 +423,7 @@ class M_premiaciones extends MY_Model{
 				, tp.descripcion tipoPremiacion
 				, vp.codigo
 				, vp.monto
-				, vp.premiado
-
+				, CASE WHEN (vp.premiado = 1) OR (vf.fotoUrl IS NOT NULL AND (vp.monto IS NOT NULL OR vp.monto > 0) ) THEN 1 ELSE 0 END premiado
 				,vp.idVisitaPremiacion
 				,vp.estado
 				,vp.latitud as latitud_visita
@@ -466,9 +466,26 @@ class M_premiaciones extends MY_Model{
 			{$filtro_demo}
 			AND r.estado = 1 
 			AND v.estado = 1{$filtros}
+		),
+		lista_premiaciones_fotos AS(
+
+			SELECT 
+				lst.*,
+				ROW_NUMBER() OVER (PARTITION BY fotoUrl ORDER BY idVisita) fotos
+			FROM lista_premiaciones lst
+		)
+		SELECT 
+		*
+		FROM
+		lista_premiaciones_fotos 
+		WHERE fotos <= 1
+
+		
 		";
 		return $this->query($sql);
 	}
+
+
 	
 }
 ?>

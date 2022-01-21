@@ -2093,6 +2093,11 @@ class M_carga_masiva extends CI_Model{
 
 	}
 
+	public function validar_cliente($idCliente){
+		$sql = "SELECT * FROM trade.cliente WHERE idCliente = ".$idCliente;
+		$rs = $this->db->query($sql)->row_array();
+		return $rs;
+	}
 
 
 

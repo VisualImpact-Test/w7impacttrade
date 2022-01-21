@@ -45,9 +45,8 @@ class Archivo extends MY_Controller
 		$config = array();
 		$config['css']['style'] = [
 			'assets/libs/dataTables-1.10.20/datatables',
-			// '../public/old/core/libs/dataTables-1.10.20/datatables',
-			'../public/old/core/libs/handsontable@7.4.2/dist/handsontable.full.min',
-			'../public/old/core/libs/handsontable@7.4.2/dist/pikaday/pikaday'
+			'assets/libs/handsontable@7.4.2/dist/handsontable.full.min',
+			'assets/libs/handsontable@7.4.2/dist/pikaday/pikaday'
 		];
 		$config['js']['script'] = [
 			// 'assets/libs/dataTables/datatables',

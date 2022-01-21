@@ -5,6 +5,7 @@
 		<div class="toastTopRight" style="position: absolute; top: 50; right: 0;">
 		</div>
 	</div>
+	<div class="toastOverlay" style="z-index: 9999999 !important;"></div>
 	<div class="fab-container container-progress-circle d-none">
 		<div class="button iconbutton">
 			<div class="progress progress-circle" data-percentage="100">

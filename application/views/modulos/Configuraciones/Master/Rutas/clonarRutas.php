@@ -26,7 +26,7 @@
 			<label>RUTA</label>
 			<select class="form-control" id="idRuta" name="idRuta">
 				<? foreach($rutas as $row){ ?>
-					<option value="<?=$row['idRutaProg']?>"><?=$row['nombreRuta']?></option>
+					<option value="<?=$row['idProgRuta']?>"><?=$row['nombreRuta']?></option>
 				<? } ?>
 			</select>
 		</div>
