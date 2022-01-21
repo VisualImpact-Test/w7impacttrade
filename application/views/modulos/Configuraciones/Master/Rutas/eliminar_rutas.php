@@ -7,14 +7,14 @@
 }
 </style>
 <form id="eliminar_ruta">
-	<input type="hidden" name="idRutaProg" id="idRutaProg" value="<?=$idRutaProg?>">
-	<div class="col-md-12 col-sm-12 col-xs-12" style="margin-top:20px;padding:20px;overflow: hidden;">
+	<input type="hidden" name="idProgRuta" id="idProgRuta" value="<?=$idProgRuta?>">
+	<div class="col-md-12 col-sm-12 col-xs-12 px-5 dvFiltrarClientes" style="overflow: hidden;">
 		<div class="form-group">
-			<label>CLIENTE: Filtre los codigos de los clientes que desea eliminar separados por comas.</label>
-			<textArea class="form-control input-sm selectpicker" id="idCliente" name="idCliente"></textArea>
+			<label>Filtrado</label>
+			<textArea class="form-control input-sm selectpicker" id="idCliente" name="idCliente" placeholder="Filtre los codigos de los clientes que desea eliminar separados por comas. Ejm: 1234,4321,54654"></textArea>
 		</div>
 		<div class="form-group">
-			<div class="col-lg-3"> <button id="busca_clientes_eliminar" class="btn btn-success" style="padding:5px;">Filtrar clientes</button></div>
+			<div class="col-lg-12"> <button id="busca_clientes_eliminar" class="btn btn-success w-100" >Filtrar clientes</button></div>
 		</div>
 	</div>
 	<div class="col-md-12 col-sm-12 col-xs-12" style="margin-top:20px;" >
@@ -37,7 +37,7 @@
 								$flagModulacion = $this->session->userdata('flag_modulacion');
 								if($flagModulacion==1){
 							?>
-							<a href="javascript:;" class="eliminar_visita_programada btn btn-default btn-xs" data-idCliente="<?=$row?>" data-idRutaProg="<?=$data[0]['idRutaProg']?>" style="float: left;"><i class="fa fa-trash"></i></a>
+							<a href="javascript:;" class="eliminar_visita_programada btn btn-default btn-xs" data-idCliente="<?=$row?>" data-idProgRuta="<?=$data[0]['idProgRuta']?>" style="float: left;"><i class="fa fa-trash"></i></a>
 							<?
 								}
 							?>
@@ -46,7 +46,7 @@
 						<td><?=$value['id']?></td>
 						<td><?=$value['razonSocial']?></td>
 						
-						<td><center><input type="checkbox" value="<?=$value['idVisitaProg']?>" class="eliminar" name="eliminar" <?=isset($dias[$row][1]['dia'])?'checked':''?>   ></center> </td>
+						<td><center><input type="checkbox" value="<?=$value['idProgVisita']?>" class="eliminar" name="eliminar" <?=isset($dias[$row][1]['dia'])?'checked':''?>   ></center> </td>
 					</tr>
 				<? $i++; }} ?>
 			</tbody>

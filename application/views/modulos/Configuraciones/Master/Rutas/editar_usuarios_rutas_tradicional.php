@@ -4,7 +4,7 @@
 		<div class="col-md-12 col-sm-12 col-xs-12" >	
 			<div class="form-group">
 				<label>USUARIO: </label>
-				<input name="idRutaProg" value="<?=isset($data[0])? $data[0]['idRutaProg'] :'' ?>" type="hidden">
+				<input name="idProgRuta" value="<?=isset($data[0])? $data[0]['idProgRuta'] :'' ?>" type="hidden">
 				<select class="form-control input-sm selectpicker" id="idUsuario" name="idUsuario" title="SELECCIONE" data-actions-box="true" data-live-search="true"  >
 					<?
 						if(isset($data[0])){
@@ -22,23 +22,21 @@
 	</div>
 	
 	<div class="row">
-		<div class="col-md-6 col-sm-6 col-xs-6" >
+		<div class="col-md-6" >
 			<label>FECHA INICIO</label>
 			<input type="text" class="form-control input-sm fecha" id="fecha_ini" name="fechas_ini_rutas" value="<?=DATE('d/m/Y');?>">
 		</div>
 
-		<div class="col-md-6 col-sm-6 col-xs-6" >
+		<div class="col-md-6" >
 			<label>FECHA FIN</label>
 			<input type="text" class="form-control input-sm fecha" id="fecha_fin" name="fechas_fin_rutas" value="<?=DATE('d/m/Y');?>">
 		</div>
-	</div>
-	<br><br>
-	<div class="col-md-6 col-sm-6 col-xs-6" >
-		<button id="agregar_usuario_ruta" type="button" class="btn btn-success" style="margin-top:10px;">Registrar</button>
+		<div class="col-md-2 d-none" >
+			<button id="agregar_usuario_ruta" type="button" class="btn btn-success" style="margin-top:10px;">Registrar</button>
+		</div>
 	</div>
 </form>
-
-<br><br>
+<hr>
 <div class="row">
 <div class="col-md-12 col-sm-12 col-xs-12" >
 	<div id="content-usuarios" class="widget-content table-responsive table-content" style="overflow-y: scroll;max-height:150px;">

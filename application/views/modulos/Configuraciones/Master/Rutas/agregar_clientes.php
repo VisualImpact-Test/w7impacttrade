@@ -13,7 +13,7 @@
 				<label>RUTA: </label>
 				<select type="text" name="idRuta" id="idRuta" class="form-control input-sm" >
 					<? foreach($rutas as $row){ ?>
-						<option value="<?=$row['idRutaProg']?>"><?=$row['nombreRuta']?></option>
+						<option value="<?=$row['idProgRuta']?>"><?=$row['nombreRuta']?></option>
 					<? }?>
 				</select>
 			</div>

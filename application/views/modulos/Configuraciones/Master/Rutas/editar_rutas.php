@@ -11,7 +11,7 @@
 		<div class="col-md-12 col-sm-12 col-xs-12" >	
 			<div class="form-group">
 				<label>RUTA: </label>
-				<input type="hidden" name="idRutaProg" id="idRutaProg" value="<?=$data[0]['idRutaProg']?>">
+				<input type="hidden" name="idProgRuta" id="idProgRuta" value="<?=$data[0]['idProgRuta']?>">
 				<input type="text" name="nombreRuta" id="nombreRuta" class="form-control input-sm" value=" <?=isset($data[0]['nombreRuta'])?$data[0]['nombreRuta']:""?>">
 			</div>
 		</div>

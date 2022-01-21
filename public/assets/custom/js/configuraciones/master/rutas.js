@@ -122,8 +122,8 @@ var Modulacion = {
 					var fn='Modulacion.actualizar_ruta();';
 					var fn1='Fn.showModal({ id:'+modalId+',show:false });$(".modal-stack").removeClass("modal-backdrop")';
 					var btn=new Array();
-						btn[0]={title:'Actualizar',fn:fn};
-						btn[1]={title:'Cancelar',fn:fn1};
+						btn[0]={title:'Cancelar',fn:fn1};
+						btn[1]={title:'Actualizar',fn:fn};
 					Fn.showModal({ id:modalId,show:true,title:"EDITAR RUTAS",frm:a.data,btn:btn,width:'90%'});  
 					
 					////
@@ -202,8 +202,8 @@ var Modulacion = {
 					var fn='Modulacion.eliminar_ruta();';
 					var fn1='Fn.showModal({ id:'+modalId+',show:false });';
 					var btn=new Array();
-						btn[0]={title:'Eliminar',fn:fn};
-						btn[1]={title:'Cancelar',fn:fn1};
+						btn[1]={title:'Eliminar',fn:fn};
+						btn[0]={title:'Cancelar',fn:fn1};
 					Fn.showModal({ id:modalId,show:true,title:"EDITAR RUTAS",frm:a.data,btn:btn,width:'900px'});  
 				}
 				
@@ -243,9 +243,9 @@ var Modulacion = {
 			e.preventDefault();
 			var divHtml = '';
 			var idCliente=$('#idCliente').val();
-			var idRutaProg=$('#idRutaProg').val();
+			var idProgRuta=$('#idProgRuta').val();
 
-			var data={'idCliente':idCliente,'idRutaProg':idRutaProg};
+			var data={'idCliente':idCliente,'idProgRuta':idProgRuta};
 			var jsonString={ 'data':JSON.stringify( data ) };
 			var config={'url':Modulacion.url+'filtrar_clientes','data':jsonString};
 
@@ -264,16 +264,32 @@ var Modulacion = {
 			});
 		});
 		
+		$(document).on("keypress","#idCliente",(e) => {
+			if(e.key.match(/[0-9,]/)===null) {
+				e.preventDefault();
+			}
+		});
+
 		$(document).on("click","#busca_clientes_eliminar",function(e){
 			e.preventDefault();
 			var divHtml = '';
 			var idCliente=$('#idCliente').val();
-			var idRutaProg=$('#idRutaProg').val();
+			var idProgRuta=$('#idProgRuta').val();
 
-			var data={'idCliente':idCliente,'idRutaProg':idRutaProg};
+			if(idCliente == ''){
+				Fn.showAlert(
+					{
+						type:'warning',
+						message:'No se ingresaron códigos de tiendas',
+						parent:'.dvFiltrarClientes',
+					}
+				);
+				return false;
+			}
+			var data={'idCliente':idCliente,'idProgRuta':idProgRuta};
 			var jsonString={ 'data':JSON.stringify( data ) };
 			var config={'url':Modulacion.url+'filtrar_clientes_eliminar','data':jsonString};
-
+			
 			$.when( Fn.ajax(config) ).then(function(a){
 				if(a.result==1){
 					$('.rutas tbody').html('');
@@ -310,9 +326,11 @@ var Modulacion = {
 					++modalId;
 
 					var fn='Fn.showModal({ id:'+modalId+',show:false });';
+					var fn1=`$("#agregar_usuario_ruta").click();`;
 					var btn=new Array();
 
 						btn[0]={title:'Cancelar',fn:fn};
+						btn[1]={title:'Agregar',fn:fn1};
 					Fn.showModal({ id:modalId,show:true,title:"EDITAR USUARIOS RUTAS",frm:a.data,btn:btn,width:'600px'});  
 				}
 				
@@ -729,7 +747,7 @@ var Modulacion = {
 		}
 
 		var dataArrayCargaMasiva = arrayDataClientes;
-		var data = {'clientes':dataArrayCargaMasiva,'fecIni':$('#fecha_ini').val(),'fecFin':$('#fecha_fin').val(),'nombre_ruta':$('#nombreRuta').val(),'idRutaProg':$('#idRutaProg').val()}
+		var data = {'clientes':dataArrayCargaMasiva,'fecIni':$('#fecha_ini').val(),'fecFin':$('#fecha_fin').val(),'nombre_ruta':$('#nombreRuta').val(),'idProgRuta':$('#idProgRuta').val()}
 		
 		var jsonString={ 'data':JSON.stringify( data )  };
 		var configAjax = { 'url': Modulacion.url + 'actualizar_ruta', 'data': jsonString };
@@ -737,7 +755,7 @@ var Modulacion = {
 		$.when( Fn.ajax(configAjax) ).then( function(a){
 			++modalId;
 			var title='Confirmacion';
-			var fn='Fn.showModal({ id:'+modalId+',show:false });';
+			var fn=`Fn.showModal({ id:${modalId},show:false });$("#btn-filtrarModulacion").click();`;
 			var btn=new Array();
 				btn[0]={title:'Cerrar',fn:fn};
 			var html = '';
@@ -754,7 +772,7 @@ var Modulacion = {
 		$.when( Fn.ajax(configAjax) ).then( function(a){
 			++modalId;
 			var title='Confirmacion';
-			var fn='Fn.showModal({ id:'+modalId+',show:false });';
+			var fn='Fn.showModal({ id:'+modalId+',show:false });Fn.closeModals('+modalId+');$("#btn-filtrarModulacion").click();';
 			var btn=new Array();
 				btn[0]={title:'Cerrar',fn:fn};
 			var html = '';
@@ -988,6 +1006,7 @@ var Modulacion = {
 				idProyecto: $("#sessIdProyecto").val(),	
 			},   
 			url: site_url+'carga_masiva/procesar_archivos_rutas/'+$("#sessIdCuenta").val(),
+			// url: site_url+'control/bat_rutas',
 			success: function(data) {
 				console.log('listo');
 			}

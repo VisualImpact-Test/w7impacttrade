@@ -1,4 +1,7 @@
-<?php 
+<?php
+
+use Mpdf\Tag\I;
+
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 class M_rutas extends My_Model{
@@ -14,21 +17,14 @@ class M_rutas extends My_Model{
 		$modulacion = $this->session->flag_modulacion;
 		$idUsuario = $this->session->idUsuario;
 		$filtros='';
-		//$filtros.=!empty($input['id'])?'AND r.idRutaProg='.$input['id']:'';
-		if($modulacion!=1){
-			$filtros.='AND r.idUsuarioReg='.$idUsuario;
-		}
+	
 		$sql ="
 			DECLARE 
 				  @fecIni DATE = '".$input['fecIni']."'
 				, @fecFin DATE = '".$input['fecFin']."'
 			SELECT 
-				  r.idRutaProg
-				, r.nombreRuta
-				, r.numClientes
-				--, eu_spoc.idEncargado
-				--, e_spoc.idUsuario
-				--, spoc.apePaterno+' '+spoc.apeMaterno+' '+spoc.nombres spoc
+				  r.idProgRuta
+				, r.nombre nombreRuta
 				, rd.idUsuario
 				, gtm.apePaterno+' '+gtm.apeMaterno+' '+gtm.nombres gtm
 				, CONVERT(VARCHAR,r.fecIni,103) fecIni
@@ -36,24 +32,18 @@ class M_rutas extends My_Model{
 				, r.estado
 				, r.generado
 			FROM
-				{$this->sessBDCuenta}.trade.master_rutaProgramada r
-				LEFT JOIN {$this->sessBDCuenta}.trade.master_rutaProgramadaDet rd
-					ON rd.idRutaProg = r.idRutaProg
+				{$this->sessBDCuenta}.trade.programacion_ruta r
+				LEFT JOIN {$this->sessBDCuenta}.trade.programacion_rutaDet rd
+					ON rd.idProgRuta = r.idProgRuta
 					AND general.dbo.fn_fechaVigente(rd.fecIni,rd.fecFin,@fecIni,@fecFin)=1
 				LEFT JOIN trade.usuario gtm
 					ON gtm.idUsuario = rd.idUsuario
-				--LEFT JOIN trade.encargado_usuario eu_spoc
-				--	ON eu_spoc.idUsuario = gtm.idUsuario
-				--LEFT JOIN trade.encargado e_spoc
-				--	ON e_spoc.idEncargado = eu_spoc.idEncargado
-				--LEFT JOIN trade.usuario spoc
-				--	ON spoc.idUsuario = e_spoc.idUsuario
 			WHERE 
 				general.dbo.fn_fechaVigente(@fecIni,@fecFin,r.fecIni,r.fecFin)=1
 				--{$filtros}
 		";
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.master_rutaProgramada" ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.programacion_ruta" ];
 		return $this->db->query($sql)->result_array();
 	}
 	
@@ -64,25 +54,25 @@ class M_rutas extends My_Model{
 		return $this->db->query($sql)->result_array();
 	}
 	
-	public function obtener_visitas_programadas($idCliente,$idRutaProg){
+	public function obtener_visitas_programadas($idCliente,$idProgRuta){
 		$sql = "
 			SELECT 
 				  c.idCliente
 				, c.razonSocial 
-				, vpd.idDia
-				, vp.idVisitaProg
+				, vpd.dia idDia
+				, vp.idProgVisita
 			FROM 
-				{$this->sessBDCuenta}.trade.master_visitaProgramada vp
-				JOIN {$this->sessBDCuenta}.trade.master_visitaProgramadaDet vpd
-					ON vpd.idVisitaProg = vp.idVisitaProg
+				{$this->sessBDCuenta}.trade.programacion_visita vp
+				JOIN {$this->sessBDCuenta}.trade.programacion_visitaDet vpd
+					ON vpd.idProgVisita = vp.idProgVisita
 				JOIN trade.cliente c
 					ON c.idCliente = vp.idCliente
 			WHERE 
 				c.idCliente IN ({$idCliente})
-				AND vp.idRutaProg = {$idRutaProg}
+				AND vp.idProgRuta = {$idProgRuta}
 		";
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.master_visitaProgramada" ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.programacion_visita" ];
 		return $this->db->query($sql)->result_array();
 	}
 	
@@ -92,43 +82,43 @@ class M_rutas extends My_Model{
 				  @fecIni DATE = getdate()
 				, @fecFin DATE = getdate()
 			SELECT
-				  idRutaProg
-				, nombreRuta
+				  idProgRuta
+				, nombre nombreRuta
 
 			FROM 
-				{$this->sessBDCuenta}.trade.master_rutaProgramada 
+				{$this->sessBDCuenta}.trade.programacion_ruta 
 			WHERE
 				General.dbo.fn_fechaVigente(fecIni,fecFin,@fecIni,@fecFin)=1
 				AND estado=1
 		";
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.master_rutaProgramada" ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.programacion_ruta" ];
 		return $this->db->query($sql)->result_array();
 	}
 
-	public function obtener_ruta_detalle($idRutaProg){
+	public function obtener_ruta_detalle($idProgRuta){
 		$sql ="
 			SELECT DISTINCT
-				  rp.idRutaProg
-				, vp.idVisitaProg
+				  rp.idProgRuta
+				, vp.idProgVisita
 				, vp.idCliente
 				, c.razonSocial
-				, vpd.idDia
+				, vpd.dia idDia
 			FROM 
-				{$this->sessBDCuenta}.trade.master_rutaProgramada rp
-				JOIN {$this->sessBDCuenta}.trade.master_visitaProgramada vp
-					ON vp.idRutaProg = rp.idRutaProg
-				JOIN {$this->sessBDCuenta}.trade.master_visitaProgramadaDet vpd
-					ON vpd.idVisitaProg = vp.idVisitaProg
+				{$this->sessBDCuenta}.trade.programacion_ruta rp
+				JOIN {$this->sessBDCuenta}.trade.programacion_visita vp
+					ON vp.idProgRuta = rp.idProgRuta
+				JOIN {$this->sessBDCuenta}.trade.programacion_visitaDet vpd
+					ON vpd.idProgVisita = vp.idProgVisita
 				JOIN trade.cliente c
 					ON c.idCliente = vp.idCliente
 			WHERE
-				rp.idRutaProg = {$idRutaProg}
+				rp.idProgRuta = {$idProgRuta}
 			ORDER BY 
 				idCliente
 		";
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.master_visitaProgramadaDet" ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.programacion_visitaDet" ];
 		return $this->db->query($sql)->result_array();
 	}
 	
@@ -159,6 +149,11 @@ class M_rutas extends My_Model{
 	}
 	
 	public function obtener_clientes($params = array()){
+
+		$idProyecto = $this->sessIdProyecto;
+		$idCuenta = $this->sessIdCuenta;
+		$sessDemo = $this->demo;
+
 		$filtro='';
 			if(!empty($params['idCliente'])) $filtro= 'AND c.idCliente='.$params['idCliente'];
 		$sql = "
@@ -179,7 +174,7 @@ class M_rutas extends My_Model{
 				trade.cliente c
 				JOIN ".getClienteHistoricoCuenta()." ch
 					ON ch.idCliente = c.idCliente
-					AND ch.idProyecto IN (3)
+					AND ch.idProyecto = {$idProyecto}
 					AND General.dbo.fn_fechaVigente(ch.fecIni,ch.fecFin,@fecIni,@fecFin)=1
 				JOIN trade.segmentacionNegocio sn
 					ON sn.idSegNegocio = ch.idSegNegocio
@@ -207,26 +202,34 @@ class M_rutas extends My_Model{
 	public function obtener_usuario_ruta_tradicional($params){
 		$sql = "
 			SELECT 
-				  rp.idRutaProgDet
-				, rp.idRutaProg
+				  rp.idProgRutaDet
+				, rp.idProgRuta
 				, u.idUsuario
 				, u.apePaterno+' '+u.apeMaterno+' '+u.nombres usuario
 				, CONVERT(VARCHAR,rp.fecIni,103) fecIni 
 				, CONVERT(VARCHAR,rp.fecFin,103) fecFin
 			FROM 
-				{$this->sessBDCuenta}.trade.master_rutaProgramadaDet rp
+				{$this->sessBDCuenta}.trade.programacion_rutaDet rp
 				JOIN trade.usuario u
 					ON u.idUsuario = rp.idUsuario
 			WHERE
-				rp.idRutaProg = ".$params['id']."
+				rp.idProgRuta = ".$params['id']."
 		
 		";
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.master_rutaProgramadaDet" ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.programacion_rutaDet" ];
 		return $this->db->query($sql)->result_array();
 	}
 	
 	public function obtener_gtm(){
+
+		$idProyecto = $this->sessIdProyecto;
+		$idCuenta = $this->sessIdCuenta;
+		$sessDemo = $this->demo;
+		$filtros = '';
+
+		empty($sessDemo) ? $filtros .= " AND u.demo = 0 " : '';
+
 		$sql = "
 			DECLARE
 				  @fecIni DATE = getdate()
@@ -234,6 +237,7 @@ class M_rutas extends My_Model{
 			SELECT
 				u.idUsuario
 				,u.nombres+' '+u.apePaterno+' '+u.apeMaterno nombres
+				,ut.nombre tipoUsuario
 			FROM
 				trade.usuario u
 				JOIN trade.usuario_historico uh
@@ -241,13 +245,14 @@ class M_rutas extends My_Model{
 					AND General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,@fecIni,@fecFin)=1
 				JOIN trade.usuario_tipo ut
 					ON ut.idTipoUsuario = uh.idTipoUsuario
-					AND ut.idTipoUsuario=1
-					AND uh.idAplicacion=4
-					AND u.demo=0
 				LEFT JOIN trade.encargado_usuario eu
 					ON eu.idUsuario = u.idUsuario
 				LEFT JOIN trade.encargado e
 					ON e.idEncargado = eu.idEncargado
+			WHERE 
+				uh.idProyecto = {$idProyecto}
+				{$filtros}
+			ORDER BY u.idUsuario
 		";
 
 		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.usuario' ];
@@ -282,12 +287,12 @@ class M_rutas extends My_Model{
 
 	
 	public function generar_rutas_manual(){
-		$sql = "exec Procesar_rutas_master;";
-		return $this->db->query($sql)->result_array();
+		$sql = "EXEC {$this->sessBDCuenta}.dbo.sp_procesar_rutas";
+		return $this->db->query($sql);
 	}
 
 
-	public function obtenerRutaGenerada($idRutaProg){
+	public function obtenerRutaGenerada($idProgRuta){
 		$sql ="
 			
 			DECLARE 
@@ -304,34 +309,34 @@ class M_rutas extends My_Model{
 				, @horaFin TIME
 				, @idCuenta INT
 				, @idEncargado INT,
-				@idRutaProg VARCHAR(25)='".$idRutaProg."';
+				@idProgRuta VARCHAR(25)='".$idProgRuta."';
 			SELECT
 				rpd.idUsuario
 				, vp.idCliente
 				, t.fecha
 				, cc.nombreComercial
 			FROM
-				{$this->sessBDCuenta}.trade.master_rutaProgramada rp
-				JOIN {$this->sessBDCuenta}.trade.master_rutaProgramadaDet rpd 
-					ON rpd.idRutaProg=rp.idRutaProg
-				JOIN {$this->sessBDCuenta}.trade.master_visitaProgramada vp
-					ON vp.idRutaProg = rpd.idRutaProg
+				{$this->sessBDCuenta}.trade.programacion_ruta rp
+				JOIN {$this->sessBDCuenta}.trade.programacion_rutaDet rpd 
+					ON rpd.idProgRuta=rp.idProgRuta
+				JOIN {$this->sessBDCuenta}.trade.programacion_visita vp
+					ON vp.idProgRuta = rpd.idProgRuta
 				JOIN trade.cliente cc
 					ON cc.idCliente=vp.idCliente
-				JOIN {$this->sessBDCuenta}.trade.master_visitaProgramadaDet vpd
-					ON vpd.idVisitaProg=vp.idVisitaProg
+				JOIN {$this->sessBDCuenta}.trade.programacion_visitaDet vpd
+					ON vpd.idProgVisita=vp.idProgVisita
 				JOIN General.dbo.tiempo t 
-					ON t.fecha between rp.fecIni and rp.fecFin and t.idDia=vpd.idDia
+					ON t.fecha between rp.fecIni and rp.fecFin and t.idDia=vpd.dia
 			WHERE 
-				rp.idRutaProg=@idRutaProg;
+				rp.idProgRuta=@idProgRuta;
 		";
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.master_rutaProgramada" ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.programacion_ruta" ];
 		return $this->db->query($sql)->result_array();
 	}
 
 
-	public function obtener_ruta_programada_visitas($idRutaProg){
+	public function obtener_ruta_programada_visitas($idProgRuta){
 		$sql ="
 		DECLARE 
 			@fecIni DATE = getdate(),@fecFin DATE = getdate();
@@ -340,20 +345,20 @@ class M_rutas extends My_Model{
 			, vp.idCliente
 			, t.fecha 
 		FROM
-			{$this->sessBDCuenta}.trade.master_rutaProgramada rp
-			JOIN {$this->sessBDCuenta}.trade.master_rutaProgramadaDet rpd 
-				ON rpd.idRutaProg=rp.idRutaProg
-			JOIN {$this->sessBDCuenta}.trade.master_visitaProgramada vp
-				ON vp.idRutaProg = rpd.idRutaProg
-			JOIN {$this->sessBDCuenta}.trade.master_visitaProgramadaDet vpd
-				ON vpd.idVisitaProg=vp.idVisitaProg
+			{$this->sessBDCuenta}.trade.programacion_ruta rp
+			JOIN {$this->sessBDCuenta}.trade.programacion_rutaDet rpd 
+				ON rpd.idProgRuta=rp.idProgRuta
+			JOIN {$this->sessBDCuenta}.trade.programacion_visita vp
+				ON vp.idProgRuta = rpd.idProgRuta
+			JOIN {$this->sessBDCuenta}.trade.programacion_visitaDet vpd
+				ON vpd.idProgVisita=vp.idProgVisita
 			JOIN General.dbo.tiempo t 
-				ON t.fecha between rp.fecIni and rp.fecFin and t.idDia=vpd.idDia
+				ON t.fecha between rp.fecIni and rp.fecFin and t.idDia=vpd.dia
 		WHERE 
-			rp.idRutaProg={$idRutaProg};
+			rp.idProgRuta={$idProgRuta};
 		";
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.master_rutaProgramada" ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.programacion_ruta" ];
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -450,7 +455,7 @@ class M_rutas extends My_Model{
 	}
 
 	public function obtener_horarios(){
-		$sql ="SELECT idHorario,CONVERT(VARCHAR,horaIni,108) horaIni,CONVERT(VARCHAR,horaFin,108) horaFin FROM ImpactTrade_pg.trade.horarios WHERE estado=1";
+		$sql ="SELECT idHorario,CONVERT(VARCHAR,horaIni,108) horaIni,CONVERT(VARCHAR,horaFin,108) horaFin FROM {$this->sessBDCuenta}.trade.horarios WHERE estado=1";
 		return $this->db->query($sql)->result_array();
 	}
 
