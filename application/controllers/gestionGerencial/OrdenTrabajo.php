@@ -47,7 +47,6 @@ class OrdenTrabajo extends MY_Controller{
 		$input['canal_filtro'] = $data->{'canal_filtro'};
 
 		$input['subcanal'] = $data->{'subcanal_filtro'};
-		$input['idTipo'] = $data->{'idTipo'};
 		$fechas = explode(' - ', $data->{'txt-fechas'});
 
 		$input['fecIni'] = $fechas[0];
@@ -62,6 +61,13 @@ class OrdenTrabajo extends MY_Controller{
 		$input['plaza_filtro'] = empty($data->{'plaza_filtro'}) ? '' : $data->{'plaza_filtro'};
 		$input['cadena_filtro'] = empty($data->{'cadena_filtro'}) ? '' : $data->{'cadena_filtro'};
 		$input['banner_filtro'] = empty($data->{'banner_filtro'}) ? '' : $data->{'banner_filtro'};
+
+		if(empty($data->{'ch-ot-nocorregido'}) || empty($data->{'ch-ot-corregido'}) ){
+			$input['corregido'] = empty($data->{'ch-ot-corregido'}) ? 2 : 1;
+		}
+		if(empty($data->{'ch-ot-nocorregido'}) && empty($data->{'ch-ot-corregido'}) ){
+			$input['corregido'] = 3;
+		}
 
 		$rs_visitas = $this->model->obtener_visitas($input);
 
@@ -81,7 +87,7 @@ class OrdenTrabajo extends MY_Controller{
 					} else {
 						$array_detalle[$row['idVisita']][$row['idElementoVis']] = array();
 						array_push($array_detalle[$row['idVisita']][$row['idElementoVis']], $row);
-					}
+					}	
 				}
 
 				$array['detalle'] = $array_detalle;
@@ -309,7 +315,7 @@ class OrdenTrabajo extends MY_Controller{
 							    if(!empty($row['fotoUrl'])){
 									$html .= '<td colspan="2" style="text-align:center;"><img class="foto" src="'.('http://movil.visualimpact.com.pe/fotos/impactTrade_Android/visibilidadAuditoria/'.$row['fotoUrl']).'" width="280" height="200" /></td>';
 								} else {
-									$html .= '<td colspan="2" style="text-align:center;"><img class="foto" src="'.$www.'/images/sin-imagen.jpg" width="280" height="200" /></td>';
+									$html .= '<td colspan="2" style="text-align:center;"><img class="foto" src="'.$www.'/assets/images/sin_imagen.jpg" width="90" height="50" /></td>';
 								}
 								$html .= '</tr>';
 						$html .= '</tbody>';
@@ -353,8 +359,6 @@ class OrdenTrabajo extends MY_Controller{
 		header('Cache-Control: max-age=60, must-revalidate');
 		$mpdf->Output("Visibilidad.pdf", \Mpdf\Output\Destination::DOWNLOAD);
 	}
-
-
 
 }
 ?>

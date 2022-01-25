@@ -9,6 +9,8 @@ class M_ordenTrabajo extends MY_Model{
 
 	public function obtener_visitas($input=array()){
 		$filtros = "";
+		$sessIdTipoUsuario = $this->idTipoUsuario;
+		$sessDemo = $this->demo;
 		if(empty($input['proyecto_filtro'])){
 		$filtros.= getPermisos('cuenta');
 		}else{
@@ -26,6 +28,11 @@ class M_ordenTrabajo extends MY_Model{
 		$filtros .= !empty($input['plaza_filtro']) ? ' AND pl.idPlaza='.$input['plaza_filtro'] : '';
 		$filtros .= !empty($input['cadena_filtro']) ? ' AND cad.idCadena='.$input['cadena_filtro'] : '';
 		$filtros .= !empty($input['banner_filtro']) ? ' AND ba.idBanner='.$input['banner_filtro'] : '';
+		
+			if( $sessIdTipoUsuario != 4 ){
+				if( empty($sessDemo) ) $filtros .=  " AND (r.demo = 0 OR r.demo IS NULL)";
+				else $filtros .=  " AND (r.demo = 0 OR r.idUsuario = {$this->idUsuario})";
+			}
 		}
 
 		$segmentacion = getSegmentacion($input);
@@ -56,15 +63,6 @@ class M_ordenTrabajo extends MY_Model{
 				, v.direccion
 				, v.idPlaza
 
-				--, pl.nombre AS plaza
-				--, v.idDistribuidoraSucursal
-				--, ds.idDistribuidora
-				--, d.nombre AS distribuidora
-				--, ds.cod_ubigeo
-				--, ubi1.distrito AS ciudadDistribuidoraSuc
-				--, ubi1.cod_ubigeo AS codUbigeoDistrito
-				--, z.nombre AS zona
-
 				{$segmentacion['columnas_bd']}
 			FROM {$this->sessBDCuenta}.trade.data_ruta r
 			JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
@@ -91,12 +89,6 @@ class M_ordenTrabajo extends MY_Model{
 			LEFT JOIN trade.grupoCanal gc ON ca.idGrupoCanal=gc.idGrupoCanal
 			LEFT JOIN General.dbo.ubigeo ubi ON ubi.cod_ubigeo=v.cod_ubigeo
 
-			--LEFT JOIN trade.plaza pl ON pl.idPlaza=v.idPlaza
-			--LEFT JOIN trade.distribuidoraSucursal ds ON ds.idDistribuidoraSucursal=v.idDistribuidoraSucursal
-			--LEFT JOIN trade.distribuidora d ON d.idDistribuidora=ds.idDistribuidora
-			--LEFT JOIN General.dbo.ubigeo ubi1 ON ubi1.cod_ubigeo=ds.cod_ubigeo
-
-
 			LEFT JOIN trade.encargado ec ON ec.idEncargado=r.idEncargado
 			LEFT JOIN trade.usuario us ON us.idUsuario=ec.idUsuario
 			LEFT JOIN trade.usuario_tipo ut ON r.idTipoUsuario = ut.idTipoUsuario
@@ -104,9 +96,7 @@ class M_ordenTrabajo extends MY_Model{
 			{$segmentacion['join']}
 			WHERE r.estado=1 
 			AND v.estado=1 
-			AND r.demo=0
 			and (vvd.idObservacion NOT IN (1,2,3) OR vvd.idObservacion IS NULL)
-			AND ( vot.validado IS NULL OR vot.validado=0)
 			AND r.fecha BETWEEN @fecIni AND @fecFin
 			$filtros
 			ORDER BY fecha, departamento, canal, supervisor, nombreUsuario  ASC
@@ -123,6 +113,10 @@ class M_ordenTrabajo extends MY_Model{
 
 	public function obtener_detalle_orden($input=array()){
 		$filtros = "";
+
+		$sessIdTipoUsuario = $this->idTipoUsuario;
+		$sessDemo = $this->demo;
+
 		if(empty($input['proyecto_filtro'])){
 		$filtros.= getPermisos('cuenta');
 		}else{
@@ -130,6 +124,19 @@ class M_ordenTrabajo extends MY_Model{
 			$filtros .= !empty($input['proyecto_filtro']) ? ' AND r.idProyecto='.$input['proyecto_filtro'] : '';
 			$filtros .= !empty($input['grupoCanal_filtro']) ? ' AND ca.idGrupoCanal='.$input['grupoCanal_filtro'] : '';
 			$filtros .= !empty($input['canal_filtro']) ? ' AND v.idCanal='.$input['canal_filtro'] : '';
+
+			if(!empty($input['corregido']) && ($input['corregido'] == 1 || $input['corregido'] == 2)){
+				$filtros .= $input['corregido'] == 1  ? ' AND vot.validado=1' : ''; 
+				$filtros .= $input['corregido'] == 2  ? ' AND (vot.validado IS NULL OR vot.validado=0)' : ''; 
+			}else{
+				$filtros .= !empty($input['corregido']) && $input['corregido'] == 3  ? ' AND vot.validado='.$input['corregido'] : ''; 
+			}
+
+			if( $sessIdTipoUsuario != 4 ){
+				if( empty($sessDemo) ) $filtros .=  " AND (r.demo = 0 OR r.demo IS NULL)";
+				else $filtros .=  " AND (r.demo = 0 OR r.idUsuario = {$this->idUsuario})";
+			}
+			
 		}
 
 		$sql = "
@@ -174,9 +181,7 @@ class M_ordenTrabajo extends MY_Model{
 
 			WHERE r.estado=1 
 			AND v.estado=1 
-			AND r.demo=0
 			and (vvd.idObservacion NOT IN (1,2,3) OR vvd.idObservacion IS NULL)
-			AND ( vot.validado IS NULL OR vot.validado=0)
 			AND r.fecha BETWEEN @fecIni AND @fecFin
 			$filtros
 		";
@@ -279,6 +284,9 @@ class M_ordenTrabajo extends MY_Model{
 
 
 	public function obtener_detallado_pdf($input=array()){
+		$sessIdTipoUsuario = $this->idTipoUsuario;
+		$sessDemo = $this->demo;
+
 		$filtros = "";
 		if(!empty($input['elementos_det'])){
 			$filtros .= " AND ( ";
@@ -292,6 +300,12 @@ class M_ordenTrabajo extends MY_Model{
 				$i++;
 			}
 			$filtros .= " )";
+
+		}
+
+		if( $sessIdTipoUsuario != 4 ){
+			if( empty($sessDemo) ) $filtros .=  " AND (r.demo = 0 OR r.demo IS NULL)";
+			else $filtros .=  " AND (r.demo = 0 OR r.idUsuario = {$this->idUsuario})";
 		}
 
 		$sql = "
@@ -357,9 +371,7 @@ class M_ordenTrabajo extends MY_Model{
 
 				WHERE r.estado=1 
 				AND v.estado=1 
-				AND r.demo=0
 				and (vvd.idObservacion NOT IN (1,2,3) OR vvd.idObservacion IS NULL)
-				AND ( vot.validado IS NULL OR vot.validado=0)
 				$filtros ";
 				
 

@@ -2098,7 +2098,19 @@ class M_carga_masiva extends CI_Model{
 		$rs = $this->db->query($sql)->row_array();
 		return $rs;
 	}
+	
+	public function generar_rutas_manual($fecIni,$fecFin,$intervalo){
 
+		$sql = "
+		DECLARE 
+				 @fecIni DATE = CONVERT(varchar,DATEADD(day,{$intervalo},'{$fecIni}'),103)
+				,@fecFin DATE = CONVERT(varchar,DATEADD(day,{$intervalo},'{$fecFin}'),103);
+		
+		EXEC {$this->sessBDCuenta}.dbo.sp_procesar_rutas @fecIni,@fecFin
+		
+		";
+		return $this->db->query($sql);
+	}
 
 
 }

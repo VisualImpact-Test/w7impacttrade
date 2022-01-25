@@ -163,19 +163,20 @@
 
 								<?
 								$fotoImgCerca = (isset($fotoCerca) && !empty($fotoCerca)) ? $this->fotos_url . 'orden/' . $fotoCerca : '';
-								if (!empty($fotoImgCerca)) {
-									$fotoImgCerca = '<a href="javascript:;" class="lk-foto-1" data-content="img-fotoprincipal-' . $row_d['idVisita'] . '-' . $i . '">
-													<img class="fotoMiniatura foto" name="img-fotoprincipal-' . $row_d['idVisita'] . '-' . $i . '" id="img-fotoprincipal-' . $row_d['idVisita'] . '-' . $i . '" src="' . $fotoImgCerca . '" alt=""></a>';
+								$fotoImgParo = (isset($fotoPanoramica) && !empty($fotoPanoramica)) ? $this->fotos_url . 'orden/' . $fotoPanoramica : '';
+								if (!empty($row_i['fotoCerca'])) {
+									$fotoImgCerca = rutafotoModulo(['foto'=>$row_i['fotoCerca'],'modulo'=>'orden','icono'=>'fal fa-image-polaroid fa-lg btn-outline-primary btn border-0']); 
 								}
+
 								?>
 								<td class="text-center"><?= (!empty($fotoImgCerca) ? $fotoImgCerca : '-'); ?></td>
 
 								<?
 								$fotoImgParo = (isset($fotoPanoramica) && !empty($fotoPanoramica)) ? $this->fotos_url . 'orden/' . $fotoPanoramica : '';
-								if (!empty($fotoImgParo)) {
-									$fotoImgParo = '<a href="javascript:;" class="lk-foto-1" data-content="img-fotoprincipal-' . $row_d['idVisita'] . '-' . $i . '">
-													<img class="fotoMiniatura foto" name="img-fotoprincipal-' . $row_d['idVisita'] . '-' . $i . '" id="img-fotoprincipal-' . $row_d['idVisita'] . '-' . $i . '" src="' . $fotoImgParo . '" alt=""></a>';
+								if (!empty($row_i['fotoPanoramica'])) {
+									$fotoImgParo = rutafotoModulo(['foto'=>$row_i['fotoPanoramica'],'modulo'=>'orden','icono'=>'fal fa-image-polaroid fa-lg btn-outline-primary btn border-0']); 
 								}
+								
 								?>
 								<td class="text-center"><?= (!empty($fotoImgParo) ? $fotoImgParo : '-'); ?></td>
 

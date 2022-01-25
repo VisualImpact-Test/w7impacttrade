@@ -1460,12 +1460,6 @@ class Rutas extends MY_Controller{
 				}
 			}
 
-			//
-			// if($generado){
-			// 	$update = "exec [dbo].[procesar_rutas_master_manual] ".$idProgRuta."; ";
-			// 	$this->db->query($update);
-
-			// }
 		}
 
 		$html='Se registro con exito.<br>';

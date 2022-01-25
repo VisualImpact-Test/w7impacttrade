@@ -287,7 +287,10 @@ class M_rutas extends My_Model{
 
 	
 	public function generar_rutas_manual(){
-		$sql = "EXEC {$this->sessBDCuenta}.dbo.sp_procesar_rutas";
+		$sql = "
+		DECLARE @fecIni DATE = GETDATE(),@fecFin DATE = GETDATE();
+		EXEC {$this->sessBDCuenta}.dbo.sp_procesar_rutas @fecIni,@fecFin
+		";
 		return $this->db->query($sql);
 	}
 

@@ -1708,10 +1708,22 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		$idProyecto = !empty($input['idProyecto'])? $input['idProyecto'] : '' ;
 	
 		if (substr(php_uname(), 0, 7) == "Windows"){
-			pclose(popen("start /B ". $cmd." ".$idCuenta. " " . $idProyecto , "r")); 
+			pclose(popen("start /B ". $cmd." ".$idCuenta , "r")); 
 		}
 		else {
 			exec($cmd." ".$idCuenta . " > /dev/null &");  
 		}
 	}
+
+	function diffDays($fecIni , $fecFin){
+		//Calcular la diferencia de días entre dos fechas
+		
+		$datetime1 = new DateTime($fecIni);
+		$datetime2 = new DateTime($fecFin);
+		$interval = $datetime1->diff($datetime2);
+
+		return $interval->format('%R%a');
+		
+	}
+
 

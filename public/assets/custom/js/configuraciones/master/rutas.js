@@ -1005,8 +1005,8 @@ var Modulacion = {
 				idCuenta: $("#sessIdCuenta").val(), 
 				idProyecto: $("#sessIdProyecto").val(),	
 			},   
-			url: site_url+'carga_masiva/procesar_archivos_rutas/'+$("#sessIdCuenta").val(),
-			// url: site_url+'control/bat_rutas',
+			// url: site_url+'carga_masiva/procesar_archivos_rutas_v2/'+$("#sessIdCuenta").val(),
+			url: site_url+'control/bat_rutas',
 			success: function(data) {
 				console.log('listo');
 			}

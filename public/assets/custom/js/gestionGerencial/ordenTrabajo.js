@@ -22,21 +22,6 @@ var OrdenTrabajo = {
             $('#btn-filtrarOrdenTrabajo').click();
         });
 
-		$(document).on("click",".lk-show-foto",function(){
-			var control = $(this);
-
-			var data = { idVisita: control.data('visita'), cliente: control.data('cliente'), usuario: control.data('usuario'), perfil: control.data('perfil') };
-			var jsonString = { 'data': JSON.stringify(data) };
-			var configAjax = { 'url': OrdenTrabajo.url + 'mostrarFotos', 'data': jsonString };
-
-			$.when( Fn.ajax(configAjax) ).then( function(a){
-				++modalId;
-				var fn='Fn.showModal({ id:'+modalId+',show:false });';
-				var btn=new Array();
-					btn[0]={title:'Cerrar',fn:fn};
-				Fn.showModal({ id:modalId,show:true,title:a.msg.title,content:a.data,btn:btn});
-			});
-		});
 
 		$(document).on("click",".lk-foto",function(){
 			var control = $(this);

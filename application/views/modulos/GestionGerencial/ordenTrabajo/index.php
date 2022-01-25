@@ -83,15 +83,19 @@
 								<option value=""> Cod Usuario -- Nombre Usuario </option>
 							</select>
 						</div>
-						
-						<div class="mb-2 mr-sm-2 position-relative form-group custom_tooltip">
-							<span class="tooltiptext">Tipo Elemento</span>
-							<select id="idTipo" class="ui my_select2Full" name="idTipo" title="Tipo Elemento (Todo)">
-								<option value="">-- Tipo Elemento --</option>
-								<? foreach ($tipos as $row) { ?>
-									<option value="<?= $row['idTipoElementoCompetencia'] ?>"><?= $row['nombre'] ?></option>
-								<? } ?>
-							</select>
+
+						<div class="mb-2 mr-sm-2 position-relative form-group ">
+							<label for="ch-ot-corregido"> CORREGIDO: </label> <br>
+							<div class="btn-group btn-group-toggle w-50 " data-toggle="buttons">
+								<label class="btn btn-outline-secondary custom_tooltip">
+									<span class="tooltiptextButton">NO CORREGIDO</span>
+									<input type="checkbox" name="ch-ot-nocorregido" id="ch-ot-nocorregido" autocomplete="off" checked="checked"> NO </i>
+								</label>
+								<label class="btn btn-outline-secondary  custom_tooltip">
+									<span class="tooltiptextButton">CORREGIDO</span>
+									<input type="checkbox" name="ch-ot-corregido" id="ch-ot-corregido" autocomplete="off" > SI </i>
+								</label>
+							</div>
 						</div>
 						<div class="filtros_secundarios">
 							<div class="filtros_generados">
