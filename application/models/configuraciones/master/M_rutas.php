@@ -76,20 +76,23 @@ class M_rutas extends My_Model{
 		return $this->db->query($sql)->result_array();
 	}
 	
-	public function obtener_rutas_activas(){
+	public function obtener_rutas_activas($params = []){
+
+		$filtros = "";
+		if(!empty($params['idsProgRuta'])){
+			$rutasProg = implode(",",$params['idsProgRuta']);
+			!empty($params['idsProgRuta']) ? $filtros = " AND idProgRuta IN({$rutasProg})" : '';
+		}
+
 		$sql = "
-			DECLARE
-				  @fecIni DATE = getdate()
-				, @fecFin DATE = getdate()
 			SELECT
 				  idProgRuta
 				, nombre nombreRuta
-
 			FROM 
 				{$this->sessBDCuenta}.trade.programacion_ruta 
 			WHERE
-				General.dbo.fn_fechaVigente(fecIni,fecFin,@fecIni,@fecFin)=1
-				AND estado=1
+				estado=1
+				{$filtros}
 		";
 
 		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.programacion_ruta" ];
@@ -104,6 +107,9 @@ class M_rutas extends My_Model{
 				, vp.idCliente
 				, c.razonSocial
 				, vpd.dia idDia
+				, vpd.flagRefrigerio
+				, prd.idDia descanso
+				, vpd.idHorario
 			FROM 
 				{$this->sessBDCuenta}.trade.programacion_ruta rp
 				JOIN {$this->sessBDCuenta}.trade.programacion_visita vp
@@ -112,6 +118,8 @@ class M_rutas extends My_Model{
 					ON vpd.idProgVisita = vp.idProgVisita
 				JOIN trade.cliente c
 					ON c.idCliente = vp.idCliente
+				LEFT JOIN {$this->sessBDCuenta}.trade.programacion_rutaDescanso prd	
+					ON prd.idProgRuta = rp.idProgRuta
 			WHERE
 				rp.idProgRuta = {$idProgRuta}
 			ORDER BY 
@@ -287,7 +295,10 @@ class M_rutas extends My_Model{
 
 	
 	public function generar_rutas_manual(){
-		$sql = "EXEC {$this->sessBDCuenta}.dbo.sp_procesar_rutas";
+		$sql = "
+		DECLARE @fecIni DATE = GETDATE(),@fecFin DATE = GETDATE();
+		EXEC {$this->sessBDCuenta}.dbo.sp_procesar_rutas @fecIni,@fecFin
+		";
 		return $this->db->query($sql);
 	}
 
@@ -336,7 +347,7 @@ class M_rutas extends My_Model{
 	}
 
 
-	public function obtener_ruta_programada_visitas($idProgRuta){
+	public function obtener_ruta_programada_visitas_hoy($idProgRuta){
 		$sql ="
 		DECLARE 
 			@fecIni DATE = getdate(),@fecFin DATE = getdate();
@@ -356,6 +367,31 @@ class M_rutas extends My_Model{
 				ON t.fecha between rp.fecIni and rp.fecFin and t.idDia=vpd.dia
 		WHERE 
 			rp.idProgRuta={$idProgRuta};
+		";
+
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.programacion_ruta" ];
+		return $this->db->query($sql)->result_array();
+	}
+	public function obtener_ruta_programada_visitas($params = []){
+		$sql ="
+		DECLARE 
+			@fecIni DATE = '{$params['fecIni']}',@fecFin DATE = '{$params['fecFin']}';
+		SELECT
+			rpd.idUsuario
+			, vp.idCliente
+			, t.fecha 
+		FROM
+			{$this->sessBDCuenta}.trade.programacion_ruta rp
+			JOIN {$this->sessBDCuenta}.trade.programacion_rutaDet rpd 
+				ON rpd.idProgRuta=rp.idProgRuta
+			JOIN {$this->sessBDCuenta}.trade.programacion_visita vp
+				ON vp.idProgRuta = rpd.idProgRuta
+			JOIN {$this->sessBDCuenta}.trade.programacion_visitaDet vpd
+				ON vpd.idProgVisita=vp.idProgVisita
+			JOIN General.dbo.tiempo t 
+				ON t.fecha between rp.fecIni and rp.fecFin and t.idDia=vpd.dia
+		WHERE 
+			rp.idProgRuta={$params['idProgRuta']};
 		";
 
 		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.programacion_ruta" ];
@@ -456,6 +492,42 @@ class M_rutas extends My_Model{
 
 	public function obtener_horarios(){
 		$sql ="SELECT idHorario,CONVERT(VARCHAR,horaIni,108) horaIni,CONVERT(VARCHAR,horaFin,108) horaFin FROM {$this->sessBDCuenta}.trade.horarios WHERE estado=1";
+		return $this->db->query($sql)->result_array();
+	}
+	
+	public function obtener_lista_usuarios($input=array()){
+		$idCuenta = $this->sessIdCuenta;
+		$idProyecto = $this->sessIdProyecto;
+
+		$filtros = "";
+
+		$filtros.= !empty($idProyecto) ? " AND uh.idProyecto IN (".$idProyecto.")":"";
+
+		$demo = $this->demo;$filtro_demo = '';
+		if(!$demo){
+			$filtro_demo = " AND u.demo = 0";
+		}
+		$sql=" 
+		DECLARE @fecha DATE=GETDATE();
+		----
+		SELECT DISTINCT
+			uh.idUsuario
+			, CONVERT(VARCHAR,u.idUsuario) + ' - ' + u.apePaterno+' '+u.apeMaterno+' '+u.nombres AS nombreUsuario
+			, uh.idTipoUsuario
+			, ut.nombre tipoUsuario
+		FROM trade.usuario_historico uh
+		JOIN trade.aplicacion ap ON ap.idAplicacion=uh.idAplicacion
+		JOIN trade.usuario u ON u.idUsuario=uh.idUsuario
+		LEFT JOIN trade.proyecto py ON py.idProyecto=uh.idProyecto
+		LEFT JOIN trade.usuario_tipo ut ON ut.idTipoUsuario = uh.idTipoUsuario
+		WHERE uh.estado=1
+		AND @fecha BETWEEN uh.fecIni AND ISNULL(uh.fecFin,@fecha)
+		AND ap.estado=1 AND ap.flagAndroid=1
+		AND u.estado=1 
+		AND uh.idAplicacion <> 2 
+		{$filtros}
+		{$filtro_demo}";
+
 		return $this->db->query($sql)->result_array();
 	}
 

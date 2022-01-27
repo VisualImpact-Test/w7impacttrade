@@ -182,10 +182,7 @@ class CheckProductos extends MY_Controller{
 		$input['flagCompetencia'] = !empty($data->{'ck-competencia'}) ? true : '';
 
 		if(empty($data->{'ch-quiebre-inactivo'}) || empty($data->{'ch-quiebre-activo'}) ){
-
 			$input['quiebre'] = empty($data->{'ch-quiebre-activo'}) ? 2 : 1;
-			// $input['quiebre'] = empty($data->{'ch-quiebre'}) ? 0 : 1;
-			
 		}
 		if(empty($data->{'ch-quiebre-inactivo'}) && empty($data->{'ch-quiebre-activo'}) ){
 			$input['quiebre'] = 3;

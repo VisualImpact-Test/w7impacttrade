@@ -7,8 +7,16 @@ var Modulacion = {
 	handsontable : '',
 	idModalCargaMasiva:null,
 	fullCalendar: [],
+	usuariosTipo: [],
 	
 	load: function(){
+		Gestion.urlActivo = Modulacion.url;
+		Gestion.getTablaActivo = 'Filtrar';
+		Gestion.idFormSeccionActivo = Modulacion.frmModulacion;
+		Gestion.funcionCustomDT = Gestion.defaultDT;
+		Gestion.idContentActivo = Modulacion.contentDetalle;
+		Gestion.getFormCargaMasivaActivo = 'getFormCargaMasiva' + 'RutasHT';
+		Gestion.funcionGuardarCargaMasivaActivo = 'guardarCargaMasiva' + "RutasHT";
 
 		$(".card-body > .nav > .nav-item > a").click(function (e) {
             e.preventDefault();
@@ -351,18 +359,18 @@ var Modulacion = {
 		
 		
 		
-		$(document).on('click','#btn-filtrarModulacion', function(e){
-			e.preventDefault();
+		// $(document).on('click','#btn-filtrarModulacion', function(e){
+		// 	e.preventDefault();
 
-			var control = $(this);
-			var config = {
-				'idFrm' : Modulacion.frmModulacion
-				,'url': Modulacion.url + control.data('url')
-				,'contentDetalle': Modulacion.contentDetalle
-			};
+		// 	var control = $(this);
+		// 	var config = {
+		// 		'idFrm' : Modulacion.frmModulacion
+		// 		,'url': Modulacion.url + control.data('url')
+		// 		,'contentDetalle': Modulacion.contentDetalle
+		// 	};
 
-			Fn.loadReporte(config);
-		});
+		// 	Fn.loadReporte(config);
+		// });
 		
 		$(document).on('click','#btn-registrar-modulacion',function(e){
 			e.preventDefault();
@@ -526,7 +534,7 @@ var Modulacion = {
 			var settings = {
 					licenseKey: 'non-commercial-and-evaluation',
 
-					colHeaders: ['NOMBRE RUTA', 'IDGTM', 'IDCLIENTE', 'LUNES','MARTES','MIERCOLES','JUEVES','VIERNES','SABADO','DOMINGO'],
+					colHeaders: ['NOMBRE RUTA', 'IDGTM', 'IDCLIENTE', 'LUNES','MARTES','MIERCOLES','JUEVES','VIERNES','SABADO','DOMINGO','REFRIGERIO','DESCANSO'],
 					startRows: 10,
 					//startCols: 4,
 					columns: [
@@ -540,6 +548,8 @@ var Modulacion = {
 						{data: 'viernes', type:'numeric'},
 						{data: 'sabado', type:'numeric'},
 						{data: 'domingo', type:'numeric'},
+						{data: 'refrigerio', type:'text'},
+						{data: 'descanso', type:'text'},
 						
 					],
 					minSpareCols: 1, //always keep at least 1 spare row at the right
@@ -581,7 +591,18 @@ var Modulacion = {
 			var configAjax = { 'url': Modulacion.url+'importarRuta', 'data':jsonString};
 
 			$.when( Fn.ajax(configAjax)).then( function(a){
-				$('#cargaMasivaRutas').html(a.data.html);
+
+				if(a.result == 1) $('#cargaMasivaRutas').html(a.data.html);
+
+				if(a.result == 0) {
+					++modalId;
+					var fn = 'Fn.showModal({ id:' + modalId + ',show:false });';
+					var btn = [];
+					btn[0] = { title: 'Cerrar', fn: fn };
+					Fn.showModal({ id: modalId, show: true, title: 'Alerta', content: a.data.html, btn: btn});
+					return false;
+				}
+				
 			});
 		});
 		
@@ -605,21 +626,48 @@ var Modulacion = {
 				});
 			}
 		});
-		
+		$(document).on("change",".my-select2-usuarios",function(){
+			let idUsuario = $(this).val();;
+			let html = '';
+			$.each(Modulacion.usuariosTipo[idUsuario],function(k,v){
+				html += `<option value = "${v.idTipoUsuario}">${v.tipoUsuario}</option>`;
+			});
+			$(".my-select2-tipousuario").html(html);
+		});
+
 		$(document).on('click','#btn-clonarRutas',function(e){
 			e.preventDefault();
 
-        	var data ={};
+			var idsProgRuta = [];
+			$.map(Gestion.$dataTable[Gestion.idContentActivo].rows('.selected').nodes(), function (item) {
+				idsProgRuta.push($(item).data("idprogruta"));
+			});
+			
+			if(idsProgRuta.length !=1 ){
+				++modalId;
+				let message = '';
+				if(idsProgRuta.length == 0) message = Fn.message({type:'2',message:'No ha seleccionado ninguna ruta'});
+				if(idsProgRuta.length > 1) message = Fn.message({type:'2',message:'Solo puede clonar una ruta a la vez'});
+				var fn = 'Fn.showModal({ id:' + modalId + ',show:false });';
+				var btn = [];
+				btn[0] = { title: 'Cerrar', fn: fn };
+	
+				Fn.showModal({ id: modalId, show: true, title: 'Alerta', content: message, btn: btn});
+				return false;
+			};
+
+        	var data ={idsProgRuta};
 			var jsonString = {'data': JSON.stringify(data)};
 			var configAjax = { 'url': Modulacion.url+'clonarRuta', 'data':jsonString};
 
 			$.when( Fn.ajax(configAjax)).then( function(a){
+
 				++modalId;
 				var fn1='Modulacion.clonarRuta();';
 				var fn2='Fn.showModal({ id:'+modalId+',show:false });';
 				var btn=new Array();
-					btn[0]={title:'Guardar',fn:fn1};
-					btn[1]={title:'Cerrar',fn:fn2};
+					btn[0]={title:'Cerrar',fn:fn2};
+					btn[1]={title:'Guardar',fn:fn1};
 				var message = a.data.html;
 				Fn.showModal({ id:modalId,show:true,title:a.msg.title,content:message,btn:btn, width:'90%'});
 				
@@ -643,7 +691,6 @@ var Modulacion = {
 						{data: 'viernes', type:'numeric'},
 						{data: 'sabado', type:'numeric'},
 						{data: 'domingo', type:'numeric'},
-						
 					],
 					minSpareCols: 1, //always keep at least 1 spare row at the right
 					minSpareRows: 1,  //always keep at least 1 spare row at the bottom,
@@ -667,10 +714,23 @@ var Modulacion = {
 					}
 				};
 
+				if(PROYECTO_MODERNO_PG == $("#sessIdProyecto").val()){
+
+					settings.colHeaders.push('DESCANSO','REFRIGERIO');
+
+					settings.columns.push(
+						{data: 'descanso', type:'text'},
+						{data: 'refrigerio', type:'text'}
+					);
+				}
+
+
 				Modulacion.handsontable = new Handsontable(container, settings);
 				setTimeout(function(){
 					Modulacion.handsontable.render(); 
+					$('.my-select2-usuarios').change();
 				}, 1000);
+
 			});
 		});
 
@@ -1005,8 +1065,8 @@ var Modulacion = {
 				idCuenta: $("#sessIdCuenta").val(), 
 				idProyecto: $("#sessIdProyecto").val(),	
 			},   
-			url: site_url+'carga_masiva/procesar_archivos_rutas/'+$("#sessIdCuenta").val(),
-			// url: site_url+'control/bat_rutas',
+			// url: site_url+'carga_masiva/procesar_archivos_rutas_v2/'+$("#sessIdCuenta").val(),
+			url: site_url+'control/bat_rutas',
 			success: function(data) {
 				console.log('listo');
 			}

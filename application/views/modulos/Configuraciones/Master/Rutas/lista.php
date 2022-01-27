@@ -2,9 +2,9 @@
 	<table id="tb-modulacion" class="table table-striped table-bordered nowrap dataTable no-footer" style="width:100%;">
 		<thead>
 			<tr>
-				
+				<th class="noVis"></th>
+				<th class="noVis">#</th>
 				<th class="text-center align-middle">OPCIONES</th>
-				<th class="text-center align-middle">#</th>
 				<th class="text-center align-middle">RUTA</th>
 				<th class="text-center align-middle">GTM</th>
 				<th class="text-center align-middle">FECHA INICIO</th>
@@ -14,13 +14,15 @@
 		<tbody>
 			<? $ix=1; ?>
 			<?foreach ($ruta as $row){ ?>
-				<tr>
+				<tr class="" data-idProgRuta = <?=$row['idProgRuta']?>>
+					<td></td>
+					<td></td>
 					<td class="text-center align-middle">
 						
-					<a href="javascript:;" class="btn-editar-rutas btn btn-outline-secondary border-0" data-id="<?=$row['idProgRuta'];?>" data-fecIni="<?=$row['fecIni'];?>" data-fecFin="<?=$row['fecFin'];?>"><i class="fas fa-edit fa-lg"></i></a>
-					<a href="javascript:;" class="btn-rutas-editar-usuarios-tradicional btn btn-outline-secondary border-0" data-id="<?=$row['idProgRuta'];?>"><i class="fa fa-user fa-lg"></i></a>
+					<a href="javascript:;" class="btn-editar-rutas btn-sm btn-outline-secondary border-0" data-id="<?=$row['idProgRuta'];?>" data-fecIni="<?=$row['fecIni'];?>" data-fecFin="<?=$row['fecFin'];?>"><i class="fas fa-edit fa-lg"></i></a>
+					<a href="javascript:;" class="btn-rutas-editar-usuarios-tradicional btn-sm btn-outline-secondary border-0" data-id="<?=$row['idProgRuta'];?>"><i class="fa fa-user fa-lg"></i></a>
 					
-					<a href="javascript:;" class="btn-rutas-eliminar btn btn-outline-secondary border-0" data-id="<?=$row['idProgRuta'];?>"><i class="fas fa-trash fa-lg"></i></a>
+					<a href="javascript:;" class="btn-rutas-eliminar btn-sm btn-outline-secondary border-0" data-id="<?=$row['idProgRuta'];?>"><i class="fas fa-trash fa-lg"></i></a>
 					
 					<?
 						if($row['generado']=="1"){
@@ -31,7 +33,6 @@
 					?>
 
 					</td>
-					<td class="text-center align-middle"><?=$ix++;?></td>
 					<td class="align-middle"><?=$row['nombreRuta'];?></td>
 					<td class="align-middle"><?=$row['gtm'];?></td>
 					<td class="text-center align-middle"><?=$row['fecIni'];?></td>

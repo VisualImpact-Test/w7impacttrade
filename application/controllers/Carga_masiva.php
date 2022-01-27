@@ -780,6 +780,11 @@ class Carga_masiva extends CI_Controller
 						$params['estado']=0;
 						$this->model->update_carga_ruta($where,$params);
 						$this->model->update_carga_ruta_fecha($where);
+
+						$this->generarRutaByDay([
+							'fecIni'=> date_change_format($row['fecIni']),
+							'fecFin'=> date_change_format($row['fecFin'])
+						]);
 					}
 				}
 			}
@@ -2312,6 +2317,497 @@ class Carga_masiva extends CI_Controller
 			case 'D'  :   $num_dia = 7; break;
 		}
 		return $num_dia;
+	}
+
+	public function generarRutaByDay($params = []){
+
+		if(!empty($params)){
+			$dias = diffDays($params['fecIni'],$params['fecFin']);
+		
+			if($dias >= 0){
+				for ($i=0; $i <= $dias ; $i++) { 
+					$this->model->generar_rutas_manual(date_change_format($params['fecIni']),date_change_format($params['fecFin']),$i);
+				}
+			}
+		}
+	}
+
+	public function procesar_archivos_rutas_v2($idCuenta){
+		ini_set('display_errors', TRUE);
+		ini_set('display_startup_errors', TRUE);
+		ini_set('memory_limit', '1024M');
+		set_time_limit(0);
+		$this->cambiarBaseDatos($idCuenta);
+		$carpetas = $this->model->carga_ruta_no_procesado()->result_array();
+
+		if(count($carpetas)>0){
+			//marcar en proceso
+			foreach($carpetas as $row){
+				$this->cambiarBaseDatos($row['idCuenta']);
+				$where =array();
+				$where['idCarga']=$row['idCarga'];
+				$params =array();
+				$params['procesado']=1;
+				$this->model->update_carga_ruta($where,$params);
+			}
+
+			//convertir a detalle
+			foreach($carpetas as $row){
+				if( empty($row['totalClientes']) || $row['totalClientes']=='0' ){
+					$this->cambiarBaseDatos($row['idCuenta']);
+
+
+					$ruta = 'public/csv/rutas/'.$row['carpeta'];
+					$rutaFiles = 'public/csv/rutas/'.$row['carpeta'].'/archivos/';
+					$directorio_INS = opendir($rutaFiles);
+					$arrayBody=array();
+					$i=0;
+					$j=0;
+					while (false !== ($archivo_INS = readdir($directorio_INS))){
+						if ($archivo_INS != '.' && $archivo_INS != '..') {
+							if(is_file($rutaFiles.$archivo_INS)) {
+								$rutaCSV = $rutaFiles.$archivo_INS;
+								$fp = fopen($rutaCSV, "r");
+								while (!feof($fp)){
+									$csvHeader = fgets($fp);
+									break;
+								}
+								fclose($fp);
+	
+								$delimiter = $this->delimiter_exists($csvHeader, ',') ? ',' : ';'; 
+								$handle_body = fopen($rutaCSV, "r");
+								$header_=0;
+	
+								$indice=-2;
+								$total_columna=0;
+	
+								$codigoElemento=array();
+								while (($data = fgetcsv($handle_body, 1000000, $delimiter)) !== FALSE) { 
+									$arrayBody=array();
+									$j=0;
+									$header_++; $indice++;
+									if($header_!=1){
+										$total_columna=count($data);
+										$m=0; 
+										$cont =0;
+	
+	
+										//validacion usuario
+										if(empty($data[1])){
+											$insert=array();
+	
+											$insert['idCarga']=$row['idCarga'];
+											($data[2]!=null)? ( is_numeric($data[2])? $insert['idCliente']=$data[2] :null ) : null;
+											$insert['tipoError']="FILA:{$header_} NO SE INSERTÓ EL ID USUARIO";
+											$insert['datoIngresado']=$data[1];
+	
+											$this->model->insertar_carga_ruta_no_procesado($insert);
+											$cont++;
+											continue;
+										}
+										else{
+											if(!is_numeric($data[1])){
+												$insert=array();
+	
+												$insert['idCarga']=$row['idCarga'];
+												($data[2]!=null)? ( is_numeric($data[2])? $insert['idCliente']=$data[2] :null ) : null;
+												$insert['tipoError']="FILA:{$header_} El idUsuario: {$data[1]} no es válido";
+												$insert['datoIngresado']="{$data[1]}";
+	
+												$this->model->insertar_carga_ruta_no_procesado($insert);
+												$cont++;
+												continue;
+											}
+											else{
+												$params = [
+													'idUsuario' => $data[1],
+													'idProyecto'=> $row['idProyecto'],
+													'fecIni' => $row['fecIni'],
+													'fecFin' => $row['fecFin'],
+													'idTipoUsuario'=> $row['idTipoUsuario'],
+												];
+												$validar_usuario = $this->model->validar_usuario_historico($params);
+												if($validar_usuario){
+													$arrayBody[$j]['idUsuario']=$data[1];
+												}else{
+													$insert=array();
+	
+													$insert['idCarga']=$row['idCarga'];
+													($data[2]!=null)? ( is_numeric($data[2])? $insert['idCliente']=$data[2] :null ) : null;
+													$insert['tipoError']="FILA:{$header_} Por favor verifique que el usuario {$data[1]} tenga un histórico activo con el Proyecto({$row['idProyecto']}) y Tipo de Usuario({$row['idTipoUsuario']}) indicados";
+													$insert['datoIngresado']=$data[1];
+	
+													$this->model->insertar_carga_ruta_no_procesado($insert);
+													$cont++;
+													continue;
+												}
+											}
+										}
+	
+										//validacion cliente
+										if(empty($data[2])){
+											$insert=array();
+	
+											$insert['idCarga']=$row['idCarga'];
+											($data[1]!=null)? ( is_numeric($data[1])? $insert['idUsuario']=$data[1] :null ) : null;
+											$insert['tipoError']="FILA:{$header_} COD CLIENTE NO INGRESADO.";
+											$insert['datoIngresado']="NO SE INSERTÓ EL COD CLIENTE";
+	
+											$this->model->insertar_carga_ruta_no_procesado($insert);
+											$cont++;
+											continue;
+										}
+										else{
+											if(!is_numeric($data[2])){
+												$insert=array();
+	
+												$insert['idCarga']=$row['idCarga'];
+												($data[1]!=null)? ( is_numeric($data[1])? $insert['idUsuario']=$data[1] :null ) : null;
+												$insert['tipoError']="FILA:{$header_} COD CLIENTE NO VÁLIDO";
+												$insert['datoIngresado']="EL COD CLIENTE: {$data[2]} NO ES VÁLIDO";
+	
+												$this->model->insertar_carga_ruta_no_procesado($insert);
+												$cont++;
+												continue;
+											}
+											else{
+	
+												$res=$this->model->validar_cliente($data[2]);
+												
+												if(count($res)>0){
+													$arrayBody[$j]['idCliente']=$data[2];
+												}else{
+													$insert=array();
+	
+													$insert['idCarga']=$row['idCarga'];
+													($data[1]!=null)? ( is_numeric($data[1])? $insert['idUsuario']=$data[1] :null ) : null;
+													$insert['tipoError']="FILA:{$header_} Cliente No encontrado.";
+													$insert['datoIngresado']=$data[2];
+
+													$this->model->insertar_carga_ruta_no_procesado($insert);
+													$cont++;
+													continue;
+												}
+											}
+										}
+	
+										$arrayBody[$j]['nombreRuta']=$data[0];
+										$arrayBody[$j]['lunes']=$data[3];
+										$arrayBody[$j]['martes']=$data[4];
+										$arrayBody[$j]['miercoles']=$data[5];
+										$arrayBody[$j]['jueves']=$data[6];
+										$arrayBody[$j]['viernes']=$data[7];
+										$arrayBody[$j]['sabado']=$data[8];
+										$arrayBody[$j]['domingo']=$data[9];
+										$arrayBody[$j]['idCarga'] = $row['idCarga'];
+										$arrayBody[$j]['estado'] =1;
+										
+										if($row['idProyecto'] == PROYECTO_MODERNO_PG){
+											$arrayBody[$j]['refrigerio']=$data[10];
+											$arrayBody[$j]['descanso']=$data[11];
+
+											$dias_descanso = explode("-",$data[11]);
+											$errores = [];
+											$error = [
+												'idCarga' => $row['idCarga'],
+												'tipoError' => "FILA:{$header_} No se puede establecer descanso y visita el mismo día",
+												'datoIngresado' => $data[11],
+											];
+											if(is_array($dias_descanso)){
+												
+												foreach ($dias_descanso as $dd => $d) {
+													$dia = $this->numTextoDia($d); // Retorna el día de semana
+
+													$dia == 7 && !empty($data[9])? $errores[] = $error : '' ;
+													$dia == 6 && !empty($data[8])? $errores[] = $error : '' ;
+													$dia == 5 && !empty($data[7])? $errores[] = $error : '' ;
+													$dia == 4 && !empty($data[6])? $errores[] = $error : '' ;
+													$dia == 3 && !empty($data[5])? $errores[] = $error : '' ;
+													$dia == 2 && !empty($data[4])? $errores[] = $error : '' ;
+													$dia == 1 && !empty($data[3])? $errores[] = $error : '' ;
+
+												}
+											}
+											if(!is_array($dias_descanso)){
+												
+													$dia = $this->numTextoDia($dias_descanso); // Retorna el día de semana
+
+													$dia == 7 && !empty($data[9])? $errores[] = $error : '' ;
+													$dia == 6 && !empty($data[8])? $errores[] = $error : '' ;
+													$dia == 5 && !empty($data[7])? $errores[] = $error : '' ;
+													$dia == 4 && !empty($data[6])? $errores[] = $error : '' ;
+													$dia == 3 && !empty($data[5])? $errores[] = $error : '' ;
+													$dia == 2 && !empty($data[4])? $errores[] = $error : '' ;
+													$dia == 1 && !empty($data[3])? $errores[] = $error : '' ;
+
+											}
+
+											if(!empty($errores)){
+												foreach ($errores as $idErr => $err) {
+													$this->model->insertar_carga_ruta_no_procesado($err);
+												}
+												$cont++;
+												continue;
+											}
+											
+										}
+										$j++;
+										$cont++;
+	
+									}
+
+									if(count($arrayBody)>0){
+										$insert = $this->db->insert_batch("{$this->sessBDCuenta}.trade.cargaRutaDet", $arrayBody); 
+		
+										$params =array();
+										$params['idCarga']=$row['idCarga'];
+										$this->model->update_carga_ruta_clientes_count($params);
+									}
+										
+								}
+								
+								fclose($handle_body);
+							}
+						} 
+						$i++;
+					}
+					
+					closedir($directorio_INS);
+					clearstatcache();
+					//update carga ruta
+					
+					$params =array();
+					$params['idCarga']=$row['idCarga'];
+					$this->model->update_carga_ruta_clientes_count($params);
+				}else{
+					$params =array();
+					$params['idCarga']=$row['idCarga'];
+					$this->model->update_carga_ruta_clientes_count($params);
+				}
+			}
+		}
+		
+
+		//transferir a tablas
+		$data = $this->model->carga_ruta()->result_array();
+		if(count($data)>0){
+
+			//marcar estado 0
+			foreach($data as $row){
+				$this->cambiarBaseDatos($row['idCuenta']);
+				$where =array();
+				$where['idCarga']=$row['idCarga'];
+				$params =array();
+				$params['estado']=0;
+				$this->model->update_carga_ruta($where,$params);
+			}
+
+			$array_detalle=array();
+			
+			foreach($data as $row){
+				if($row['totalClientes']>0 && ( empty($row['total_procesados']) || $row['total_procesados']=='0' )){
+					$this->cambiarBaseDatos($row['idCuenta']);
+
+						//GENERAR LAS VISITAS
+
+						$params=array();
+						$cont_visitas=0;
+						$params['idCarga']=$row['idCarga'];
+						//
+						$data_det = $this->model->carga_ruta_det($params)->result_array();
+						foreach($data_det as $row_det){
+							$array_detalle[$row_det['nombreRuta']][$row_det['idUsuario']][$row_det['idCliente']]=$row_det;
+						}
+
+						foreach($array_detalle as  $value_nombre => $row_d){
+
+							//insert programacion_ruta
+							$insert_descanso_ruta_prog = [];
+							$insert_ruta = array(
+								'nombre' => $value_nombre
+								,'fecIni' =>  $row['fecIni']
+								,'generado'=> $row['generado']
+								,'idProyecto'=>$row['idProyecto']
+							);
+							if(!empty($row['fecFin'])){
+								$insert_ruta['fecFin'] = $row['fecFin'];
+							}
+							$this->db->insert("{$this->sessBDCuenta}.trade.programacion_ruta",$insert_ruta);
+							$idProgRuta = $this->db->insert_id();
+
+							//insert programacion_rutaDet
+							
+							foreach($array_detalle[$value_nombre] as  $value_idUsuario  => $row_dn){
+
+								$insert_gtm = array(
+								'idProgRuta' => $idProgRuta
+								, 'fecIni' => $row['fecIni']
+								, 'idUsuario' => $value_idUsuario
+								, 'idTipoUsuario' => $row['idTipoUsuario']
+								);
+								if(!empty($row['fecFin'])){
+									$insert_gtm['fecFin'] = $row['fecFin'];
+								}
+								$this->db->insert("{$this->sessBDCuenta}.trade.programacion_rutaDet",$insert_gtm);
+								//$idProgRutaDet = $this->db->insert_id();
+								
+								foreach($array_detalle[$value_nombre][$value_idUsuario] as $value_idCliente => $row_dc){
+
+									//insert programacion_visita
+									$insert_visita = array(
+										'idProgRuta' => $idProgRuta
+										, 'idCliente' => $value_idCliente
+									);
+									$this->db->insert("{$this->sessBDCuenta}.trade.programacion_visita", $insert_visita);
+									$idProgVisita = $this->db->insert_id();
+
+										$lunes = isset($row_dc['lunes'])? $row_dc['lunes'] : '';
+										$martes = isset($row_dc['martes'])?$row_dc['martes']:'';
+										$miercoles = isset($row_dc['miercoles'])?$row_dc['miercoles']:'';
+										$jueves = isset($row_dc['jueves'])?$row_dc['jueves']:'';
+										$viernes = isset($row_dc['viernes'])?$row_dc['viernes']:'';
+										$sabado = isset($row_dc['sabado'])?$row_dc['sabado']:'';
+										$domingo = isset($row_dc['domingo'])?$row_dc['domingo']:'';
+
+										$dias_descanso = [];
+										$dias_descanso_programados = [];
+										if($row['idProyecto'] == PROYECTO_MODERNO_PG){
+											$dias_descanso = explode("-",$row_dc['refrigerio']);
+
+											if(!is_array($dias_descanso)){
+												$dias_descanso = [$dias_descanso];
+											}
+
+											foreach($dias_descanso as $d){
+												$dias_descanso_programados[] = $this->numTextoDia($d);
+											}
+										}
+										$insert_visitaDet = [];
+										//insert programacion_visitaDet
+										if(!empty($lunes) && $lunes>=1 ){
+											$insert_visitaDet [] = array(
+												'idProgVisita' => $idProgVisita
+												, 'dia' => 1
+												, 'idHorario' => ($row['idProyecto'] == PROYECTO_MODERNO_PG) ? $lunes : NULL
+												, 'flagRefrigerio' => ($row['idProyecto'] == PROYECTO_MODERNO_PG && in_array("1",$dias_descanso_programados)) ? 1 : 0 
+											);
+										}
+
+										if(!empty($martes) && $martes>=1){
+											$insert_visitaDet [] = array(
+												'idProgVisita' => $idProgVisita
+												, 'dia' => 2
+												, 'idHorario' => ($row['idProyecto'] == PROYECTO_MODERNO_PG) ? $martes : NULL
+												, 'flagRefrigerio' => ($row['idProyecto'] == PROYECTO_MODERNO_PG && in_array("2",$dias_descanso_programados)) ? 1 : 0 
+											);
+										}
+							
+										if(!empty($miercoles) && $miercoles>=1 ){
+											$insert_visitaDet [] = array(
+												'idProgVisita' => $idProgVisita
+												, 'dia' => 3
+												, 'idHorario' => ($row['idProyecto'] == PROYECTO_MODERNO_PG) ? $miercoles : NULL
+												, 'flagRefrigerio' => ($row['idProyecto'] == PROYECTO_MODERNO_PG && in_array("3",$dias_descanso_programados)) ? 1 : 0 
+											);
+											
+										}
+									
+										if(!empty($jueves) && $jueves>=1 ){
+											$insert_visitaDet [] = array(
+												'idProgVisita' => $idProgVisita
+												, 'dia' => 4
+												, 'idHorario' => ($row['idProyecto'] == PROYECTO_MODERNO_PG) ? $jueves : NULL
+												, 'flagRefrigerio' => ($row['idProyecto'] == PROYECTO_MODERNO_PG && in_array("4",$dias_descanso_programados)) ? 1 : 0 
+											);
+										}
+									
+										if(!empty($viernes ) && $viernes>=1){
+											$insert_visitaDet [] = array(
+												'idProgVisita' => $idProgVisita
+												, 'dia' => 5
+												, 'idHorario' => ($row['idProyecto'] == PROYECTO_MODERNO_PG) ? $viernes : NULL
+												, 'flagRefrigerio' => ($row['idProyecto'] == PROYECTO_MODERNO_PG && in_array("5",$dias_descanso_programados)) ? 1 : 0 
+											);
+										}
+
+										if(!empty($sabado) && $sabado>=1){
+											$insert_visitaDet [] = array(
+												'idProgVisita' => $idProgVisita
+												, 'dia' => 6
+												, 'idHorario' => ($row['idProyecto'] == PROYECTO_MODERNO_PG) ? $sabado : NULL
+												, 'flagRefrigerio' => ($row['idProyecto'] == PROYECTO_MODERNO_PG && in_array("6",$dias_descanso_programados)) ? 1 : 0 
+												
+											);
+										}
+
+										if(!empty($domingo) && $domingo>=1 ){
+											$insert_visitaDet [] = array(
+												'idProgVisita' => $idProgVisita
+												, 'dia' =>7
+												, 'idHorario' => ($row['idProyecto'] == PROYECTO_MODERNO_PG) ? $domingo : NULL
+												, 'flagRefrigerio' => ($row['idProyecto'] == PROYECTO_MODERNO_PG && in_array("7",$dias_descanso_programados)) ? 1 : 0 
+											);
+										}
+
+										if(!empty($insert_visitaDet)){
+											$this->db->insert_batch("{$this->sessBDCuenta}.trade.programacion_visitaDet",$insert_visitaDet);
+										}
+
+										$cont_visitas++;
+
+										//actualizar contador 
+
+										
+										$where =array();
+										$where['idCarga']=$row['idCarga'];
+										$params =array();
+										$params['total_procesados']=$cont_visitas;
+										$this->model->update_carga_ruta($where,$params);
+
+
+										if(!empty($row_dc['descanso'])){
+											$insert_descanso_ruta_prog[$idProgRuta] = [
+												'descanso' => $row_dc['descanso']
+											];
+										}
+											
+								}
+							}
+						}
+						$insert_descansos = [];
+						foreach ($insert_descanso_ruta_prog as $iprg => $prg) {
+							$insert_descansos[] = [
+								'idProgRuta' => $iprg,
+								'idDia' => $this->numTextoDia($prg['descanso']),
+								'fecIni' => $row['fecIni'],
+								'fecFin' => $row['fecFin'],
+								'estado' => 1,
+							];
+						}
+						if(!empty($insert_descansos)){
+							$this->db->insert_batch("{$this->sessBDCuenta}.trade.programacion_rutaDescanso",$insert_descansos);
+						}
+
+						$where =array();
+						$where['idCarga']=$row['idCarga'];
+						$params =array();
+						$params['estado']=0;
+						$this->model->update_carga_ruta($where,$params);
+						$this->model->update_carga_ruta_fecha($where);
+
+						if($row['generado']==1){
+							$this->generarRutaByDay([
+								'fecIni'=> ($row['fecIni']),
+								'fecFin'=> ($row['fecFin'])
+							]);
+						}
+					
+				}
+			}
+		
+	 
+		}
+
 	}
 	
 
