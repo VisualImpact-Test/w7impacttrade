@@ -1726,4 +1726,42 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		
 	}
 
+	function numTextoDia($day){
+
+		$num_dia = 0;
+		
+		switch ($day){
+			case 'Lu' : $num_dia =  1; break;
+			case 'L'  : $num_dia =  1; break;
+			case 'M'  : $num_dia = 2; break;
+			case 'Ma' : $num_dia = 2; break;
+			case 'Mi' : $num_dia = 3; break;
+			case 'Ju' : $num_dia = 4; break;
+			case 'J'  : $num_dia = 4; break;
+			case 'Vi' : $num_dia = 5; break;
+			case 'V'  : $num_dia = 5; break;
+			case 'S'  : $num_dia = 6; break;
+			case 'Sa' : $num_dia = 6; break;
+			case 'Do' : $num_dia = 7; break;
+			case 'D'  :   $num_dia = 7; break;
+		}
+		return $num_dia;
+	}
+	function numDiaTexto($num){
+
+		$day_name = "";
+		
+		switch ($num){
+			case 1 : $day_name = 'Lu'; break;
+			case 2 : $day_name = 'Ma'; break;
+			case 3 : $day_name = 'Mi'; break;
+			case 4 : $day_name = 'Ju'; break;
+			case 5 : $day_name = 'Vi'; break;
+			case 6 : $day_name = 'Sa'; break;
+			case 7 : $day_name = 'Do'; break;
+		}
+		return $day_name;
+	}
+
+
 

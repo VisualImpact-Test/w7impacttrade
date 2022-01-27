@@ -80,6 +80,8 @@ $.ajaxSetup({
 	timeout: 1*800*1000,/*1 minuto*/
 });
 
+const PROYECTO_MODERNO_PG = 17;
+
 var site_name='impactTrade';
 var site_url=$('base').attr('site_url');
 //var fotos_url='http://movil.visualimpact.com.pe/fotos/impactTrade_Android/';

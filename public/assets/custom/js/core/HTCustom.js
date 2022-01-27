@@ -575,6 +575,10 @@ var HTCustom = {
 				allowInvalid: true,
 				manualColumnMove: false,
 				manualRowResize: false,
+				hiddenColumns:{
+					columns:[],
+					indicators:true,
+				},
 				rowHeights: 24,
 				autoRowSize: false,
 				viewportRowRenderingOffset: 1,
@@ -584,6 +588,11 @@ var HTCustom = {
 			if (typeof value.colWidths === 'object' || typeof value.colWidths === 'number' || typeof value.colWidths === 'string') {
 				features.colWidths = value.colWidths;
 			}
+
+			if (typeof value.hideColumns === 'object' || typeof value.hideColumns === 'number' || typeof value.hideColumns === 'string') {
+				features.hiddenColumns['columns'] = value.hideColumns;
+			}
+
 
 			HTCustom.HTObjectsFeatures[index] = features;
 			HTCustom.HTNombres[index] = value.nombre;

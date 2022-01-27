@@ -6,6 +6,7 @@ class Rutas extends MY_Controller{
 	public function __construct(){
 		parent::__construct();
 		$this->load->model('configuraciones/master/m_rutas','model');
+		$this->load->model('m_control','m_control');
 	}
 
 	public function index(){
@@ -26,6 +27,8 @@ class Rutas extends MY_Controller{
 			, 'assets/libs/handsontable@7.4.2/dist/moment/moment'
 			, 'assets/libs/handsontable@7.4.2/dist/pikaday/pikaday'
 			, 'assets/libs/filedownload/jquery.fileDownload'
+			,'assets/custom/js/core/HTCustom'
+			,'assets/custom/js/core/gestion'
 			, 'assets/custom/js/configuraciones/master/rutas'
 		);
 
@@ -1061,11 +1064,22 @@ class Rutas extends MY_Controller{
 	
 	public function clonarRuta(){
 		$result = $this->result;
+		$data=json_decode($this->input->post('data'),true);
 
 		$html='';
 		$array=array();
-		$array['rutas']= $this->model->obtener_rutas_activas();
-		$array['gtm']= $this->model->obtener_gtm();
+		$array['rutas']= $this->model->obtener_rutas_activas($data);
+		$rs_listaUsuarios= $this->model->obtener_lista_usuarios();
+
+		foreach ($rs_listaUsuarios as $k => $v) {
+			$array['listaUsuarios'][$v['idUsuario']]['idUsuario'] = $v['idUsuario'];
+			$array['listaUsuarios'][$v['idUsuario']]['nombreUsuario'] = $v['nombreUsuario'];
+
+			$array['listaTiposUsuario'][$v['idUsuario']][$v['idTipoUsuario']]['idTipoUsuario'] = $v['idTipoUsuario'];
+			$array['listaTiposUsuario'][$v['idUsuario']][$v['idTipoUsuario']]['tipoUsuario'] = $v['tipoUsuario'];
+
+		}
+		
 		$html .= $this->load->view("modulos/configuraciones/master/rutas/clonarRutas", $array, true);
 		//Result
 		$result['result']=1;
@@ -1085,30 +1099,72 @@ class Rutas extends MY_Controller{
 		$array=array();
 		
 		$data_ruta_visitas = $this->model->obtener_ruta_detalle($id);
-	
+
+		if(empty($data_ruta_visitas)){
+
+			$result['result']=0;
+			$result['msg']['title'] = 'CLONAR RUTA';
+			$result['data']['html'] = createMessage(['type'=>2,"message"=>"No se encontraron visitas para esta ruta"]);	
+			echo json_encode($result);
+			exit();
+		}
+		$refrigerio = [];
+		$descanso = [];
+
 		foreach($data_ruta_visitas as $row){
 			$clientes[$row['idCliente']]['id'] = $row['idCliente'];
 			$clientes[$row['idCliente']]['idProgVisita'] = $row['idProgVisita'];
 			$clientes[$row['idCliente']]['razonSocial'] = $row['razonSocial'];
 			$dias[$row['idCliente']][$row['idDia']]['dia'] = $row['idDia'];
+			$dias[$row['idCliente']][$row['idDia']]['horario'] = $row['idHorario'];
+
+			if(!empty($row['flagRefrigerio'])){
+				$refrigerio[$row['idCliente']][$row['idDia']] = $row['idDia'];
+			}
+			if($row['descanso']){
+				$descanso[$row['idCliente']] = $row['descanso'];
+			}
+	
 		}
+
 		
 		$html='';
-		
+		$data_HT = [];
+
 		foreach($clientes as $row => $value){
-			//foreach($dias[$row] as $row_d => $value_d){
-				$lunes = !empty($dias[$row][1])?'1':0;
-				$martes = !empty($dias[$row][2])?'1':0;
-				$miercoles = !empty($dias[$row][3])?'1':0;
-				$jueves = !empty($dias[$row][4])?'1':0;
-				$viernes = !empty($dias[$row][5])?'1':0;
-				$sabado = !empty($dias[$row][6])?'1':0;
-				$domingo = !empty($dias[$row][7])?'1':0;
-			//}
-			$html.='{ idCliente:'.$row.', lunes:'.$lunes.',martes:'.$martes.',miercoles:'.$miercoles.',jueves:'.$jueves.', viernes:'.$viernes.', sabado:'.$sabado.', domingo:'.$domingo.' },';
+		
+			$diasRefrigerio = [];
+			if(!empty($refrigerio[$row])){
+				if(!empty($refrigerio[$row]) && !is_array($refrigerio[$row])) {$refrigerio[$row] = [$refrigerio[$row]];}
+				foreach ($refrigerio[$row] as $d => $v) {
+					$diasRefrigerio []	= numDiaTexto($v);
+				}
+			}
+
+			$diasDescanso = [];
+			if(!empty($refrigerio[$row])){
+				if(!empty($descanso[$row]) && !is_array($descanso[$row])) {$descanso[$row] = [$descanso[$row]];}
+				foreach ($descanso[$row] as $d => $v) {
+					$diasDescanso[]	= numDiaTexto($v);
+				}
+			}
+		
+
+			$data_HT[] = [
+				'idCliente' => $row,
+				'lunes' => !empty($dias[$row][1])? $dias[$row][1]['horario'] :0,
+				'martes' => !empty($dias[$row][2])? $dias[$row][2]['horario'] :0,
+				'miercoles' => !empty($dias[$row][3])? $dias[$row][3]['horario'] :0,
+				'jueves' => !empty($dias[$row][4])? $dias[$row][4]['horario'] :0,
+				'viernes' => !empty($dias[$row][5])? $dias[$row][5]['horario'] :0,
+				'sabado' => !empty($dias[$row][6])? $dias[$row][6]['horario'] :0,
+				'domingo' => !empty($dias[$row][7])? $dias[$row][7]['horario'] :0,
+				'refrigerio'=> !empty($diasRefrigerio) ? implode("-",$diasRefrigerio): '' ,
+				'descanso'=> !empty($diasDescanso) ? implode("-",$diasDescanso): '' ,
+			];
 		}
 		
-		$array['visitas'] = $html;
+		$array['visitas'] = json_encode($data_HT);
 		
 		$html= $this->load->view("modulos/configuraciones/master/rutas/rutaImportada", $array, true);
 		//Result
@@ -1295,7 +1351,7 @@ class Rutas extends MY_Controller{
 	public function registrarMasivo(){
 		set_time_limit(0);
 		$data = json_decode($this->input->post('data'),true);
-		
+		$idProyecto = $this->sessIdProyecto;
 		
 		$fecIni=$data['fecIni'];
 		$fecFin=$data['fecFin'];
@@ -1309,6 +1365,8 @@ class Rutas extends MY_Controller{
 		$array_viernes = array();
 		$array_sabado = array();
 		$array_domingo = array();
+		$array_refrigerio = array();
+		$array_descanso = array();
 
 		$cont_registrado=0;
 		$cont_existentes=0;
@@ -1325,16 +1383,17 @@ class Rutas extends MY_Controller{
 			$array_viernes[$row[0]][$row[2]]=$row[7];
 			$array_sabado[$row[0]][$row[2]]=$row[8];
 			$array_domingo[$row[0]][$row[2]]=$row[9];
+			$array_refrigerio[$row[0]][$row[2]]=$row[10];
+			$array_descanso[$row[0]][$row[2]]=$row[11];
 		}
 
-		$generado= ($data['generacion']=="completa")? 1 : 0; 
+		$generado = ($data['generacion']=="completa")? 1 : 0; 
 		
 		foreach($array_ruta as $row => $value){
+			$insert_descanso_ruta_prog = [];
 			$insert_ruta = array(
-				'nombreRuta' => $value
+				'nombre' => $value
 				,'fecIni' => $fecIni
-				,'numClientes'=>0
-				,'idUsuarioReg'=>$this->session->idUsuario
 				,'generado'=>$generado
 			);
 			if(!empty($fecFin)){
@@ -1370,77 +1429,120 @@ class Rutas extends MY_Controller{
 				$viernes = isset($array_viernes[$row][$value_c])?$array_viernes[$row][$value_c]:'';
 				$sabado = isset($array_sabado[$row][$value_c])?$array_sabado[$row][$value_c]:'';
 				$domingo = isset($array_domingo[$row][$value_c])?$array_domingo[$row][$value_c]:'';
+				$refrigerio = isset($array_refrigerio[$row][$value_c])?$array_refrigerio[$row][$value_c]:'';
+				$descanso = isset($array_descanso[$row][$value_c])?$array_descanso[$row][$value_c]:'';
 
-					if(!empty($lunes) && $lunes==1 ){
+				$dias_descanso = [];
+				$dias_descanso_programados = [];
+				if($idProyecto == PROYECTO_MODERNO_PG){
+					$dias_descanso = explode("-",$refrigerio);
+
+					if(!is_array($dias_descanso)){
+						$dias_descanso = [$dias_descanso];
+					}
+
+					foreach($dias_descanso as $d){
+						$dias_descanso_programados[] = numTextoDia($d);
+					}
+				}
+
+					if(!empty($lunes) && $lunes>=1 ){
 						$insert_visitaDet = array(
 							  'idProgVisita' => $idProgVisita
-							, 'idDia' => 1
+							, 'dia' => 1
+							, 'idHorario' => ($idProyecto == PROYECTO_MODERNO_PG) ? $lunes : NULL
+							, 'flagRefrigerio' => ($idProyecto == PROYECTO_MODERNO_PG && in_array("1",$dias_descanso_programados)) ? 1 : 0 
 						);
 						$this->db->insert("{$this->sessBDCuenta}.trade.programacion_visitaDet",$insert_visitaDet);
 					}
 
-					if(!empty($martes) && $martes==1){
+					if(!empty($martes) && $martes>=1){
 						$insert_visitaDet = array(
 							  'idProgVisita' => $idProgVisita
-							, 'idDia' => 2
+							, 'dia' => 2
+							, 'idHorario' => ($idProyecto == PROYECTO_MODERNO_PG) ? $martes : NULL
+							, 'flagRefrigerio' => ($idProyecto == PROYECTO_MODERNO_PG && in_array("2",$dias_descanso_programados)) ? 1 : 0 
 						);
 						$this->db->insert("{$this->sessBDCuenta}.trade.programacion_visitaDet",$insert_visitaDet);
 					}
 		
-					if(!empty($miercoles) && $miercoles==1 ){
+					if(!empty($miercoles) && $miercoles>=1 ){
 						$insert_visitaDet = array(
 							  'idProgVisita' => $idProgVisita
-							, 'idDia' => 3
+							, 'dia' => 3
+							, 'idHorario' => ($idProyecto == PROYECTO_MODERNO_PG) ? $miercoles : NULL
+							, 'flagRefrigerio' => ($idProyecto == PROYECTO_MODERNO_PG && in_array("3",$dias_descanso_programados)) ? 1 : 0
+							
 						);
 						$this->db->insert("{$this->sessBDCuenta}.trade.programacion_visitaDet",$insert_visitaDet);
 					}
 				
-					if(!empty($jueves) && $jueves==1 ){
+					if(!empty($jueves) && $jueves>=1 ){
 						$insert_visitaDet = array(
 							  'idProgVisita' => $idProgVisita
-							, 'idDia' => 4
+							, 'dia' => 4
+							, 'idHorario' => ($idProyecto == PROYECTO_MODERNO_PG) ? $jueves : NULL
+							, 'flagRefrigerio' => ($idProyecto == PROYECTO_MODERNO_PG && in_array("4",$dias_descanso_programados)) ? 1 : 0
 						);
 						$this->db->insert("{$this->sessBDCuenta}.trade.programacion_visitaDet",$insert_visitaDet);
 					}
 				
-					if(!empty($viernes ) && $viernes==1){
+					if(!empty($viernes ) && $viernes>=1){
 						$insert_visitaDet = array(
 							  'idProgVisita' => $idProgVisita
-							, 'idDia' => 5
+							, 'dia' => 5
+							, 'idHorario' => ($idProyecto == PROYECTO_MODERNO_PG) ? $viernes : NULL
+							, 'flagRefrigerio' => ($idProyecto == PROYECTO_MODERNO_PG && in_array("5",$dias_descanso_programados)) ? 1 : 0
 						);
 						$this->db->insert("{$this->sessBDCuenta}.trade.programacion_visitaDet",$insert_visitaDet);
 					}
 
-					if(!empty($sabado) && $sabado==1){
+					if(!empty($sabado) && $sabado>=1){
 						$insert_visitaDet = array(
 							  'idProgVisita' => $idProgVisita
-							, 'idDia' => 6
+							, 'dia' => 6
+							, 'idHorario' => ($idProyecto == PROYECTO_MODERNO_PG) ? $sabado : NULL
+							, 'flagRefrigerio' => ($idProyecto == PROYECTO_MODERNO_PG && in_array("6",$dias_descanso_programados)) ? 1 : 0
 						);
 						$this->db->insert("{$this->sessBDCuenta}.trade.programacion_visitaDet",$insert_visitaDet);
 					}
 
-					if(!empty($domingo) && $domingo==1 ){
+					if(!empty($domingo) && $domingo>=1 ){
 						$insert_visitaDet = array(
 							  'idProgVisita' => $idProgVisita
-							, 'idDia' =>7
+							, 'dia' =>7
+							, 'idHorario' => ($idProyecto == PROYECTO_MODERNO_PG) ? $domingo : NULL
+							, 'flagRefrigerio' => ($idProyecto == PROYECTO_MODERNO_PG && in_array("7",$dias_descanso_programados)) ? 1 : 0
 						);
 						$this->db->insert("{$this->sessBDCuenta}.trade.programacion_visitaDet",$insert_visitaDet);
 					}
 					
 			}
-			
-			$total_clientes = "SELECT count(*) total FROM {$this->sessBDCuenta}.trade.programacion_visita WHERE idProgRuta = ".$idProgRuta;
-			$res = $this->db->query($total_clientes)->row_array();
-			$update = "UPDATE {$this->sessBDCuenta}.trade.programacion_ruta SET numClientes=".$res['total']." WHERE idProgRuta = ".$idProgRuta;
-			$this->db->query($update);
 
-			
-			$data_ruta_visitas_prog = $this->model->obtener_ruta_programada_visitas($idProgRuta);
+			if(!empty($descanso)){
+				$insert_descanso_ruta_prog[$idProgRuta] = [
+					'descanso' => $descanso
+				];
+			}
+
+			if(!$generado){
+				$data_ruta_visitas_prog = $this->model->obtener_ruta_programada_visitas_hoy($idProgRuta);
+			}
+			if($generado){
+				$data_ruta_visitas_prog = $this->model->obtener_ruta_programada_visitas(
+					[
+						'fecIni'=> $fecIni,
+						'fecFin' => $fecFin,
+						'idProgRuta' => $idProgRuta,
+					]
+				);
+			}
+
 			if($data_ruta_visitas_prog!=null){
 				if( count($data_ruta_visitas_prog)>0){
 					
-					$idProyecto=($this->session->userdata('idProyecto')=='13')? '3': $this->session->userdata('idProyecto') ;
-					$idCuenta=$this->session->userdata('idCuenta');
+					$idProyecto = $this->session->userdata('idProyecto') ;
+					$idCuenta = $this->session->userdata('idCuenta');
 					foreach($data_ruta_visitas_prog as $r){
 						$params=array();
 						$params['idCuenta']=$idCuenta;
@@ -1462,13 +1564,28 @@ class Rutas extends MY_Controller{
 
 		}
 
+		$insert_descansos = [];
+			foreach ($insert_descanso_ruta_prog as $iprg => $prg) {
+				$insert_descansos[] = [
+					'idProgRuta' => $iprg,
+					'idDia' => numTextoDia($prg['descanso']),
+					'fecIni' => $fecIni,
+					'fecFin' => $fecFin,
+					'estado' => 1,
+				];
+			}
+
+			if(!empty($insert_descansos)){
+				$this->db->insert_batch("{$this->sessBDCuenta}.trade.programacion_rutaDescanso",$insert_descansos);
+			}
+	
 		$html='Se registro con exito.<br>';
 		$html.='<div class="alert alert-success fade show" role="alert"><i class="fas fa-store-alt"></i> SE LOGRÓ REGISTRAR <strong>'.$cont_registrado.' CLIENTE(S)</strong> CORRECTAMENTE.</div>';
 		if($cont_existentes>1){
 			$html.='<div class="alert alert-danger" role="alert"><i class="fas fa-info-circle"></i> HUBO INCONVENIENTES AL REGISTRAR EL <strong>'.$cont_existentes.' CLIENTE(S)</strong> CON LA DATA BRINDADA.</div>';
 		}
 		$response = array( 
-				'msg' => array('title' => 'VALIDAR ACTUALIZACION', 'content' => 'Se registro con exito.' )
+				  'msg' => array('title' => 'VALIDAR ACTUALIZACION', 'content' => 'Se registro con exito.' )
 				, 'data' => $html
 				, 'result' => 1
 			);
@@ -2148,6 +2265,328 @@ class Rutas extends MY_Controller{
 		$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
 		$objWriter->save('php://output');	
 		////
+	}
+
+	public function getFormCargaMasivaRutasHT(){
+		$result = $this->result;
+		$result['msg']['title'] = "Carga masiva Rutas";
+		
+		//ARMANDO HANDSONTABLE
+		$HT[0] = [
+			'nombre' => 'RUTAS',
+			'data' => [
+                [
+                'nombreRuta' => null,
+                'idUsuario' => null ,
+                'idCliente' => null ,
+                'lunes' => null ,
+                'martes' => null ,
+                'miercoles' => null ,
+                'jueves' => null ,
+                'viernes' => null ,
+                'sabado' => null ,
+                'domingo' => null ,
+                'refrigerio' => null ,
+                'descanso' => null ,
+                ]
+			],
+            'headers' => [
+                  'NOMBRE RUTA',
+                  'COD USUARIO',
+                  'COD CLIENTE',
+                  'LUNES',
+                  'MARTES',
+                  'MIÉRCOLES',
+                  'JUEVES',
+                  'VIERNES',
+                  'SÁBADO',
+                  'DOMINGO',
+                  'REFRIGERIO',
+                  'DESCANSO',
+            ],
+			'columns' => [
+				['data' => 'nombreRuta', 'type' => 'text', 'placeholder' => 'Nombre Ruta', 'width' => 200],
+				['data' => 'idUsuario', 'type' => 'text', 'placeholder' => '', 'width' => 100],
+				['data' => 'idCliente', 'type' => 'text', 'placeholder' => '', 'width' => 100],
+				['data' => 'lunes', 'type' => 'text', 'placeholder' => '', 'width' => 100],
+				['data' => 'martes', 'type' => 'text', 'placeholder' => '', 'width' => 100],
+				['data' => 'miercoles', 'type' => 'text', 'placeholder' => '', 'width' => 100],
+				['data' => 'jueves', 'type' => 'text', 'placeholder' => '', 'width' => 100],
+				['data' => 'viernes', 'type' => 'text', 'placeholder' => '', 'width' => 100],
+				['data' => 'sabado', 'type' => 'text', 'placeholder' => '', 'width' => 100],
+				['data' => 'domingo', 'type' => 'text', 'placeholder' => '', 'width' => 100],
+				['data' => 'refrigerio', 'type' => 'text', 'placeholder' => '', 'width' => 100],
+				['data' => 'descanso', 'type' => 'text', 'placeholder' => '', 'width' => 100],
+			],
+			
+			'colWidths' => 200,
+        ];
+
+		if($this->sessIdProyecto != PROYECTO_MODERNO_PG){
+			$HT[0]['hideColumns'] = [10, 11];
+		}
+
+
+
+		//MOSTRANDO VISTA
+		$dataParaVista['hojas'] = [0 => $HT[0]['nombre']];
+		$dataParaVista['tiposUsuario'] = $this->model->obtener_tipo_usuario();
+		$result['result'] = 1;
+		$result['data']['width'] = '70%';
+		$result['data']['html'] = $this->load->view('modulos/configuraciones/master/rutas/formCargaMasivaHT',$dataParaVista, true);
+		$result['data']['ht'] = $HT;
+
+		echo json_encode($result);
+	}
+
+	public function guardarCargaMasivaRutasHT(){
+		set_time_limit(0);
+		$data = json_decode($this->input->post('data'),true);
+		$idProyecto = $this->sessIdProyecto;
+		
+		$fecIni=$data['fecha_ini'];
+		$fecFin=$data['fecha_fin'];
+		$array_ruta = array();
+		$array_gtm = array();
+		$array_cliente = array();
+		$array_lunes = array();
+		$array_martes = array();
+		$array_miercoles = array();
+		$array_jueves = array();
+		$array_viernes = array();
+		$array_sabado = array();
+		$array_domingo = array();
+		$array_refrigerio = array();
+		$array_descanso = array();
+
+		$cont_registrado=0;
+		$cont_existentes=0;
+		
+	
+		foreach($data['HT'][0] as $row){
+
+			if(empty($row['nombreRuta'])){
+				continue;
+			}
+			
+			$array_ruta[$row['nombreRuta']]=$row['nombreRuta'];
+			$array_gtm[$row['nombreRuta']]=$row['idUsuario'];
+			$array_cliente[$row['nombreRuta']][]=$row['idCliente'];
+			$array_lunes[$row['nombreRuta']][$row['idCliente']]=$row['lunes'];
+			$array_martes[$row['nombreRuta']][$row['idCliente']]=$row['martes'];
+			$array_miercoles[$row['nombreRuta']][$row['idCliente']]=$row['miercoles'];
+			$array_jueves[$row['nombreRuta']][$row['idCliente']]=$row['jueves'];
+			$array_viernes[$row['nombreRuta']][$row['idCliente']]=$row['viernes'];
+			$array_sabado[$row['nombreRuta']][$row['idCliente']]=$row['sabado'];
+			$array_domingo[$row['nombreRuta']][$row['idCliente']]=$row['domingo'];
+			$array_refrigerio[$row['nombreRuta']][$row['idCliente']]=$row['refrigerio'];
+			$array_descanso[$row['nombreRuta']][$row['idCliente']]=$row['descanso'];
+		}
+
+		$generado = ($data['ch-generacion']=="completa")? 1 : 0; 
+		
+		foreach($array_ruta as $row => $value){
+			$insert_descanso_ruta_prog = [];
+			$insert_ruta = array(
+				'nombre' => $value
+				,'fecIni' => $fecIni
+				,'generado'=>$generado
+			);
+			if(!empty($fecFin)){
+				$insert_ruta['fecFin'] = $fecFin;
+			}
+			
+			$this->db->insert("{$this->sessBDCuenta}.trade.programacion_ruta",$insert_ruta);
+			$idProgRuta = $this->db->insert_id();
+
+			$insert_gtm = array(
+				  'idProgRuta' => $idProgRuta
+				, 'fecIni' => $fecIni
+				, 'idUsuario' => $array_gtm[$row]
+			);
+			if(!empty($fecFin)){
+				$insert_gtm['fecFin'] = $fecFin;
+			}
+			$this->db->insert("{$this->sessBDCuenta}.trade.programacion_rutaDet",$insert_gtm);
+		
+			
+			foreach($array_cliente[$row] as $row_c => $value_c){
+				$insert_visita = array(
+					  'idProgRuta' => $idProgRuta
+					, 'idCliente' => $value_c
+				);
+				$this->db->insert("{$this->sessBDCuenta}.trade.programacion_visita", $insert_visita);
+				$idProgVisita = $this->db->insert_id();
+				
+				$lunes = isset($array_lunes[$row][$value_c])?$array_lunes[$row][$value_c]:'';
+				$martes = isset($array_martes[$row][$value_c])?$array_martes[$row][$value_c]:'';
+				$miercoles = isset($array_miercoles[$row][$value_c])?$array_miercoles[$row][$value_c]:'';
+				$jueves = isset($array_jueves[$row][$value_c])?$array_jueves[$row][$value_c]:'';
+				$viernes = isset($array_viernes[$row][$value_c])?$array_viernes[$row][$value_c]:'';
+				$sabado = isset($array_sabado[$row][$value_c])?$array_sabado[$row][$value_c]:'';
+				$domingo = isset($array_domingo[$row][$value_c])?$array_domingo[$row][$value_c]:'';
+				$refrigerio = isset($array_refrigerio[$row][$value_c])?$array_refrigerio[$row][$value_c]:'';
+				$descanso = isset($array_descanso[$row][$value_c])?$array_descanso[$row][$value_c]:'';
+
+				$dias_descanso = [];
+				$dias_descanso_programados = [];
+				if($idProyecto == PROYECTO_MODERNO_PG){
+					$dias_descanso = explode("-",$refrigerio);
+
+					if(!is_array($dias_descanso)){
+						$dias_descanso = [$dias_descanso];
+					}
+
+					foreach($dias_descanso as $d){
+						$dias_descanso_programados[] = numTextoDia($d);
+					}
+				}
+
+					if(!empty($lunes) && $lunes>=1 ){
+						$insert_visitaDet = array(
+							  'idProgVisita' => $idProgVisita
+							, 'dia' => 1
+							, 'idHorario' => ($idProyecto == PROYECTO_MODERNO_PG) ? $lunes : NULL
+							, 'flagRefrigerio' => ($idProyecto == PROYECTO_MODERNO_PG && in_array("1",$dias_descanso_programados)) ? 1 : 0 
+						);
+						$this->db->insert("{$this->sessBDCuenta}.trade.programacion_visitaDet",$insert_visitaDet);
+					}
+
+					if(!empty($martes) && $martes>=1){
+						$insert_visitaDet = array(
+							  'idProgVisita' => $idProgVisita
+							, 'dia' => 2
+							, 'idHorario' => ($idProyecto == PROYECTO_MODERNO_PG) ? $martes : NULL
+							, 'flagRefrigerio' => ($idProyecto == PROYECTO_MODERNO_PG && in_array("2",$dias_descanso_programados)) ? 1 : 0 
+						);
+						$this->db->insert("{$this->sessBDCuenta}.trade.programacion_visitaDet",$insert_visitaDet);
+					}
+		
+					if(!empty($miercoles) && $miercoles>=1 ){
+						$insert_visitaDet = array(
+							  'idProgVisita' => $idProgVisita
+							, 'dia' => 3
+							, 'idHorario' => ($idProyecto == PROYECTO_MODERNO_PG) ? $miercoles : NULL
+							, 'flagRefrigerio' => ($idProyecto == PROYECTO_MODERNO_PG && in_array("3",$dias_descanso_programados)) ? 1 : 0
+							
+						);
+						$this->db->insert("{$this->sessBDCuenta}.trade.programacion_visitaDet",$insert_visitaDet);
+					}
+				
+					if(!empty($jueves) && $jueves>=1 ){
+						$insert_visitaDet = array(
+							  'idProgVisita' => $idProgVisita
+							, 'dia' => 4
+							, 'idHorario' => ($idProyecto == PROYECTO_MODERNO_PG) ? $jueves : NULL
+							, 'flagRefrigerio' => ($idProyecto == PROYECTO_MODERNO_PG && in_array("4",$dias_descanso_programados)) ? 1 : 0
+						);
+						$this->db->insert("{$this->sessBDCuenta}.trade.programacion_visitaDet",$insert_visitaDet);
+					}
+				
+					if(!empty($viernes ) && $viernes>=1){
+						$insert_visitaDet = array(
+							  'idProgVisita' => $idProgVisita
+							, 'dia' => 5
+							, 'idHorario' => ($idProyecto == PROYECTO_MODERNO_PG) ? $viernes : NULL
+							, 'flagRefrigerio' => ($idProyecto == PROYECTO_MODERNO_PG && in_array("5",$dias_descanso_programados)) ? 1 : 0
+						);
+						$this->db->insert("{$this->sessBDCuenta}.trade.programacion_visitaDet",$insert_visitaDet);
+					}
+
+					if(!empty($sabado) && $sabado>=1){
+						$insert_visitaDet = array(
+							  'idProgVisita' => $idProgVisita
+							, 'dia' => 6
+							, 'idHorario' => ($idProyecto == PROYECTO_MODERNO_PG) ? $sabado : NULL
+							, 'flagRefrigerio' => ($idProyecto == PROYECTO_MODERNO_PG && in_array("6",$dias_descanso_programados)) ? 1 : 0
+						);
+						$this->db->insert("{$this->sessBDCuenta}.trade.programacion_visitaDet",$insert_visitaDet);
+					}
+
+					if(!empty($domingo) && $domingo>=1 ){
+						$insert_visitaDet = array(
+							  'idProgVisita' => $idProgVisita
+							, 'dia' =>7
+							, 'idHorario' => ($idProyecto == PROYECTO_MODERNO_PG) ? $domingo : NULL
+							, 'flagRefrigerio' => ($idProyecto == PROYECTO_MODERNO_PG && in_array("7",$dias_descanso_programados)) ? 1 : 0
+						);
+						$this->db->insert("{$this->sessBDCuenta}.trade.programacion_visitaDet",$insert_visitaDet);
+					}
+					
+			}
+
+			if(!empty($descanso)){
+				$insert_descanso_ruta_prog[$idProgRuta] = [
+					'descanso' => $descanso
+				];
+			}
+
+			if(!$generado){
+				$data_ruta_visitas_prog = $this->model->obtener_ruta_programada_visitas_hoy($idProgRuta);
+			}
+			if($generado){
+				$data_ruta_visitas_prog = $this->model->obtener_ruta_programada_visitas(
+					[
+						'fecIni'=> $fecIni,
+						'fecFin' => $fecFin,
+						'idProgRuta' => $idProgRuta,
+					]
+				);
+			}
+
+			if($data_ruta_visitas_prog!=null){
+				if( count($data_ruta_visitas_prog)>0){
+					
+					$idProyecto = $this->session->userdata('idProyecto') ;
+					$idCuenta = $this->session->userdata('idCuenta');
+					foreach($data_ruta_visitas_prog as $r){
+						$params=array();
+						$params['idCuenta']=$idCuenta;
+						$params['idProyecto']=$idProyecto;
+						$params['fecha']=$r['fecha'];
+						$params['idCliente']=$r['idCliente'];
+						$params['idUsuario']=$r['idUsuario'];
+						$params['idTipoUsuario']= $data['tipo'];
+
+						$res=$this->model->insertar_visita_ruta($params);
+						if($res){
+							$cont_registrado++;
+						}else{
+							$cont_existentes++;
+						}
+					}
+				}
+			}
+
+		}
+
+		$insert_descansos = [];
+			foreach ($insert_descanso_ruta_prog as $iprg => $prg) {
+				$insert_descansos[] = [
+					'idProgRuta' => $iprg,
+					'idDia' => numTextoDia($prg['descanso']),
+					'fecIni' => $fecIni,
+					'fecFin' => $fecFin,
+					'estado' => 1,
+				];
+			}
+
+			if(!empty($insert_descansos)){
+				$this->db->insert_batch("{$this->sessBDCuenta}.trade.programacion_rutaDescanso",$insert_descansos);
+			}
+	
+		$html='Se registro con exito.<br>';
+		$html.='<div class="alert alert-success fade show" role="alert"><i class="fas fa-store-alt"></i> SE LOGRÓ REGISTRAR <strong>'.$cont_registrado.' CLIENTE(S)</strong> CORRECTAMENTE.</div>';
+		if($cont_existentes>1){
+			$html.='<div class="alert alert-danger" role="alert"><i class="fas fa-info-circle"></i> HUBO INCONVENIENTES AL REGISTRAR EL <strong>'.$cont_existentes.' CLIENTE(S)</strong> CON LA DATA BRINDADA.</div>';
+		}
+		$response = array( 
+				  'msg' => array('title' => 'VALIDAR ACTUALIZACION', 'content' => 'Se registro con exito.' )
+				, 'data' => $html
+				, 'result' => 1
+			);
+			
+		echo json_encode($response);
 	}
 
 	

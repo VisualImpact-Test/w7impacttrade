@@ -26,12 +26,16 @@
 				<h4>CONFIGURACIÓN</h4>
 			</div>
 			<div class="customizer-content-button">
-				<button id="btn-filtrarModulacion" class="btn btn-outline-trade-visual border-0" data-url="filtrar" title="Filtrar">
+				<button id="btn-filtrarModulacion" class="btn btn-outline-trade-visual btn-Consultar border-0" data-url="filtrar" title="Filtrar">
 					<i class="fa fa-search"></i>
 				</button>
-				<button id="btn-cargaMasivaRutas" class="btn btn-outline-trade-visual border-0" title="Carga Masiva">
+				<!-- 
+					DEPRECATED
+					<button id="btn-cargaMasivaRutas" class="btn btn-outline-trade-visual border-0" title="Carga Masiva">
 					<i class="fas fa-upload"></i>
-				</button>
+					</button> 
+				-->
+				<button class="btn btn-outline-trade-visual border-0 btn-CargaMasiva" title="Carga Masiva"><i class="fas fa-folder-plus"></i></button>
 				<button id="btn-clonarRutas" class="btn btn-outline-trade-visual border-0" title="Clonar Ruta">
 					<i class="fas fa-copy"></i>
 				</button>
@@ -44,6 +48,11 @@
 				<button id="btn-cargaMasivaAlternativa" class="btn btn-outline-trade-visual border-0" title="Carga Masiva Alternativa">
 					<i class="fas fa-file-upload"></i>
 				</button>
+				<?if($this->sessIdProyecto == PROYECTO_MODERNO_PG):?>
+					<a href="../configuraciones/gestion/horario" target="_blank" id="btn-gestorHorarios" class="btn btn-outline-trade-visual border-0" title="Gestionar horarios">
+						<i class="fas fa-calendar-alt"></i>
+					</a>
+				<?endif;?>
 			</div>
 
 			<div class="customizer-content-filter">
