@@ -134,7 +134,7 @@ class M_control extends MY_Model{
 		$sql = "
 			SELECT
 				gca.idGrupoCanal AS id,
-				ISNULL(pgc.nombre,gca.nombre) nombre
+				ISNULL(pgc.nombre,gca.nombre) nombrel
 			FROM trade.grupoCanal gca
 			JOIN trade.proyectoGrupoCanal pgc ON  gca.idGrupoCanal = pgc.idGrupoCanal 
 				AND pgc.estado = 1
@@ -527,7 +527,7 @@ class M_control extends MY_Model{
 		
 		return $this->db->query($sql);
 	}
-	public function get_tiposUsuario($input = array()){
+	public function get_tiposUsuarioo($input = array()){
 		$idProyecto = $this->sessIdProyecto;
 		$idCuenta = $this->sessIdCuenta;
 		$filtro = "";
