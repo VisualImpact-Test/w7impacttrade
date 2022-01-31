@@ -16,6 +16,7 @@ var Gestion = {
 	funcionRegistrarActivo: '',
 	funcionActualizarActivo: '',
 	funcionGuardarCargaMasivaActivo: '',
+	funcionActualizarCargaMasivaActivo: '',
 	funcionGuardarActualizacionMasivaActivo: '',
 
 	$dataTable: [],
@@ -604,7 +605,7 @@ var Gestion = {
 			var btn=new Array();
 				btn[1]={title:'Continuar',fn:fn1};
 				btn[0]={title:'Cerrar',fn:fn2};
-			var message = Fn.message({ 'type': 3, 'message': '¿Desea continuar con la acción?' });
+			var message = Fn.message({ 'type': 3, 'message': '¿Desea continuar con la actualización?' });
 			Fn.showModal({ id:modalId,title:'Alerta',frm:message,btn:btn,show:true});
 		}
 	},
@@ -644,6 +645,33 @@ var Gestion = {
 
 		var jsonString = { 'data': JSON.stringify(data) };
 		var config = { 'url': Gestion.urlActivo + Gestion.funcionGuardarCargaMasivaActivo, 'data': jsonString };
+
+		$.when(Fn.ajax(config)).then(function (a) {
+
+			if (a.result === 2) return false;
+
+			++modalId;
+			var fn = 'Fn.showModal({ id:' + modalId + ',show:false });';
+
+			if (a.result == 1) fn += 'Fn.showModal({ id:' + Gestion.idModalPrincipal + ',show:false });$(".btn-Consultar").click();';
+
+			var btn = [];
+			btn[0] = { title: 'Cerrar', fn: fn };
+			Fn.showModal({ id: modalId, show: true, title: a.msg.title, btn: btn, frm: a.msg.content });
+		});
+
+
+	},
+	actualizarCargaMasiva: function(){
+		var data = Fn.formSerializeObject('formCargaMasiva');
+		var HT = [];
+		$.each(HTCustom.HTObjects, function (i, v) {
+			if (typeof v !== 'undefined') HT.push(v.getSourceData());
+		});
+		data['HT'] = HT;
+
+		var jsonString = { 'data': JSON.stringify(data) };
+		var config = { 'url': Gestion.urlActivo + Gestion.funcionActualizarCargaMasivaActivo, 'data': jsonString };
 
 		$.when(Fn.ajax(config)).then(function (a) {
 

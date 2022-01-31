@@ -34,13 +34,13 @@
 							</div>
 							<div class="col-md-6 col-sm-6 col-xs-6">
 								<label>FECHA FIN</label>
-								<input type="text" class="form-control input-sm fecha" id="fecha_fin"  name="fecha_fin" value="<?= isset($data[0]['fecFin']) ? $data[0]['fecFin'] :  ''; ?>">
+								<input type="text" class="form-control input-sm fecha" id="fecha_fin"  name="fecha_fin" value="<?= isset($data[0]['fecFin']) ? $data[0]['fecFin'] :  DATE('d/m/Y'); ?>">
 							</div>
 						</div>
 						<div class="row">
 							<div class="col-md-12">
 								<label>RUTA</label>
-								<input class="form-control" id="nombreRuta" name="nombreRuta">
+								<input class="form-control" id="nombreRuta" name="nombreRuta" placeholder="Nombre de la ruta">
 							</div>
 						</div>
 						<div class="row">

@@ -17,7 +17,7 @@ class M_rutas extends My_Model{
 		$modulacion = $this->session->flag_modulacion;
 		$idUsuario = $this->session->idUsuario;
 		$filtros='';
-	
+		$idProyecto = $this->sessIdProyecto;
 		$sql ="
 			DECLARE 
 				  @fecIni DATE = '".$input['fecIni']."'
@@ -26,11 +26,12 @@ class M_rutas extends My_Model{
 				  r.idProgRuta
 				, r.nombre nombreRuta
 				, rd.idUsuario
-				, gtm.apePaterno+' '+gtm.apeMaterno+' '+gtm.nombres gtm
+				, gtm.apePaterno+' '+gtm.apeMaterno+' '+gtm.nombres usuario
 				, CONVERT(VARCHAR,r.fecIni,103) fecIni
 				, CONVERT(VARCHAR,r.fecFin,103) fecFin
 				, r.estado
 				, r.generado
+				, ut.nombre tipoUsuario
 			FROM
 				{$this->sessBDCuenta}.trade.programacion_ruta r
 				LEFT JOIN {$this->sessBDCuenta}.trade.programacion_rutaDet rd
@@ -38,8 +39,11 @@ class M_rutas extends My_Model{
 					AND general.dbo.fn_fechaVigente(rd.fecIni,rd.fecFin,@fecIni,@fecFin)=1
 				LEFT JOIN trade.usuario gtm
 					ON gtm.idUsuario = rd.idUsuario
+				LEFT JOIN trade.usuario_tipo ut 
+					ON ut.idTIpoUsuario = rd.idTipoUsuario
 			WHERE 
 				general.dbo.fn_fechaVigente(@fecIni,@fecFin,r.fecIni,r.fecFin)=1
+				AND r.idProyecto = {$idProyecto}
 				--{$filtros}
 		";
 
@@ -109,7 +113,7 @@ class M_rutas extends My_Model{
 				, vpd.dia idDia
 				, vpd.flagRefrigerio
 				, prd.idDia descanso
-				, vpd.idHorario
+				, ISNULL(vpd.idHorario,1) idHorario
 			FROM 
 				{$this->sessBDCuenta}.trade.programacion_ruta rp
 				JOIN {$this->sessBDCuenta}.trade.programacion_visita vp
@@ -529,6 +533,26 @@ class M_rutas extends My_Model{
 		{$filtro_demo}";
 
 		return $this->db->query($sql)->result_array();
+	}
+	
+	public function validarRutaUsuario($params = [])
+	{
+		$idProyecto = $this->sessIdProyecto;
+		$sql = "
+		DECLARE @fecIni DATE = '{$params['fecIni']}', @fecFin DATE = '{$params['fecFin']}';
+		SELECT
+		pr.idProgRuta
+		FROM
+		{$this->sessBDCuenta}.trade.programacion_ruta pr
+		JOIN {$this->sessBDCuenta}.trade.programacion_rutaDet rdt ON pr.idProgRuta = rdt.idProgRuta
+		WHERE
+		General.dbo.fn_fechaVigente(pr.fecIni,pr.fecFin,@fecIni,@fecFin) = 1
+		AND rdt.idUsuario = {$params['idUsuario']}
+		AND rdt.idTipoUsuario = {$params['idTipoUsuario']}
+		AND pr.idProyecto = {$idProyecto}
+		";
+
+		return $this->db->query($sql);
 	}
 
 }

@@ -137,6 +137,7 @@ class M_CuentasCanales extends My_Model
     {
         $insert = [
             'nombre' => trim($post['nombre']),
+            'nombreCorto' => !empty($post['nombreCorto']) ? trim($post['nombreCorto']) : '',
             'idCuenta' => trim($post['cuenta']),
             'fecIni' => trim($post['fechaInicio']),
             'fecFin' => !empty($post['fechaFin']) ? trim($post['fechaFin']) : null,
@@ -151,6 +152,7 @@ class M_CuentasCanales extends My_Model
     {
         $update = [
             'nombre' => trim($post['nombre']),
+            'nombreCorto' => !empty($post['nombreCorto']) ? trim($post['nombreCorto']) : '',
             'idCuenta' => trim($post['cuenta']),
             'fecIni' => trim($post['fechaInicio']),
             'fecFin' => !empty($post['fechaFin']) ? trim($post['fechaFin']) : null,
@@ -172,6 +174,7 @@ class M_CuentasCanales extends My_Model
         foreach ($proyectos as $key => $value) {
             $input[$key] = [
                 'nombre' => $value['nombre'],
+                'nombreCorto' => !empty($value['nombreCorto']) ? trim($value['nombreCorto']) : '',
                 'idCuenta' => $value['idCuenta'],
                 'fecIni' => date_change_format_bd($value['fechaInicio']),
                 'fecFin' => date_change_format_bd($value['fechaFin'])
@@ -201,9 +204,13 @@ class M_CuentasCanales extends My_Model
         }
 
         $sql = "
-				SELECT *
+				SELECT 
+                gc.*,
+                pgc.nombre nombreCorto,
+                py.nombre proyecto
 				FROM trade.grupoCanal gc
                 LEFT JOIN trade.proyectoGrupoCanal pgc ON gc.idGrupoCanal = pgc.idGrupoCanal
+                LEFT JOIN trade.proyecto py ON py.idProyecto = pgc.idProyecto
 				$filtros
 			";
 
@@ -225,8 +232,14 @@ class M_CuentasCanales extends My_Model
         if (!$insert) {
             $result['status'] = false;
         }
+        $insertPgc = [
+            'idProyecto' => $post['idProyecto'],
+            'idGrupoCanal' => $this->insertId,
+            'estado' => 1,
+            'nombre' => !empty($post['nombreCorto']) ? trim($post['nombreCorto']) : '',
+        ];
 
-        $insertPGC = $this->db->insert('trade.proyectoGrupoCanal', [ 'idProyecto' => $post['idProyecto'], 'idGrupoCanal' => $this->insertId, 'estado' => 1 ]);
+        $insertPGC = $this->db->insert('trade.proyectoGrupoCanal', $insertPgc);
 
         if (!$insertPGC) {
             $result['status'] = false;
@@ -256,12 +269,36 @@ class M_CuentasCanales extends My_Model
             $result['status'] = false;
         }
 
-        $PGC = $this->db->query("SELECT * FROM trade.proyectoGrupoCanal WHERE idProyecto = ? AND idGrupoCanal = ?", [ 'idProyecto' => $post['idProyecto'], 'idGrupoCanal' => $post['idGrupoCanal'] ])->result();
+        $PGC = $this->db->query("SELECT * FROM trade.proyectoGrupoCanal WHERE idProyecto = ? AND idGrupoCanal = ?", [ 'idProyecto' => $post['idProyecto'], 'idGrupoCanal' => $post['idGrupoCanal'] ])->row_array();
         $insertPGC = false;
 
         if(count($PGC) == 0){
-            $insertPGC = $this->db->insert('trade.proyectoGrupoCanal', [ 'idProyecto' => $post['idProyecto'], 'idGrupoCanal' => $this->insertId, 'estado' => 1 ]);
+
+            $insertPgc = [
+                'idProyecto' => $post['idProyecto'],
+                'idGrupoCanal' => $this->insertId,
+                'estado' => 1,
+                'nombre' => !empty($post['nombreCorto']) ? trim($post['nombreCorto']) : '',
+            ];
+
+            $insertPGC = $this->db->insert('trade.proyectoGrupoCanal', $insertPgc);
+
             if (!$insertPGC) {
+                $result['status'] = false;
+            }
+        }
+        if(!empty($PGC)){
+
+            $updatePgc = [
+                'idProyecto' => $post['idProyecto'],
+                'idGrupoCanal' =>  $PGC['idGrupoCanal'],
+                'estado' => 1,
+                'nombre' => !empty($post['nombreCorto']) ? trim($post['nombreCorto']) : '',
+            ];
+
+            $updatePGC = $this->db->update('trade.proyectoGrupoCanal', $updatePgc, ['idProyectoGrupoCanal' => $PGC['idProyectoGrupoCanal']]);
+            
+            if (!$updatePGC) {
                 $result['status'] = false;
             }
         }
@@ -271,7 +308,7 @@ class M_CuentasCanales extends My_Model
 
     public function checkNombreGrupoCanalRepetido($post)
     {
-        $where = "nombre = '" . trim($post['nombre']) . "'";
+        $where = "gc.nombre = '" . trim($post['nombre']) . "'";
         if (!empty($post['idGrupoCanal'])) $where .= " AND gc." . $this->tablas['grupoCanal']['id'] . " != " . $post['idGrupoCanal'];
         if (!empty($post['idProyecto'])) $where .= " AND pgc.idProyecto = " . $post['idProyecto'];
 
@@ -296,20 +333,25 @@ class M_CuentasCanales extends My_Model
     // SECCION CANAL
     public function getCanales($post = 'nulo')
     {
+        $idCuenta = $this->sessIdCuenta;
         $filtros = "WHERE 1 = 1";
         if ($post == 'nulo') {
             $filtros .= " AND c.estado = 1";
         } else {
             if (!empty($post['id'])) $filtros .= " AND c.idCanal = " . $post['id'];
             if (!empty($post['proyecto_filtro'])) $filtros .= " AND pgc.idProyecto = " . $post['proyecto_filtro'];
+            // if (!empty($idCuenta)) $filtros .= " AND cc.idCuenta = " . $idCuenta;
         }
 
         $sql = "
 				SELECT c.*, 
-					gc.nombre grupoCanal
+					gc.nombre grupoCanal,
+                    cc.idCuentaCanal,
+                    cc.estado
 				FROM trade.canal c
 					JOIN trade.grupoCanal gc ON gc.idGrupoCanal = c.idGrupoCanal
                     LEFT JOIN trade.proyectoGrupoCanal pgc ON gc.idGrupoCanal = pgc.idGrupoCanal
+                    LEFT JOIN trade.cuenta_canal cc ON cc.idCanal = c.idCanal
 				{$filtros}
 			";
 

@@ -10,6 +10,7 @@
                                 <th class="text-center">#</th>
                                 <th class="text-center">OPCIONES</th>
                                 <th class="text-center">NOMBRE</th>
+                                <th class="text-center">NOMBRE CORTO</th>
                                 <th class="text-center">CUENTA</th>
                                 <th class="text-center colNumerica">FECHA INICIO</th>
                                 <th class="text-center colNumerica">FECHA FIN</th>
@@ -34,6 +35,7 @@
                                         </div>
                                     </td>
                                     <td><?= !empty($value['nombre']) ? $value['nombre'] : '-' ?></td>
+                                    <td><?= !empty($value['nombreCorto']) ? $value['nombreCorto'] : '-' ?></td>
                                     <td><?= !empty($value['cuenta']) ? $value['cuenta'] : '-' ?></td>
                                     <td data-order="<?= strtotime($value['fecIni']) ?>"><?= !empty($value['fecIni']) ? date_change_format($value['fecIni']) : '-' ?></td>
                                     <td data-order="<?= strtotime($value['fecFin']) ?>"><?= !empty($value['fecFin']) ? date_change_format($value['fecFin']) : '-' ?></td>

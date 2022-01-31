@@ -11,27 +11,34 @@
             </ul>
 
             <div class="tab-content mt-4 text-white">
-            <div class="">
-					<div class="alert alert-warning" role="alert" style="color:#695560 !important;">
-						<i class="fa fa-check-circle"></i> <label class="">Colocar <strong>500</strong> filas como máximo</label>.<br>
-                        <i class="fa fa-check-circle"></i> <label class="">Se pide que solo una fila (la última) debe quedar en  <strong>BLANCO</strong></label>.<br>
-						<i class="fa fa-check-circle"></i> <label class="">Los campos con una cabecera que contenga (*)  son <strong>OBLIGATORIOS</strong></label>.<br>
+                <div class="">
+                    <div class="alert alert-warning" role="alert" style="color:#695560 !important;">
+                        <i class="fa fa-check-circle"></i> <label class="">Colocar <strong>500</strong> filas como máximo</label>.<br>
+                        <i class="fa fa-check-circle"></i> <label class="">Se pide que solo una fila (la última) debe quedar en <strong>BLANCO</strong></label>.<br>
+                        <i class="fa fa-check-circle"></i> <label class="">Los campos con una cabecera que contenga (*) son <strong>OBLIGATORIOS</strong></label>.<br>
+                        <i class="fa fa-check-circle msgCargaEncuestas d-none"></i> <label class="msgCargaEncuestas d-none">Al  <strong>GENERAR UN NUEVO DETALLE</strong> se eliminarán las encuestas de la lista y solo se considerarán las nuevas encuestas cargadas (Solo se considera al actualizar) . </label><br>
                     </div>
-            </div>
+                    <div class="alert alert-danger msgCargaEncuestas d-none" role="alert" style="color:#695560 !important;">
+                        <div class="ui slider checkbox">
+                            <input type="checkbox" name="chk-nuevo">
+                            <label>Generar nuevo Detalle</label>
+                        </div>
+                    </div>
+                </div>
 
-            <div class="tab-content mt-4 text-white">
-                <?php foreach ($hojas as $key => $row) { ?>
-                    <div class="tab-pane <?= ($key == 0) ? 'show active' : '' ?>" id="hoja<?= $key ?>" role="tabpanel" aria-labelledby="hoja<?= $key ?>-tab">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div id="divHT<?= $key ?>">
+                <div class="tab-content mt-4 text-white">
+                    <?php foreach ($hojas as $key => $row) { ?>
+                        <div class="tab-pane <?= ($key == 0) ? 'show active' : '' ?>" id="hoja<?= $key ?>" role="tabpanel" aria-labelledby="hoja<?= $key ?>-tab">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div id="divHT<?= $key ?>">
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                <?php } ?>
-            </div>
+                    <?php } ?>
+                </div>
 
+            </div>
         </div>
-    </div>
 </form>
