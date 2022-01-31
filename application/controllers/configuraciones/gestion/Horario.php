@@ -131,7 +131,7 @@ class Horario extends MY_Controller
         
 		$result['msg']['title'] = $this->titulo['registrar'.$post['seccionActivo']];
 
-
+		$dataParaVista = [];
 		$result['result'] = 1;
 		$result['data']['width'] = '45%';
 		$result['data']['html'] = $this->load->view($this->html['elemento']['new'], $dataParaVista, true);

@@ -1025,7 +1025,11 @@ class M_visitas extends MY_Model{
 		}
 
 		return false;
-		
+	}
+
+	public function updateMasivoContingencia($update)
+	{
+		return $this->db->update_batch("{$this->sessBDCuenta}.trade.data_visita",$update,"idVisita");
 	}
 }
 ?>

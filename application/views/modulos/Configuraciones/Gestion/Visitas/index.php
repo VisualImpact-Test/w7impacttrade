@@ -71,6 +71,7 @@
 				<button id="btn-visitaContingenciaDes" class="btn btn-outline-trade-visual border-0" title="DESHABILITAR CONTINGENCIA VISITA" style="display:none;"><i class="fas fa-user-times"></i></button>
 				<button id="btn-cargaMasivaRutas" class="btn btn-outline-trade-visual border-0" title="Carga masiva visitas excel" style=""><i class="fas fa-plus-square"></i></button>
 				<button id="btn-cargaMasivaExclusiones" class="btn btn-outline-trade-visual border-0" title="Carga masiva exclusiones excel" style=""><i class="fas fa-plus-square"></i></button>
+				<button id="btn-cargaMasivaContigencia" class="btn-Visitas btn btn-outline-trade-visual border-0" title="Contingencia masiva" style=""><i class="fas fa-folder-plus"></i></button>
 			</div>
 			<div class="customizer-content-filter">
 				<h5 class="mt-1 mb-1 text-bold-500"><i class="fal fa-table"></i> Filtros</h5>

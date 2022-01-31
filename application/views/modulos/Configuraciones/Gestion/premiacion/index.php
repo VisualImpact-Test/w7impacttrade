@@ -12,6 +12,9 @@
                     <li class="nav-item btnReporte" name="tipoReporte">
                         <a data-toggle="tab" href="#tab-content-0" class="nav-link active" data-value="1">Gestion</a>
                     </li>
+                    <li class="nav-item btnReporte" name="tipoReporte">
+                        <a data-toggle="tab" href="#tab-content-1" class="nav-link" data-value="21">Lista</a>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -71,6 +74,9 @@
     <div class="card-body p-0">
         <div class="tab-content" id="content-auditoria">
             <div class="tab-pane fade show active contentGestion" id="tab-content-0" role="tabpanel">
+                <?= getMensajeGestion('noResultados') ?>
+            </div>
+            <div class="tab-pane fade contentGestion" id="tab-content-1" role="tabpanel">
                 <?= getMensajeGestion('noResultados') ?>
             </div>
         </div>

@@ -2,13 +2,13 @@
 <table id="tb-gestorReporteVisitas" class="mb-0 table table-bordered text-nowrap w-100">
 	<thead>
 		<tr>
-			<th class="text-center align-middle" rowspan="2">#</th>
+			<th class="text-center align-middle noVis" rowspan="2">#</th>
 			<th class="text-center align-middle" colspan="4">OPCIONES</th>
 			<th class="text-center align-middle" colspan="3">RUTA</th>
-			<th class="text-center align-middle" colspan="6">VISITA</th>
+			<th class="text-center align-middle" colspan="7">VISITA</th>
 		</tr>
 		<tr>
-			<th class="text-center align-middle">
+			<th class="text-center align-middle noVis">
 				<div class="custom-checkbox custom-control">
 					<input class="custom-control-input" type="checkbox" id="chkb-visitasAll" name="chkb-visitasAll" value="1">
 					<label class="custom-control-label" for="chkb-visitasAll"></label>
@@ -21,6 +21,7 @@
 			<th class="text-center align-middle">FECHA</th>
 			<th class="text-center align-middle">ID USUARIO</th>
 			<th class="text-center align-middle">ESTADO USUARIO</th>
+			<th class="text-center align-middle">COD VISITA</th>
 			<th class="text-center align-middle">USUARIO</th>
 			<th class="text-center align-middle">ID CLIENTE</th>
 			<th class="text-center align-middle">CLIENTE</th>
@@ -79,6 +80,7 @@
 				<td class="text-center"><?=(!empty($row['fecha'])?$row['fecha']:'-')?></td>
 				<td class="text-center"><?=(!empty($row['idUsuario'])?$row['idUsuario']:'-')?></td>
 				<td class="text-center"><?= (!empty($row['cesado']) ? "<h4 class='text-center'><span class=' badge badge-danger'>Cesado</span></h4>" : "<h4 class='text-center'><span class='badge badge-primary'>Activo</span></h4>") ?></td>
+				<td class="text-center"><?=(!empty($row['idVisita'])?$row['idVisita']:'-')?></td>
 				<td class="<?=!empty($row['cesado']) ? 'text-danger': ''?>"><?=(!empty($row['nombreUsuario'])?$row['nombreUsuario']:'-')?></td>
 				<td class="text-center"><?=(!empty($row['idCliente'])?$row['idCliente']:'-')?></td>
 				<td class=""><?=(!empty($row['razonSocial'])?$row['razonSocial']:'-')?></td>

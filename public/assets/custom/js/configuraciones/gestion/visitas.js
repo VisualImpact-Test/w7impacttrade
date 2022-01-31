@@ -364,6 +364,7 @@ var Visitas = {
 					$("#btn-visitaExcluirActivar").hide();
 					$("#btn-visitaContingencia").hide();
 					$("#btn-visitaContingenciaDes").hide();					 						
+					$(".btn-Visitas").hide();					 						
 					Visitas.contentSeleccionado="tab-content-0";
                     break;
                 case 2:
@@ -381,7 +382,9 @@ var Visitas = {
 					$("#btn-visitaExcluir").show();
 					$("#btn-visitaExcluirActivar").show();
 					$("#btn-visitaContingencia").show();
-					$("#btn-visitaContingenciaDes").show();					 						
+					$("#btn-visitaContingenciaDes").show();	
+					$(".btn-Visitas").show();					 						
+
 					Visitas.contentSeleccionado="tab-content-1";
                     break;
 				default:
@@ -412,6 +415,7 @@ var Visitas = {
 					$("#btn-visitaContingenciaDes").hide();	
 					
 					$("#cod_cliente").hide();	
+					$(".btn-Visitas").hide();					 						
 
 					Visitas.contentSeleccionado="tab-content-0";
                     break;
@@ -432,6 +436,7 @@ var Visitas = {
 					$("#btn-visitaContingencia").show();
 					$("#btn-visitaContingenciaDes").show();
 					$("#cod_cliente").show();	
+					$(".btn-Visitas").show();					 						
 
 					Visitas.contentSeleccionado="tab-content-1";
                     break;
@@ -1358,8 +1363,83 @@ var Visitas = {
 			});
 		});
 
+				//Evento general para mostrar formulario de carga masiva.
+		$(document).on("click", "#btn-cargaMasivaContigencia", function (e) {
+			e.preventDefault();
+
+			var config = { 'url': Visitas.url + "getFormCargaMasivaContigencia" };
+			$.when(Fn.ajax(config)).then(function (a) {
+
+				if (a.result === 2) return false;
+
+				++modalId;
+				Gestion.idModalPrincipal = modalId;
+				var fn = 'Fn.showModal({ id:' + modalId + ',show:false });';
+				var fn1 = 'Visitas.confirmarGuardarCargaMasivaContingencia();';
+
+				var btn = [];
+				btn[0] = { title: 'Cerrar', fn: fn };
+				btn[1] = { title: 'Guardar', fn: fn1 };
+
+				Fn.showModal({ id: modalId, show: true, class: 'modalCargaMasiva', title: a.msg.title, frm: a.data.html, btn: btn, width: a.data.width });
+				HTCustom.llenarHTObjectsFeatures(a.data.ht);
+			});
+		});
+
+
+
 		
 	},
+	confirmarGuardarCargaMasivaContingencia: function(){
+		var contColsInvalid = 0;
+			contColsInvalid = $('#divTablaCargaMasiva .htInvalid').length;
+
+		if ( contColsInvalid>0) {
+			++modalId;
+			var fn='Fn.showModal({ id:'+modalId+',show:false });';
+			var btn=new Array();
+				btn[0]={title:'Cerrar',fn:fn};
+			var message = Fn.message({ 'type': 2, 'message': 'Se encontró datos obligatorios que no fueron ingresados, verificar los datos remarcados <label style="color:red">en rojo</label>' });
+			Fn.showModal({ id:modalId,title:'Alerta',frm:message,btn:btn,show:true});
+			return false;
+		} else {
+			++modalId;
+			var fn1='Visitas.guardarCargaMasivaContingencia();Fn.showModal({ id:'+modalId+',show:false });';
+			var fn2='Fn.showModal({ id:'+modalId+',show:false });';
+			var btn=new Array();
+				btn[1]={title:'Continuar',fn:fn1};
+				btn[0]={title:'Cerrar',fn:fn2};
+			var message = Fn.message({ 'type': 3, 'message': '¿Desea continuar con la carga masiva ?' });
+			Fn.showModal({ id:modalId,title:'Alerta',frm:message,btn:btn,show:true});
+		}
+	},
+	guardarCargaMasivaContingencia: function(){
+		var data = Fn.formSerializeObject('formCargaMasiva');
+		var HT = [];
+		$.each(HTCustom.HTObjects, function (i, v) {
+			if (typeof v !== 'undefined') HT.push(v.getSourceData());
+		});
+		data['HT'] = HT;
+
+		var jsonString = { 'data': JSON.stringify(data) };
+		var config = { 'url': Visitas.url + "guardarMasivoContingencia", 'data': jsonString };
+
+		$.when(Fn.ajax(config)).then(function (a) {
+
+			if (a.result === 2) return false;
+
+			++modalId;
+			var fn = 'Fn.showModal({ id:' + modalId + ',show:false });';
+
+			if (a.result == 1) fn += 'Fn.showModal({ id:' + modalId + ',show:false });Fn.closeModals('+modalId+');$("#btn-filtrarRutasVisitas").click();';
+
+			var btn = [];
+			btn[0] = { title: 'Cerrar', fn: fn };
+			Fn.showModal({ id: modalId, show: true, title: a.msg.title, btn: btn, frm: a.msg.content });
+		});
+
+	},
+
 	verificarObligatorioMasivoHT: function($HT){
 		let filas = [];
 		$.each($HT, function(k,v){

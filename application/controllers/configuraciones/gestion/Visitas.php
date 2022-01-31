@@ -2157,6 +2157,81 @@ class Visitas extends MY_Controller{
         echo json_encode($result);
 	}
 
+	public function getFormCargaMasivaContigencia(){
+		$result = $this->result;
+		$result['msg']['title'] = "Cambiar contigencia Masivo";
+
+		$flag = [
+			0 => "ACTIVAR",
+			1 => "DESACTIVAR",
+		];
+		//ARMANDO HANDSONTABLE
+		$HT[0] = [
+			'nombre' => 'CONTINGENCIA',
+			'data' => [
+                [
+                'idVisita' => null,
+                'estado' => null ,
+                ]
+			],
+            'headers' => [
+                  'COD VISITA (*)',
+                  'CONTIGENCIA (*)'
+            ],
+			'columns' => [
+				['data' => 'idVisita', 'type' => 'text', 'placeholder' => '', 'width' => 200],
+				['data' => 'estado', 'type' => 'myDropdown', 'placeholder' => 'DESACTIVAR', 'width' => 200, "source" => $flag],
+			],
+			'colWidths' => 200,
+        ];
+
+		//MOSTRANDO VISTA
+		$dataParaVista['hojas'] = [0 => $HT[0]['nombre']];
+		$result['result'] = 1;
+		$result['data']['width'] = '70%';
+		$result['data']['html'] = $this->load->view('formCargaMasivaGeneral',$dataParaVista, true);
+		$result['data']['ht'] = $HT;
+
+		echo json_encode($result);
+	}
+
+	public function guardarMasivoContingencia(){
+		$this->db->trans_start();
+		$result = $this->result;
+
+		$post = json_decode($this->input->post('data'), true);
+		$result['msg']['title'] = "Cambiar contigencia Masivo";
+
+		$dataInsertMasivo = array();
+
+		foreach ($post['HT'][0] as $key => $value) {
+
+			if(empty($value['idVisita'])) continue;
+
+			$dataInsertMasivo[] = array(
+				'idVisita' => $value['idVisita'],
+				'flagContingencia' => !empty($value['estado']) && $value['estado'] == "ACTIVAR" ? true : false,
+			);
+		}
+
+		
+		!empty($dataInsertMasivo) ? $registro = $this->model->updateMasivoContingencia($dataInsertMasivo) : $registro = false;
+
+		if (!$registro) {
+			$result['result'] = 0;
+			$result['msg']['content'] = getMensajeGestion('registroErroneo');
+		} else {
+			$result['result'] = 1;
+			$result['msg']['content'] = getMensajeGestion('registroExitoso');
+		}
+
+		$this->db->trans_complete();
+
+		respuesta:
+        echo json_encode($result);
+	}
+	
+
 }
 
 ?>

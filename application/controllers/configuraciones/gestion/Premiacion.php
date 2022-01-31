@@ -7,6 +7,7 @@ class Premiacion extends MY_Controller
     {
         parent::__construct();
         $this->load->model('configuraciones/gestion/m_premiacion', 'm_tipopremiacion');
+        $this->load->model('m_control');
 
         $this->titulo = [
             'cambiarEstado' => 'Activar/Desactivar',
@@ -19,6 +20,13 @@ class Premiacion extends MY_Controller
         $this->carpetaHtml = 'modulos/Configuraciones/gestion/premiacion/';
 
         $this->html = [
+            'lista' => [
+                'tabla' => $this->carpetaHtml .  'listaTabla',
+                'new' => $this->carpetaHtml .  'listaFormNew',
+                'update' => $this->carpetaHtml .  'listaFormUpdate',
+                'cargaMasiva' => $this->carpetaHtml .  'listaFormCargaMasiva'
+            ],
+
             'tipoPremiacion' => [
                 'tabla' => $this->carpetaHtml .  'premiacionTabla',
                 'new' => $this->carpetaHtml .  'premiacionFormNew',
@@ -296,4 +304,223 @@ class Premiacion extends MY_Controller
 		
 		echo json_encode($result);
 	}
+
+    public function getFormCargaMasivaLista(){
+		$result = $this->result;
+		$result['msg']['title'] = 'Carga Masiva';
+
+		$gruposCanal = $this->m_control->get_grupoCanal();
+        $canales = $this->m_control->get_canal();
+		$post = '';
+		$params=array();
+		$params['idUsuario']=$this->session->userdata('idUsuario');
+		//$cuentas=$this->m_encuestas->getCuentas($params)->result_array();
+		
+        $clientes = $this->m_tipopremiacion->getClientes()->result_array();
+		$elementos = $this->m_tipopremiacion->getPremiacion()->result_array();
+		$tipos = $this->m_control->get_tiposUsuario();
+
+		//REFACTORIZANDO DATA
+		
+		$gruposCanalRefactorizado = [];
+		foreach ($gruposCanal as $row) {
+			if (!in_array($row['nombre'], $gruposCanalRefactorizado)) $gruposCanalRefactorizado[] = $row['nombre'];
+		}
+        $gruposCanal = !empty($gruposCanalRefactorizado) ? $gruposCanalRefactorizado : [' '];
+
+		$canalesRefactorizado = [];
+		foreach ($canales as $row) {
+			if (!in_array($row['nombre'], $canalesRefactorizado)) $canalesRefactorizado[] = $row['nombre'];
+		}
+        $canales = !empty($canalesRefactorizado) ? $canalesRefactorizado : [' '];
+        
+        
+		$clientesRefactorizado = [];
+		foreach ($clientes as $row) {
+			if (!in_array($row['idCliente'], $clientesRefactorizado)) $clientesRefactorizado[] = $row['idCliente'];
+		}
+        $clientes = !empty($clientesRefactorizado) ? $clientesRefactorizado : [' '];
+        
+		$elementosRefactorizado = [];
+		foreach ($elementos as $row) {
+			if (!in_array($row['nombre'], $elementosRefactorizado)) $elementosRefactorizado[] = $row['nombre'];
+		}
+		$elementos = !empty($elementosRefactorizado) ? $elementosRefactorizado : [' '];
+
+		$tiposRefactorizado = [];
+		foreach ($tipos as $row) {
+			if (!in_array($row['nombre'], $tiposRefactorizado)) $tiposRefactorizado[] = $row['nombre'];
+		}
+        $tipos = !empty($tiposRefactorizado) ? $tiposRefactorizado : [' '];
+
+		//ARMANDO HANDSONTABLE
+		$HT[0] = [
+			'nombre' => 'Lista',
+			'data' => [
+				['idLista' => null
+				, 'grupoCanal' => null 
+				, 'canal' => null 
+				, 'tipoUsuario' => null 
+				, 'idCliente' => null 
+                , 'fechaInicio' => null
+                , 'fechaFin' => null
+                ]
+			],
+			'headers' => ['ID Lista'
+				, 'GRUPO CANAL'
+                , 'CANAL'
+				, 'TIPO USUARIO'
+				, 'COD VISUAL'
+                , 'FECHA INICIO'
+                , 'FECHA FIN'
+            ],
+			'columns' => [
+				['data' => 'idLista', 'type' => 'numeric', 'placeholder' => 'ID Lista', 'width' => 100],
+				['data' => 'grupoCanal', 'type' => 'myDropdown', 'placeholder' => 'Grupo Canal', 'source' => $gruposCanal],
+				['data' => 'canal', 'type' => 'myDropdown', 'placeholder' => 'Canal', 'source' => $canales],
+				['data' => 'tipoUsuario', 'type' => 'myDropdown', 'placeholder' => 'Tipo Usuario', 'source' => $tipos],
+				['data' => 'idCliente', 'type' => 'myDropdown', 'placeholder' => 'COD VISUAL (ID Cliente)', 'source' => $clientes],
+				['data' => 'fechaInicio', 'type' => 'myDate'],
+                ['data' => 'fechaFin', 'type' => 'myDate'],
+			],
+			'colWidths' => 200,
+        ];
+
+		$HT[1] = [
+			'nombre' => 'Premiaciones',
+			'data' => [
+                ['idLista' => null
+                , 'elemento_lista' => null
+                ]
+			],
+            'headers' => ['ID Lista'
+                , 'Premiacion'
+            ],
+			'columns' => [
+				['data' => 'idLista', 'type' => 'numeric', 'placeholder' => 'ID Lista', 'width' => 100],
+				['data' => 'elemento_lista', 'type' => 'myDropdown', 'placeholder' => 'Encuesta', 'source' => $elementos],
+                
+			],
+			'colWidths' => 200,
+		];
+
+		//MOSTRANDO VISTA
+		$dataParaVista['hojas'] = [0 => $HT[0]['nombre'],1 => $HT[1]['nombre']];
+		$result['result'] = 1;
+		$result['data']['width'] = '70%';
+		$result['data']['html'] = $this->load->view("formCargaMasivaGeneral", $dataParaVista, true);
+		$result['data']['ht'] = $HT;
+
+		$this->aSessTrack = $this->m_tipopremiacion->aSessTrack;
+		echo json_encode($result);
+    }
+
+	public function guardarCargaMasivaLista(){
+        $this->db->trans_start();
+		$result = $this->result;
+		$result['msg']['title'] = 'Carga Masiva';
+
+        $post = json_decode($this->input->post('data'), true);
+        
+		$elementos = $post['HT']['1'];
+		$elementosParmas['tablaHT'] = $elementos;
+		$elementosParmas['grupos'][0] = ['columnas' => ['elemento_lista'], 'columnasReales' => ['nombre'], 'tabla' => $this->m_tipopremiacion->tablas['tipoPremiacion']['tabla'], 'idTabla' =>  $this->m_tipopremiacion->tablas['tipoPremiacion']['id'] ];
+        $elementos = $this->getIdsCorrespondientes($elementosParmas);
+        
+        array_pop($elementos);
+
+		$idCuenta=$this->session->userdata('idCuenta');
+
+        $listas = $post['HT']['0'];
+		$listasParams['tablaHT'] = $listas;
+		$listasParams['grupos'][1] = ['columnas' => ['canal'], 'columnasReales' => ['nombre'], 'tabla' => 'trade.canal', 'idTabla' =>'idCanal'];
+		//$listasParams['grupos'][2] = ['columnas' => ['cliente'], 'columnasReales' => ['razonSocial'], 'tabla' => 'trade.cliente', 'idTabla' => 'idCliente'];
+		$listasParams['grupos'][2] = ['columnas' => ['tipoUsuario'], 'columnasReales' => ['nombre'], 'tabla' => 'trade.usuario_tipo', 'idTabla' =>'idTipoUsuario'];
+        $listas = $this->getIdsCorrespondientes($listasParams);
+        
+		array_pop($listas);
+
+		$idProyecto= !empty($this->session->userdata('idProyecto'))? $this->session->userdata('idProyecto') :"";
+
+		$listas_unicas = $this->m_tipopremiacion->validar_filas_unicas_HT($listas);
+
+		if(!$listas_unicas){
+			$result['result'] = 0;
+			$result['msg']['content'] = createMessage(array('type'=> 2,'message'=>'Asegúrese que todas las listas tengan un ID único'));
+			goto responder;
+		}
+		$insertMasivo  = true;
+		$fila = 1;
+        foreach($listas as $index => $value){
+
+	
+			$listasInsertadas = [];
+			$multiDataRefactorizada = [] ;
+
+			$value['idProyecto']=$idProyecto;
+
+            if(empty($value['idCanal'])){
+                $result['result'] = 0;
+                $result['msg']['content'] = createMessage(array('type'=> 2,'message'=>'Debe seleccionar un Canal.<br> Lista N°: '.$value['idLista']));
+                goto responder;
+            }
+            if(empty($value['fechaInicio'])){
+                $result['result'] = 0;
+                $result['msg']['content'] = createMessage(array('type'=> 2,'message'=>'Debe registrar una fecha de Inicio.<br> Lista N°: '.$value['idLista']));
+		        goto responder;
+            }
+            if(!empty($value['fechaFin'])){
+                $fechaInicio = strtotime(str_replace('/','-',$value['fechaInicio']));
+                $fechaFin = strtotime(str_replace('/','-',$value['fechaFin']));
+
+               
+                if($fechaFin < $fechaInicio){
+                    $result['result'] = 0;
+                    $result['msg']['content'] = createMessage(array('type'=> 2,'message'=>'La fecha Fin no puede ser menor a la fecha Inicio.<br> Lista N°: '.$value['idLista']));
+                    goto responder;
+                }
+			}
+			
+			$rs = $this->m_tipopremiacion->registrarLista_HT($value);
+            $idLista = $this->db->insert_id();
+            
+            if(!$rs){
+                $insertMasivo = false;
+                break;
+            }
+
+			foreach($elementos as $row){
+
+                if($row['idLista'] == $value['idLista']){
+                    $multiDataRefactorizada[] = [
+                        'elemento_lista' => $row[$this->m_tipopremiacion->tablas['tipoPremiacion']['id']],
+                    ];
+                }
+            }
+            $insert = $this->m_tipopremiacion->guardarMasivoLista($multiDataRefactorizada, $idLista);
+
+			if($insert == 'repetido'){
+				$result['result'] = 0;
+				$result['msg']['content'] = createMessage(['type'=>2,"message"=> 'Se encontraron encuestas repetidas para la lista N:'.$value['idLista']]);
+				echo json_encode($result);
+				exit();
+			}
+		}
+
+		if (!$insertMasivo) {
+			$result['result'] = 0;
+			$result['msg']['content'] = getMensajeGestion('guardadoMasivoErroneo');
+		} else {
+			$result['result'] = 1;
+			$result['msg']['content'] = getMensajeGestion('guardadoMasivoExitoso');
+		}
+
+		responder:
+		$this->db->trans_complete();
+
+		$this->aSessTrack = $this->m_tipopremiacion->aSessTrack;
+		echo json_encode($result);
+    }
+
+
 }
