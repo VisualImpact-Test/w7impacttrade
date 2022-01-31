@@ -10,6 +10,7 @@
                                 <th class="text-center">#</th>
                                 <th class="text-center">OPCIONES</th>
                                 <th class="text-center">NOMBRE</th>
+                                <th class="text-center">NOMBRE PROYECTO</th>
                                 <th class="text-center">FECHA REGISTRO</th>
                                 <th class="text-center">FECHA MODIFICACIÓN</th>
                                 <th class="text-center">ESTADO</th>
@@ -31,6 +32,7 @@
                                         </div>
                                     </td>
                                     <td><?= !empty($value['nombre']) ? $value['nombre'] : '-' ?></td>
+                                    <td><?= !empty($value['nombreCorto']) ? $value['nombreCorto'] : '-' ?></td>
                                     <td data-order="<?= strtotime($value['fechaCreacion']) ?>"><?= !empty($value['fechaCreacion']) ? date_change_format($value['fechaCreacion'])  : '-' ?></td>
                                     <td data-order="<?= strtotime($value['fechaModificacion']) ?>"><?= !empty($value['fechaModificacion']) ? date_change_format($value['fechaModificacion']) : '-' ?></td>
                                     <td data-order="<?= $mensajeEstado ?>" class="style-icons">

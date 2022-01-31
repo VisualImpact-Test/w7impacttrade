@@ -225,6 +225,22 @@ class M_encuestas extends My_Model
 
 		return $insert;
 	}
+	public function actualizarMasivoLista($insertMasivo, $deleteMasivo)
+	{
+
+		//Pasar a la vista
+
+		if(!empty($deleteMasivo)){
+			$this->db->where_in('idListEncuesta', $deleteMasivo);
+			$this->db->delete($this->m_encuestas->tablas['listaDet']['tabla']);
+		}
+
+		
+		return $this->db->insert_batch($this->m_encuestas->tablas['listaDet']['tabla'],$insertMasivo);
+		
+		
+		
+	}
 
 	public function actualizarMasivoListaEncuesta($multiDataRefactorizada)
 	{
@@ -461,8 +477,9 @@ class M_encuestas extends My_Model
 	// SECCION LISTA
 	public function getListas($post)
 	{
-		$filtros = " WHERE 1 = 1";
-		if (!empty($post['id'])) $filtros .= " AND ".$this->tablas['lista']['id']." = " . $post['id'];
+		$filtros = " ";
+		if (!empty($post['id'])) $filtros .= " AND lst.idListEncuesta = " . $post['id'];
+		if (!empty($post['ids'])) $filtros .= " AND lst.idListEncuesta IN (" . $post['ids'].")";
 
 		/*Filtros */
 		if(!empty($post['proyecto']))$filtros .= " AND p.idProyecto=".$post['proyecto'];
@@ -476,24 +493,52 @@ class M_encuestas extends My_Model
 
 		if(!empty($post['idTipoUsuario']))$filtros .= " AND lst.idTipoUsuario=".$post['idTipoUsuario'];
 		/*=====*/
+		$fechas = ''; $whereFechas = '';
+		if(empty($post['ids'])){
+			if(!empty($post['fecIni'])){
+				$fechas = "DECLARE @fecIni DATE = '{$post['fecIni']}', @fecFin DATE = '{$post['fecFin']}';";
+				$whereFechas = "AND General.dbo.fn_fechaVigente(lst.fecIni,lst.fecFin,@fecIni,@fecFin) = 1 ";
+			}
+		}
+		if(!empty($post['all'])){
+			$fechas = '';
+			$whereFechas = '';
+		}
 		$sql = "
+				{$fechas}
 				SELECT 
-				lst.*
-				,p.nombre proyecto
-				,c.nombre canal 
-				,cli.nombreComercial
-				,cli.razonSocial
-				,cli.codCliente
-				, ut. nombre as tipo
-				, gc.idGrupoCanal
-				, gc.nombre as grupoCanal
+					  lst.idListEncuesta
+					, lst.idCanal
+					, lst.idCliente
+					, CONVERT(VARCHAR,lst.fecIni,103) fecIni
+					, CONVERT(VARCHAR,lst.fecFin,103) fecFin
+					, lst.idProyecto
+					, lst.idTipoUsuario
+					, lst.estado
+					, CONVERT(VARCHAR,lst.fechaCreacion,103) fechaCreacion
+					, CONVERT(VARCHAR,lst.fechaModificacion,103) fechaModificacion
+					, p.nombre proyecto
+					, c.nombre canal 
+					, ISNULL(cli.nombreComercial,'-') nombreComercial
+				    , ISNULL(cli.razonSocial,'-') razonSocial
+					, cli.codCliente
+					, ut. nombre as tipo
+					, gc.idGrupoCanal
+					, gc.nombre as grupoCanal
+					, e.idEncuesta
+					, e.nombre encuesta
 				FROM {$this->sessBDCuenta}.trade.list_encuesta lst
+				LEFT JOIN {$this->sessBDCuenta}.trade.list_encuestaDet lstd	ON lstd.idListEncuesta=lst.idListEncuesta
+				LEFT JOIN {$this->sessBDCuenta}.trade.encuesta e ON e.idEncuesta=lstd.idEncuesta
 				JOIN trade.proyecto p ON p.idProyecto  = lst.idProyecto
 				JOIN trade.cuenta cu ON cu.idCuenta=p.idCuenta
 				LEFT JOIN trade.canal c ON c.idCanal = lst.idCanal
 				LEFT JOIN trade.grupoCanal gc ON gc.idGrupoCanal=lst.idGrupoCanal
 				LEFT JOIN trade.cliente cli ON cli.idCliente = lst.idCliente
 				LEFT JOIN trade.Usuario_tipo ut ON ut.idTipoUsuario = lst.idTipoUsuario
+				WHERE 
+				1 = 1
+				{$whereFechas}
 				{$filtros}
 				ORDER BY lst.fecIni DESC
 			";
@@ -675,6 +720,13 @@ class M_encuestas extends My_Model
 		return $this->db->query($sql);
 	}
 
+	public function actualizarLista_HT($update)
+	{
+		$update_batch = $this->db->update_batch($this->tablas['lista']['tabla'], $update,'idListEncuesta');
+
+		$this->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => $this->tablas['lista']['tabla'], 'id' => $this->insertId ];
+		return $update_batch;
+	}
 	public function registrarLista_HT($post)
 	{
 

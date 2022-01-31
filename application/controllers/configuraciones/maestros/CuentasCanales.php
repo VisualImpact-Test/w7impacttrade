@@ -136,8 +136,10 @@ class CuentasCanales extends MY_Controller
                 $idTabla = $this->m_cuentascanales->tablas['grupoCanal']['id'];
                 break;
             case 'Canal':
-                $tabla = $this->m_cuentascanales->tablas['canal']['tabla'];
-                $idTabla = $this->m_cuentascanales->tablas['canal']['id'];
+                // $tabla = $this->m_cuentascanales->tablas['canal']['tabla'];
+                // $idTabla = $this->m_cuentascanales->tablas['canal']['id'];
+                $tabla = 'trade.cuenta_canal';
+                $idTabla = 'idCuentaCanal';
                 break;
             case 'SubCanal':
                 $tabla = $this->m_cuentascanales->tablas['subCanal']['tabla'];
@@ -479,11 +481,12 @@ class CuentasCanales extends MY_Controller
         $HT[0] = [
             'nombre' => 'Proyectos',
             'data' => [
-                ['nombre' => null, 'cuenta' => null, 'fechaInicio' => null, 'fechaFin' => null]
+                ['nombre' => null, 'cuenta' => null, 'fechaInicio' => null, 'fechaFin' => null, 'nombreCorto' => null]
             ],
-            'headers' => ['Nombre', 'Cuenta', 'Fecha Inicio', 'Fecha Fin'],
+            'headers' => ['Nombre','Nombre corto', 'Cuenta', 'Fecha Inicio', 'Fecha Fin'],
             'columns' => [
                 ['data' => 'nombre', 'type' => 'text', 'placeholder' => 'Nombre'],
+                ['data' => 'nombreCorto', 'type' => 'text', 'placeholder' => 'Nombre corto'],
                 ['data' => 'cuenta', 'type' => 'myDropdown', 'placeholder' => 'Cuenta', 'source' => $cuentas],
                 ['data' => 'fechaInicio', 'type' => 'myDate'],
                 ['data' => 'fechaFin', 'type' => 'myDate']

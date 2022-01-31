@@ -116,7 +116,7 @@
             <div class="tab-pane fade show contentGestion" id="tab-content-4" role="tabpanel">
                 <?= getMensajeGestion('noResultados') ?>
             </div>
-            <div class="tab-pane fade show contentGestion" id="tab-content-4" role="tabpanel">
+            <div class="tab-pane fade show contentGestion" id="tab-content-5" role="tabpanel">
                 <?= getMensajeGestion('noResultados') ?>
             </div>
         </div>

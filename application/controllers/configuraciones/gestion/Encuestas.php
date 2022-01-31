@@ -19,7 +19,7 @@ class Encuestas extends MY_Controller
 
 			'actualizarLista' => 'Actualizar Lista Encuesta',
 			'registrarLista' => 'Registrar Lista Encuesta',
-			'masivoLista' => 'Guardar Masivo Lista Encuesta',
+			'masivoLista' => 'Guardar/Actualizar Masivo Lista Encuesta',
 
 		];
 
@@ -367,18 +367,39 @@ class Encuestas extends MY_Controller
 	{
 		$result = $this->result;
 		$post = json_decode($this->input->post('data'), true);
-	
-		
+
+		$fechas = explode(' - ', $post['txt-fechas']);
+
+		$post['fecIni'] = $fechas[0];
+		$post['fecFin'] = $fechas[1];
+
 		if( empty($post['proyecto']) ){
 			$post['proyecto']=$this->session->userdata('idProyecto');
 		}
 		$data = $this->m_encuestas->getListas($post)->result_array();
+		$array_encuesta = array();
 
+		foreach($data as $row){
+			$array_encuesta['encuesta'][$row['idListEncuesta']]['idListEncuesta']=$row['idListEncuesta'];
+			$array_encuesta['encuesta'][$row['idListEncuesta']]['idCliente']=$row['idCliente'];
+			$array_encuesta['encuesta'][$row['idListEncuesta']]['codCliente']=$row['codCliente'];
+			$array_encuesta['encuesta'][$row['idListEncuesta']]['razonSocial']=$row['razonSocial'];
+			$array_encuesta['encuesta'][$row['idListEncuesta']]['tipo']=$row['tipo'];
+			$array_encuesta['encuesta'][$row['idListEncuesta']]['grupoCanal']=$row['grupoCanal'];
+			$array_encuesta['encuesta'][$row['idListEncuesta']]['canal']=$row['canal'];
+			$array_encuesta['encuesta'][$row['idListEncuesta']]['proyecto']=$row['proyecto'];
+			$array_encuesta['encuesta'][$row['idListEncuesta']]['fecIni']= $row['fecIni'];
+			$array_encuesta['encuesta'][$row['idListEncuesta']]['fecFin']= $row['fecFin'];
+			$array_encuesta['encuesta'][$row['idListEncuesta']]['fechaModificacion']= $row['fechaModificacion'];
+			$array_encuesta['encuesta'][$row['idListEncuesta']]['estado']= $row['estado'];
+			$array_encuesta['encuestaDet'][$row['idListEncuesta']][$row['idEncuesta']]= $row['encuesta'];
+		}
+		
 		$result['result'] = 1;
 		if (count($data) < 1) {
 			$result['data']['html'] = getMensajeGestion('noRegistros');
 		} else {
-			$dataParaVista['data'] = $data;
+			$dataParaVista['data'] = $array_encuesta;
 			$result['data']['html'] = $this->load->view("modulos/configuraciones/gestion/encuestas/tablaListaEncuesta", $dataParaVista, true);
 		}
 
@@ -851,20 +872,20 @@ class Encuestas extends MY_Controller
                 , 'fechaFin' => null
                 ]
 			],
-			'headers' => ['Id Lista'
-				, 'Grupo Canal'
-                , 'Canal'
-				, 'Tipo Usuario'
-				, 'ID Cliente'
-                , 'Fecha Inicio'
-                , 'Fecha Fin'
+			'headers' => ['ID Lista'
+				, 'GRUPO CANAL'
+                , 'CANAL'
+				, 'TIPO USUARIO'
+				, 'COD VISUAL'
+                , 'FECHA INICIO'
+                , 'FECHA FIN'
             ],
 			'columns' => [
 				['data' => 'idLista', 'type' => 'numeric', 'placeholder' => 'ID Lista', 'width' => 100],
 				['data' => 'grupoCanal', 'type' => 'myDropdown', 'placeholder' => 'Grupo Canal', 'source' => $gruposCanal],
 				['data' => 'canal', 'type' => 'myDropdown', 'placeholder' => 'Canal', 'source' => $canales],
 				['data' => 'tipoUsuario', 'type' => 'myDropdown', 'placeholder' => 'Tipo Usuario', 'source' => $tipos],
-				['data' => 'idCliente', 'type' => 'myDropdown', 'placeholder' => 'ID Cliente', 'source' => $clientes],
+				['data' => 'idCliente', 'type' => 'myDropdown', 'placeholder' => 'COD VISUAL (ID Cliente)', 'source' => $clientes],
 				['data' => 'fechaInicio', 'type' => 'myDate'],
                 ['data' => 'fechaFin', 'type' => 'myDate'],
 			],
@@ -883,7 +904,7 @@ class Encuestas extends MY_Controller
                 , 'obligatorio' => null
                 ]
 			],
-            'headers' => ['Id Lista'
+            'headers' => ['ID Lista'
                 , 'Elemento'
                 , 'Obligatorio'
             ],
@@ -988,11 +1009,16 @@ class Encuestas extends MY_Controller
                         'elemento_lista' => $row[$this->m_encuestas->tablas['encuesta']['id']],
                         'obligatorio' => empty($row["obligatorio"]) || $row["obligatorio"] == "NO"? 0 : 1,
                     ];
-
                 }
             }
             $insert = $this->m_encuestas->guardarMasivoLista($multiDataRefactorizada, $idLista);
-			
+
+			if($insert == 'repetido'){
+				$result['result'] = 0;
+				$result['msg']['content'] = createMessage(['type'=>2,"message"=> 'Se encontraron encuestas repetidas para la lista N:'.$value['idLista']]);
+				echo json_encode($result);
+				exit();
+			}
 		}
 
 		if (!$insertMasivo) {
@@ -1297,6 +1323,168 @@ class Encuestas extends MY_Controller
 
 		$result['data']['grupoCanal'] = $arr_canal; 
 		$result['result'] = 1;
+
+		$this->aSessTrack = $this->m_encuestas->aSessTrack;
+		echo json_encode($result);
+	}
+
+	public function actualizarCargaMasivaLista()
+	{
+		$this->db->trans_start();
+		$result = $this->result;
+		$result['msg']['title'] = $this->titulo['masivoLista'];
+
+        $post = json_decode($this->input->post('data'), true);
+        
+		$elementos = $post['HT']['1'];
+		$elementosParmas['tablaHT'] = $elementos;
+		$elementosParmas['grupos'][0] = ['columnas' => ['elemento_lista'], 'columnasReales' => ['nombre'], 'tabla' => $this->m_encuestas->tablas['encuesta']['tabla'], 'idTabla' => $this->m_encuestas->tablas['encuesta']['id']];
+        $elementos = $this->getIdsCorrespondientes($elementosParmas);
+        
+        array_pop($elementos);
+
+		$idCuenta=$this->session->userdata('idCuenta');
+
+        $listas = $post['HT']['0'];
+		$listasParams['tablaHT'] = $listas;
+		$listasParams['grupos'][1] = ['columnas' => ['canal'], 'columnasReales' => ['nombre'], 'tabla' => 'trade.canal', 'idTabla' =>'idCanal'];
+		//$listasParams['grupos'][2] = ['columnas' => ['cliente'], 'columnasReales' => ['razonSocial'], 'tabla' => 'trade.cliente', 'idTabla' => 'idCliente'];
+		$listasParams['grupos'][2] = ['columnas' => ['tipoUsuario'], 'columnasReales' => ['nombre'], 'tabla' => 'trade.usuario_tipo', 'idTabla' =>'idTipoUsuario'];
+        $listas = $this->getIdsCorrespondientes($listasParams);
+        
+		array_pop($listas);
+
+		$idProyecto= !empty($this->session->userdata('idProyecto'))? $this->session->userdata('idProyecto') :"";
+
+		$listas_unicas = $this->m_encuestas->validar_filas_unicas_HT($listas);
+
+		if(!$listas_unicas){
+			$result['result'] = 0;
+			$result['msg']['content'] = createMessage(array('type'=> 2,'message'=>'Asegúrese que todas las listas tengan un ID único'));
+			goto responder;
+		}
+
+		$insertMasivo  = true;
+		$fila = 1;
+		$updateListas = [];
+		$insertEncuestas = [];
+		$deleteListaDetalle = [];
+        foreach($listas as $ix => $value){
+			if(empty($value['idLista'])) continue;
+
+			$value['idProyecto']=$idProyecto;
+
+			if(empty($listasExistentes['listas'][$value['idLista']])){
+				$result['result'] = 0;
+				$result['msg']['content'] = createMessage(['type'=>2,'message'=>"El ID de Lista no existe. <br> Fila:".($ix+1). "<br> <strong>Hoja de Listas</strong>"]);
+				goto responder;
+			}
+
+            if(!empty($value['fechaFin']) && !empty($value['fechaInicio'])){
+                $fechaInicio = strtotime(str_replace('/','-',$value['fechaInicio']));
+                $fechaFin = strtotime(str_replace('/','-',$value['fechaFin']));
+
+               
+                if($fechaFin < $fechaInicio){
+                    $result['result'] = 0;
+                    $result['msg']['content'] = createMessage(array('type'=> 2,'message'=>'La fecha Fin no puede ser menor a la fecha Inicio.<br> Lista N°: '.$value['idLista']));
+                    goto responder;
+                }
+			}
+			$updateListas[$ix] = [
+				'idListEncuesta' => $value['idLista'],
+				'idProyecto' => trim($value['idProyecto']),
+			];
+			
+			!empty($value['fechaInicio']) ? $updateListas[$ix]['fecIni'] = trim($value['fechaInicio']) : '';
+			!empty($value['idCanal']) ? $updateListas[$ix]['idCanal'] = trim($value['idCanal']) : '';
+			!empty($value['fechaFin']) ? $updateListas[$ix]['fecFin'] = trim($value['fechaFin']) : '';
+			!empty($value['idCliente']) ? $updateListas[$ix]['idCliente'] = trim($value['idCliente']) : '';
+			!empty($value['idTipoUsuario']) ? $updateListas[$ix]['idTipoUsuario'] = trim($value['idTipoUsuario']) : '';
+
+			
+
+		}
+
+		$idsLista = [];
+		$detalleParaInsertar = [];$listasExistentes= [];
+		$listas = $this->m_encuestas->getListas(['all' => 1])->result_array();
+		foreach ($listas as $k => $row) {
+			$listasExistentes['listas'][$row['idListEncuesta']] = 1;
+			$listasExistentes['encuestas'][$row['idListEncuesta']][$row['idEncuesta']] = 1;
+		}
+		foreach ($elementos as $ix => $v) {
+
+			if(empty($v['idLista'])) continue;
+
+			if(empty($listasExistentes['listas'][$v['idLista']])){
+				$result['result'] = 0;
+				$result['msg']['content'] = createMessage(['type'=>2,'message'=>"El ID de Lista no existe. <br> Fila:".($ix+1). "<br> <strong>Hoja de Encuestas</strong>"]);
+				goto responder;
+			}
+			
+			($v['obligatorio'] == "NO") ? $v['obligatorio'] = 0 : $v['obligatorio'] = 1;
+
+			$deleteListaDetalle[] = $v['idLista'];
+			$insertEncuestas[] = [
+				'idListEncuesta' => $v['idLista'],
+				'idEncuesta' => $v['idEncuesta'],
+				'obligatorio' => $v['obligatorio'],
+			];
+
+			if(!empty($detalleParaInsertar[$v['idLista']][$v['idEncuesta']])){
+				$result['result'] = 0;
+				$result['msg']['content'] = createMessage(['type'=>2,'message'=>"No se pueden repetir encuestas dentro de una Lista. <br> Fila:".($ix+1). "<br> <strong>Hoja de Encuestas</strong>"]);
+				goto responder;
+			}
+
+			$detalleParaInsertar[$v['idLista']][$v['idEncuesta']] = ($ix+1);
+
+			$idsLista [] = $v['idLista'];
+		
+		}
+
+		if(!empty($updateListas)){
+			$rs = $idLista = $this->m_encuestas->actualizarLista_HT($updateListas);
+
+			if(!$rs){
+				$result['result'] = 0;
+				$result['msg']['content'] = getMensajeGestion('guardadoMasivoErroneo');
+				goto responder;
+			}
+		}
+
+		if(!empty($insertEncuestas)){
+
+			if(empty($post['chk-nuevo'])) {
+				$deleteListaDetalle = [] ;
+				
+				foreach ($listas as $ix => $ls) {
+					if(!empty($detalleParaInsertar['encuestas'][$ls['idListEncuesta']][$ls['idEncuesta']])){
+						$fila = $detalleParaInsertar[$ls['idListEncuesta']][$ls['idEncuesta']];
+						$result['result'] = 0;
+						$result['msg']['content'] = createMessage(['type'=>2,'message'=>"La encuesta ya existe dentro de la lista. <br> Fila:".$fila. "<br> <strong>Hoja de Encuestas</strong>"]);
+						goto responder;
+					}
+				}
+			} 
+
+			$rsEncuestas = $this->m_encuestas->actualizarMasivoLista($insertEncuestas,$deleteListaDetalle);
+
+			if(!$rsEncuestas){
+				$result['result'] = 0;
+				$result['msg']['content'] = getMensajeGestion('guardadoMasivoErroneo');
+				goto responder;
+			}
+		}
+
+		
+		$result['result'] = 1;
+		$result['msg']['content'] = getMensajeGestion('guardadoMasivoExitoso');
+		
+
+		responder:
+		$this->db->trans_complete();
 
 		$this->aSessTrack = $this->m_encuestas->aSessTrack;
 		echo json_encode($result);

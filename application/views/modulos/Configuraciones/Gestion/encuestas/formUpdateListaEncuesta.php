@@ -86,12 +86,12 @@ $select2 = "my_select2EditarLista";
     <div class="form-row">
         <div class='col-xs-6 col-sm-6 col-md-6 col-lg-6 mb-2'>
             <label for='fechaInicio'>Fecha Inicio</label><br>
-            <input id='fechaInicio' name='fechaInicio' type='text' class='form-control form-control-sm' placeholder='Fecha Inicio' value="<?= date_change_format($data['fecIni']) ?>">
+            <input id='fechaInicio' name='fechaInicio' type='text' class='form-control form-control-sm' placeholder='Fecha Inicio' value="<?= $data['fecIni'] ?>">
         </div>
 
         <div class='col-xs-6 col-sm-6 col-md-6 col-lg-6 mb-2'>
             <label for='fechaFin'>Fecha Fin</label><br>
-            <input id='fechaFin' name='fechaFin' type='text' class='form-control form-control-sm' placeholder='Fecha Fin' value="<?= date_change_format($data['fecFin']) ?>">
+            <input id='fechaFin' name='fechaFin' type='text' class='form-control form-control-sm' placeholder='Fecha Fin' value="<?= $data['fecFin'] ?>">
         </div>
     </div>
 

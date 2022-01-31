@@ -1,12 +1,13 @@
 	<div class="card-datatable">
-	<table id="tb-modulacion" class="table table-striped table-bordered nowrap dataTable no-footer" style="width:100%;">
+	<table id="tb-modulacion" class="table table-striped table-bordered nowrap dataTable no-footer w-100">
 		<thead>
 			<tr>
 				<th class="noVis"></th>
 				<th class="noVis">#</th>
 				<th class="text-center align-middle">OPCIONES</th>
 				<th class="text-center align-middle">RUTA</th>
-				<th class="text-center align-middle">GTM</th>
+				<th class="text-center align-middle">PERFIL USUARIO</th>
+				<th class="text-center align-middle">USUARIO</th>
 				<th class="text-center align-middle">FECHA INICIO</th>
 				<th class="text-center align-middle">FECHA FIN</th>
 			</tr>
@@ -34,7 +35,8 @@
 
 					</td>
 					<td class="align-middle"><?=$row['nombreRuta'];?></td>
-					<td class="align-middle"><?=$row['gtm'];?></td>
+					<td class=""><?=$row['tipoUsuario'];?></td>
+					<td class="text-left"><?=$row['usuario'];?></td>
 					<td class="text-center align-middle"><?=$row['fecIni'];?></td>
 					<td class="text-center align-middle"><?=$row['fecFin'];?></td>
 				</tr>

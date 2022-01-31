@@ -18,7 +18,7 @@
                 $mensajeEstado = $value['estado'] == 1 ? 'Activo' : 'Inactivo';
                 $iconoBotonEstado = $value['estado'] == 1 ? 'fal fa-lg fa-toggle-on' : 'fal fa-lg fa-toggle-off';
             ?>
-                <tr data-id="<?= $value['idCanal'] ?>" data-estado="<?= $value['estado'] ?>">
+                <tr data-id="<?= $value['idCuentaCanal'] ?>" data-estado="<?= $value['estado'] ?>">
                     <td></td>
                     <td></td>
                     <td>

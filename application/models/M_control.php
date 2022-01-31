@@ -74,7 +74,8 @@ class M_control extends MY_Model{
 		$sql = "
 		DECLARE @fecha date=GETDATE();
 		SELECT DISTINCT py.idProyecto AS id
-		, py.nombre $columna 
+		, ISNULL(py.nombreCorto,py.nombre)  nombre
+		$columna
 		FROM trade.proyecto py 
 		JOIN trade.usuario_historico uh ON py.idProyecto = uh.idProyecto
 			AND @fecha BETWEEN uh.fecIni AND ISNULL(uh.fecFin, @fecha)
@@ -82,7 +83,7 @@ class M_control extends MY_Model{
 			AND uh.estado = 1
 		WHERE py.estado = 1{$filtro} 
 		AND uh.idUsuario = ".$this->session->userdata('idUsuario')."
-		ORDER BY py.nombre";
+		ORDER BY nombre";
 
 		return $this->db->query($sql)->result_array();
 	}
@@ -133,9 +134,10 @@ class M_control extends MY_Model{
 		$sql = "
 			SELECT
 				gca.idGrupoCanal AS id,
-				gca.nombre
+				ISNULL(pgc.nombre,gca.nombre) nombre
 			FROM trade.grupoCanal gca
-			JOIN trade.proyectoGrupoCanal pgc ON  gca.idGrupoCanal = pgc.idGrupoCanal AND pgc.estado = 1
+			JOIN trade.proyectoGrupoCanal pgc ON  gca.idGrupoCanal = pgc.idGrupoCanal 
+				AND pgc.estado = 1
 			WHERE gca.estado = 1{$filtro}
 			ORDER BY gca.nombre
 		";
@@ -145,6 +147,7 @@ class M_control extends MY_Model{
 
 	public function get_canal($input = array()){
 		$idProyecto = $this->sessIdProyecto;
+		$idCuenta = $this->sessIdCuenta;
 
 		$filtro = "";
 			$filtro .= getPermisos('canal', $idProyecto);
@@ -152,11 +155,14 @@ class M_control extends MY_Model{
 			if( !empty($idProyecto) ) $filtro .= " AND pgc.idProyecto = ".$idProyecto;
 			if( !empty($input['idGrupoCanal']) ) $filtro .= " AND ca.idGrupoCanal = ".$input['idGrupoCanal'];
 			if( !empty($input['idCanal']) ) $filtro .= " AND ca.idCanal = ".$input['idCanal'];
+			if( !empty($idCuenta) ) $filtro .= " AND cc.idCuenta = ".$idCuenta;
 
 		$sql = "
 			SELECT ca.idCanal AS id, ca.nombre
 			FROM trade.canal ca 
 			JOIN trade.proyectoGrupocanal pgc ON pgc.idGrupoCanal = ca.idGrupoCanal
+			JOIN trade.cuenta_canal cc ON cc.idCanal = ca.idCanal
+				AND cc.estado = 1
 			WHERE ca.estado = 1 
 			{$filtro} 
 			ORDER BY ca.nombre

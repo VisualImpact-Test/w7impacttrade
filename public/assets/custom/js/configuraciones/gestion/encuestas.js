@@ -57,6 +57,7 @@ var Encuestas = {
             Gestion.funcionRegistrarActivo = 'registrar' + Encuestas.tabSeleccionado
             Gestion.funcionActualizarActivo = 'actualizar' + Encuestas.tabSeleccionado
             Gestion.funcionGuardarCargaMasivaActivo = 'guardarCargaMasiva' + Encuestas.tabSeleccionado
+            Gestion.funcionActualizarCargaMasivaActivo = 'actualizarCargaMasiva' + Encuestas.tabSeleccionado
 
             //Ajustar columnas
             setTimeout(function(){
@@ -294,6 +295,12 @@ var Encuestas = {
 
         });
         
+        $(document).on("click", ".remove-truncate", function (e) {
+            $( "td" ).removeClass( "text-truncate" );
+            $("td").css("max-width", '1000px');
+            Gestion.$dataTable[Gestion.idContentActivo].columns.adjust();
+        });
+
         $(document).on("change", ".grupoCanal_cliente", function (e) {
             var idGrupoCanal =  $(this).val();
             var data = {'idGrupoCanal':Encuestas.idCuenta};
@@ -334,6 +341,39 @@ var Encuestas = {
             $('.canal_form').html('<select id="canal_form" name="canal_form" class="form-control form-control-sm my_select2">'+html+'</select>')
            
 		});
+        $(document).on("click", ".tabCargaMasiva", function (e) {
+            let hoja = $(".tabCargaMasiva.active").data("nrohoja");
+            
+            if(hoja == 1){
+                $(".msgCargaEncuestas").removeClass("d-none");
+            }else{
+                $(".msgCargaEncuestas").addClass("d-none");
+            }
+		});
+
+        $(document).on("click", ".btn-CargaMasivaListas", function (e) {
+			e.preventDefault();
+
+			var config = { 'url': Gestion.urlActivo + Gestion.getFormCargaMasivaActivo };
+			$.when(Fn.ajax(config)).then(function (a) {
+
+				if (a.result === 2) return false;
+
+				++modalId;
+				Gestion.idModalPrincipal = modalId;
+				var fn = 'Fn.showModal({ id:' + modalId + ',show:false });';
+				var fn1 = 'Gestion.confirmarGuardarCargaMasiva();';
+				var fn2 = 'Gestion.confirmarActualizarCargaMasiva();';
+
+				var btn = [];
+				btn[0] = { title: 'Cerrar', fn: fn };
+				btn[1] = { title: 'Actualizar', fn: fn2 };
+				btn[2] = { title: 'Guardar', fn: fn1 };
+
+				Fn.showModal({ id: modalId, show: true, class: 'modalCargaMasiva', title: a.msg.title, frm: a.data.html, btn: btn, width: a.data.width });
+				HTCustom.llenarHTObjectsFeatures(a.data.ht);
+			});
+		});
 		
 		$('#canal_form').change();
 
@@ -342,6 +382,7 @@ var Encuestas = {
         Gestion.btnConsultar= ".btn-Consultar";
         Gestion.seccionActivo= "Encuesta";
     },
+    
 
     actualizar_preguntas: function () {
 		var data = Fn.formSerializeObject('formEditarPreguntas');

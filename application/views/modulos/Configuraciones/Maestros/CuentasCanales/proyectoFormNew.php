@@ -5,6 +5,10 @@
             <input id='nombre' name='nombre' type='text' class='form-control form-control-sm' placeholder='Nombre'>
         </div>
         <div class='col-xs-6 col-sm-6 col-md-6 col-lg-6 mb-2'>
+            <label for='nombreCorto'>Nombre Corto</label><br>
+            <input id='nombreCorto' name='nombreCorto' type='text' class='form-control form-control-sm' placeholder='Nombre corto'>
+        </div>
+        <div class='col-md-12'>
             <label for='cuenta'>Cuenta</label><br>
             <select id='cuenta' name='cuenta' class='form-control form-control-sm my_select2'>
                 <option value=''>-- Seleccionar --</option>

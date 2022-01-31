@@ -815,7 +815,7 @@ var Modulacion = {
 		$.when( Fn.ajax(configAjax) ).then( function(a){
 			++modalId;
 			var title='Confirmacion';
-			var fn=`Fn.showModal({ id:${modalId},show:false });$("#btn-filtrarModulacion").click();`;
+			var fn=`Fn.showModal({ id:${modalId},show:false });Fn.closeModals(${modalId});$("#btn-filtrarModulacion").click();`;
 			var btn=new Array();
 				btn[0]={title:'Cerrar',fn:fn};
 			var html = '';
@@ -898,9 +898,16 @@ var Modulacion = {
 				arrayDataClientes.push(Modulacion.handsontable.getDataAtRow(ix));
 			}
 		}
-
+		let tipoUsuario = $("#tipoUsuario").val();
 		var dataArrayCargaMasiva = arrayDataClientes;
-		var data = {'clientes':dataArrayCargaMasiva,'fecIni':$('#fecha_ini_2').val(),'fecFin':$('#fecha_fin_2').val(),'nombreRuta':$('#nombreRuta').val(),'idGtm':$('#idGtm').val()}
+		var data = {
+			'clientes':dataArrayCargaMasiva,
+			'fecIni':$('#fecha_ini').val(),
+			'fecFin':$('#fecha_fin').val(),
+			'nombreRuta':$('#nombreRuta').val(),
+			'idGtm':$(".my-select2-usuarios").val(),
+			tipoUsuario,
+		}
 		var jsonString = {'data': JSON.stringify(data)};
 		var configAjax = {'url':Modulacion.url+'registrarClonacion', 'data':jsonString};
 
@@ -910,7 +917,7 @@ var Modulacion = {
 			var btn=new Array();
 				btn[0]={title:'Cerrar',fn:fn};
 			var message = a.msg.content;
-			Fn.showModal({ id:modalId,title:a.msg.title,content:message,btn:btn,show:true,width:'80%'});
+			Fn.showModal({ id:modalId,title:a.msg.title,content:message,btn:btn,show:true,width:a.data.width});
 		});
 	},
 	
