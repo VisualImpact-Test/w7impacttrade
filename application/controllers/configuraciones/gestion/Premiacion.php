@@ -522,5 +522,101 @@ class Premiacion extends MY_Controller
 		echo json_encode($result);
     }
 
+    public function getTablaLista(){
+        $result = $this->result;
+		$post = json_decode($this->input->post('data'), true);
+
+		/*$fechas = explode(' - ', $post['txt-fechas']);
+
+		$post['fecIni'] = $fechas[0];
+		$post['fecFin'] = $fechas[1];*/
+
+		if( empty($post['proyecto']) ){
+			$post['proyecto']=$this->session->userdata('idProyecto');
+		}
+		$data = $this->m_tipopremiacion->getListaPremiacion($post)->result_array();
+		$array_encuesta = array();
+
+		foreach($data as $row){
+			$array_encuesta['premiacion'][$row['idListPremiacion']]['idListPremiacion']=$row['idListPremiacion'];
+			$array_encuesta['premiacion'][$row['idListPremiacion']]['idCliente']=$row['idCliente'];
+			$array_encuesta['premiacion'][$row['idListPremiacion']]['codCliente']=$row['codCliente'];
+			$array_encuesta['premiacion'][$row['idListPremiacion']]['razonSocial']=$row['razonSocial'];
+			$array_encuesta['premiacion'][$row['idListPremiacion']]['tipo']=$row['tipo'];
+			$array_encuesta['premiacion'][$row['idListPremiacion']]['grupoCanal']=$row['grupoCanal'];
+			$array_encuesta['premiacion'][$row['idListPremiacion']]['canal']=$row['canal'];
+			$array_encuesta['premiacion'][$row['idListPremiacion']]['proyecto']=$row['proyecto'];
+			$array_encuesta['premiacion'][$row['idListPremiacion']]['fecIni']= $row['fecIni'];
+			$array_encuesta['premiacion'][$row['idListPremiacion']]['fecFin']= $row['fecFin'];
+			$array_encuesta['premiacion'][$row['idListPremiacion']]['fechaModificacion']= $row['fechaModificacion'];
+			$array_encuesta['premiacion'][$row['idListPremiacion']]['estado']= $row['estado'];
+			$array_encuesta['premiacionDet'][$row['idListPremiacion']][$row['idPremiacion']]= $row['premiacion'];
+		}
+		
+		$result['result'] = 1;
+		if (count($data) < 1) {
+			$result['data']['html'] = getMensajeGestion('noRegistros');
+		} else {
+			$dataParaVista['data'] = $array_encuesta;
+			$result['data']['html'] = $this->load->view("modulos/configuraciones/gestion/premiacion/tablaListaPremiacion", $dataParaVista, true);
+		}
+
+		$this->aSessTrack = $this->m_tipopremiacion->aSessTrack;
+		echo json_encode($result);
+    }
+
+    public function getFormUpdateLista(){
+		$result = $this->result;
+		$result['msg']['title'] = 'ACTUALIZAR LISTA';
+
+		$post = json_decode($this->input->post('data'), true);
+
+		$params=array();
+		$params['idUsuario']=$this->session->userdata('idUsuario');
+		$dataParaVista['cuentas'] = $this->m_tipopremiacion->getCuentas($params)->result_array();
+		$dataParaVista['tipoUsuario'] = $this->m_tipopremiacion->getTipoUsuario($post)->result_array();
+
+		$list_cuentas=array();
+		if( count($dataParaVista['cuentas'])>0){
+			foreach($dataParaVista['cuentas'] as $row){
+				array_push($list_cuentas, $row['idCuenta']);
+			}
+		}
+		$params['cuentas']= implode(",",$list_cuentas); 
+
+		$dataParaVista['premiacion'] = $this->m_tipopremiacion->getPremiacion()->result_array();
+		$dataParaVista['data'] = $this->m_tipopremiacion->getListaPremiacion($post)->row_array();
+		
+		//
+		$data_lista=array();
+		$data_lista['idCanal']=$dataParaVista['data']['idCanal'];
+		$data_lista['idProyecto']=$dataParaVista['data']['idProyecto'];
+		$dataParaVista['clientes'] = $this->m_tipopremiacion->getSegCliente($data_lista)->result_array();
+		//
+		$dataParaVista['lista_premiacion'] =  $this->m_tipopremiacion->getListaPremiacion($post)->result_array();
+		$post='';
+		$dataParaVista['grupoCanal'] = $this->m_tipopremiacion->getGrupoCanales()->result_array();
+		$dataParaVista['canales'] = $this->m_tipopremiacion->getCanales()->result_array();
+
+		$arr=array();
+		foreach($dataParaVista['canales'] as $row){
+			$arr[$row['idGrupoCanal']][$row['idCanal']]=$row['nombre'];
+		}
+		$dataParaVista['grupoCanal_canales']=$arr;
+
+		$dataParaVista['proyectos'] = $this->m_tipopremiacion->getProyectos($params)->result_array();
+		$class = 'modalUpdate';
+		$dataParaVista['class'] = $class;
+
+		$result['result'] = 1;
+		$result['data']['width'] = '45%';
+		$result['data']['class'] = $class;
+		$result['data']['html'] = $this->load->view("modulos/configuraciones/gestion/premiacion/formUpdateListaPremiacion", $dataParaVista, true);
+
+		$this->aSessTrack = array_merge($this->aSessTrack, $this->m_tipopremiacion->aSessTrack);
+		
+		echo json_encode($result);
+	}
+
 
 }
