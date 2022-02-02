@@ -20,7 +20,8 @@ class CronJob extends CI_Controller{
         $email=array();
 		$array=array();
 		foreach($distribuidoras as $k_d=>$v_d){
-			unset($email); unset($array);
+			unset($email); 
+			unset($array);
 			foreach($contactos as $k_c=>$v_c){
 				if($v_d['id']==$v_c['idDistribuidoraSucursal']){
 					$email[]=$v_c['email'];
@@ -40,10 +41,9 @@ class CronJob extends CI_Controller{
 					$array['resultados'][$v_r['idVisita']]['porcentajePM']=$v_r['porcentajePM'];
 				}
 			}
-
-			if(!empty($array['data']) && isset($email) ){
+			if(!empty($array['data']) ){
 				$contenido=$this->load->view('cronjob/ejecucion_total/hfs_correo',$array,true);
-				// $correo['to']=implode(",",$email);
+				// $correo['to']= !empty($email) ? implode(",",$email) : "team.sistemas@visualimpact.com.pe" ;
 				$correo['to']='aaron.ccenta@visualimpact.com.pe';
 				$titulo='PG - Ejecucion Total HFS '.$v_d['nombre'].' '.$fecha;
 				$config = [
@@ -91,9 +91,9 @@ class CronJob extends CI_Controller{
 				}
 			}
 
-			if(!empty($array['data']) && isset($email) ){
+			if(!empty($array['data']) ){
 				$contenido=$this->load->view('cronjob/ejecucion_total/whls_correo',$array,true);
-				// $correo['to']=implode(",",$email);
+				// $correo['to']= !empty($email) ? implode(",",$email) : "team.sistemas@visualimpact.com.pe" ;
 				$correo['to']='aaron.ccenta@visualimpact.com.pe';
 				$titulo='PG - Ejecucion Total WHLS '.$v_d['nombre'].' '.$fecha;
 				$config = [

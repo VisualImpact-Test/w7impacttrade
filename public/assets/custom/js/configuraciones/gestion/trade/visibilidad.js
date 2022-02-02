@@ -11,7 +11,7 @@ var TradeVisibilidad = {
     grupoCanal:null,
     elementosVisibilidad:null,
     customDataTable: function () { },
-
+ 
     load: function () {
 
         $(document).ready(function (e) {
@@ -314,7 +314,7 @@ var TradeVisibilidad = {
     confirmarGuardarNuevoElementoMasivo: function(){
         var contColsInvalid = 0;
             contColsInvalid = $('#nuevoElementoMasivo .htInvalid').length;
-        var arrayDataObligatoria = [];
+        var arrayDataTradeVisibilidad = [];
         for (var ix = 0; ix < TradeVisibilidad.handsontable.countRows(); ix++) {
             if (!TradeVisibilidad.handsontable.isEmptyRow(ix)) {
                 arrayDataTradeVisibilidad.push(TradeVisibilidad.handsontable.getDataAtRow(ix));
@@ -350,14 +350,14 @@ var TradeVisibilidad = {
     },
 
     guardarNuevoElementoMasivo: function(){
-        var arrayDataObligatoria = [];
+        var arrayDataTradeVisibilidad = [];
         for (var ix = 0; ix < TradeVisibilidad.handsontable.countRows(); ix++) {
             if (!TradeVisibilidad.handsontable.isEmptyRow(ix)) {
                 arrayDataTradeVisibilidad.push(TradeVisibilidad.handsontable.getDataAtRow(ix));
             }
         }
 
-        var dataArrayCargaMasiva = arrayDataObligatoria;
+        var dataArrayCargaMasiva = arrayDataTradeVisibilidad;
         var data = {'dataArray': dataArrayCargaMasiva};
         var jsonString = {'data': JSON.stringify(data)};
         var configAjax = {'url':TradeVisibilidad.url+'guardarNuevoElementoMasivo', 'data':jsonString};
@@ -382,12 +382,12 @@ var TradeVisibilidad = {
         var contCabecera=0, contDetalle=0;
         var htmlMessage='';
         var contIdLista=0;
-        var arrayDataObligatoriaGlobal=[];
+        var arrayDataTradeVisibilidadGlobal=[];
 
         $('.tabCMasiva').each(function(e,val){
             var control= $(val);
             var index = control.data('nrohoja');
-            var arrayDataObligatoria=new Array();
+            var arrayDataTradeVisibilidad=new Array();
             
             contInvalidos = $('#hoja'+index+' .htInvalid').length;
             contColsInvalid = contColsInvalid + contInvalidos;
@@ -403,7 +403,7 @@ var TradeVisibilidad = {
                     arrayDataTradeVisibilidad.push(TradeVisibilidad.handsontableArray[index].getDataAtRow(ix));
                 }
             }
-            arrayDataObligatoriaGlobal.push(arrayDataObligatoria);
+            arrayDataTradeVisibilidadGlobal.push(arrayDataTradeVisibilidad);
         });
 
         if (contCabecera==0) {
@@ -451,22 +451,22 @@ var TradeVisibilidad = {
     },
 
     guardarNuevoModulacionMasivo: function(){
-        var arrayDataObligatoriaGlobal=[];
+        var arrayDataTradeVisibilidadGlobal=[];
 
         $('.tabCMasiva').each(function(e,val){
             var control= $(val);
             var index = control.data('nrohoja');
-            var arrayDataObligatoria=new Array();
+            var arrayDataTradeVisibilidad=new Array();
             
             for (var ix = 0; ix < TradeVisibilidad.handsontableArray[index].countRows(); ix++) {
                 if (!TradeVisibilidad.handsontableArray[index].isEmptyRow(ix)) {
                     arrayDataTradeVisibilidad.push(TradeVisibilidad.handsontableArray[index].getDataAtRow(ix));
                 }
             }
-            arrayDataObligatoriaGlobal.push(arrayDataObligatoria);
+            arrayDataTradeVisibilidadGlobal.push(arrayDataTradeVisibilidad);
         });
 
-        var dataArrayCargaMasiva=arrayDataObligatoriaGlobal;
+        var dataArrayCargaMasiva=arrayDataTradeVisibilidadGlobal;
         var data={'dataArray': dataArrayCargaMasiva};
         var jsonString={'data': JSON.stringify(data)};
         var configAjax={'url':TradeVisibilidad.url+'guardarCargaMasivaListaModulacion', 'data':jsonString};
