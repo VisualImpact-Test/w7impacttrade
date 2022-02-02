@@ -1274,6 +1274,7 @@ class Visibilidad extends MY_Controller
 
 					$arrayCabecera['fecIni'] = $cabecera['fecIni'];
 					$arrayCabecera['fecFin'] = $cabecera['fecFin'];
+					$arrayCabecera['idCuenta'] = $this->session->userdata('idCuenta');
 					$arrayCabecera['estado'] = 1;
 
 					$rs_verificarExisitencia = $this->model->verificar_lista_modulacion($arrayCabecera);

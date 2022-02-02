@@ -62,7 +62,7 @@ class M_cronjob extends CI_Model{
         trade.usuario u
         JOIN trade.usuario_historico uh ON uh.idUsuario = u.idUsuario 
             AND General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,@fecha,@fecha) = 1
-            AND uh.idTipoUsuario IN(2,6,10,11)
+            AND uh.idTipoUsuario IN(2,6,10,11,14,17,13)
             AND uh.estado = 1
             AND u.estado = 1
         JOIN rrhh.dbo.empleado e ON e.numTipoDocuIdent = u.numDocumento

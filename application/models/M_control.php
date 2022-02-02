@@ -134,7 +134,7 @@ class M_control extends MY_Model{
 		$sql = "
 			SELECT
 				gca.idGrupoCanal AS id,
-				ISNULL(pgc.nombre,gca.nombre) nombrel
+				ISNULL(pgc.nombre,gca.nombre) nombre
 			FROM trade.grupoCanal gca
 			JOIN trade.proyectoGrupoCanal pgc ON  gca.idGrupoCanal = pgc.idGrupoCanal 
 				AND pgc.estado = 1
@@ -527,7 +527,7 @@ class M_control extends MY_Model{
 		
 		return $this->db->query($sql);
 	}
-	public function get_tiposUsuarioo($input = array()){
+	public function get_tiposUsuario($input = array()){
 		$idProyecto = $this->sessIdProyecto;
 		$idCuenta = $this->sessIdCuenta;
 		$filtro = "";
@@ -720,7 +720,7 @@ class M_control extends MY_Model{
 				{$this->sessBDCuenta}.trade.peticionActualizarVisitas
 			WHERE 
 			idProyecto={$input['idProyecto']}
-			ORDER BY fechaActualizacion DESC,idPeticion DESC;";
+			ORDER BY idPeticion DESC;";
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -735,7 +735,7 @@ class M_control extends MY_Model{
 			FROM 
 				{$this->sessBDCuenta}.trade.peticionActualizarVisitas
 			WHERE estado=1 and fechaActualizacion is null
-			ORDER BY fechaActualizacion DESC,idPeticion DESC;;";
+			ORDER BY idPeticion DESC;";
 		return $this->db->query($sql)->result_array();
 	}
 

@@ -522,5 +522,4 @@ class Premiacion extends MY_Controller
 		echo json_encode($result);
     }
 
-
 }
