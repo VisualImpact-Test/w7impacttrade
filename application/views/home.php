@@ -146,6 +146,9 @@ if (empty($idCuenta) || $idCuenta != 2) {
 						Detallado
 					</label>
 				</div>
+				<div class="zonaHome" style="text-align: left;margin-left: 60%;">
+					<?= getFiltros(['zonaUsuario' => ['label' => 'zona', 'name' => 'zona', 'id' => 'zona', 'data' => true, 'select2' => 'control-w-sm  text-left efectividad_usuario', 'html' => '']]) ?>
+				</div>
 			</div>
 			<div class="card-body centrarContenidoDiv vista-efectividadGtm" style="width: 100%;">
 				<i class="fas fa-spinner-third fa-spin icon-load"></i>

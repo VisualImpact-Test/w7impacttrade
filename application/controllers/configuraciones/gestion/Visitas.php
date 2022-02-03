@@ -102,6 +102,10 @@ class Visitas extends MY_Controller{
 		$input['cadena'] = !empty($data['cadena_filtro']) ? $data['cadena_filtro'] : '';
 		$input['banner'] = !empty($data['banner_filtro']) ? $data['banner_filtro'] : '';
 
+		$input['departamento_filtro'] = !empty($data['departamento_filtro']) ? $data['departamento_filtro'] : '' ;
+		$input['provincia_filtro'] = !empty($data['provincia_filtro']) ? $data['departamento_filtro'] : '' ;
+		$input['distrito_filtro'] = !empty($data['distrito_filtro']) ? $data['distrito_filtro'] : '' ;
+
 		if(empty($data['chk-usuario-inactivo']) || empty($data['chk-usuario-activo']) ){
 			$input['estadoUsuario'] = empty($data['chk-usuario-activo']) ? 2 : 1;
 		}

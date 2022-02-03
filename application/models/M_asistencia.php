@@ -32,6 +32,7 @@ class M_asistencia extends MY_Model{
 		$filtros .= !empty($input['plaza_filtro']) ? ' AND uhp.idPlaza='.$input['plaza_filtro'] : '';
 		$filtros .= !empty($input['cadena_filtro']) ? ' AND cd.idCadena='.$input['cadena_filtro'] : '';
 		$filtros .= !empty($input['banner_filtro']) ? ' AND b.idBanner='.$input['banner_filtro'] : '';
+		$filtros .= !empty($input['zonausuario']) ? ' AND uhz.idZona='.$input['zonausuario'] : '';
 		}
 
 		// DATOS DEMO

@@ -118,6 +118,20 @@
 										<?= getFiltros(['banner' => ['label' => 'Banner', 'name' => 'banner_filtro', 'id' => 'banner_filtro', 'data' => false, 'select2' => 'ui my_select2Full', 'html' => '']]); ?>
 									</div>
 								</div>
+								<div class="filtros_gc filtros_ubigeo d-none">
+									<div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip">
+										<span class="tooltiptext">Departamento</span>
+										<?= getFiltros(['departamento' => ['label' => 'Departamento', 'name' => 'departamento_filtro', 'id' => 'departamento_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]); ?>
+									</div>
+									<div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip">
+										<span class="tooltiptext">Provincia</span>
+										<?= getFiltros(['provincia' => ['label' => 'Provincia', 'name' => 'provincia_filtro', 'id' => 'provincia_filtro', 'data' => false, 'select2' => 'ui my_select2Full', 'html' => '']]); ?>
+									</div>
+									<div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip">
+										<span class="tooltiptext">Distrito</span>
+										<?= getFiltros(['distrito' => ['label' => 'Distrito', 'name' => 'distrito_filtro', 'id' => 'distrito_filtro', 'data' => false, 'select2' => 'ui my_select2Full', 'html' => '']]); ?>
+									</div>
+								</div>
 							</div>
 						</div>
 					</div>

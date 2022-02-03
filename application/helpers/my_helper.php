@@ -613,6 +613,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 				if( isset($get['zona']) && $get['zona']['data'] ){
 					$aDatos['zona'] = $CI->m_control->get_zona();
 				}
+				if( isset($get['zonaUsuario']) && $get['zonaUsuario']['data'] ){
+					$aDatos['zonaUsuario'] = $CI->m_control->get_zona();
+				}
 
 				if( isset($get['plaza']) && $get['plaza']['data'] ){
 					$aDatos['plaza'] = $CI->m_control->get_plaza();
@@ -641,6 +644,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 				}
 				if( isset($get['frecuencia']) && $get['frecuencia']['data'] ){
 					$aDatos['frecuencia'] = $CI->m_control->get_frecuencia();
+				}
+				if( isset($get['departamento']) && $get['departamento']['data'] ){
+					$aDatos['departamento'] = $CI->m_control->get_ubigeo_departamento();
+				}
+				if( isset($get['provincia']) && $get['provincia']['data'] ){
+					$aDatos['provincia'] = $CI->m_control->get_ubigeo_provincia();
+				}
+				if( isset($get['distrito']) && $get['distrito']['data'] ){
+					$aDatos['distrito'] = $CI->m_control->get_ubigeo_distrito();
 				}
 
 			foreach($get as $idx => $val){
@@ -718,6 +730,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 								{if(!empty($selected) && $row['id'] == $selected ){
 									$select = "selected ";
 								}
+							}elseif($idx == 'canal')
+								{if(!empty($selected) && $row['id'] == $selected ){
+									$select = "selected ";
+								}
 							}
 
 							$selectHtml .= '<option value="'.$oId.'" '.$select.'>'.$oValue.'</option>';
@@ -744,6 +760,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 				'canal' => array('label' => 'Canal', 'name' => 'idCanal'),
 				'subCanal' => array('label' => 'Sub Canal', 'name' => 'idSubCanal'),
 				'zona' => array('label' => 'Zona', 'name' => 'idZona'),
+				'zonaUsuario' => array('label' => 'Zona', 'name' => 'idZona'),
 				'plaza' => array('label' => 'Plaza', 'name' => 'idPlaza'),
 				'distribuidora' => array('label' => 'Distribuidora', 'name' => 'idDistribuidora'),
 				'distribuidoraSucursal' => array('label' => 'Distribuidora Sucursal', 'name' => 'idDistribuidoraSucursal'),
@@ -755,6 +772,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 				'tipoUsuario' => array('label' => 'Tipo Usuario', 'name' => 'idTipoUsuario'),
 				'usuario' => array('label' => 'Usuario', 'name' => 'idUsuario'),
 				'frecuencia' => array('label' => 'Frecuencia', 'name' => 'idFrecuencia'),
+				'departamento' => array('label' => 'Departamento', 'name' => 'cod_departamento'),
+				'provincia' => array('label' => 'Provincia', 'name' => 'cod_provincia'),
+				'distrito' => array('label' => 'Distrito', 'name' => 'cod_ubigeo'),
 			);
 
 		$additional = array(

@@ -158,7 +158,8 @@ class M_control extends MY_Model{
 			if( !empty($idCuenta) ) $filtro .= " AND cc.idCuenta = ".$idCuenta;
 
 		$sql = "
-			SELECT ca.idCanal AS id, ca.nombre
+			SELECT DISTINCT 
+				ca.idCanal AS id, ca.nombre
 			FROM trade.canal ca 
 			JOIN trade.proyectoGrupocanal pgc ON pgc.idGrupoCanal = ca.idGrupoCanal
 			JOIN trade.cuenta_canal cc ON cc.idCanal = ca.idCanal
@@ -942,5 +943,59 @@ class M_control extends MY_Model{
 	
 	public function actualizarNotificacionesPeticion($update){
 		return $this->db->update_batch("{$this->sessBDCuenta}.trade.peticionActualizarVisitasDet",$update,'idPeticionDet');
+	}
+
+	public function get_ubigeo_departamento($input = []){
+		$sql = "
+		SELECT DISTINCT
+			cod_departamento AS id,
+			departamento nombre
+		FROM General.dbo.ubigeo
+		WHERE
+		estado = 1
+		ORDER BY nombre
+		";
+
+		return $this->db->query($sql)->result_array();
+	}
+	public function get_ubigeo_provincia($input = []){
+
+		$filtros = "";
+
+		!empty($input['cod_departamento']) ? $filtros = " AND cod_departamento = {$input['cod_departamento']}" : '';
+
+		
+		$sql = "
+		SELECT DISTINCT
+			cod_provincia AS id,
+			provincia nombre
+		FROM General.dbo.ubigeo
+		WHERE
+		estado = 1
+		{$filtros}
+		ORDER BY nombre
+		";
+
+		return $this->db->query($sql)->result_array();
+	}
+	public function get_ubigeo_distrito($input = []){
+
+		$filtros = "";
+		!empty($input['cod_departamento']) ? $filtros .= " AND cod_departamento = {$input['cod_departamento']}" : '';
+		!empty($input['cod_provincia']) ? $filtros .= " AND cod_provincia = {$input['cod_provincia']}" : '';
+
+		$sql = "
+		SELECT DISTINCT
+			cod_ubigeo AS id,
+			distrito nombre
+		FROM General.dbo.ubigeo
+		WHERE
+		estado = 1
+		{$filtros} 
+		ORDER BY nombre
+
+		";
+
+		return $this->db->query($sql)->result_array();
 	}
 }

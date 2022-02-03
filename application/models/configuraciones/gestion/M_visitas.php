@@ -104,14 +104,22 @@ class M_visitas extends MY_Model{
 
 		$sessIdTipoUsuario = $this->idTipoUsuario;
 		$sessDemo = $this->demo;
-
+		$idProyecto = $this->sessIdProyecto;
 		$filtros = "";
 		// $filtros.= !empty($input['listaCuentas']) ? " AND r.idCuenta IN (".$input['listaCuentas'].")":"";
 		// $filtros.= !empty($input['listaProyectos']) ? " AND r.idProyecto IN (".$input['listaProyectos'].")":"";
 		
 		$filtros.= !empty($input['cuenta']) ? " AND r.idCuenta=".$input['cuenta']:"";
 		$filtros.= !empty($input['proyecto']) ? " AND r.idProyecto=".$input['proyecto']:"";
-		$filtros.= !empty($input['grupoCanal']) ? " AND cn.idGrupoCanal=".$input['grupoCanal'] : "";
+		$gcs = $this->m_control->get_grupoCanal();
+		$gruposCanal = [];
+		
+		foreach ($gcs as $k => $v) {
+			$gruposCanal[] = $v['id'];
+		}
+		empty($input['grupoCanal']) ? $input['grupoCanal'] = implode(",",$gruposCanal) : '' ;
+
+		$filtros.= !empty($input['grupoCanal']) ? " AND cn.idGrupoCanal IN(".$input['grupoCanal'].")" : "";
 		$filtros.= !empty($input['canal']) ? " AND cn.idCanal=".$input['canal'] : "";
 		$filtros.= !empty($input['usuario']) ? " AND r.idUsuario=".$input['usuario']:"";
 		
@@ -124,6 +132,11 @@ class M_visitas extends MY_Model{
 		$filtros.= !empty($input['distribuidora']) ? " AND d.idDistribuidora=".$input['distribuidora']:"";
 		$filtros.= !empty($input['plaza']) ? " AND pl.idPlaza=".$input['plaza']:"";
 		$filtros.= !empty($input['banner']) ? " AND b.idBanner=".$input['banner']:"";
+
+		//Ubigeo
+		$filtros .= !empty($input['departamento_filtro']) ? ' AND ubi01.cod_departamento='.$input['departamento_filtro'] : '';
+		$filtros .= !empty($input['provincia_filtro']) ? ' AND ubi01.cod_provincia='.$input['provincia_filtro'] : '';
+		$filtros .= !empty($input['distrito_filtro']) ? ' AND ubi01.cod_ubigeo='.$input['distrito_filtro'] : '';
 		
 		if( $sessIdTipoUsuario != 4 ){
 			if( empty($sessDemo) ) $filtros .=  " AND (r.demo = 0 OR r.demo IS NULL)";
@@ -131,7 +144,7 @@ class M_visitas extends MY_Model{
 		}
 
 		$cliente_historico = getClienteHistoricoCuenta();
-		$segmentacion = getSegmentacion(['grupoCanal_filtro' => $input['grupoCanal']]);
+		// $segmentacion = getSegmentacion(['grupoCanal_filtro' => $input['grupoCanal']]);
 
 		$sql = "
 		DECLARE @fecha DATE=GETDATE(), @fecIni DATE='".$input['fecIni']."', @fecFin DATE='".$input['fecFin']."';
@@ -172,6 +185,7 @@ class M_visitas extends MY_Model{
 		LEFT JOIN trade.distribuidoraSucursal ds ON ds.idDistribuidoraSucursal=v.idDistribuidoraSucursal
 		LEFT JOIN trade.distribuidora d ON d.idDistribuidora=ds.idDistribuidora
 		LEFT JOIN General.dbo.ubigeo ubi ON ubi.cod_ubigeo=ds.cod_ubigeo
+		LEFT JOIN General.dbo.ubigeo ubi01 ON ubi01.cod_ubigeo = v.cod_ubigeo
 		LEFT JOIN trade.canal cn ON cn.idCanal=v.idCanal
 		LEFT JOIN trade.zona z ON z.idZona = v.idZona
 		WHERE 1=1 

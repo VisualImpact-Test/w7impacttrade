@@ -19,6 +19,8 @@ var ContingenciaRutas = {
 		$(document).ready(function (e) {
 			$(".card-body > ul > li > a[class*='active']").click();
 			$('#btn-filtrarContingenciaRutas').click();
+
+			$('.flt_grupoCanal').change();
 		});
 
 		$(document).on('dblclick', '.card-body > ul > li > a', function (e) {

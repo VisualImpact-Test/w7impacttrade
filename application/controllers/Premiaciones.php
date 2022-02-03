@@ -367,8 +367,7 @@ class Premiaciones extends MY_Controller
 		$this->load->view("modulos/premiaciones/foto", $data);
 	}
 
-	public function eliminar_cargo()
-	{
+	public function eliminar_cargo(){
 		$result = $this->result;
 
 		$post = json_decode($this->input->post('data'), true);
@@ -404,8 +403,7 @@ class Premiaciones extends MY_Controller
 		echo json_encode($result);
 	}
 
-	public function premiaciones_configuracion_objetivos()
-	{
+	public function premiaciones_configuracion_objetivos(){
 		$result = $this->result;
 
 		$post = json_decode($this->input->post('data'), true);

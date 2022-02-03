@@ -178,6 +178,7 @@ class M_premiacion extends My_Model
 		{$fechas}
 		SELECT 
 			  lst.idListPremiacion
+			, lstd.idListPremiacionDet
 			, lst.idCanal
 			, lst.idCliente
 			, CONVERT(VARCHAR,lst.fecIni,103) fecIni
@@ -292,7 +293,13 @@ class M_premiacion extends My_Model
 
 	public function getGrupoCanales($post = 'nulo')
 	{
-			$filtros = " AND gc.estado = 1";
+		$idProyecto = $this->sessIdProyecto;
+
+		$filtros= "";
+			
+
+			if( !empty($idProyecto) ) $filtros .= " AND gc.idProyecto = ".$idProyecto;
+		$filtros.= " AND gc.estado = 1";
 		$sql = "
 				SELECT 
 					gc.idGrupoCanal,
@@ -347,5 +354,157 @@ class M_premiacion extends My_Model
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.usuario_historico' ];
 		return $this->db->query($sql);
 	}
+
+	public function getListas($post)
+	{
+		$filtros = " ";
+		if (!empty($post['id'])) $filtros .= " AND lst.idListPremiacion = " . $post['id'];
+		if (!empty($post['ids'])) $filtros .= " AND lst.idListPremiacion IN (" . $post['ids'].")";
+
+		/*Filtros */
+		if(!empty($post['proyecto']))$filtros .= " AND p.idProyecto=".$post['proyecto'];
+		if(!empty($post['grupoCanal']))$filtros .= " AND c.idGrupoCanal=".$post['grupoCanal'];
+		if(!empty($post['canal']))$filtros .= " AND c.idCanal=".$post['canal'];
+
+		if(empty($input['cuenta'])){
+			$filtros.= getPermisos('cuenta');
+		}
+		if(!empty($post['cuenta']))$filtros .= " AND p.idCuenta=".$post['cuenta'];
+
+		if(!empty($post['idTipoUsuario']))$filtros .= " AND lst.idTipoUsuario=".$post['idTipoUsuario'];
+		/*=====*/
+		$fechas = ''; $whereFechas = '';
+		if(empty($post['ids'])){
+			if(!empty($post['fecIni'])){
+				$fechas = "DECLARE @fecIni DATE = '{$post['fecIni']}', @fecFin DATE = '{$post['fecFin']}';";
+				$whereFechas = "AND General.dbo.fn_fechaVigente(lst.fecIni,lst.fecFin,@fecIni,@fecFin) = 1 ";
+			}
+		}
+		if(!empty($post['all'])){
+			$fechas = '';
+			$whereFechas = '';
+		}
+		$sql = "
+				{$fechas}
+				SELECT 
+				lst.idListPremiacion
+			  , lst.idCanal
+			  , lst.idCliente
+			  , CONVERT(VARCHAR,lst.fecIni,103) fecIni
+			  , CONVERT(VARCHAR,lst.fecFin,103) fecFin
+			  , lst.idProyecto
+			  , lst.idTipoUsuario
+			  , lst.estado
+			  , CONVERT(VARCHAR,lst.fechaCreacion,103) fechaCreacion
+			  , CONVERT(VARCHAR,lst.fechaModificacion,103) fechaModificacion
+			  , p.nombre proyecto
+			  , c.nombre canal 
+			  , ISNULL(cli.nombreComercial,'-') nombreComercial
+			  , ISNULL(cli.razonSocial,'-') razonSocial
+			  , cli.codCliente
+			  , ut. nombre as tipo
+			  , gc.idGrupoCanal
+			  , gc.nombre as grupoCanal
+			  , e.idPremiacion
+			  , e.nombre premiacion
+				FROM 
+				{$this->sessBDCuenta}.trade.list_premiaciones lst
+				LEFT JOIN {$this->sessBDCuenta}.trade.list_premiacionesDet lstd ON lstd.idListPremiacion=lst.idListPremiacion
+				LEFT JOIN {$this->sessBDCuenta}.trade.premiacion e ON e.idPremiacion=lstd.idPremiacion
+				JOIN trade.proyecto p ON p.idProyecto  = lst.idProyecto
+				JOIN trade.cuenta cu ON cu.idCuenta=p.idCuenta
+				LEFT JOIN trade.canal c ON c.idCanal = lst.idCanal
+				LEFT JOIN trade.grupoCanal gc ON gc.idGrupoCanal=lst.idGrupoCanal
+				LEFT JOIN trade.cliente cli ON cli.idCliente = lst.idCliente
+				LEFT JOIN trade.Usuario_tipo ut ON ut.idTipoUsuario = lst.idTipoUsuario
+				WHERE 
+				1 = 1
+				{$whereFechas}
+				{$filtros}
+				ORDER BY lst.fecIni DESC
+			";
+
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.list_encuesta" ];
+		return $this->db->query($sql);
+	}
+	public function actualizarLista_HT($update)
+	{
+		$update_batch = $this->db->update_batch($this->tablas['lista']['tabla'], $update,'idListPremiacion');
+
+		$this->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => $this->tablas['lista']['tabla'], 'id' => $this->insertId ];
+		return $update_batch;
+	}
+	public function actualizarMasivoLista($insertMasivo, $deleteMasivo)
+	{
+		if(!empty($deleteMasivo)){
+			$this->db->where_in('idListPremiacion', $deleteMasivo);
+			$this->db->delete($this->m_tipopremiacion->tablas['listaDet']['tabla']);
+		}
+		
+		return $this->db->insert_batch($this->m_tipopremiacion->tablas['listaDet']['tabla'],$insertMasivo);
+		
+	}
+
+	public function actualizarLista($post)
+	{
+		
+		$update = [
+			'FecIni' => trim($post['fechaInicio']),
+			'fechaModificacion' => getActualDateTime(),
+		];
+		if(!empty($post['fechaFin'])){$update['fecFin']=$post['fechaFin'];}
+		if(!empty($post['grupoCanal_form'])){$update['idGrupoCanal']=$post['grupoCanal_form'];}
+		if(!empty($post['canal_form'])){$update['idCanal']=$post['canal_form'];}else{$update['idCanal']=NULL;}
+		if(!empty($post['cliente_form'])){$update['idCliente']=$post['cliente_form'];}else{$update['idCliente']=NULL;}
+		if(!empty($post['tipoUsuario_form'])){$update['idTipoUsuario']=$post['tipoUsuario_form'];}else{$update['idTipoUsuario']=NULL;}
+
+		$where = [
+			$this->tablas['lista']['id'] => $post['idLista']
+		];
+
+		$this->db->where($where);
+		$update = $this->db->update($this->tablas['lista']['tabla'], $update);
+
+		$this->aSessTrack[] = [ 'idAccion' => 7, 'tabla' => $this->tablas['lista']['tabla'], 'id' => $post['idLista'] ];
+		return $update;
+	}
+
+	public function actualizarMasivoListaPremiacion($multiDataRefactorizada)
+	{
+		$input = [];
+		foreach ($multiDataRefactorizada as $value) {
+			if (!empty($value['id'])) {
+				$input[] = [
+					$this->m_tipopremiaciones->tablas['listaDet']['id'] => $value['id'],
+					'idPremiacion' =>$value['sl_encuesta'],
+	
+					
+				];
+			}
+		}
+		if (empty($input)) return true;
+		$update =  $this->actualizarMasivo($this->m_tipopremiaciones->tablas['listaDet']['tabla'], $input, $this->m_tipopremiaciones->tablas['listaDet']['id']);
+		$this->aSessTrack[] = [ 'idAccion' => 7, 'tabla' => $this->m_tipopremiaciones->tablas['listaDet']['tabla'] ];
+		return $update;
+	}
+
+	public function guardarMasivoListaPremiacion($multiDataRefactorizada, $idLista)
+	{
+		$input = [];
+		foreach ($multiDataRefactorizada as $value) {
+			if (empty($value['id'])) {
+				$input[] = [
+					'idListPremiacion' => $idLista,
+					'idPremiacion' =>$value['sl_encuesta'],
+				];
+			}
+		}
+		if (empty($input)) return true;
+		$insert = $this->db->insert_batch($this->m_tipopremiacion->tablas['listaDet']['tabla'], $input);
+
+		$this->aSessTrack[] = [ 'idAccion' => 11, 'tabla' => $this->m_tipopremiacion->tablas['listaDet']['tabla'] ];
+		return $insert;
+	}
+
 
 }

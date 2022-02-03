@@ -116,6 +116,11 @@
 										<?= getFiltros(['banner' => ['label' => 'Banner', 'name' => 'banner_filtro', 'id' => 'banner_filtro', 'data' => false, 'select2' => 'ui my_select2Full', 'html' => '']]); ?>
 									</div>
 								</div>
+
+								<div class="filtros_gc">
+									<?= getFiltros(['zonaUsuario' => ['label' => 'zonausuario', 'name' => 'zonausuario', 'id' => 'zonausuario', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]) ?>
+								</div>
+
 							</div>
 						</div>
 					</div>

@@ -60,6 +60,11 @@ class M_contingenciaRutas extends My_Model{
 		$filtros .= !empty($input['idProyecto']) ? " AND r.idProyecto=".$input['idProyecto'] : "";
 		$filtros .= !empty($input['idCanal']) ? " AND v.idCanal=".$input['idCanal'] : "";
 		$filtros .= !empty($input['idTipoUsuario']) ? " AND r.idTipoUsuario=".$input['idTipoUsuario'] : "";
+
+		$filtros .= !empty($input['departamento_filtro']) ? ' AND ub.cod_departamento='.$input['departamento_filtro'] : '';
+		$filtros .= !empty($input['provincia_filtro']) ? ' AND ub.cod_provincia='.$input['provincia_filtro'] : '';
+		$filtros .= !empty($input['distrito_filtro']) ? ' AND ub.cod_ubigeo='.$input['distrito_filtro'] : '';
+
 		// $filtros .= " AND v.horaFin is null";
 
 		if(!empty($input['estadoUsuario']) && ($input['estadoUsuario'] == 1 || $input['estadoUsuario'] == 2)){

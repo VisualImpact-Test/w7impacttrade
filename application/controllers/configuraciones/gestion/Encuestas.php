@@ -1369,6 +1369,14 @@ class Encuestas extends MY_Controller
 		$updateListas = [];
 		$insertEncuestas = [];
 		$deleteListaDetalle = [];
+
+		$listasExistentes= [];
+		$listasrs = $this->m_encuestas->getListas(['all' => 1])->result_array();
+		foreach ($listasrs as $k => $row) {
+			$listasExistentes['listas'][$row['idListEncuesta']] = 1;
+			$listasExistentes['encuestas'][$row['idListEncuesta']][$row['idEncuesta']] = 1;
+		}
+
         foreach($listas as $ix => $value){
 			if(empty($value['idLista'])) continue;
 
@@ -1407,12 +1415,8 @@ class Encuestas extends MY_Controller
 		}
 
 		$idsLista = [];
-		$detalleParaInsertar = [];$listasExistentes= [];
-		$listas = $this->m_encuestas->getListas(['all' => 1])->result_array();
-		foreach ($listas as $k => $row) {
-			$listasExistentes['listas'][$row['idListEncuesta']] = 1;
-			$listasExistentes['encuestas'][$row['idListEncuesta']][$row['idEncuesta']] = 1;
-		}
+		$detalleParaInsertar = [];
+
 		foreach ($elementos as $ix => $v) {
 
 			if(empty($v['idLista'])) continue;
@@ -1459,8 +1463,8 @@ class Encuestas extends MY_Controller
 			if(empty($post['chk-nuevo'])) {
 				$deleteListaDetalle = [] ;
 				
-				foreach ($listas as $ix => $ls) {
-					if(!empty($detalleParaInsertar['encuestas'][$ls['idListEncuesta']][$ls['idEncuesta']])){
+				foreach ($listasrs as $ix => $ls) {
+					if(!empty($detalleParaInsertar[$ls['idListEncuesta']][$ls['idEncuesta']])){
 						$fila = $detalleParaInsertar[$ls['idListEncuesta']][$ls['idEncuesta']];
 						$result['result'] = 0;
 						$result['msg']['content'] = createMessage(['type'=>2,'message'=>"La encuesta ya existe dentro de la lista. <br> Fila:".$fila. "<br> <strong>Hoja de Encuestas</strong>"]);

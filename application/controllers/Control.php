@@ -46,6 +46,10 @@ class Control extends MY_Controller{
 					$data['zona'] = $this->m_control->get_zona($input);
 				}
 
+				if( isset($input['combos']['zonaUsuario']) ){
+					$data['zonaUsuario'] = $this->m_control->get_zona($input);
+				}
+
 				if( isset($input['combos']['tipoCliente']) ){
 					$data['tipoCliente'] = $this->m_control->get_tipoCliente($input);
 				}
@@ -83,6 +87,14 @@ class Control extends MY_Controller{
 				}
 				if( isset($input['combos']['usuario']) ){
 					$data['usuario'] = $this->m_control->get_usuarios($input);
+				}
+
+				//UBIGEO
+				if( isset($input['combos']['provincia']) ){
+					$data['provincia'] = $this->m_control->get_ubigeo_provincia($input);
+				}
+				if( isset($input['combos']['distrito']) ){
+					$data['distrito'] = $this->m_control->get_ubigeo_distrito($input);
 				}
 
 				$result['data'] = $data;

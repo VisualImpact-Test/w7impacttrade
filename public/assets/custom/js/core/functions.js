@@ -1001,6 +1001,9 @@ var Fn = {
 					if ( typeof a.data.grupoCanal !== 'undefined') {
 						$('.filtros_'+a.data.grupoCanal).removeClass('d-none');
 						$('.filtros_'+a.data.grupoCanal).find('select').attr('disabled', false);
+
+						$('.filtros_ubigeo').removeClass('d-none');
+						$('.filtros_ubigeo').find('select').attr('disabled', false);
 					}
 				});
 			} else {
@@ -1017,6 +1020,9 @@ var Fn = {
 					if ( typeof a.data.grupoCanal !== 'undefined') {
 						$('.filtros_'+a.data.grupoCanal).removeClass('d-none');
 						$('.filtros_'+a.data.grupoCanal).find('select').attr('disabled', false);
+
+						$('.filtros_ubigeo').removeClass('d-none');
+						$('.filtros_ubigeo').find('select').attr('disabled', false);
 					}
 
 					
