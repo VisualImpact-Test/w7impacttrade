@@ -16,7 +16,7 @@
                 <th class="text-center">PROYECTO</th>
                 <th class="text-center" style="width: 500px !important">ENCUESTAS</th>
                 <th class="text-center">FECHA INICIO</th>
-                <th class="text-center">FECHA FECHA FIN</th>
+                <th class="text-center">FECHA FIN</th>
                 <th class="text-center">FECHA MODIFICACIÓN</th>
                 <th class="text-center">ESTADO</th>
             </tr>

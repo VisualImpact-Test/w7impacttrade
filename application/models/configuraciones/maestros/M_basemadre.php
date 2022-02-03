@@ -82,6 +82,18 @@ class M_basemadre extends My_Model{
 			$filtros .= !empty($input['idCuenta']) ? " AND cu.idCuenta=".$input['idCuenta'] : "";
 			$filtros .= !empty($input['idProyecto']) ? " AND p.idProyecto=".$input['idProyecto'] : "";
 
+			// $filtros .= !empty($input['distribuidora_filtro']) ? ' AND d.idDistribuidora='.$input['distribuidora_filtro'] : '';
+			// $filtros .= !empty($input['distribuidoraSucursal_filtro']) ? ' AND ds.idDistribuidoraSucursal='.$input['distribuidoraSucursal_filtro'] : '';
+			// $filtros .= !empty($input['zona_filtro']) ? ' AND z.idZona='.$input['zona_filtro'] : '';
+			// $filtros .= !empty($input['plaza_filtro']) ? ' AND sct.idPlaza='.$input['plaza_filtro'] : '';
+			// $filtros .= !empty($input['cadena_filtro']) ? ' AND cd.idCadena='.$input['cadena_filtro'] : '';
+			// $filtros .= !empty($input['banner_filtro']) ? ' AND b.idBanner='.$input['banner_filtro'] : '';
+
+			//Ubigeo
+			$filtros .= !empty($input['departamento_filtro']) ? ' AND ubi.cod_departamento='.$input['departamento_filtro'] : '';
+			$filtros .= !empty($input['provincia_filtro']) ? ' AND ubi.cod_provincia='.$input['provincia_filtro'] : '';
+			$filtros .= !empty($input['distrito_filtro']) ? ' AND ubi.cod_ubigeo='.$input['distrito_filtro'] : '';
+
 			if(!empty($input['clientes'])){
 				
 				$array=array(); $clientes=array(); $i=0;

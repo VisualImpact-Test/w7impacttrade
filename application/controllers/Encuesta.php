@@ -119,6 +119,10 @@ class Encuesta extends MY_Controller
 		$params['cadena_filtro'] = empty($post['cadena_filtro']) ? '' : $post['cadena_filtro'];
 		$params['banner_filtro'] = empty($post['banner_filtro']) ? '' : $post['banner_filtro'];
 
+		$params['departamento_filtro'] = empty($post['departamento_filtro']) ? "" : $post['departamento_filtro'];
+		$params['provincia_filtro'] = empty($post['provincia_filtro']) ? "" : $post['provincia_filtro'];
+		$params['distrito_filtro'] = empty($post['distrito_filtro']) ? "" : $post['distrito_filtro'];
+
 		$dataParaVista = $this->getDataEncuestas($params);
 
 		$result['result'] = 1;

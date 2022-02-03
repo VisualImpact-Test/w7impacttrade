@@ -23,6 +23,19 @@ var TipoPremiacion = {
             var indiceSeccion = $(this).attr('href').split('-')[2];
             TipoPremiacion.tabSeleccionado = TipoPremiacion.secciones[indiceSeccion];
 
+            if(indiceSeccion != 1){
+                $(".listPremiacion").addClass("d-none");
+                $(".btn-CargaMasiva").removeClass("d-none");
+                $(".btn-New").removeClass("d-none");
+
+            }
+
+            if(indiceSeccion == 1){
+                $(".listPremiacion").removeClass("d-none");
+                $(".btn-CargaMasiva").addClass("d-none");
+                $(".btn-New").addClass("d-none");
+            }
+
             TipoPremiacion.cambiarSeccionActivo();
             Gestion.idContentActivo = 'tab-content-' + indiceSeccion;
             if(typeof Gestion.$dataTable[Gestion.idContentActivo] != 'undefined') Gestion.$dataTable[Gestion.idContentActivo].columns.adjust().draw();
@@ -36,7 +49,8 @@ var TipoPremiacion = {
             Gestion.funcionRegistrarActivo = 'registrar' + TipoPremiacion.tabSeleccionado
             Gestion.funcionActualizarActivo = 'actualizar' + TipoPremiacion.tabSeleccionado
             Gestion.funcionGuardarCargaMasivaActivo = 'guardarCargaMasiva' + TipoPremiacion.tabSeleccionado
-
+            Gestion.funcionActualizarCargaMasivaActivo = 'actualizarCargaMasiva' + TipoPremiacion.tabSeleccionado
+            
             //Ajustar columnas
             setTimeout(function(){
                 if(Gestion.$dataTable[Gestion.idContentActivo]){
@@ -59,6 +73,39 @@ var TipoPremiacion = {
 
     eventos: function () {
 
+        $(document).on("click", ".btn-CargaMasivaListas", function (e) {
+			e.preventDefault();
+
+			var config = { 'url': Gestion.urlActivo + Gestion.getFormCargaMasivaActivo };
+			$.when(Fn.ajax(config)).then(function (a) {
+
+				if (a.result === 2) return false;
+
+				++modalId;
+				Gestion.idModalPrincipal = modalId;
+				var fn = 'Fn.showModal({ id:' + modalId + ',show:false });';
+				var fn1 = 'Gestion.confirmarGuardarCargaMasiva();';
+				var fn2 = 'Gestion.confirmarActualizarCargaMasiva();';
+
+				var btn = [];
+				btn[0] = { title: 'Cerrar', fn: fn };
+				btn[1] = { title: 'Actualizar', fn: fn2 };
+				btn[2] = { title: 'Guardar', fn: fn1 };
+
+				Fn.showModal({ id: modalId, show: true, class: 'modalCargaMasiva', title: a.msg.title, frm: a.data.html, btn: btn, width: a.data.width });
+				HTCustom.llenarHTObjectsFeatures(a.data.ht);
+			});
+		});
+
+        $(document).on("click", ".tabCargaMasiva", function (e) {
+            let hoja = $(".tabCargaMasiva.active").data("nrohoja");
+            
+            if(hoja == 1){
+                $(".msgCargaElementos").removeClass("d-none");
+            }else{
+                $(".msgCargaElementos").addClass("d-none");
+            }
+		});
     },
 }
 

@@ -85,6 +85,11 @@ class Rutas extends MY_Controller{
 		if(empty($data->{'chk-usuario-inactivo'}) && empty($data->{'chk-usuario-activo'}) ){
 			$input['estadoUsuario'] = 3;
 		}
+
+		$input['departamento_filtro'] = $data->{'departamento_filtro'};
+		$input['provincia_filtro'] = $data->{'provincia_filtro'};
+		$input['distrito_filtro'] = $data->{'distrito_filtro'};
+
 		$rs_visitas = $this->model->obtener_visitas($input);
 
 		$html = '';

@@ -617,8 +617,8 @@ class M_usuarios extends My_Model
 				*
 			FROM trade.zona zn
 			WHERE 1 = 1
-				/* AND zn.idCuenta = $idCuenta
-				AND zn.idProyecto = $idProyecto */
+				 AND zn.idCuenta = $idCuenta
+				AND zn.idProyecto = $idProyecto 
 			ORDER BY zn.nombre
 		";
 

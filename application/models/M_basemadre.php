@@ -116,6 +116,13 @@ class M_basemadre extends MY_Model{
 				$filtros .= !empty($input['plaza_filtro']) ? ' AND sct.idPlaza='.$input['plaza_filtro'] : '';
 				$filtros .= !empty($input['cadena_filtro']) ? ' AND cd.idCadena='.$input['cadena_filtro'] : '';
 				$filtros .= !empty($input['banner_filtro']) ? ' AND b.idBanner='.$input['banner_filtro'] : '';
+
+				//Ubigeo
+				$filtros .= !empty($input['departamento_filtro']) ? ' AND ub.cod_departamento='.$input['departamento_filtro'] : '';
+				$filtros .= !empty($input['provincia_filtro']) ? ' AND ub.cod_provincia='.$input['provincia_filtro'] : '';
+				$filtros .= !empty($input['distrito_filtro']) ? ' AND ub.cod_ubigeo='.$input['distrito_filtro'] : '';
+				
+			
 			}
 
 		if($input['idProyecto']==14){
@@ -168,7 +175,7 @@ class M_basemadre extends MY_Model{
 			LEFT JOIN trade.grupoCanal gc ON ca.idGrupoCanal = gc.idGrupoCanal
 			LEFT JOIN trade.subCanal subc ON sn.idSubCanal = subc.idSubCanal
 			LEFT JOIN trade.cliente_tipo ctp ON sn.idClienteTipo = ctp.idClienteTipo
-			LEFT JOIN General.dbo.ubigeo ub ON ub.cod_ubigeo = c.cod_ubigeo
+			LEFT JOIN General.dbo.ubigeo ub ON ub.cod_ubigeo = ch.cod_ubigeo
 			LEFT JOIN master.anychartmaps_ubigeo map ON map.cod_departamento = ub.cod_departamento 
 			LEFT JOIN trade.frecuencia fe ON fe.idFrecuencia=ch.idFrecuencia
 			{$segmentacion['join']}

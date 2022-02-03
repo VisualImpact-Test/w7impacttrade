@@ -114,6 +114,16 @@ class Basemadre extends MY_Controller{
 		$input['idCuenta']=$cuenta;
 		$input['idProyecto']= !empty($this->session->userdata('idProyecto'))? $this->session->userdata('idProyecto') :"";
 
+		$input['departamento_filtro'] = $data->{'departamento_filtro'};
+		$input['provincia_filtro'] = $data->{'provincia_filtro'};
+		$input['distrito_filtro'] = $data->{'distrito_filtro'};
+
+		$input['plaza_filtro'] = !empty($data->{'plaza_filtro'}) ?$data->{'plaza_filtro'} : '';
+		$input['distribuidora_filtro'] = !empty($data->{'distribuidora_filtro'}) ? $data->{'distribuidora_filtro'} : '';
+		$input['distribuidoraSucursal_filtro'] = !empty($data->{'distribuidoraSucursal_filtro'}) ?$data->{'distribuidoraSucursal_filtro'} : '';
+		$input['zona_filtro'] = !empty($data->{'zona_filtro'}) ?$data->{'zona_filtro'} : '';
+		$input['cadena_filtro'] = !empty($data->{'cadena_filtro'}) ?$data->{'cadena_filtro'} : '';
+		$input['banner_filtro'] = !empty($data->{'banner_filtro'}) ?$data->{'banner_filtro'} : '';
 		// 
 		$rs_basemadre_distribuidoras = $this->model->obtener_maestros_basemadre_distribuidoras($input);
 
@@ -135,7 +145,7 @@ class Basemadre extends MY_Controller{
 
 			$result['result'] = 1;
 		} else {
-			$html .= $this->htmlNoResultado;
+			$html .= getMensajeGestion("noRegistros");
 		}
 		$result['data']['html'] = $html;
 		$result['data']['datatable'] = 'tb-maestrosBasemadreDetalle';

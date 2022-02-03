@@ -398,7 +398,7 @@ class Premiacion extends MY_Controller
             ],
 			'columns' => [
 				['data' => 'idLista', 'type' => 'numeric', 'placeholder' => 'ID Lista', 'width' => 100],
-				['data' => 'elemento_lista', 'type' => 'myDropdown', 'placeholder' => 'Encuesta', 'source' => $elementos],
+				['data' => 'elemento_lista', 'type' => 'myDropdown', 'placeholder' => 'Premiación', 'source' => $elementos],
                 
 			],
 			'colWidths' => 200,
@@ -408,7 +408,7 @@ class Premiacion extends MY_Controller
 		$dataParaVista['hojas'] = [0 => $HT[0]['nombre'],1 => $HT[1]['nombre']];
 		$result['result'] = 1;
 		$result['data']['width'] = '70%';
-		$result['data']['html'] = $this->load->view("formCargaMasivaGeneral", $dataParaVista, true);
+		$result['data']['html'] = $this->load->view("modulos/Configuraciones/Gestion/premiacion/FormCargaMasivaListaPremiaciones", $dataParaVista, true);
 		$result['data']['ht'] = $HT;
 
 		$this->aSessTrack = $this->m_tipopremiacion->aSessTrack;
@@ -595,21 +595,15 @@ class Premiacion extends MY_Controller
 		//
 		$dataParaVista['lista_premiacion'] =  $this->m_tipopremiacion->getListaPremiacion($post)->result_array();
 		$post='';
-		$dataParaVista['grupoCanal'] = $this->m_tipopremiacion->getGrupoCanales()->result_array();
-		$dataParaVista['canales'] = $this->m_tipopremiacion->getCanales()->result_array();
 
 		$arr=array();
-		foreach($dataParaVista['canales'] as $row){
-			$arr[$row['idGrupoCanal']][$row['idCanal']]=$row['nombre'];
-		}
-		$dataParaVista['grupoCanal_canales']=$arr;
 
 		$dataParaVista['proyectos'] = $this->m_tipopremiacion->getProyectos($params)->result_array();
 		$class = 'modalUpdate';
 		$dataParaVista['class'] = $class;
 
 		$result['result'] = 1;
-		$result['data']['width'] = '45%';
+		$result['data']['width'] = '60%';
 		$result['data']['class'] = $class;
 		$result['data']['html'] = $this->load->view("modulos/configuraciones/gestion/premiacion/formUpdateListaPremiacion", $dataParaVista, true);
 
@@ -617,6 +611,240 @@ class Premiacion extends MY_Controller
 		
 		echo json_encode($result);
 	}
+
+    public function actualizarLista()
+	{
+		$this->db->trans_start();
+		$result = $this->result;
+		$result['msg']['title'] = 'ACTUALIZAR PREMIACIONES';
+
+		$post = json_decode($this->input->post('data'), true);
+		$idLista = $post['idLista'];
+
+		$multiDataRefactorizada = getDataRefactorizadaMulti($post);
+		$delete = true;$update = true;$insert = true;
+		
+		$elementosAValidarSimple = [
+			'fechaInicio' => ['requerido']
+		];
+		$elementosAValidarMulti = [
+			'sl_encuesta'=>['selectRequerido']
+
+		];
+		$validacionesMulti = verificarValidacionesBasicasMulti($elementosAValidarMulti, $multiDataRefactorizada);
+		$validacionesMulti = validacionesMultiToSimple($validacionesMulti);
+
+		$validaciones = verificarValidacionesBasicas($elementosAValidarSimple, $post);
+
+		
+		$result['data']['validaciones'] = $validaciones;
+		$result['data']['validacionesMulti'] = $validacionesMulti;
+		
+		
+		if (!verificarSeCumplenValidaciones($validacionesMulti) || !verificarSeCumplenValidaciones($validaciones) ) {
+			$result['result'] = 0;
+			$result['msg']['content'] = getMensajeGestion('registroConDatosInvalidos');
+			goto responder;
+		}
+		$registro = $this->m_tipopremiacion->actualizarLista($post);
+
+		
+		//BORRAR
+		if (!empty($post['elementosEliminados'])) {
+			$elementosEliminados = $post['elementosEliminados'];
+			if (!is_array($elementosEliminados)) $elementosEliminados = [$elementosEliminados];
+			$delete = $this->m_tipopremiacion->deleteMasivo($this->m_tipopremiacion->tablas['listaDet']['tabla'], $this->m_tipopremiacion->tablas['listaDet']['id'], $elementosEliminados);
+		}
+		//UPDATE
+		$update = $this->m_tipopremiacion->actualizarMasivoListaPremiacion($multiDataRefactorizada);
+		//INSERT
+		$insert = $this->m_tipopremiacion->guardarMasivoListaPremiacion($multiDataRefactorizada, $idLista);
+
+		if (!$registro) {
+			$result['result'] = 0;
+			$result['msg']['content'] = getMensajeGestion('registroErroneo');
+		}
+
+		if (empty($result['msg']['content'])) {
+			if (!$update || !$delete || !$insert) {
+				$result['result'] = 0;
+				$result['msg']['content'] = getMensajeGestion('guardadoMasivoErroneo');
+			} else {
+				$result['result'] = 1;
+				$result['msg']['content'] = getMensajeGestion('guardadoMasivoExitoso');
+			}
+		}
+
+		responder:
+		$this->db->trans_complete();
+
+		$this->aSessTrack = $this->m_tipopremiacion->aSessTrack;
+		echo json_encode($result);
+	}
+
+    public function actualizarCargaMasivaLista()
+	{
+		$this->db->trans_start();
+		$result = $this->result;
+		$result['msg']['title'] = "Carga masiva de listas";
+
+        $post = json_decode($this->input->post('data'), true);
+        
+		$elementos = $post['HT']['1'];
+		$elementosParmas['tablaHT'] = $elementos;
+		$elementosParmas['grupos'][0] = ['columnas' => ['elemento_lista'], 'columnasReales' => ['nombre'], 'tabla' => $this->m_tipopremiacion->tablas['tipoPremiacion']['tabla'], 'idTabla' => $this->m_tipopremiacion->tablas['tipoPremiacion']['id']];
+        $elementos = $this->getIdsCorrespondientes($elementosParmas);
+        
+        array_pop($elementos);
+
+		$idCuenta=$this->session->userdata('idCuenta');
+
+        $listas = $post['HT']['0'];
+		$listasParams['tablaHT'] = $listas;
+		$listasParams['grupos'][1] = ['columnas' => ['canal'], 'columnasReales' => ['nombre'], 'tabla' => 'trade.canal', 'idTabla' =>'idCanal'];
+		//$listasParams['grupos'][2] = ['columnas' => ['cliente'], 'columnasReales' => ['razonSocial'], 'tabla' => 'trade.cliente', 'idTabla' => 'idCliente'];
+		$listasParams['grupos'][2] = ['columnas' => ['tipoUsuario'], 'columnasReales' => ['nombre'], 'tabla' => 'trade.usuario_tipo', 'idTabla' =>'idTipoUsuario'];
+        $listas = $this->getIdsCorrespondientes($listasParams);
+        
+		array_pop($listas);
+
+		$idProyecto= !empty($this->session->userdata('idProyecto'))? $this->session->userdata('idProyecto') :"";
+
+		$listas_unicas = $this->m_tipopremiacion->validar_filas_unicas_HT($listas);
+
+		if(!$listas_unicas){
+			$result['result'] = 0;
+			$result['msg']['content'] = createMessage(array('type'=> 2,'message'=>'Asegúrese que todas las listas tengan un ID único'));
+			goto responder;
+		}
+
+		$insertMasivo  = true;
+		$fila = 1;
+		$updateListas = [];
+		$insertEncuestas = [];
+		$deleteListaDetalle = [];
+
+        $listasExistentes= [];
+		$listasrs = $this->m_tipopremiacion->getListas(['all' => 1])->result_array();
+		foreach ($listasrs as $k => $row) {
+			$listasExistentes['listas'][$row['idListPremiacion']] = 1;
+			$listasExistentes['premiacion'][$row['idListPremiacion']][$row['idPremiacion']] = 1;
+		}
+
+        foreach($listas as $ix => $value){
+			if(empty($value['idLista'])) continue;
+
+			$value['idProyecto']=$idProyecto;
+
+			if(empty($listasExistentes['listas'][$value['idLista']])){
+				$result['result'] = 0;
+				$result['msg']['content'] = createMessage(['type'=>2,'message'=>"El ID de Lista no existe. <br> Fila:".($ix+1). "<br> <strong>Hoja de Listas</strong>"]);
+				goto responder;
+			}
+
+            if(!empty($value['fechaFin']) && !empty($value['fechaInicio'])){
+                $fechaInicio = strtotime(str_replace('/','-',$value['fechaInicio']));
+                $fechaFin = strtotime(str_replace('/','-',$value['fechaFin']));
+
+               
+                if($fechaFin < $fechaInicio){
+                    $result['result'] = 0;
+                    $result['msg']['content'] = createMessage(array('type'=> 2,'message'=>'La fecha Fin no puede ser menor a la fecha Inicio.<br> Lista N°: '.$value['idLista']));
+                    goto responder;
+                }
+			}
+			$updateListas[$ix] = [
+				'idListPremiacion' => $value['idLista'],
+				'idProyecto' => trim($value['idProyecto']),
+			];
+			
+			!empty($value['fechaInicio']) ? $updateListas[$ix]['fecIni'] = trim($value['fechaInicio']) : '';
+			!empty($value['idCanal']) ? $updateListas[$ix]['idCanal'] = trim($value['idCanal']) : '';
+			!empty($value['fechaFin']) ? $updateListas[$ix]['fecFin'] = trim($value['fechaFin']) : '';
+			!empty($value['idCliente']) ? $updateListas[$ix]['idCliente'] = trim($value['idCliente']) : '';
+			!empty($value['idTipoUsuario']) ? $updateListas[$ix]['idTipoUsuario'] = trim($value['idTipoUsuario']) : '';
+
+		}
+
+		$idsLista = [];
+		$detalleParaInsertar = [];
+
+
+		foreach ($elementos as $ix => $v) {
+
+			if(empty($v['idLista'])) continue;
+
+			if(empty($listasExistentes['listas'][$v['idLista']])){
+				$result['result'] = 0;
+				$result['msg']['content'] = createMessage(['type'=>2,'message'=>"El ID de Lista no existe. <br> Fila:".($ix+1). "<br> <strong>Hoja de Premiaciones</strong>"]);
+				goto responder;
+			}
+			
+			$deleteListaDetalle[] = $v['idLista'];
+			$insertEncuestas[] = [
+				'idListPremiacion' => $v['idLista'],
+				'idPremiacion' => $v['idPremiacion'],
+			];
+
+			if(!empty($detalleParaInsertar[$v['idLista']][$v['idPremiacion']])){
+				$result['result'] = 0;
+				$result['msg']['content'] = createMessage(['type'=>2,'message'=>"No se pueden repetir encuestas dentro de una Lista. <br> Fila:".($ix+1). "<br> <strong>Hoja de Premiaciones</strong>"]);
+				goto responder;
+			}
+
+			$detalleParaInsertar[$v['idLista']][$v['idPremiacion']] = ($ix+1);
+
+			$idsLista [] = $v['idLista'];
+		
+		}
+
+		if(!empty($updateListas)){
+			$rs = $idLista = $this->m_tipopremiacion->actualizarLista_HT($updateListas);
+
+			if(!$rs){
+				$result['result'] = 0;
+				$result['msg']['content'] = getMensajeGestion('guardadoMasivoErroneo');
+				goto responder;
+			}
+		}
+
+		if(!empty($insertEncuestas)){
+
+			if(empty($post['chk-nuevo'])) {
+				$deleteListaDetalle = [] ;
+				
+				foreach ($listasrs as $ix => $ls) {
+					if(!empty($detalleParaInsertar[$ls['idListPremiacion']][$ls['idPremiacion']])){
+						$fila = $detalleParaInsertar[$ls['idListPremiacion']][$ls['idPremiacion']];
+						$result['result'] = 0;
+						$result['msg']['content'] = createMessage(['type'=>2,'message'=>"La premiacion ya existe dentro de la lista. <br> Fila:".$fila. "<br> <strong>Hoja de Premiaciones</strong>"]);
+						goto responder;
+					}
+				}
+			} 
+
+			$rsEncuestas = $this->m_tipopremiacion->actualizarMasivoLista($insertEncuestas,$deleteListaDetalle);
+
+			if(!$rsEncuestas){
+				$result['result'] = 0;
+				$result['msg']['content'] = getMensajeGestion('guardadoMasivoErroneo');
+				goto responder;
+			}
+		}
+
+		
+		$result['result'] = 1;
+		$result['msg']['content'] = getMensajeGestion('guardadoMasivoExitoso');
+		
+
+		responder:
+		$this->db->trans_complete();
+
+		$this->aSessTrack = $this->m_tipopremiacion->aSessTrack;
+		echo json_encode($result);
+	}
+
+    
 
 
 }

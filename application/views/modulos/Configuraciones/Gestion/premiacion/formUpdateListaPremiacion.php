@@ -15,35 +15,17 @@ $select2 = "my_select2EditarLista";
 
         <div class='col-xs-4 col-sm-4 col-md-4 col-lg-4 mb-2'>
             <label for='grupoCanal'>Grupo Canal</label><br>
-            <select id='grupoCanal_form' name='grupoCanal_form' class='form-control form-control-sm my_select2 grupoCanal'>
-                <?php if (!empty($data['idGrupoCanal'])) { ?>
-                    <option value='<?= $data['idGrupoCanal'] ?>' selected><?= $data['grupoCanal'] ?></option>
-                <?php } else { ?>
-                    <option value=''>-- Seleccione --</option>
-                <? } ?>
-                <?php foreach ($grupoCanal as $idCanal => $grupoCanal) { ?>
-                    <?php if ($data['idGrupoCanal'] != $grupoCanal['idGrupoCanal']) { ?>
-                        <option value='<?= $grupoCanal['idGrupoCanal'] ?>'><?= $grupoCanal['nombre'] ?></option>
-                    <?php } ?>
-                <?php } ?>
-            </select>
+            <div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia">
+                <?= getFiltros(['grupoCanal' => ['label' => 'Grupo Canal', 'name' => 'grupoCanal_form', 'id' => 'grupoCanal_form', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '','selected'=>$data['idGrupoCanal']]]) ?>
+            </div>
         </div>
 
         <div class='col-xs-4 col-sm-4 col-md-4 col-lg-4 mb-2'>
             <label for='canal'>Canal</label><br>
             <div class="canal_form">
-                <select id='canal_form' name='canal_form' class='form-control form-control-sm my_select2 canal_cliente'>
-                    <?php if (!empty($data['idCanal'])) { ?>
-                        <option value='<?= $data['idCanal'] ?>' selected><?= $data['canal'] ?></option>
-                    <?php } else { ?>
-                        <option value=''>-- Seleccione --</option>
-                    <? } ?>
-                    <?php foreach ($canales as $idCanal => $canal) { ?>
-                        <?php if ($data['idCanal'] != $canal['idCanal']) { ?>
-                            <option value='<?= $canal['idCanal'] ?>'><?= $canal['nombre'] ?></option>
-                        <?php } ?>
-                    <?php } ?>
-                </select>
+                <div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia">
+                    <?= getFiltros(['canal' => ['label' => 'Canal', 'name' => 'canal_form', 'id' => 'canal_form', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '','selected'=>$data['idCanal']]] ) ?>
+                </div>
             </div>
         </div>
 
@@ -115,12 +97,11 @@ $select2 = "my_select2EditarLista";
                     <tbody>
                         <tr class='trPadre d-none' data-select2="<?= $select2 ?>" data-classmodal="<?= $class ?>">
                             <td></td>
-
                             <td class="text-center" data-name='<?= $nameSelectEncuesta ?>'>
                                 <select class='form-control form-control-sm'>
                                     <option value=''>-- Seleccionar --</option>
                                     <?php foreach ($premiacion as $idPremiacion => $premiacion) { ?>
-                                        <option value='<?= $premiacion['idPremiacion'] ?>'><?= $premiacion['premiacion'] ?></option>
+                                        <option value='<?= $premiacion['idPremiacion'] ?>'><?= $premiacion['nombre'] ?></option>
                                     <?php } ?>
                                 </select>
                             </td>

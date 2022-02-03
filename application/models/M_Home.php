@@ -581,6 +581,10 @@ class M_Home extends MY_Model{
             $filtros .= " AND r.idCuenta = {$params['idCuenta']} ";
         }
 
+        if (!empty($params['zona'])) {
+            $filtros .= " AND uhz.idZona = {$params['zona']} ";
+        }
+
         if(!empty($params['grupoCanal'])){$filtros.= " AND gc.idGrupoCanal = {$params['grupoCanal']} ";}
         if(!empty($params['canal'])){$filtros.= " AND c.idCanal IN ({$params['canal']}) ";}
 
@@ -608,6 +612,8 @@ class M_Home extends MY_Model{
                 AND ch.idProyecto = r.idProyecto
             JOIN trade.canal c ON c.idCanal = v.idCanal
             JOIN trade.grupoCanal gc ON gc.idGrupoCanal = c.idGrupoCanal
+            LEFT JOIN trade.usuario_historico uh ON uh.idUsuario=r.idUsuario AND @fechaHoy BETWEEN uh.fecIni AND ISNULL(uh.fecFin,@fechaHoy)
+            LEFT JOIN trade.usuario_historicoZona uhz ON uhz.idUsuarioHist=uh.idUsuarioHist
             {$segmentacion['join']}
             WHERE r.fecha = @fechaHoy 
             AND (r.demo = 0 OR r.demo IS NULL)

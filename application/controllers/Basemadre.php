@@ -57,6 +57,10 @@ class Basemadre extends MY_Controller{
 		$input['tipoUsuario_filtro'] = !empty($data['tipoUsuario_filtro']) ? $data['tipoUsuario_filtro'] : '';
 		$input['usuario_filtro'] = !empty($data['usuario_filtro']) ? $data['usuario_filtro'] : '';
 
+		$input['departamento_filtro'] = $data['departamento_filtro'];
+		$input['provincia_filtro'] = $data['provincia_filtro'];
+		$input['distrito_filtro'] = $data['distrito_filtro'];
+
 		$idUsuario=$this->session->userdata('idUsuario');
 		$idCuenta=$this->session->userdata('idCuenta');
 

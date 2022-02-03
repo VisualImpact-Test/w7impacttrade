@@ -78,6 +78,11 @@ var Basemadre = {
 					$("#"+Basemadre.contentCanal).html(a.data.canal);
 					$("#"+Basemadre.contentRegional).html(a.data.mapa);
 					$("#"+Basemadre.contentSegmento).html(a.data.segmento);
+					if ( a['result']==1 ) {
+						var color = "#FFFFFF";
+						Basemadre.generate_map('regions-chart', a.data.regiones, color );
+					}
+
 					Fn.showLoading(false);
 				} else if (a.data.tipoFormato==2) {
 					$("#"+Basemadre.contentDetallado).html(a.data.detalle);
@@ -88,10 +93,7 @@ var Basemadre = {
 					Fn.showLoading(false);
 				}
 
-				if ( a['result']==1 ) {
-					var color = "#FFFFFF";
-					Basemadre.generate_map('regions-chart', a.data.regiones, color );
-				}
+				
 				Fn.showLoading(false);
 			});
 		});

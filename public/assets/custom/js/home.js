@@ -46,6 +46,13 @@ var Home={
 			}
 		});
 
+		$(document).on('change', '.efectividad_usuario', function(){
+
+			Home.generarGraficosEfectividadGtm();
+			
+
+		});
+
 		$(document).ready(function(){
 			$('.main-cobertura').css('align-items','center');
 			$('.main-efectividad').css('align-items','center');
@@ -268,7 +275,8 @@ var Home={
 			fecha: $('.fechaHome').val(),
 			grupoCanal: $('#grupo_filtro').val(),
 			canal: $('#canal_filtro').val(),
-			tipo: tipo
+			tipo: tipo,
+			zona:$('#zona').val(),
 		};
 		let jsonString = { 'data': JSON.stringify(data) };
 		let config = { 'url': Home.url + 'get_efectividadPorGtm', 'data': jsonString };
@@ -278,6 +286,8 @@ var Home={
 		let colorLabel = [];
 
 		$.when(Fn.ajaxNoLoad(config)).then(function (a) {
+			$('.vista-efectividadGtm').html('');
+			$('#tablaEfectividadGtm').html('');
 			if(a.data.tipo == 0){
 				$('.vista-efectividadGtm').html(a.data.html);
 				$('#tablaEfectividadGtm').DataTable(a.data.config);

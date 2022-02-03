@@ -53,6 +53,7 @@ class Asistencia extends MY_Controller{
 		$input['zona_filtro'] = !empty($data->{'zona_filtro'}) ?$data->{'zona_filtro'} : '';
 		$input['cadena_filtro'] = !empty($data->{'cadena_filtro'}) ?$data->{'cadena_filtro'} : '';
 		$input['banner_filtro'] = !empty($data->{'banner_filtro'}) ?$data->{'banner_filtro'} : '';
+		$input['zonausuario'] = !empty($data->{'zonausuario'}) ?$data->{'zonausuario'} : '';
 		/*=======*/
 		$rs_usuarios = $this->model->obtener_usuarios_asistencia($input);
 		$rs_asistencia = $this->model->obtener_asistencias($input);

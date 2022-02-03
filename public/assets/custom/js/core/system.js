@@ -167,6 +167,13 @@ var _aSelectAll = {
 			],
 		'encargado': [
 				'colaborador'
+			],
+		'departamento': [
+				'provincia',
+				'distrito',
+			],
+		'provincia': [
+				'distrito',
 			]
 
 	};
@@ -1155,9 +1162,98 @@ var View={
 				$('.filtros_gc').addClass('d-none');
 				$('.filtros_gc').find('select').attr('disabled', true);
 
+				(a.data.grupoCanal == "Tradicional") ?  a.data.grupoCanal = "HFS" : '';
+				(a.data.grupoCanal == "Mayorista") ?  a.data.grupoCanal = "WHLS" : '';
+				(a.data.grupoCanal == "Moderno") ?  a.data.grupoCanal = "HSM" : '';
+
 				if ( typeof a.data.grupoCanal !== 'undefined') {
 					$('.filtros_'+a.data.grupoCanal).removeClass('d-none');
 					$('.filtros_'+a.data.grupoCanal).find('select').attr('disabled', false);
+
+					$('.filtros_ubigeo').removeClass('d-none');
+					$('.filtros_ubigeo').find('select').attr('disabled', false);
+				}
+
+				$.each(aCombosExist, function(i_cbx, v_cbx){
+					if( typeof(a['data'][i_cbx]) == 'object' ){
+						$.each(a['data'][i_cbx], function(i, v){
+							var options = '<option value="' + v['id'] + '">' + v['nombre'] + '</option>';
+							$('.flt_' + i_cbx).append(options);
+						});
+					}
+				})
+			});
+		});
+		$(document).on('change', '.flt_departamento', function(e){
+			var control = $(this);
+			var aCombos = _aSelectAll['departamento'].slice(0);
+
+			var aCombosHead = [ 'provincia' ];
+			var aCombosExist = {};
+			$.each(aCombos, function(i,v){
+				if( $('.flt_' + v).length > 0 ){
+					$('.flt_' + v).find('option').not(':first').remove();
+					$('.flt_' + v).val('').change();
+
+					if( $.inArray(v, aCombosHead) != -1 ){
+						aCombosExist[v] = 1;
+					}
+				}
+			});
+
+			var cod_departamento = control.val();
+
+			if( cod_departamento.length == 0 ){
+				return false;
+			}
+
+			var data = { 'data': JSON.stringify({ cod_departamento , 'combos': aCombosExist }) };
+			var url = 'control/get_combos';
+
+			$.when( Fn.ajax_filtros({ 'data': data, 'url': url, 'control': control }) ).then(function(a){
+				if( a['result'] == null ){
+					return false;
+				}
+
+				$.each(aCombosExist, function(i_cbx, v_cbx){
+					if( typeof(a['data'][i_cbx]) == 'object' ){
+						$.each(a['data'][i_cbx], function(i, v){
+							var options = '<option value="' + v['id'] + '">' + v['nombre'] + '</option>';
+							$('.flt_' + i_cbx).append(options);
+						});
+					}
+				})
+			});
+		});
+		$(document).on('change', '.flt_provincia', function(e){
+			var control = $(this);
+			var aCombos = _aSelectAll['provincia'].slice(0);
+
+			var aCombosHead = [ 'distrito' ];
+			var aCombosExist = {};
+			$.each(aCombos, function(i,v){
+				if( $('.flt_' + v).length > 0 ){
+					$('.flt_' + v).find('option').not(':first').remove();
+					$('.flt_' + v).val('').change();
+
+					if( $.inArray(v, aCombosHead) != -1 ){
+						aCombosExist[v] = 1;
+					}
+				}
+			});
+			var cod_departamento = $(".flt_departamento").val();
+			var cod_provincia = control.val();
+
+			if( cod_provincia.length == 0 ){
+				return false;
+			}
+
+			var data = { 'data': JSON.stringify({ cod_provincia, cod_departamento, 'combos': aCombosExist }) };
+			var url = 'control/get_combos';
+
+			$.when( Fn.ajax_filtros({ 'data': data, 'url': url, 'control': control }) ).then(function(a){
+				if( a['result'] == null ){
+					return false;
 				}
 
 				$.each(aCombosExist, function(i_cbx, v_cbx){

@@ -44,13 +44,27 @@
                 <button type="button" class="btn btn-outline-trade-visual border-0 btn-CargaMasiva" title="Carga Masiva">
                     <i class="fal fa-lg fa-border-none"></i> <span class="txt_filtro"></span>
                 </button>
+                <button type="button" class="btn btn-outline-trade-visual border-0 btn-CargaMasivaListas listPremiacion" title="Carga Masiva">
+                    <i class="fal fa-lg fa-border-none"></i> <span class="txt_filtro"></span>
+                </button>
                 
             </div>
             <hr>
             <div class="customizer-content-filter">
                 <!-- <h5 class="mt-1 mb-1 text-bold-500"><i class="fal fa-table"></i> Filtros</h5> -->
                 <div class="form-row">
+                    
                     <div class="col-md-12">
+                        <div class="mb-2 mr-sm-2 position-relative form-group listPremiacion">
+                            <div class="field">
+                                <div class="ui my_calendar">
+                                    <div class="ui input left icon" style="width:100%">
+                                        <i class="calendar icon"></i>
+                                        <input type="text" name="txt-fechas" id="txt-fechas" placeholder="Date" value="<?= date("d/m/Y") . ' - ' . date("d/m/Y") ?>" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia">
                             <?= getFiltros(['cuenta' => ['label' => 'Cuenta', 'name' => 'cuenta_filtro', 'id' => 'cuenta_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]) ?>
                         </div>
