@@ -40,7 +40,7 @@ class M_control extends MY_Model{
 				cu.urlLogo AS logoCuenta,
 				cu.baseDatos AS sessBDCuenta,
 				py.idProyecto,
-				py.nombre AS proyecto,
+				ISNULL(py.nombreCorto,py.nombre)  proyecto,
 				ISNULL(cu.abreviacion,'CUENTA') abreviacionCuenta,
 				uh.idUsuarioHist,
 				uh.idTipoUsuario
