@@ -2983,7 +2983,8 @@ var Basemadre = {
 	ejecutarBat: function(){
 		$.ajax({
 			type: "POST",
-			url: site_url+'public/bat/bat_clientes.php',
+			// url: site_url+'public/bat/bat_clientes.php',
+			url: site_url+'control/bat_clientes',
 			success: function(data) {
 				console.log('listo');
 			}

@@ -318,6 +318,7 @@ class Home extends MY_Controller {
 		$data_cantidadGtm = $this->model->get_cantidadGtm($post);
 
 		$result['data']['cantidadGtm'] = [$data_cantidadGtm['cantidadGtm']];
+		$result['data']['tipoUsuario'] = ($this->sessIdProyecto == 19) ? "PROMOTORES": "GTM";
 
 		echo json_encode($result);
 	}
@@ -352,7 +353,7 @@ class Home extends MY_Controller {
 			$result['data']['dataEfectividad'] = $dataEfectividad;			
 		}else{
 			$new_data = [];
-
+			$i = 0;
 			foreach ($gruposCanal as $gc) {
 				$post['grupoCanal'] = $gc['id'];
 				$data_efectividadPorGtm = $this->model->get_efectividadPorGtm($post);
@@ -364,22 +365,45 @@ class Home extends MY_Controller {
 						'ippProgramados' =>0,
 						'productosProgramados' =>0,
 						'fotosProgramados' =>0,
+						'visitados' =>0,
+						'comprab2b' =>0,
+
 					];
 
 					$efectividad['efectivos'] += !empty($value['efectivos']) ? get_porcentaje($value['programados'], $value['efectivos'], 0) : '0';
 					$efectividad['ippProgramados'] += !empty($value['ippProgramados']) ? get_porcentaje($value['ippProgramados'], $value['ippEfectuados'], 0) : '0';
 					$efectividad['productosProgramados'] += !empty($value['productosProgramados']) ? get_porcentaje($value['productosProgramados'], $value['productosEfectuados'], 0) : '0';
 					$efectividad['fotosProgramados'] += !empty($value['fotosProgramados']) ? get_porcentaje($value['fotosProgramados'], $value['fotosEfectuados'], 0) : '0';
-					$new_data[] = [
+
+					$efectividad['visitados'] += !empty($value['visitados']) ? get_porcentaje($value['programados'], $value['visitados'], 0) : '0';
+					$efectividad['comprab2b'] += !empty($value['comprab2b']) ? get_porcentaje($value['programados'], $value['comprab2b'], 0) : '0';
+
+					$new_data[$i] = [
 						//Columnas
 						verificarEmpty($value['usuario'], 3),
 						verificarEmpty($value['programados'], 3),
-						$value['efectivos'],
-						$efectividad['efectivos'].'%',
-						$efectividad['ippProgramados'].'%',
-						$efectividad['productosProgramados'].'%',
-						$efectividad['fotosProgramados'].'%',
 					];
+
+					if($post['idProyecto'] == PROYECTO_PROMOTORIA_AJE){
+						array_push($new_data[$i],
+							$value['visitados'],
+							$efectividad['visitados'].'%',
+							$value['comprab2b'],
+							$efectividad['comprab2b'].'%'
+						);
+					}
+
+					if($post['idProyecto'] != PROYECTO_PROMOTORIA_AJE){
+						array_push($new_data[$i],
+							$value['efectivos'],
+							$efectividad['efectivos'].'%',
+							$efectividad['ippProgramados'].'%',
+							$efectividad['productosProgramados'].'%',
+							$efectividad['fotosProgramados'].'%'
+						);
+					}
+
+					$i++;
 
 				}
 			}
@@ -389,7 +413,6 @@ class Home extends MY_Controller {
 				[
 					0 => ["className" => 'text-left', "targets" => [0]],
 					1 => ["className" => 'text-center', "targets" => '_all'],
-					2 => ["visible"=> false,"targets" => [4,5,6] ],
 				],
 				'order' =>
 				[

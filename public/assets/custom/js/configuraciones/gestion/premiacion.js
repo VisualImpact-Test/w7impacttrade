@@ -106,6 +106,43 @@ var TipoPremiacion = {
                 $(".msgCargaElementos").addClass("d-none");
             }
 		});
+        $(document).on("change", ".my_select2EditarLista", function (e) {
+            let control = $(this);
+            
+            $.each($(".premiacionestxt"), (i,v) => {
+                
+                if($(".premiacionestxt").eq(i).data("id") == control.val()){
+                    ++modalId;
+                    var fn='Fn.showModal({ id:'+modalId+',show:false });';
+                    var btn=new Array();
+                        btn[0]={title:'Cerrar',fn:fn};
+                    var message = Fn.message({ 'type': 2, 'message': 'Ya existe la premiación dentro de la lista' });
+                    Fn.showModal({ id:modalId,title:'Alerta',content:message,btn:btn,show:true});
+                    control.val("");
+                    $(".my_select2EditarLista").select2();
+                }
+            });
+           
+
+            $.each($(".my_select2EditarLista"), (i,v) => {
+                if(control.index() == i) {
+                    return;
+                }
+                else if($(".my_select2EditarLista").eq(i).val() != "" && $(".my_select2EditarLista").eq(i).val() == control.val()){
+                    ++modalId;
+                    var fn='Fn.showModal({ id:'+modalId+',show:false });';
+                    var btn=new Array();
+                        btn[0]={title:'Cerrar',fn:fn};
+                    var message = Fn.message({ 'type': 2, 'message': 'Ya se ha seleccionado la premiación' });
+                    Fn.showModal({ id:modalId,title:'Alerta',content:message,btn:btn,show:true});
+                    control.val("");
+                    $(".my_select2EditarLista").select2();
+                }
+            });
+            
+		});
+
+
     },
 }
 

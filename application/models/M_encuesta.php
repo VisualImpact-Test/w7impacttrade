@@ -150,10 +150,11 @@ class M_encuesta extends MY_Model
 	public function list_encuesta($input)
 	{
 		$fechas = getFechasDRP($input["txt-fechas"]);
-
+		$idProyecto = $this->sessIdProyecto ;
 		$filtros = '';
 		if (!empty($input['idEncuesta'])) $filtros .= " AND e.idEncuesta IN ( " . $input['idEncuesta']. ')';
 		$filtros .= !empty($input['tipoPregunta']) ? ' AND ep.idTipoPregunta = '.$input['tipoPregunta'] : '';
+		$filtros .= !empty($idProyecto) ? ' AND le.idProyecto = '.$idProyecto : '';
 
 		$sql = "
 			DECLARE @fecIni DATE='" . $fechas[0] . "',@fecFin DATE='" . $fechas[1] . "';

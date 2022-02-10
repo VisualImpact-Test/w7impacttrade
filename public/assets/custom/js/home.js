@@ -262,7 +262,7 @@ var Home={
 				}else{
 					$(v).html(`<i class="fad fa-store fa-3x d-inline mr-2" style="color: brown;"></i><h1 class="d-inline mt-0" style="color: #dbaaaa;">${Home.carteraHoy} Tiendas</h1>
 					<hr>
-					<i class="fad fa-user-hard-hat fa-3x d-inline mr-2" style="color: brown;"></i><h1 class="mt-0 d-inline" style="color: #dbaaaa;">${dataCantidadGtm[0]} GTM</h1>`);
+					<i class="fad fa-user-hard-hat fa-3x d-inline mr-2" style="color: brown;"></i><h1 class="mt-0 d-inline" style="color: #dbaaaa;">${dataCantidadGtm[0]} ${a.data.tipoUsuario}</h1>`);
 				}
 			});
 		});

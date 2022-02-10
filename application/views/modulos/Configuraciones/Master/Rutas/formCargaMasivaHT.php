@@ -15,7 +15,7 @@
 
                 <div class="col-md-4 col-sm-4 col-xs-4">
                     <label>FECHA FIN</label>
-                    <input type="text" class="form-control input-sm fecha" id="fecha_fin" readonly name="fecha_fin" value="<?= isset($data[0]['fecFin']) ? $data[0]['fecFin'] :  ''; ?>">
+                    <input type="text" class="form-control input-sm fecha" id="fecha_fin" readonly name="fecha_fin" value="<?= isset($data[0]['fecFin']) ? $data[0]['fecFin'] :   DATE('d/m/Y'); ?>">
                 </div>
                 <div class="col-md-4 col-sm-4 col-xs-4">
                     <label>GENERACION</label><BR>

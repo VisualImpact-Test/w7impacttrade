@@ -12,7 +12,7 @@
 						</div>
 						<div class="row" >
 							<div class="col-6">
-								<strong>Efectivas</strong>
+								<strong><?=$this->sessIdProyecto == PROYECTO_PROMOTORIA_AJE ? "Visitadas": "Efectivas" ?></strong>
 							</div>
 							<div class="col-6 text-right">
 								<div class="badge badge-pill badge-success" >
@@ -63,7 +63,7 @@
 						</div>
 						<div class="row" >
 							<div class="col-6">
-								<strong>Efectivas</strong>
+								<strong><?=$this->sessIdProyecto == PROYECTO_PROMOTORIA_AJE ? "Visitadas": "Efectivas" ?></strong>
 							</div>
 							<div class="col-6 text-right">
 								<div class="badge badge-pill badge-success" >

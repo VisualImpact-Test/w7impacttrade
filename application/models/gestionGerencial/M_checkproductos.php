@@ -460,12 +460,14 @@ class M_checkproductos extends MY_Model{
         FROM 
             {$this->sessBDCuenta}.trade.data_ruta r WITH(NOLOCK)
             JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta
+			LEFT JOIN trade.canal ca ON ca.idCanal = v.idCanal
         WHERE 
             r.fecha BETWEEN @fecIni AND @fecFin
             AND r.estado = 1
             AND v.estado = 1
             AND r.idProyecto = {$idProyecto}
             AND r.demo = 0
+			AND ca.idGrupoCanal = {$params['grupoCanal']}
 			
         ), lista_cliente AS (
         SELECT
@@ -509,12 +511,14 @@ class M_checkproductos extends MY_Model{
         FROM 
             {$this->sessBDCuenta}.trade.data_ruta r WITH(NOLOCK)
             JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta
+			LEFT JOIN trade.canal ca ON ca.idCanal = v.idCanal
         WHERE 
             r.fecha BETWEEN @fecIni AND @fecFin
             AND r.estado = 1
             AND v.estado = 1
             AND r.idProyecto = {$idProyecto}
             AND r.demo = 0
+			AND ca.idGrupoCanal = {$params['grupoCanal']}
 			
         ), lista_cliente AS (
         SELECT
@@ -536,14 +540,17 @@ class M_checkproductos extends MY_Model{
 
 	public function getDataResumen($params)
 	{
+		$idProyecto = $this->sessIdProyecto;
 		$filtros = '';
+		$filtros .= !empty($idProyecto) ? " AND ck.idProyecto = {$idProyecto}": 
 		$filtros .= !empty($params['idCuenta']) ? ' AND ck.idCuenta='.$params['idCuenta'] : '';
 		$filtros .= !empty($params['proyecto_filtro']) ? ' AND ck.idProyecto='.$params['proyecto_filtro'] : '';
 		$filtros .= !empty($params['tipoResumen']) ? ' AND idTipoReporte='.$params['tipoResumen'] : '';
+		$filtros .= !empty($params['grupoCanal']) ? ' AND idGrupoCanal='.$params['grupoCanal'] : '';
 
 		$sql = "
 		DECLARE @fecIni date='".$params['fecIni']."',@fecFin date='".$params['fecIni']."';
-		SELECT
+		SELECT 
 		ck.fecha
 		,ck.idCategoria
 		,ck.categoria
@@ -555,21 +562,19 @@ class M_checkproductos extends MY_Model{
 		,ck.cadena
 		,ck.idBanner
 		,ck.banner
-		,ck.presencia
-		,ck.quiebres
-		,ck.precios
-		,ck.preciosTotal
+		,ck.idDistribuidoraSucursal
+		,ck.distribuidoraSucursal
+		,ck.idPlaza
+		,ck.plaza
 		,DENSE_RANK() OVER (PARTITION BY ck.idCategoria,ck.idMarca order BY ck.idProducto) + DENSE_RANK() OVER (PARTITION BY ck.idCategoria,ck.idMarca order BY ck.idProducto desc) - 1 cantidadProductos
 		,DENSE_RANK() OVER (PARTITION BY ck.idCategoria order BY ck.idMarca) + DENSE_RANK() OVER (PARTITION BY ck.idCategoria order BY ck.idMarca desc) - 1 cantidadMarcasCategoria
 		,DENSE_RANK() OVER (PARTITION BY ck.idCategoria order BY ck.idProducto) + DENSE_RANK() OVER (PARTITION BY ck.idCategoria order BY ck.idProducto desc) - 1 cantidadProductosCategoria
-		, ck.totalPresencia
-		, ck.totalPresenciaBanner
-		, ck.totalQuiebres
-		, ck.totalQuiebresBanner
-		, ck.totalPrecio
-		, ck.totalPrecioBanner
 		, ck.idTipoReporte
-		FROM {$this->sessBDCuenta}.resumen.checkProducto ck
+		, ck.totalPresencia
+		, ck.totalQuiebres
+		, ck.totalPresenciaSegmentacion
+		, ck.totalQuiebresSegmentacion
+		FROM {$this->sessBDCuenta}.resumen.checkProductoMultiProy ck
 		WHERE ck.fecha BETWEEN @fecIni AND @fecFin
 		{$filtros}
 		ORDER BY categoria,marca
@@ -577,12 +582,16 @@ class M_checkproductos extends MY_Model{
 
 		return $this->db->query($sql)->result_array();
 	}
+	
 	public function getDataResumenAcumulado($params)
 	{
+		$idProyecto = $this->sessIdProyecto;
 		$filtros = '';
+		$filtros .= !empty($idProyecto) ? " AND ck.idProyecto = {$idProyecto}": 
 		$filtros .= !empty($params['idCuenta']) ? ' AND ck.idCuenta='.$params['idCuenta'] : '';
 		$filtros .= !empty($params['proyecto_filtro']) ? ' AND ck.idProyecto='.$params['proyecto_filtro'] : '';
 		$filtros .= !empty($params['tipoResumen']) ? ' AND idTipoReporte='.$params['tipoResumen'] : '';
+		$filtros .= !empty($params['grupoCanal']) ? ' AND idGrupoCanal='.$params['grupoCanal'] : '';
 
 		$sql = "
 		DECLARE @fecIni date='".$params['fecIni']."',@fecFin date='".$params['fecIni']."';
@@ -598,21 +607,19 @@ class M_checkproductos extends MY_Model{
 		,ck.cadena
 		,ck.idBanner
 		,ck.banner
-		,ck.presencia
-		,ck.quiebres
-		,ck.precios
-		,ck.preciosTotal
+		,ck.idDistribuidoraSucursal
+		,ck.distribuidoraSucursal
+		,ck.idPlaza
+		,ck.plaza
 		,DENSE_RANK() OVER (PARTITION BY ck.idCategoria,ck.idMarca order BY ck.idProducto) + DENSE_RANK() OVER (PARTITION BY ck.idCategoria,ck.idMarca order BY ck.idProducto desc) - 1 cantidadProductos
 		,DENSE_RANK() OVER (PARTITION BY ck.idCategoria order BY ck.idMarca) + DENSE_RANK() OVER (PARTITION BY ck.idCategoria order BY ck.idMarca desc) - 1 cantidadMarcasCategoria
 		,DENSE_RANK() OVER (PARTITION BY ck.idCategoria order BY ck.idProducto) + DENSE_RANK() OVER (PARTITION BY ck.idCategoria order BY ck.idProducto desc) - 1 cantidadProductosCategoria
-		, ck.totalPresencia
-		, ck.totalPresenciaBanner
-		, ck.totalQuiebres
-		, ck.totalQuiebresBanner
-		, ck.totalPrecio
-		, ck.totalPrecioBanner
 		, ck.idTipoReporte
-		FROM {$this->sessBDCuenta}.resumen.checkProducto ck
+		, ck.totalPresencia
+		, ck.totalQuiebres
+		, ck.totalPresenciaSegmentacion
+		, ck.totalQuiebresSegmentacion
+		FROM {$this->sessBDCuenta}.resumen.checkProductoMultiProy ck
 		WHERE ck.fecha BETWEEN @fecIni AND @fecFin
 		{$filtros}
 		ORDER BY categoria,marca
@@ -620,20 +627,28 @@ class M_checkproductos extends MY_Model{
 
 		return $this->db->query($sql)->result_array();
 	}
-	public function getTopClientesCadena($params)
+	public function getTopClientesSeg($params)
 	{
+		$idProyecto = $this->sessIdProyecto;
 		$filtros = '';
+		$filtros .= !empty($idProyecto) ? " AND r.idProyecto = {$idProyecto}": 
 		$filtros .= !empty($params['idCuenta']) ? ' AND r.idCuenta='.$params['idCuenta'] : '';
 		$filtros .= !empty($params['proyecto_filtro']) ? ' AND r.idProyecto='.$params['proyecto_filtro'] : '';
+		$filtros .= !empty($params['grupoCanal']) ? ' AND ca.idGrupoCanal='.$params['grupoCanal'] : '';
+
+		$segmentacion = getSegmentacion(['grupoCanal_filtro' => $params['grupoCanal']]);
+		$dens_seg = '';
+		($segmentacion['tipoSegmentacion'] == "moderno") ? $dens_seg = "DENSE_RANK() OVER (PARTITION BY cad.idCadena order BY v.idCliente) + DENSE_RANK() OVER (PARTITION BY cad.idCadena order BY v.idCliente desc) - 1 clientesSeg" : '';
+		($segmentacion['tipoSegmentacion'] == "tradicional") ? $dens_seg = "DENSE_RANK() OVER (PARTITION BY ds.idDistribuidoraSucursal order BY v.idCliente) + DENSE_RANK() OVER (PARTITION BY ds.idDistribuidoraSucursal order BY v.idCliente desc) - 1 clientesSeg" : '';
+		($segmentacion['tipoSegmentacion'] == "mayorista") ? $dens_seg = "DENSE_RANK() OVER (PARTITION BY pl.idPlaza order BY v.idCliente) + DENSE_RANK() OVER (PARTITION BY pl.idPlaza order BY v.idCliente desc) - 1 clientesSeg" : '';
+		
 
 		$sql = "
 		DECLARE @fecIni date='".$params['fecIni']."',
 				@fecFin date='".$params['fecIni']."';
 		SELECT DISTINCT TOP 5
-		cad.idCadena
-		,cad.nombre cadena
-		,DENSE_RANK() OVER (PARTITION BY cad.idCadena order BY v.idCliente) + DENSE_RANK() OVER (PARTITION BY cad.idCadena order BY v.idCliente desc) - 1 clientesCadena
-		,cad.color_hex color
+		{$dens_seg}
+		{$segmentacion['columnas_bd']}
 		FROM
 		{$this->sessBDCuenta}.trade.data_ruta r 
 		JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta = r.idRuta
@@ -641,59 +656,65 @@ class M_checkproductos extends MY_Model{
 		JOIN {$this->sessBDCuenta}.trade.data_visitaProductosDet dvd ON dvd.idVisitaProductos = dv.idVisitaProductos
 		JOIN {$this->sessBDCuenta}.trade.cliente_historico ch ON ch.idCliente = v.idCliente
 			AND r.fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin,r.fecha)
-			AND ch.idProyecto = 14
-		JOIN trade.segmentacionClienteModerno segmod ON segmod.idSegClienteModerno = ch.idSegClienteModerno
-		JOIN trade.banner b ON b.idBanner = segmod.idBanner
-		JOIN trade.cadena cad ON cad.idCadena = b.idCadena
+		LEFT JOIN trade.canal ca ON ca.idCanal = v.idCanal
+		{$segmentacion['join']}
 		WHERE 
 		r.fecha BETWEEN @fecIni AND @fecFin
 		AND dvd.presencia = 1
 		{$filtros}
-		ORDER BY clientesCadena DESC
+		ORDER BY clientesSeg DESC
 		";
 
 		return $this->db->query($sql)->result_array();
 	}
-	public function getTopClientesCadenaAcumulado($params)
+	public function getTopClientesSegAcumulado($params)
 	{
+		$idProyecto = $this->sessIdProyecto;
 		$filtros = '';
+		$filtros .= !empty($idProyecto) ? " AND r.idProyecto = {$idProyecto}": 
 		$filtros .= !empty($params['idCuenta']) ? ' AND r.idCuenta='.$params['idCuenta'] : '';
 		$filtros .= !empty($params['proyecto_filtro']) ? ' AND r.idProyecto='.$params['proyecto_filtro'] : '';
-
+		$filtros .= !empty($params['grupoCanal']) ? ' AND ca.idGrupoCanal='.$params['grupoCanal'] : '';
+		$segmentacion = getSegmentacion(['grupoCanal_filtro' => $params['grupoCanal']]);
+		$dens_seg = '';
+		($segmentacion['tipoSegmentacion'] == "moderno") ? $dens_seg = "DENSE_RANK() OVER (PARTITION BY cad.idCadena order BY v.idCliente) + DENSE_RANK() OVER (PARTITION BY cad.idCadena order BY v.idCliente desc) - 1 clientesSeg" : '';
+		($segmentacion['tipoSegmentacion'] == "tradicional") ? $dens_seg = "DENSE_RANK() OVER (PARTITION BY ds.idDistribuidoraSucursal order BY v.idCliente) + DENSE_RANK() OVER (PARTITION BY ds.idDistribuidoraSucursal order BY v.idCliente desc) - 1 clientesSeg" : '';
+		($segmentacion['tipoSegmentacion'] == "mayorista") ? $dens_seg = "DENSE_RANK() OVER (PARTITION BY pl.idPlaza order BY v.idCliente) + DENSE_RANK() OVER (PARTITION BY pl.idPlaza order BY v.idCliente desc) - 1 clientesSeg" : '';
+		
+		
 		$sql = "
 		DECLARE @fecIni DATE = NULL,@fecFin date='".$params['fecIni']."';
 		SET @fecIni = DATEADD(MONTH, DATEDIFF(MONTH, 0, @fecFin), 0);
 		SELECT DISTINCT TOP 5
-		cad.idCadena
-		,cad.nombre cadena
-		,DENSE_RANK() OVER (PARTITION BY cad.idCadena order BY v.idCliente) + DENSE_RANK() OVER (PARTITION BY cad.idCadena order BY v.idCliente desc) - 1 clientesCadena
-		,cad.color_hex color
+		{$dens_seg}
+		{$segmentacion['columnas_bd']}
 		FROM
 		{$this->sessBDCuenta}.trade.data_ruta r 
 		JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta = r.idRuta
 		JOIN {$this->sessBDCuenta}.trade.data_visitaProductos dv ON dv.idVisita = v.idVisita
 		JOIN {$this->sessBDCuenta}.trade.data_visitaProductosDet dvd ON dvd.idVisitaProductos = dv.idVisitaProductos
 		JOIN {$this->sessBDCuenta}.trade.cliente_historico ch ON ch.idCliente = v.idCliente
+		LEFT JOIN trade.canal ca ON ca.idCanal = v.idCanal
 			AND r.fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin,r.fecha)
-			AND ch.idProyecto = 14
-		JOIN trade.segmentacionClienteModerno segmod ON segmod.idSegClienteModerno = ch.idSegClienteModerno
-		JOIN trade.banner b ON b.idBanner = segmod.idBanner
-		JOIN trade.cadena cad ON cad.idCadena = b.idCadena
+		{$segmentacion['join']}
 		WHERE 
 		r.fecha BETWEEN @fecIni AND @fecFin
 		AND dvd.presencia = 1
 		{$filtros}
-		ORDER BY clientesCadena DESC
+		ORDER BY clientesSeg DESC
 		";
 
 		return $this->db->query($sql)->result_array();
 	}
 	public function getTopProductosMasPresencia($params)
 	{
+		$idProyecto = $this->sessIdProyecto;
 		$filtros = '';
+		$filtros .= !empty($idProyecto) ? " AND ck.idProyecto = {$idProyecto}": 
 		$filtros .= !empty($params['idCuenta']) ? ' AND ck.idCuenta='.$params['idCuenta'] : '';
 		$filtros .= !empty($params['proyecto_filtro']) ? ' AND ck.idProyecto='.$params['proyecto_filtro'] : '';
 		$filtros .= !empty($params['tipoResumen']) ? ' AND idTipoReporte='.$params['tipoResumen'] : '';
+		$filtros .= !empty($params['grupoCanal']) ? ' AND idGrupoCanal='.$params['grupoCanal'] : '';
 
 		$sql = "
 		DECLARE @fecIni date='".$params['fecIni']."',@fecFin date='".$params['fecIni']."';
@@ -702,7 +723,7 @@ class M_checkproductos extends MY_Model{
 		,UPPER(ck.producto) producto
 		,ck.totalPresencia
 		FROM
-		{$this->sessBDCuenta}.resumen.checkProducto ck
+		{$this->sessBDCuenta}.resumen.checkProductoMultiProy ck
 		WHERE  
 		ck.fecha BETWEEN @fecIni AND @fecFin
 		{$filtros}
@@ -713,10 +734,13 @@ class M_checkproductos extends MY_Model{
 	}
 	public function getTopProductosMasPresenciaAcumulado($params)
 	{
+		$idProyecto = $this->sessIdProyecto;
 		$filtros = '';
+		$filtros .= !empty($idProyecto) ? " AND ck.idProyecto = {$idProyecto}": 
 		$filtros .= !empty($params['idCuenta']) ? ' AND ck.idCuenta='.$params['idCuenta'] : '';
 		$filtros .= !empty($params['proyecto_filtro']) ? ' AND ck.idProyecto='.$params['proyecto_filtro'] : '';
 		$filtros .= !empty($params['tipoResumen']) ? ' AND idTipoReporte='.$params['tipoResumen'] : '';
+		$filtros .= !empty($params['grupoCanal']) ? ' AND idGrupoCanal='.$params['grupoCanal'] : '';
 
 		$sql = "
 		DECLARE @fecIni date='".$params['fecIni']."',@fecFin date='".$params['fecIni']."';
@@ -725,7 +749,7 @@ class M_checkproductos extends MY_Model{
 		,UPPER(ck.producto) producto
 		,ck.totalPresencia
 		FROM
-		{$this->sessBDCuenta}.resumen.checkProducto ck
+		{$this->sessBDCuenta}.resumen.checkProductoMultiProy ck
 		WHERE  
 		ck.fecha BETWEEN @fecIni AND @fecFin
 		{$filtros}
@@ -737,10 +761,13 @@ class M_checkproductos extends MY_Model{
 
 	public function getTopProductosMenosPresencia($params)
 	{
+		$idProyecto = $this->sessIdProyecto;
 		$filtros = '';
+		$filtros .= !empty($idProyecto) ? " AND ck.idProyecto = {$idProyecto}": 
 		$filtros .= !empty($params['idCuenta']) ? ' AND ck.idCuenta='.$params['idCuenta'] : '';
 		$filtros .= !empty($params['proyecto_filtro']) ? ' AND ck.idProyecto='.$params['proyecto_filtro'] : '';
 		$filtros .= !empty($params['tipoResumen']) ? ' AND idTipoReporte='.$params['tipoResumen'] : '';
+		$filtros .= !empty($params['grupoCanal']) ? ' AND idGrupoCanal='.$params['grupoCanal'] : '';
 
 		$sql = "
 		DECLARE @fecIni date='".$params['fecIni']."',@fecFin date='".$params['fecIni']."';
@@ -749,7 +776,7 @@ class M_checkproductos extends MY_Model{
 		,UPPER(ck.producto) producto
 		,ck.totalQuiebres
 		FROM
-		{$this->sessBDCuenta}.resumen.checkProducto ck
+		{$this->sessBDCuenta}.resumen.checkProductoMultiProy ck
 		WHERE  
 		ck.fecha BETWEEN @fecIni AND @fecFin
 		{$filtros}
@@ -761,10 +788,13 @@ class M_checkproductos extends MY_Model{
 
 	public function getTopProductosMenosPresenciaAcumulado($params)
 	{
+		$idProyecto = $this->sessIdProyecto;
 		$filtros = '';
+		$filtros .= !empty($idProyecto) ? " AND ck.idProyecto = {$idProyecto}": 
 		$filtros .= !empty($params['idCuenta']) ? ' AND ck.idCuenta='.$params['idCuenta'] : '';
 		$filtros .= !empty($params['proyecto_filtro']) ? ' AND ck.idProyecto='.$params['proyecto_filtro'] : '';
 		$filtros .= !empty($params['tipoResumen']) ? ' AND idTipoReporte='.$params['tipoResumen'] : '';
+		$filtros .= !empty($params['grupoCanal']) ? ' AND idGrupoCanal='.$params['grupoCanal'] : '';
 
 		$sql = "
 		DECLARE @fecIni date='".$params['fecIni']."',@fecFin date='".$params['fecIni']."';
@@ -773,7 +803,7 @@ class M_checkproductos extends MY_Model{
 		,UPPER(ck.producto) producto
 		,ck.totalQuiebres
 		FROM
-		{$this->sessBDCuenta}.resumen.checkProducto ck
+		{$this->sessBDCuenta}.resumen.checkProductoMultiProy ck
 		WHERE  
 		ck.fecha BETWEEN @fecIni AND @fecFin
 		{$filtros}
@@ -787,11 +817,16 @@ class M_checkproductos extends MY_Model{
 	{
 		$filtros = '';
 		$filtros .= !empty($params['idProducto']) ?  " AND v.idProducto = {$params['idProducto']}" : '';
+		$filtros .= !empty($params['grupoCanal']) ?  " AND gca.idGrupoCanal = {$params['grupoCanal']}" : '';
 		$filtros .= ($params['tipo']) == 'presencia' ?  " AND v.presencia = 1" : '';
 		$filtros .= ($params['tipo']) == 'quiebre' ?  " AND v.quiebre = 1" : '';
 
-		$filtroBanner = '';
-		$filtroBanner .= !empty($params['banner']) ?  " AND ba.idBanner = {$params['banner']}" : '';
+		$segmentacion = getSegmentacion(['grupoCanal_filtro'=>$params['grupoCanal']]);
+		$filtroSeg = '';
+
+		$filtroSeg .= !empty($params['seg']) && $segmentacion['tipoSegmentacion'] == "moderno"?  " AND ba.idBanner = {$params['seg']}" : '';
+		$filtroSeg .= !empty($params['seg']) && $segmentacion['tipoSegmentacion'] == "tradicional"?  " AND ds.idDistribuidoraSucursal = {$params['seg']}" : '';
+		$filtroSeg .= !empty($params['seg']) && $segmentacion['tipoSegmentacion'] == "mayorista"?  " AND pl.idPlaza = {$params['seg']}" : '';
 		
 		$setFecIni = ($params['idTipoResumen']) == 2 ? 'SET @fecIni = DATEADD(MONTH, DATEDIFF(MONTH, 0, @fecFin), 0);' : 'SET @fecIni = @fecFin;' ;
 		$idProyecto = $this->sessIdProyecto;
@@ -822,7 +857,7 @@ class M_checkproductos extends MY_Model{
         ), lista_clientes AS (
         SELECT
 			ch.idCliente
-			, cli.codCliente
+			, ch.codCliente
 			, cli.codDist
 			, ch.razonSocial
 			, ch.direccion
@@ -848,7 +883,8 @@ class M_checkproductos extends MY_Model{
         LEFT JOIN trade.segmentacionClienteModerno scm ON ch.idSegClienteModerno = scm.idSegClienteModerno   
 		LEFT JOIN trade.banner ba ON ba.idBanner = scm.idBanner LEFT JOIN trade.cadena cad ON cad.idCadena = ba.idCadena
 		LEFT JOIN trade.segmentacionClienteTradicional scmt ON scmt.idSegClienteTradicional = ch.idSegClienteTradicional
-		LEFT JOIN trade.distribuidoraSucursal ds ON ds.idDistribuidoraSucursal = scmt.idDistribuidoraSucursal
+		LEFT JOIN trade.segmentacionClienteTradicionalDet scmtd ON scmt.idSegClienteTradicional = scmtd.idSegClienteTradicional
+		LEFT JOIN trade.distribuidoraSucursal ds ON ds.idDistribuidoraSucursal = scmtd.idDistribuidoraSucursal
 		LEFT JOIN trade.distribuidora d ON d.idDistribuidora = ds.idDistribuidora AND d.estado=1
 		LEFT JOIN General.dbo.ubigeo ubd ON ubd.cod_ubigeo = ds.cod_ubigeo
 		LEFT JOIN trade.plaza p ON p.idPlaza = scmt.idPlaza
@@ -857,7 +893,7 @@ class M_checkproductos extends MY_Model{
 		LEFT JOIN trade.zona z ON ch.idZona = z.idZona
 		LEFT JOIN trade.plaza pl ON pl.idPlaza = scmt.idPlaza
         WHERE ch.idProyecto = {$idProyecto} AND General.dbo.fn_fechaVigente(ch.fecIni, ch.fecFin, @fecIni, @fecFin) = 1
-		{$filtroBanner}
+		{$filtroSeg}
         )
         SELECT DISTINCT 
 			ch.idCliente

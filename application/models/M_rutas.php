@@ -14,7 +14,7 @@ class M_rutas extends MY_Model{
 		$sessIdTipoUsuario = $this->idTipoUsuario;
 		$sessDemo = $this->demo;
 
-		$filtros = "";
+		$filtros = "";$filtrosVisita="";
             if( !empty($sessIdCuenta) ) $filtros .= " AND r.idCuenta = ".$sessIdCuenta;
             if( !empty($sessIdProyecto) ) $filtros .= " AND r.idProyecto = ".$sessIdProyecto;
             //if( !empty($input['grupo_filtro']) ) $filtros .= " AND gc.idGrupoCanal = ".$input['grupo_filtro'];
@@ -32,10 +32,9 @@ class M_rutas extends MY_Model{
 			$filtros .= !empty($input['tienda_perfecta']) ? (($input['tienda_perfecta'] == 1) ? ' AND v.flagTiendaPerfecta=1': ' AND v.flagTiendaPerfecta=0') : '';
 			$filtros .= !empty($input['gps']) ? (($input['gps'] == 1) ? ' AND ((v.latIni IS NOT NULL AND v.lonIni IS NOT NULL ) OR (v.latFin IS NOT NULL AND v.lonFin IS NOT NULL)) ': ' AND v.latIni IS NULL AND v.lonIni IS NULL AND v.latFin IS NULL AND v.lonFin IS NULL') : '';
 
-			//Ubigeo
-			$filtros .= !empty($input['departamento_filtro']) ? ' AND ub.cod_departamento='.$input['departamento_filtro'] : '';
-			$filtros .= !empty($input['provincia_filtro']) ? ' AND ub.cod_provincia='.$input['provincia_filtro'] : '';
-			$filtros .= !empty($input['distrito_filtro']) ? ' AND ub.cod_ubigeo='.$input['distrito_filtro'] : '';
+			$filtrosVisita .= !empty($input['departamento_filtro']) ? ' AND ub.cod_departamento='.$input['departamento_filtro'] : '';
+			$filtrosVisita .= !empty($input['provincia_filtro']) ? ' AND ub.cod_provincia='.$input['provincia_filtro'] : '';
+			$filtrosVisita .= !empty($input['distrito_filtro']) ? ' AND ub.cod_ubigeo='.$input['distrito_filtro'] : '';
 
 			if(empty($input['inc_desactivado']) || empty($input['inc'])){
 				$filtros .= !empty($input['inc_desactivado']) ? ' AND (v.estadoIncidencia=0 OR v.estadoIncidencia IS NULL) '  : '';
@@ -61,179 +60,184 @@ class M_rutas extends MY_Model{
 			$cliente_historico = getClienteHistoricoCuenta();
 			$segmentacion = getSegmentacion(['grupoCanal_filtro' => $input['grupo_filtro']]);
 		
-		$sql = "
-			DECLARE
-				@fecIni DATE='{$input['fecIni']}',
-				@fecFin DATE='{$input['fecFin']}',
-				@hoy DATE = GETDATE();
+		$sql = "DECLARE
+					@fecIni DATE='{$input['fecIni']}',
+					@fecFin DATE='{$input['fecFin']}',
+					@hoy DATE = GETDATE();
 
-			WITH list_fotos_no_modulacion (idVisita, contFotos) as (
-				SELECT vf.idVisita, COUNT(vf.idVisitaFoto)
-				FROM {$this->sessBDCuenta}.trade.data_visitaFotos vf
-				JOIN trade.aplicacion_modulo m ON vf.idModulo = m.idModulo 
-				JOIN trade.aplicacion_modulo_grupo mg ON mg.idModuloGrupo=m.idModuloGrupo
-				WHERE mg.idModuloGrupo<>9
-				GROUP BY vf.idVisita
-			) 
-			, trade_data_asistencia_usuario_ruta (hora, idUsuario, fecha) as (
-				SELECT a.hora, a.idUsuario, a.fecha FROM {$this->sessBDCuenta}.trade.data_asistencia a WHERE a.idTipoAsistencia = 1
-			)
-			, list_canal AS (
-				SELECT ca.idCanal, gc.nombre, gc.idGrupoCanal 
-				FROM trade.canal ca
-				LEFT JOIN trade.grupoCanal gc ON ca.idGrupoCanal = gc.idGrupoCanal AND gc.idGrupoCanal = {$input['grupo_filtro']}
-			)
-			, list_usuarios_activos as(
-				SELECT u.idUsuario, u.numDocumento, u.apePaterno, u.apeMaterno, u.nombres FROM trade.usuario u
-				JOIN trade.usuario_historico uh ON uh.idUsuario = u.idUsuario 
-				WHERE General.dbo.fn_fechaVigente (uh.fecIni,uh.fecFin,@hoy,@hoy) = 1 AND uh.idProyecto = {$sessIdProyecto}
-			)
-			, list_visitas as(
-			SELECT 
-				CONVERT(VARCHAR(10),r.fecha,103) fecha
-				, CASE WHEN lua.idUsuario IS NULL THEN 1 ELSE 0 END cesado
-				, r.idUsuario cod_usuario
-				, em.idEmpleado cod_empleado
-				, r.nombreUsuario
-				, CONVERT(VARCHAR(8), (SELECT TOP 1 hora from trade_data_asistencia_usuario_ruta WHERE idUsuario = r.idUsuario AND fecha = r.fecha)) hora_ini_asistencia
-				, CONVERT(VARCHAR(8), v.horaIni) hora_ini
-				, CONVERT(VARCHAR(8), v.horaFin) hora_fin
-				, DATEDIFF(MINUTE,v.horaIni,v.horaFin) minutos
-				, vi.nombreIncidencia indicencia_nombre
-				, CASE 
-					WHEN (v.horaIni IS NOT NULL AND v.horaFin IS NOT NULL  AND ISNULL(estadoIncidencia,0) <> 1 ) THEN 
-					CASE 
-						WHEN r.fecha BETWEEN '01/10/2021' AND '15/10/2021' THEN 3 --Efectiva
-						ELSE 
+				WITH 
+					list_rutas as (
+						select r.*, em.idEmpleado as em_idEmpleado, e.idEncargado as e_idEncargado
+						, u_e.apePaterno + ' ' + u_e.apeMaterno + ' ' + u_e.nombres encargado 
+						from {$this->sessBDCuenta}.trade.data_ruta r
+						JOIN trade.cuenta cu ON cu.idCuenta = r.idCuenta
+						LEFT JOIN trade.encargado e ON e.idEncargado = r.idEncargado
+						LEFT JOIN trade.usuario u_e ON u_e.idUsuario = e.idUsuario
+						LEFT JOIN rrhh.dbo.empleado em ON em.numTipoDocuIdent = u_e.numDocumento
+						where r.fecha BETWEEN @fecIni AND @fecFin AND r.estado = 1 {$filtros} 
+					)
+					, list_usuarios_activos as(
+						SELECT DISTINCT
+						u.idUsuario
+						FROM
+						trade.usuario u WITH(NOLOCK)
+						JOIN trade.usuario_historico uh WITH(NOLOCK) ON uh.idUsuario = u.idUsuario
+						WHERE General.dbo.fn_fechaVigente (uh.fecIni,uh.fecFin,@hoy,@hoy) = 1 AND uh.idProyecto = {$sessIdProyecto}
+					) 
+					, list_visitas as(
+						SELECT DISTINCT
+						CONVERT(VARCHAR(10),r.fecha,103) fecha
+						, CASE WHEN EXISTS (SELECT 1 FROM list_usuarios_activos lua WHERE lua.idUsuario = r.idUsuario) THEN 0 ELSE 1 END cesado
+						, r.idUsuario cod_usuario
+						, r.em_idEmpleado cod_empleado
+						, r.nombreUsuario
+						, CONVERT(VARCHAR(8), a.hora) hora_ini_asistencia
+						, CONVERT(VARCHAR(8), v.horaIni) hora_ini
+						, CONVERT(VARCHAR(8), v.horaFin) hora_fin
+						, DATEDIFF(MINUTE,v.horaIni,v.horaFin) minutos
+						, vi.nombreIncidencia indicencia_nombre
+						, CASE 
+							WHEN (v.horaIni IS NOT NULL AND v.horaFin IS NOT NULL  AND ISNULL(v.estadoIncidencia,0) <> 1 ) THEN 
 							CASE 
-							WHEN v.numFotos >=1 THEN 3 --Efectiva
-							ELSE 1 --No efectiva
-							END
-					END 
-					WHEN (v.estadoIncidencia = 1 ) THEN 2 --INCIDENCIA
-					WHEN (v.horaIni IS NULL AND v.horaFin IS NULL AND ISNULL(v.numFotos,0) = 0  AND estadoIncidencia IS NULL ) THEN 0 -- No Visitado
-					ELSE 1 --No Efectiva
-					END condicion
-				, v.idVisita
-				, v.idCanal
-				, v.canal
-				, (SELECT lc.nombre FROM list_canal lc WHERE lc.idCanal = v.idCanal) AS grupoCanal
-				, (SELECT lc.idGrupoCanal FROM list_canal lc WHERE lc.idCanal = v.idCanal) AS idGrupoCanal
-				, LTRIM(RTRIM(ub.cod_departamento)) AS cod_departamento
-				, ub.departamento ciudad
-				, ub.cod_provincia
-				, ub.provincia
-				, ub.cod_distrito
-				, ub.distrito
-				, v.idCliente cod_visual
-				, v.razonSocial
-				, c.nombreComercial
-				, c.direccion
-				, v.encuesta
-				, v.ipp
-				, v.productos
-				, v.precios
-				, v.promociones
-				, v.sod
-				, v.sos
-				, v.seguimientoPlan
-				, v.despachos
-				, v.encartes
-				, v.numFotos fotos
-				, v.frecuencia
-				, v.qr
-				, c.flagQR
-				--
-				, CASE WHEN (v.horaIni IS NULL) THEN 1 ELSE 0 END valHora
-				, ISNULL(v.latIni,0) lati_ini
-				, ISNULL(v.lonIni,0) long_ini
-				, ISNULL(v.latFin,0) lati_fin
-				, ISNULL(v.lonFin,0) long_fin
-				, ISNULL(c.latitud,0) latitud
-				, ISNULL(c.longitud,0) longitud
-				-- , ROW_NUMBER() OVER (PARTITION BY r.idUsuario ORDER BY r.idUsuario) row
-				, ISNULL(vi.idIncidencia,0) idTipoIncidencia
-				, CASE WHEN (v.horaIni IS NOT NULL AND v.horaFin IS NOT NULL AND vi.nombreIncidencia IS NULL ) OR (v.estadoIncidencia=0) THEN 1 ELSE 0 END as PDV_EFECTIVO
-				, CASE WHEN (v.horaIni IS NULL AND v.horaFin IS NULL AND vi.nombreIncidencia IS NOT NULL) OR (v.estadoIncidencia=1) THEN 1 ELSE 0 END as PDV_NO_VISITADO
-				, CASE WHEN (v.estadoIncidencia = 0) OR(v.estadoIncidencia IS NOT NULL)  THEN 1 ELSE 0 END as PDV_INCIDENCIA
-				, CASE WHEN (v.horaIni IS NULL AND v.horaFin IS NULL) THEN 1 ELSE 0 END as PDV_SINVISITA
-				, c.codCliente
-				, vi.fotoUrl incidencia_foto
-				, e.idEncargado
-				, vi.nombreIncidencia incidencia_nombre
-				, u_e.apePaterno + ' ' + u_e.apeMaterno + ' ' + u_e.nombres encargado
-				, CONVERT(VARCHAR(8), vi.hora) incidencia_hora
-				, vi.observacion incidencia_obs
-				, r.idTipoUsuario
-				, r.tipoUsuario
-				, map.id_anychartmaps idMap
-				----
-				, v.inventario
-				, v.visibilidad
-				, 1 AS ventas
-				, v.iniciativa AS iniciativas
-				, v.inteligencia AS inteligenciaCompetitiva
-				, v.ordenes AS ordenTrabajo
-				, v.ordenAuditoria
-				, v.modulacion
-				, v.visibilidad_aud AS visibilidadAuditoria
-				, v.premio
-				, v.mantenimiento AS mantenimientoCliente
-				, v.surtido
-				, v.observacion AS observacion
-				, v.tarea
-				, v.evidenciaFotografica
-				, lfn.contFotos fotosOtrosModulos
-				, ctp.idClienteTipo
-				, ctp.nombre subCanal
-				, CASE WHEN vi.idVisitaIncidencia IS NOT NULL THEN  ROW_NUMBER() OVER (PARTITION BY vi.idVisita ORDER BY vi.idVisitaIncidencia ) END num_incidencia
-				{$segmentacion['columnas_bd']}
+								WHEN r.fecha BETWEEN '01/10/2021' AND '15/10/2021' THEN 3 --Efectiva
+								ELSE 
+									CASE 
+									WHEN v.numFotos >=1 THEN 3 --Efectiva
+									ELSE 1 --No efectiva
+									END
+							END 
+							WHEN (v.estadoIncidencia = 1 ) THEN 2 --INCIDENCIA
+							WHEN (v.horaIni IS NULL AND v.horaFin IS NULL AND ISNULL(v.numFotos,0) = 0  AND v.estadoIncidencia IS NULL ) THEN 0 -- No Visitado
+							ELSE 1 --No Efectiva
+							END condicion
+						, v.idVisita
+						, v.idCanal
+						, v.canal
+						, (SELECT gc.nombre FROM trade.grupoCanal gc WHERE gc.idGrupoCanal = {$input['grupo_filtro']}) grupoCanal
+						, {$input['grupo_filtro']} AS idGrupoCanal
+						, LTRIM(RTRIM(ub.cod_departamento)) AS cod_departamento
+						, ub.departamento ciudad
+						, ub.cod_provincia
+						, ub.provincia
+						, ub.cod_distrito
+						, ub.distrito
+						, v.idCliente cod_visual
+						, v.razonSocial
+						, v.encuesta
+						, v.ipp
+						, v.productos
+						, v.precios
+						, v.promociones
+						, v.sod
+						, v.sos
+						, v.seguimientoPlan
+						, v.despachos
+						, v.encartes
+						, v.numFotos fotos
+						, v.frecuencia
+						, v.qr
+						--
+						, CASE WHEN (v.horaIni IS NULL) THEN 1 ELSE 0 END valHora
+						, ISNULL(v.latIni,0) lati_ini
+						, ISNULL(v.lonIni,0) long_ini
+						, ISNULL(v.latFin,0) lati_fin
+						, ISNULL(v.lonFin,0) long_fin
+						-- , ROW_NUMBER() OVER (PARTITION BY r.idUsuario ORDER BY r.idUsuario) row
+						, ISNULL(vi.idIncidencia,0) idTipoIncidencia
+						, CASE WHEN (v.horaIni IS NOT NULL AND v.horaFin IS NOT NULL AND vi.nombreIncidencia IS NULL ) OR (v.estadoIncidencia=0) THEN 1 ELSE 0 END as PDV_EFECTIVO
+						, CASE WHEN (v.horaIni IS NULL AND v.horaFin IS NULL AND vi.nombreIncidencia IS NOT NULL) OR (v.estadoIncidencia=1) THEN 1 ELSE 0 END as PDV_NO_VISITADO
+						, CASE WHEN (v.estadoIncidencia = 0) OR(v.estadoIncidencia IS NOT NULL)  THEN 1 ELSE 0 END as PDV_INCIDENCIA
+						, CASE WHEN (v.horaIni IS NULL AND v.horaFin IS NULL) THEN 1 ELSE 0 END as PDV_SINVISITA
+						, vi.fotoUrl incidencia_foto
+						, r.e_idEncargado idEncargado
+						, vi.nombreIncidencia incidencia_nombre
+						, r.encargado
+						, CONVERT(VARCHAR(8), vi.hora) incidencia_hora
+						, vi.observacion incidencia_obs
+						, r.idTipoUsuario
+						, r.tipoUsuario
+						, map.id_anychartmaps idMap
+						----
+						, v.inventario
+						, v.visibilidad
+						, 1 AS ventas
+						, v.iniciativa AS iniciativas
+						, v.inteligencia AS inteligenciaCompetitiva
+						, v.ordenes AS ordenTrabajo
+						, v.ordenAuditoria
+						, v.modulacion
+						, v.visibilidad_aud AS visibilidadAuditoria
+						, v.premio
+						, v.mantenimiento AS mantenimientoCliente
+						, v.surtido
+						, v.observacion AS observacion
+						, v.tarea
+						, v.evidenciaFotografica
+						, vi.idVisitaIncidencia
 
-			FROM {$this->sessBDCuenta}.trade.data_ruta r
-			JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta 
-			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaIncidencia vi ON vi.idVisita = v.idVisita
-			LEFT JOIN list_usuarios_activos lua ON r.idUsuario = lua.idUsuario
+						FROM list_rutas r
+						JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta 
+						LEFT JOIN {$this->sessBDCuenta}.trade.data_asistencia a WITH(NOLOCK) ON a.idUsuario = r.idUsuario AND r.fecha = a.fecha AND a.idTipoAsistencia = 1
+						LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaIncidencia vi WITH(NOLOCK) ON vi.idVisita = v.idVisita
 
-			JOIN trade.cliente c ON c.idCliente = v.idCliente
-			LEFT JOIN ".getClienteHistoricoCuenta()." ch ON ch.idCliente = c.idCliente 
-			AND (
-				ch.fecIni <= ISNULL( ch.fecFin, @fecFin)
-				AND (
-					ch.fecIni BETWEEN @fecIni AND @fecFin 
-					OR
-					ISNULL( ch.fecFin, @fecFin ) BETWEEN @fecIni AND @fecFin 
-					OR
-					@fecIni BETWEEN ch.fecIni AND ISNULL( ch.fecFin, @fecFin ) 
-					OR
-					@fecFin BETWEEN ch.fecIni AND ISNULL( ch.fecFin, @fecFin )
-				)
-			) AND ch.idProyecto = {$sessIdProyecto}
+						LEFT JOIN General.dbo.ubigeo ub WITH(NOLOCK) ON v.cod_ubigeo = ub.cod_ubigeo
+						LEFT JOIN master.anychartmaps_ubigeo map WITH(NOLOCK) ON map.cod_departamento = ub.cod_departamento 
+						WHERE v.estado = 1 AND v.idTipoExclusion IS NULL
+						{$filtrosVisita}
+					)
+					, list_fotos_no_modulacion as (
+						SELECT DISTINCT 
+						lv.idVisita, 
+						COUNT(vf.idVisitaFoto) OVER (PARTITION BY lv.idVisita) as contFotos 
+						FROM list_visitas lv WITH(NOLOCK)
+						JOIN  {$this->sessBDCuenta}.trade.data_visitaFotos vf WITH(NOLOCK) ON vf.idVisita=lv.idVisita
+						JOIN trade.aplicacion_modulo m WITH(NOLOCK) ON vf.idModulo = m.idModulo
+						JOIN trade.aplicacion_modulo_grupo mg WITH(NOLOCK) ON mg.idModuloGrupo=m.idModuloGrupo
+						WHERE  mg.idModuloGrupo<>9 
+					)
+					, list_filter_by_cliente AS (
+						SELECT v.*
+							, c.nombreComercial
+							, c.direccion 
+							, c.flagQR
+							, ISNULL(c.latitud,0) latitud
+							, ISNULL(c.longitud,0) longitud
+							, c.codCliente
+							, ctp.idClienteTipo
+							, ctp.nombre subCanal
+							{$segmentacion['columnas_bd']}
+							, lfn.contFotos fotosOtrosModulos
+						FROM list_visitas as v 
+						JOIN trade.cliente c WITH(NOLOCK) ON  v.cod_visual=c.idCliente
+						LEFT JOIN ".getClienteHistoricoCuenta()." ch WITH(NOLOCK) ON ch.idCliente = c.idCliente 
+						AND (
+							ch.fecIni <= ISNULL( ch.fecFin, @fecFin)
+							AND (
+								ch.fecIni BETWEEN @fecIni AND @fecFin 
+								OR
+								ISNULL( ch.fecFin, @fecFin ) BETWEEN @fecIni AND @fecFin 
+								OR
+								@fecIni BETWEEN ch.fecIni AND ISNULL( ch.fecFin, @fecFin ) 
+								OR
+								@fecFin BETWEEN ch.fecIni AND ISNULL( ch.fecFin, @fecFin )
+							)
+						) AND ch.idProyecto = {$sessIdProyecto}
 
-			JOIN trade.cuenta cu ON cu.idCuenta = r.idCuenta
-			LEFT JOIN list_fotos_no_modulacion lfn ON lfn.idVisita=v.idVisita
+						LEFT JOIN trade.segmentacionNegocio sn WITH(NOLOCK) ON sn.idSegNegocio = ch.idSegNegocio
+						LEFT JOIN trade.cliente_tipo ctp WITH(NOLOCK) ON sn.idClienteTipo = ctp.idClienteTipo
 
-			LEFT JOIN General.dbo.ubigeo ub ON ch.cod_ubigeo = ub.cod_ubigeo
-			LEFT JOIN trade.encargado e ON e.idEncargado = r.idEncargado 
-			LEFT JOIN trade.usuario u_e ON u_e.idUsuario = e.idUsuario 
-			LEFT JOIN rrhh.dbo.empleado em ON em.numTipoDocuIdent = u_e.numDocumento 
-		
-			LEFT JOIN trade.segmentacionNegocio sn ON sn.idSegNegocio = ch.idSegNegocio 
-			LEFT JOIN trade.cliente_tipo ctp ON sn.idClienteTipo = ctp.idClienteTipo 
-			
-			{$segmentacion['join']}
-
-			LEFT JOIN master.anychartmaps_ubigeo map ON map.cod_departamento = ub.cod_departamento 
-
-			WHERE r.fecha BETWEEN @fecIni AND @fecFin AND v.estado = 1 AND r.estado = 1
-			AND v.idTipoExclusion IS NULL{$filtros} 
-		)
-		SELECT 
-		* 
-		FROM list_visitas
-		WHERE (num_incidencia = 1 OR num_incidencia IS NULL)
-		ORDER BY fecha , ciudad, canal, tipoUsuario, encargado, nombreUsuario  ASC
-
-		";
+						LEFT JOIN list_fotos_no_modulacion lfn WITH(NOLOCK) ON lfn.idVisita=v.idVisita
+						
+						{$segmentacion['join']}
+					)
+				SELECT * FROM (
+					SELECT 
+					t.* , CASE WHEN t.idVisitaIncidencia IS NOT NULL THEN  ROW_NUMBER() OVER (PARTITION BY t.idVisita ORDER BY t.idVisitaIncidencia ) END num_incidencia 
+					FROM list_filter_by_cliente t
+				) f
+				WHERE (f.num_incidencia = 1 OR f.num_incidencia IS NULL)
+				ORDER BY f.fecha , f.ciudad, f.canal, f.tipoUsuario, f.encargado, f.nombreUsuario  ASC
+			";
 		
 		return $this->db->query($sql)->result_array();
 	}
@@ -1037,11 +1041,6 @@ class M_rutas extends MY_Model{
 			JOIN trade.aplicacion_modulo_grupo mg ON mg.idModuloGrupo=m.idModuloGrupo
 			WHERE vf.idVisita={$idVisita} AND mg.idModuloGrupo<>9 
 		";
-		return $this->db->query($sql)->result_array();
-	}
-
-	public function obtener_horarios(){
-		$sql ="SELECT idHorario,CONVERT(VARCHAR,horaIni,108) horaIni,CONVERT(VARCHAR,horaFin,108) horaFin FROM ImpactTrade_pg.trade.horarios WHERE estado=1";
 		return $this->db->query($sql)->result_array();
 	}
 

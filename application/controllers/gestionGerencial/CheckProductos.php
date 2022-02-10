@@ -43,10 +43,12 @@ class CheckProductos extends MY_Controller{
 		$config['data']['motivos'] = $motivos;
 
 		$tabs = getTabPermisos(['idMenuOpcion'=>$idMenu])->result_array();
-		
+		$gruposCanal = $this->m_control->get_grupoCanal();
 		if (empty($tabs)) { 
 			$config['view'] =  'oops';
 		}else{
+			$this->sessIdCuenta == 2 ?  $config['data']['gruposCanal'] = $this->m_control->get_grupoCanal() : '';
+			
 			$config['data']['tabs'] = $tabs;
 			$config['view'] = 'modulos/gestionGerencial/checkProducto/index';
 		}
@@ -539,7 +541,15 @@ class CheckProductos extends MY_Controller{
 		$input = array();
 		$input['fecIni'] = $data->{'txt-fechas'};
 		$input['tipoResumen'] =  $data->{'tipoResumen'};
-		$array = array();
+		$input['grupoCanal'] =  $data->grupoCanal;
+		$segmentacion = getSegmentacion(['grupoCanal_filtro' => $data->grupoCanal]);
+
+		$array = array(); 
+		$seg = array();
+		($segmentacion['tipoSegmentacion'] == "moderno") ?  $seg = ['id' => "idBanner",'nombre'=>"banner"] : '';
+		($segmentacion['tipoSegmentacion'] == "mayorista") ?  $seg = ['id' => "idPlaza",'nombre'=>"plaza"] : '';
+		($segmentacion['tipoSegmentacion'] == "tradicional") ?  $seg = ['id' => "idDistribuidoraSucursal",'nombre'=>"distribuidoraSucursal"] : '';
+
 		if(	$input['tipoResumen']  == 2){
 			$array['tiendasVisitadas'] = $this->model->getTiendasVisitadasAcumulado($input); 
 			$resumen = $this->model->getDataResumenAcumulado($input);
@@ -560,8 +570,13 @@ class CheckProductos extends MY_Controller{
 			$array['productos'][$v['idProducto']]['idMarca'] = $v['idMarca'];
 			$array['productos'][$v['idProducto']]['marca'] = $v['marca'];
 			$array['productos'][$v['idProducto']]['producto'] = $v['producto'];
-			$array['productos'][$v['idProducto']]['idBanner'] = $v['idBanner'];
-			$array['productos'][$v['idProducto']]['banner'] = $v['cadena'].'-'.$v['banner'];
+			$array['productos'][$v['idProducto']][$seg['id']] = $v[$seg['id']];
+
+			if($segmentacion['tipoSegmentacion'] == "moderno"){
+				$array['productos'][$v['idProducto']][$seg['nombre']] = $v['cadena'].'-'.$v['banner'];
+			}else{
+				$array['productos'][$v['idProducto']][$seg['nombre']] = $seg['nombre'];
+			}
 			
 			$array['productos'][$v['idProducto']]['idTipoReporte'] = $v['idTipoReporte'];
 			$array['productos'][$v['idProducto']]['fecha'] = $v['fecha'];
@@ -570,11 +585,14 @@ class CheckProductos extends MY_Controller{
 			$array['productos'][$v['idProducto']]['totalQuiebres'] = $v['totalQuiebres'];
 			$array['productos'][$v['idProducto']]['totalPrecio'] = !empty($v['totalPrecio']) ? moneda($v['totalPrecio']) : '-';
 
-			$array['banners'][$v['idBanner']]['nombre'] = ($v['cadena'] == $v['banner']) ? strtoupper($v['banner']) : strtoupper($v['cadena']).'-'.strtoupper($v['banner']);
+			if($segmentacion['tipoSegmentacion'] == "moderno"){
+				$array['segs'][$v[$seg['id']]]['nombre'] = ($v['cadena'] == $v['banner']) ? strtoupper($v['banner']) : strtoupper($v['cadena']).'-'.strtoupper($v['banner']);
+			}else{
+				$array['segs'][$v[$seg['id']]]['nombre'] = strtoupper($v[$seg['nombre']]);
+			}
 
-			$array['productos'][$v['idProducto']]['precio'][$v['idBanner']] = !empty($v['totalPrecioBanner']) ? moneda($v['totalPrecioBanner']) : '-' ;
-			$array['productos'][$v['idProducto']]['presencia'][$v['idBanner']] = !empty($v['totalPresenciaBanner']) ? $v['totalPresenciaBanner'] : '-' ;
-			$array['productos'][$v['idProducto']]['quiebres'][$v['idBanner']] = !empty($v['totalQuiebresBanner']) ? $v['totalQuiebresBanner'] : '-' ;
+			$array['productos'][$v['idProducto']]['presencia'][$v[$seg['id']]] = !empty($v['totalPresenciaSegmentacion']) ? $v['totalPresenciaSegmentacion'] : '-' ;
+			$array['productos'][$v['idProducto']]['quiebres'][$v[$seg['id']]] = !empty($v['totalQuiebresSegmentacion']) ? $v['totalQuiebresSegmentacion'] : '-' ;
 
 		}
 
@@ -582,10 +600,11 @@ class CheckProductos extends MY_Controller{
 		$array['fecIni'] = $input['fecIni'];
 
 		//Result
-		$result['result'] = 1;
-		$result['msg']['title'] = 'Generar reporte fotográfico de quiebres';
-		if(!empty($array['banners'])){
+		$result['msg']['title'] = '';
+		if(!empty($array['segs'])){
 			$result['result'] = 1;
+			$array['seg'] = $seg;
+			$array['grupoCanal'] = $data->grupoCanal;
 			$html  = $this->load->view("modulos/gestionGerencial/checkProducto/detalladoResumenCheckProductosNew", $array, true);
 		}else{
 			$result['result'] = 0;
@@ -595,6 +614,7 @@ class CheckProductos extends MY_Controller{
 		$result['data']['tiendasVisitadas'] = $array['tiendasVisitadas']['tiendasVisitadas'];
 		echo json_encode($result);
 	}
+	
 	public function getCadenasPresencia(){
 		$result = $this->result;
 		$data = json_decode($this->input->post('data'));
@@ -603,25 +623,33 @@ class CheckProductos extends MY_Controller{
 		$input = array();
 		$input['fecIni'] = $data->{'txt-fechas'};
 		$input['tipoResumen'] =  $data->{'tipoResumen'};
-
+		$input['grupoCanal'] =  $data->grupoCanal;
+		
 		if(	$input['tipoResumen']  == 2){
-			$clientesCadena = $this->model->getTopClientesCadenaAcumulado($input);
+			$clientesSeg = $this->model->getTopClientesSegAcumulado($input);
 
 		} else{
-
-			$clientesCadena = $this->model->getTopClientesCadena($input);
-
+			$clientesSeg = $this->model->getTopClientesSeg($input);
 		}
+
+		$segmentacion = getSegmentacion(['grupoCanal_filtro' => $data->grupoCanal]);
+
+		$seg = array();
+		($segmentacion['tipoSegmentacion'] == "moderno") ?  $seg = ['id' => "idCadena",'nombre'=>"cadena"] : '';
+		($segmentacion['tipoSegmentacion'] == "mayorista") ?  $seg = ['id' => "idPlaza",'nombre'=>"plaza"] : '';
+		($segmentacion['tipoSegmentacion'] == "tradicional") ?  $seg = ['id' => "idDistribuidoraSucursal",'nombre'=>"distribuidoraSucursal"] : '';
+
 		$array = array();
-		foreach ($clientesCadena as $k => $v) {
-			$array['data'][$v['cadena']]['id'] = $v['idCadena'];
-			$array['data'][$v['cadena']]['value'] = $v['clientesCadena'];
-			$array['data'][$v['cadena']]['color'] = !empty($v['color'])?$v['color'] : '#070a26';
+		foreach ($clientesSeg as $k => $v) {
+			$array['data'][$v[$seg['nombre']]]['id'] = $v[$seg['id']];
+			$array['data'][$v[$seg['nombre']]]['value'] = $v['clientesSeg'];
+			$array['data'][$v[$seg['nombre']]]['color'] = !empty($v['color'])?$v['color'] : '#070a26';
 		}
 
 		//Result
 		$result['result'] = 1;
-		if(!empty($clientesCadena )){
+		$result['data']['seg'] = $segmentacion['tipoSegmentacion'];
+		if(!empty($clientesSeg )){
 			$html  = $this->load->view("modulos/gestionGerencial/checkProducto/viewTopCadenasPresencia", $array, true);
 		}else{
 			$html  = getMensajeGestion('noRegistros');
@@ -638,7 +666,8 @@ class CheckProductos extends MY_Controller{
 		$input = array();
 		$input['fecIni'] = $data->{'txt-fechas'};
 		$input['tipoResumen'] =  $data->{'tipoResumen'};
-		
+		$input['grupoCanal'] =  $data->grupoCanal;
+
 		$array = array();
 		if($input['tipoResumen'] == 2){
 			$productosMasPresencia = $this->model->getTopProductosMasPresenciaAcumulado($input);
@@ -690,8 +719,9 @@ class CheckProductos extends MY_Controller{
 		$input['idTipoResumen'] = !empty($data['idTipoResumen']) ?  $data['idTipoResumen'] : '' ;
 		$input['idProducto'] = !empty($data['idProducto']) ?  $data['idProducto'] : '' ;
 		$input['tipo'] = !empty($data['tipo']) ?  $data['tipo'] : '' ;
-		$input['banner'] = !empty($data['idBanner']) ?  $data['idBanner'] : '' ;
+		$input['seg'] = !empty($data['idSeg']) ?  $data['idSeg'] : '' ;
 		$input['fecha'] = !empty($data['fecha']) ?  $data['fecha'] : '' ;
+		$input['grupoCanal'] = !empty($data['grupoCanal']) ?  $data['grupoCanal'] : '' ;
 
 		$array['data'] = $this->model->obtener_clientes_resumen($input);
 

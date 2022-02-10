@@ -28,6 +28,11 @@ var CheckProductos = {
 				dropdownParent: $(".dv-tipoReporte-resumen"),
 				theme: "classic",
 			});
+			$('#sl-grupoCanal-resumen').select2({
+				width: '150px',
+				dropdownParent: $(".dv-grupoCanal-resumen"),
+				theme: "classic",
+			});
 
 			$('input[name="txt-fechas-resumen"]').daterangepicker({
 				locale: {
@@ -43,8 +48,7 @@ var CheckProductos = {
 				autoApply: true,
 			});
 
-			if($("#proyecto_filtro").val() == '14'){
-				
+			if($("#cuenta_filtro").val() == '2'){
 				$.when(CheckProductos.mostrarDetalladoResumen()).then(function(){
 					$.when(CheckProductos.mostrarTopCadenasPresencia()).then(function(){
 						CheckProductos.mostrarTopProductosPresencia();
@@ -194,10 +198,11 @@ var CheckProductos = {
 			var idProducto = control.data('producto');
 			var idTipoResumen = control.data('idTipoReporte');
 			var tipo = control.data('tipo');
-			var banner = control.data('banner');
+			var seg = control.data('seg');
 			var fecha = control.data('fecha');
+			var grupoCanal = control.data('grupocanal');
 			//
-			var data = { 'idTipoResumen':idTipoResumen,'tipo': tipo,'idBanner':banner,'fecha':fecha,'idProducto':idProducto};
+			var data = { 'idTipoResumen':idTipoResumen,'tipo': tipo,'idSeg':seg,'fecha':fecha,'idProducto':idProducto, grupoCanal};
 			var jsonString = { 'data': JSON.stringify(data) };
 			var configAjax = { 'url': CheckProductos.url + 'getDetalleResumen', 'data': jsonString };
 
@@ -287,6 +292,7 @@ var CheckProductos = {
 		var data = {};
 		data['txt-fechas'] = $("#txt-fechas-resumen").val();
 		data['tipoResumen'] = $("#cb-tipoReporte-resumen").val();
+		data['grupoCanal'] = $("#sl-grupoCanal-resumen").val();
 
 		data.tipoReporte = $('#cb-tipoResumen').val();
 		var jsonString = { 'data': JSON.stringify(data) };
@@ -316,10 +322,20 @@ var CheckProductos = {
 		var data = {};
 		data['txt-fechas'] = $("#txt-fechas-resumen").val();
 		data['tipoResumen'] = $("#cb-tipoReporte-resumen").val();
+		data['grupoCanal'] = $("#sl-grupoCanal-resumen").val();
+
 		var jsonString = { 'data': JSON.stringify(data) };
 		var config = { 'url': CheckProductos.url + 'getCadenasPresencia', 'data': jsonString };
 
 		$.when(Fn.ajaxNoLoad(config)).then(function(a){
+			let msg = "";
+
+			(a.data.seg == "moderno") ? msg = "CADENAS": '';
+			(a.data.seg == "tradicional") ? msg = "SUCURSALES": '';
+			(a.data.seg == "mayorista") ? msg = "PLAZAS": '';
+
+			$(".segResumenTitlePresencia").html(msg);
+			
 			$('.top-cadenas-presencia').fadeOut(500, function() {
 				if(a.result == 1) $('.top-cadenas-presencia').html(a.data.html).fadeIn(500);
 			});
@@ -337,6 +353,8 @@ var CheckProductos = {
 		var data = {};
 		data['txt-fechas'] = $("#txt-fechas-resumen").val();
 		data['tipoResumen'] = $("#cb-tipoReporte-resumen").val();
+		data['grupoCanal'] = $("#sl-grupoCanal-resumen").val();
+
 
 		var jsonString = { 'data': JSON.stringify(data) };
 		var config = { 'url': CheckProductos.url + 'getProductosPresencia', 'data': jsonString };
