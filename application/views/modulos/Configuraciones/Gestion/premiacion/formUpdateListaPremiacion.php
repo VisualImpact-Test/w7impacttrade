@@ -16,7 +16,7 @@ $select2 = "my_select2EditarLista";
         <div class='col-xs-4 col-sm-4 col-md-4 col-lg-4 mb-2'>
             <label for='grupoCanal'>Grupo Canal</label><br>
             <div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia">
-                <?= getFiltros(['grupoCanal' => ['label' => 'Grupo Canal', 'name' => 'grupoCanal_form', 'id' => 'grupoCanal_form', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '','selected'=>$data['idGrupoCanal']]]) ?>
+                <?= getFiltros(['grupoCanal' => ['label' => 'Grupo Canal', 'name' => 'grupoCanal_form', 'id' => 'grupoCanal_form', 'data' => true, 'select2' => 'ui my_select2Lista', 'html' => '', 'selected' => $data['idGrupoCanal']]]) ?>
             </div>
         </div>
 
@@ -24,7 +24,7 @@ $select2 = "my_select2EditarLista";
             <label for='canal'>Canal</label><br>
             <div class="canal_form">
                 <div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia">
-                    <?= getFiltros(['canal' => ['label' => 'Canal', 'name' => 'canal_form', 'id' => 'canal_form', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '','selected'=>$data['idCanal']]] ) ?>
+                    <?= getFiltros(['canal' => ['label' => 'Canal', 'name' => 'canal_form', 'id' => 'canal_form', 'data' => true, 'select2' => 'ui my_select2Lista', 'html' => '', 'selected' => $data['idCanal']]]) ?>
                 </div>
             </div>
         </div>
@@ -32,12 +32,11 @@ $select2 = "my_select2EditarLista";
         <div class='col-xs-4 col-sm-4 col-md-4 col-lg-4 mb-2'>
             <label for='tipoUsuario'>Tipo Usuario</label><br>
             <div class="tipoUsuario_sl_form">
-                <select id='tipoUsuario_form' name='tipoUsuario_form' class='form-control form-control-sm my_select2 tipoUsuario_cliente'>
+                <select id='tipoUsuario_form' name='tipoUsuario_form' class='form-control form-control-sm my_select2Lista tipoUsuario_cliente'>
                     <?php if (!empty($data['idTipoUsuario'])) { ?>
                         <option value='<?= $data['idTipoUsuario'] ?>' selected><?= $data['tipo'] ?></option>
-                    <?php } else { ?>
-                        <option value=''>-- Seleccione --</option>
-                    <? } ?>
+                    <?php } ?>
+                    <?= (empty($data['idTipoUsuario'])) ? "<option value=''>-- Seleccione --</option>": '' ?>
                     <? if (!empty($tipoUsuario)) { ?>
                         <?php foreach ($tipoUsuario as $id => $value) { ?>
                             <?php if ($data['idTipoUsuario'] != $value['idTipoUsuario']) { ?>
@@ -48,21 +47,23 @@ $select2 = "my_select2EditarLista";
                 </select>
             </div>
         </div>
-		
-		<div class="form-row">
-			<div class='col-xs-12 col-sm-12 col-md-12 col-lg-12 mb-2'>
-				<label for="cliente">Cliente</label>
-				<div class="cliente_sl_form">
-					<select id='cliente_form' name='cliente_form' class='form-control form-control-sm my_select2' style="width:100%;">
-						<option value=''>-- Seleccionar --</option>
-						<? foreach ($clientes as $row){ ?>
-							<? if ($data['idCliente'] != $row['idCliente']) {$selected='';}else{$selected='selected';}?>
-							 <option value='<?= $row['idCliente'] ?>' <?=$selected?> ><?= $row['razonSocial'] ?></option>
-						<? } ?>
-					</select>
-				</div>
-			</div>
-		</div>
+
+        <div class='col-xs-12 col-sm-12 col-md-12 col-lg-12 mb-2 w-100'>
+            <label for="cliente">Cliente</label>
+            <div class="cliente_sl_form">
+                <select id='cliente_form' name='cliente_form' class='form-control form-control-sm my_select2Lista' style="width:100%;">
+                    <option value=''>-- Seleccionar --</option>
+                    <? foreach ($clientes as $row) { ?>
+                        <? if ($data['idCliente'] != $row['idCliente']) {
+                            $selected = '';
+                        } else {
+                            $selected = 'selected';
+                        } ?>
+                        <option value='<?= $row['idCliente'] ?>' <?= $selected ?>><?= $row['razonSocial'] ?></option>
+                    <? } ?>
+                </select>
+            </div>
+        </div>
 
     </div>
     <div class="form-row">
@@ -117,7 +118,7 @@ $select2 = "my_select2EditarLista";
                                     <input name='id-<?= $num ?>' class="chk-ActualizarElemento" type="checkbox" value='<?= $row['idListPremiacionDet'] ?>'>
                                 </td>
                                 <td class="text-center">
-                                    <input value="<?= $row['premiacion'] ?>" type="text" class="form-control form-control-sm" placeholder="textotest" disabled readonly="readonly">
+                                    <input data-id="<?= $row['idPremiacion'] ?>" value="<?= $row['premiacion'] ?>" type="text" class="form-control form-control-sm premiacionestxt" placeholder="textotest" disabled readonly="readonly">
                                 </td>
                                 <td class="text-left">
                                     <button style="left: 45%;" class="border-0 btn btn-BorrarElemento btn-outline-secondary" title="Eliminar Elemento" disabled><i class="fa fa-trash"></i></button>
@@ -146,11 +147,8 @@ $select2 = "my_select2EditarLista";
     $('#fechaFin').on('apply.daterangepicker', function(ev, picker) {
         $.fechaLimite(picker, "#fechaFin", "#fechaInicio");
     });
-    $('.my_select2').select2({
-        dropdownParent: $("div.modal-content"),
-        width: '100%'
+    $('.my_select2Lista').select2({
+        dropdownParent: $("#formUpdate"),
+        width: '100%',
     });
-
-    Encuestas.grupoCanal_canales = <?= json_encode($grupoCanal_canales) ?>
-
 </script>

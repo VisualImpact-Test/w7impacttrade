@@ -178,8 +178,6 @@ class M_rutas extends My_Model{
 				, gc.nombre grupoCanal
 				, ca.idCanal
 				, ca.nombre canal
-				, sc.idSubCanal
-				, sc.nombre subcanal
 				, c.razonSocial
 				, ub.departamento
 			FROM
@@ -190,16 +188,13 @@ class M_rutas extends My_Model{
 					AND General.dbo.fn_fechaVigente(ch.fecIni,ch.fecFin,@fecIni,@fecFin)=1
 				JOIN trade.segmentacionNegocio sn
 					ON sn.idSegNegocio = ch.idSegNegocio
-				JOIN trade.subCanal sc
-					ON sc.idSubCanal = sn.idSubCanal
 				JOIN trade.canal ca
-					ON ca.idCanal = sc.idCanal
-					AND sc.estado = 1
-					AND sc.estado=1
+					ON ca.idCanal = sn.idCanal
+					AND ca.estado = 1
+					AND sn.estado=1
 				JOIN trade.grupoCanal gc
 					ON gc.idGrupoCanal = ca.idGrupoCanal
 					AND gc.estado=1
-					AND sc.idSubCanal NOT IN (8)
 				JOIN General.dbo.ubigeo ub
 					ON ub.cod_ubigeo=c.cod_ubigeo
 			WHERE 

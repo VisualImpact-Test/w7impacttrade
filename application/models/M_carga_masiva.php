@@ -887,8 +887,14 @@ class M_carga_masiva extends CI_Model{
 		return $this->db->query($sql)->result_array();
 	}
 
-	public function obtener_id_canal($canal){
-		$sql = "SELECT c.idCanal FROM trade.canal c WHERE c.nombre LIKE '{$canal}'";
+	public function obtener_id_canal($params = []){
+		$sql = "
+		SELECT c.idCanal FROM 
+		trade.canal c 
+		JOIN trade.cuenta_canal cc ON cc.idCanal = c.idCanal
+			AND cc.estado = 1
+			AND cc.idCuenta = {$params['idCuenta']}
+		WHERE c.nombre LIKE '{$params['canal']}'";
 
 		
 		return $this->db->query($sql)->result_array();
@@ -1016,7 +1022,7 @@ class M_carga_masiva extends CI_Model{
 				ds.idDistribuidoraSucursal
 				, d.idDistribuidora
 				, ds.cod_ubigeo
-				, d.nombre+' - '+ ubi.distrito AS distribuidoraSucursal
+				, d.nombre+' - '+ ubi.provincia AS distribuidoraSucursal
 			FROM impacttrade_bd.trade.distribuidoraSucursal ds
 			JOIN impacttrade_bd.trade.distribuidora d ON d.idDistribuidora=ds.idDistribuidora
 			LEFT JOIN General.dbo.ubigeo ubi ON ubi.cod_ubigeo=ds.cod_ubigeo

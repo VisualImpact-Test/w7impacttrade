@@ -47,6 +47,7 @@ class M_Home extends MY_Model{
             WHERE 
                 r.fecha = @fecha
                 AND r.estado = 1 AND v.estado = 1 
+                AND v.idTIpoExclusion IS NULL
         ) 
         
         SELECT TOP 20
@@ -126,6 +127,8 @@ class M_Home extends MY_Model{
             if( empty($sessDemo) ) $filtros .=  " AND (r.demo = 0 OR r.demo IS NULL)";
             else $filtros .=  " AND (r.demo = 0 OR r.idUsuario = {$this->idUsuario})";
         }
+        $validacionEfectividad = '';
+        ($this->sessIdProyecto == PROYECTO_PROMOTORIA_AJE) ? $validacionEfectividad = "v.horaIni IS NOT NULL AND v.horaFin IS NOT NULL" : $validacionEfectividad = "v.horaIni IS NOT NULL AND v.horaFin IS NOT NULL AND v.numFotos >= 1 AND ISNULL(estadoIncidencia,0) <> 1";
 
         $sql = "
         DECLARE 
@@ -137,7 +140,7 @@ class M_Home extends MY_Model{
          v.idVisita
         , CASE WHEN (r.fecha = @hoy) THEN 1 ELSE 0 END hoy
         , r.fecha
-        , CASE WHEN (v.horaIni IS NOT NULL AND v.horaFin IS NOT NULL AND v.numFotos >= 1 AND ISNULL(estadoIncidencia,0) <> 1 ) THEN
+        , CASE WHEN ({$validacionEfectividad}) THEN
                 3
             ELSE
                 CASE WHEN (v.horaIni IS NOT NULL ) THEN
@@ -163,6 +166,7 @@ class M_Home extends MY_Model{
         r.fecha BETWEEN @inicio_mes AND @hoy
         AND r.estado = 1
         AND v.estado = 1
+        AND v.idTIpoExclusion IS NULL
         {$filtros}
     ), lista_final AS (SELECT DISTINCT
         COUNT(idVisita) OVER () totalProg
@@ -230,7 +234,8 @@ class M_Home extends MY_Model{
             if( empty($sessDemo) ) $filtros .=  " AND (r.demo = 0 OR r.demo IS NULL)";
             else $filtros .=  " AND (r.demo = 0 OR r.idUsuario = {$this->idUsuario})";
         }
-
+        $validacionEfectividad = '';
+        ($this->sessIdProyecto == PROYECTO_PROMOTORIA_AJE) ? $validacionEfectividad = "v.horaIni IS NOT NULL AND v.horaFin IS NOT NULL" : $validacionEfectividad = "v.horaIni IS NOT NULL AND v.horaFin IS NOT NULL AND v.numFotos >= 1 AND ISNULL(estadoIncidencia,0) <> 1";
 
         $sql = "
         DECLARE 
@@ -243,7 +248,7 @@ class M_Home extends MY_Model{
             , v.idCliente
             , CASE WHEN (r.fecha = @hoy) THEN 1 ELSE 0 END hoy
             , r.fecha
-            , CASE WHEN (v.horaIni IS NOT NULL AND v.horaFin IS NOT NULL AND v.numFotos >= 1 AND ISNULL(estadoIncidencia,0) <> 1  ) THEN
+            , CASE WHEN ({$validacionEfectividad}) THEN
                     3
                 ELSE
                     CASE WHEN (v.horaIni IS NOT NULL ) THEN
@@ -269,6 +274,7 @@ class M_Home extends MY_Model{
             r.fecha BETWEEN @inicio_mes AND @hoy
             AND r.estado = 1
             AND v.estado = 1
+            AND v.idTIpoExclusion IS NULL
            
             $filtros
         ), lista_cliente AS (
@@ -331,6 +337,7 @@ class M_Home extends MY_Model{
 					AND v.horaIni IS NOT NULL
                     AND r.estado = 1
                     AND v.estado = 1
+                    AND v.idTIpoExclusion IS NULL
 		),lista_visita_final AS (
 			SELECT DISTINCT
 				r.fecha
@@ -349,6 +356,7 @@ class M_Home extends MY_Model{
                 AND v.horaFin IS NOT NULL
                 AND r.estado = 1
                 AND v.estado = 1
+                AND v.idTIpoExclusion IS NULL
 				
 		),lista_horario AS (
 			SELECT 
@@ -519,8 +527,10 @@ class M_Home extends MY_Model{
         }
         if(!empty($params['grupoCanal'])){$filtros.= " AND gc.idGrupoCanal = {$params['grupoCanal']} ";}
         if(!empty($params['canal'])){$filtros.= " AND ca.idCanal = {$params['canal']} ";}
-
-		$sql = "
+        
+        $tiposUsuario = "1,18";
+		if($this->sessIdProyecto == 19) $tiposUsuario = 15;
+        $sql = "
         DECLARE @fecha DATE = '{$params['fecha']}';
         SELECT
         COUNT(u.idUsuario) AS cantidadGtm
@@ -532,7 +542,9 @@ class M_Home extends MY_Model{
         LEFT JOIN trade.grupoCanal gc ON gc.idGrupoCanal = ca.idGrupoCanal
         LEFT JOIN trade.proyecto py ON py.idProyecto = uh.idProyecto
         LEFT JOIN trade.cuenta cu ON cu.idCuenta = py.idCuenta
-        WHERE uh.idTipoUsuario IN(1,18) AND u.demo = 0 AND u.estado = 1 AND uh.idAplicacion IN (1, 4, 8)
+        WHERE 
+        uh.idTipoUsuario IN({$tiposUsuario})
+        AND u.demo = 0 AND u.estado = 1 AND uh.idAplicacion IN (1, 4, 8)
         {$filtros}
         ";
 
@@ -588,6 +600,9 @@ class M_Home extends MY_Model{
         if(!empty($params['grupoCanal'])){$filtros.= " AND gc.idGrupoCanal = {$params['grupoCanal']} ";}
         if(!empty($params['canal'])){$filtros.= " AND c.idCanal IN ({$params['canal']}) ";}
 
+        $tiposUsuario = "1,18";
+		if($this->sessIdProyecto == 19) $tiposUsuario = 15;
+
         $sql = "
         DECLARE @fechaHoy DATE = '{$params['fecha']}';
         WITH lista_rutas AS (
@@ -619,8 +634,9 @@ class M_Home extends MY_Model{
             AND (r.demo = 0 OR r.demo IS NULL)
             AND r.estado = 1
             AND v.estado = 1
+            AND v.idTIpoExclusion IS NULL
             {$filtros}
-            AND r.idTipoUsuario IN(1,18)
+            AND r.idTipoUsuario IN({$tiposUsuario})
         ), lista_programados AS (
             SELECT
                 lr.idUsuario
@@ -648,16 +664,37 @@ class M_Home extends MY_Model{
                 , COUNT(lr.moduloFotos) AS fotosEfectuados
             FROM lista_rutas lr
             GROUP BY lr.idUsuario
+        ), lista_visitados AS (
+            SELECT
+                lr.idUsuario
+                , COUNT(lr.idVisita) AS visitados
+            FROM lista_rutas lr
+            WHERE 
+            horaIni IS NOT NULL 
+            AND horaFin IS NOT NULL 
+            GROUP BY lr.idUsuario
+        ), lista_encuestas_promotoria AS (
+            SELECT
+                lr.idUsuario
+               , COUNT(lr.idVisita) AS encuestaB2B
+            FROM lista_rutas lr
+            JOIN {$this->sessBDCuenta}.trade.data_visitaEncuesta ve ON ve.idVisita=lr.idVisita AND idEncuesta=56
+            JOIN {$this->sessBDCuenta}.trade.data_visitaEncuestaDet ved ON ved.idVisitaEncuesta=ve.idVisitaEncuesta AND idAlternativa=3149
+            GROUP BY lr.idUsuario
         )
         SELECT
             lp.idUsuario
             , u.nombres+' '+u.apePaterno+' '+u.apeMaterno AS usuario
             , lp.programados
             , ISNULL(le.efectivos, 0) AS efectivos
+            , ISNULL(lv.visitados, 0) AS visitados
+            , ISNULL(lep.encuestaB2B, 0) AS comprab2b
             , lm.*
         FROM lista_programados lp
         LEFT JOIN lista_efectivos le ON lp.idUsuario = le.idUsuario
         LEFT JOIN lista_modulos lm ON lp.idUsuario = lm.idUsuario
+        LEFT JOIN lista_visitados lv ON lv.idUsuario = lp.idUsuario
+        lEFT JOIN lista_encuestas_promotoria lep ON lep.idUsuario = lp.idUsuario
         JOIN trade.usuario u ON lp.idUSuario = u.idUsuario
         ORDER BY efectivos ASC, programados DESC
         ";

@@ -1209,7 +1209,7 @@ class Carga_masiva extends CI_Controller
 										
 										/************SEGMETACIÓN NEGOCIO*********************/
 										if ( !empty($canal) ) {
-											$rs_idCanal = $this->model->obtener_id_canal($canal);
+											$rs_idCanal = $this->model->obtener_id_canal(['canal'=>$canal,'idCuenta' => $row['idCuenta']]);
 											//$rs_idSubCanal = $this->model->obtener_id_subCanal($subCanal);
 											$rs_idClienteTipo = $this->model->obtener_id_clienteTipo($clienteTipo);
 						

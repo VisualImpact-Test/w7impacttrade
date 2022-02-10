@@ -2071,6 +2071,14 @@ var Visitas = {
 			}
 		}
 
+		let clientes = [];
+
+		$.each(arrayDataRutasVisitas, function( index, value ){
+			clientes.push(value[0]+value[2]);
+		});
+
+		let clientesDuplicados = Fn.hasDuplicates(clientes);
+
 		if ( arrayDataRutasVisitas.length==0) {
 			++modalId;
 			var fn='Fn.showModal({ id:'+modalId+',show:false });';
@@ -2085,6 +2093,14 @@ var Visitas = {
 			var btn=new Array();
 				btn[0]={title:'Cerrar',fn:fn};
 			var message = Fn.message({ 'type': 2, 'message': 'Se encontró datos obligatorios que no fueron ingresados, verificar los datos remarcados en rojo' });
+			Fn.showModal({ id:modalId,title:'Alerta',content:message,btn:btn,show:true});
+			return false;
+		} else if ( clientesDuplicados==true) {
+			++modalId;
+			var fn='Fn.showModal({ id:'+modalId+',show:false });';
+			var btn=new Array();
+				btn[0]={title:'Cerrar',fn:fn};
+			var message = Fn.message({ 'type': 2, 'message': 'Se encontraron clientes duplicados en una misma fecha, verificar los datos' });
 			Fn.showModal({ id:modalId,title:'Alerta',content:message,btn:btn,show:true});
 			return false;
 		} else {

@@ -195,10 +195,10 @@
 	</div>
 </div>
 
-<? if ($this->sessIdProyecto == "14") : ?>
+<? if ($this->sessIdCuenta == "2") : ?>
 	<div class="customizer customizerGraphics border-left-blue-grey border-left-lighten-4 d-none d-xl-block ">
-		<a href="javascript:;" class="customizer-close"><i class="fal fa-times"></i></a>
-		<a href="javascript:;" class="customizer-toggle box-shadow-3 bg-trade-visual-grad-left-gray text-white" style="top:150px;">
+		<a href="javascript:;" class="customizer-close "><i class="fal fa-times"></i></a>
+		<a href="javascript:;" class="customizer-toggle box-shadow-3 bg-trade-visual-grad-left-gray text-white btnResumenChekProd" style="top:150px;">
 			<i class="fal fa-analytics fa-lg "></i>
 		</a>
 		<div class="customizer-content p-2 ps-container ps-theme-dark" data-ps-id="aca1f25c-4ed9-a04b-d154-95a5d6494748" style="zoom: 65%;">
@@ -213,6 +213,11 @@
 							</div>
 						</div>
 					</div>
+				</div>
+				<div class="mb-2 mr-sm-2 position-relative form-group  dv-grupoCanal-resumen">
+					<select name="sl-grupoCanal-resumen" id="sl-grupoCanal-resumen" class="w-100">
+						<?=htmlSelectOptionArray2(['query'=>$gruposCanal,'id'=>'id','value'=>'nombre'])?>
+					</select>
 				</div>
 				<div class="mb-2 mr-sm-2 position-relative form-group  dv-tipoReporte-resumen">
 					<select name="cb-tipoReporte-resumen" id="cb-tipoReporte-resumen" class="w-100">
@@ -291,7 +296,7 @@
 					<div class="main-card mb-3 card main-efectividad col-md-12 px-0">
 						<div class="card-header bg-trade-visual-grad-left text-white" style="width: 100%;height:30px !important">
 							<h5 class="card-title">
-								<i class="fas fa-tasks fa-lg"></i> TOP 5 CADENAS CON PRESENCIA<sup><?= $this->sessNomCuentaCorto ?></sup>
+								<i class="fas fa-tasks fa-lg"></i> TOP 5 <span class="segResumenTitlePresencia">CADENAS</span> CON PRESENCIA<sup><?= $this->sessNomCuentaCorto ?></sup>
 							</h5>
 						</div>
 						<div class="card-body centrarContenidoDiv top-cadenas-presencia" style="width: 100%;">

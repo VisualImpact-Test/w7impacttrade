@@ -4,12 +4,20 @@
 			<tr>
 				<th class="text-center noVis" style="width:30%">USUARIO</th>
 				<th class="text-center" style="width:15%">PROGRAMADOS</th>
-				<th class="text-center" style="width:15%">EFECTIVO</th>
-				<th class="text-center noVis" style="width:15%">EFECTIVIDAD</th>
+				<th class="text-center" style="width:15%"><?=$this->sessIdProyecto == PROYECTO_PROMOTORIA_AJE ? "VISITADO" : "EFECTIVO" ?></th>
+				<th class="text-center noVis" style="width:15%"><?=$this->sessIdProyecto == PROYECTO_PROMOTORIA_AJE ? "% VISITA" : "EFECTIVIDAD" ?></th>
 
-				<th class="text-center">IPP</th>
-				<th class="text-center">CHECKLIST</th>
-				<th class="text-center">FOTOS</th>
+				<?if($this->sessIdProyecto == PROYECTO_PROMOTORIA_AJE){?>
+					<th class="text-center" style="width:15%">COMPRA B2B</th>
+					<th class="text-center" style="width:15%">% EFECTIVIDAD B2B</th>
+				<?}?>
+					
+				<?if($this->sessIdProyecto != PROYECTO_PROMOTORIA_AJE){?>
+					<th class="text-center hideCol">IPP</th>
+					<th class="text-center hideCol">CHECKLIST</th>
+					<th class="text-center hideCol">FOTOS</th>
+				<?}?>
+
 			</tr>
 		</thead>
 		<tbody>

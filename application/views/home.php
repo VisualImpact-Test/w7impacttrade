@@ -90,7 +90,7 @@ if (empty($idCuenta) || $idCuenta != 2) {
 		<div class="main-card mb-3 card main-efectividad col-md-12 px-0" style="height: 250px;">
 			<div class="card-header bg-trade-visual-grad-left text-white" style="width: 100%;">
 				<h5 class="card-title">
-					<i class="fas fa-tasks fa-lg"></i> EFECTIVIDAD<sup>Visitas</sup>
+					<i class="fas fa-tasks fa-lg"></i> EFECTIVIDAD <sup>Visitas</sup>
 				</h5>
 			</div>
 			<div class="card-body centrarContenidoDiv vista-efectividad" style="width: 100%;height:250px;">
@@ -132,10 +132,15 @@ if (empty($idCuenta) || $idCuenta != 2) {
 	<? } ?>
 	<div class="col-lg-8 col-md-8  <?= ($cantidadGtm == 0 || empty($idCuenta) || $idCuenta != 2) ? 'd-none' : 'd-flex' ?> ">
 		<div class="main-card mb-3 card main-pdv col-md-12 px-0">
-			<div class="card-header bg-trade-visual-grad-left text-white aFechaHome" style="width: 100%;">
-				<h5 class="card-title" style="margin:0; vertical-align:middle;">
-					<i class="fas fa-store fa-lg"></i> EFECTIVIDAD POR GTM
-				</h5>
+			<div class="card-header bg-trade-visual-grad-left text-white" style="width: 100%;">
+				<div class="col-md-9">
+					<h5 class="card-title" style="margin:0; vertical-align:middle;">
+						<i class="fas fa-store fa-lg"></i> EFECTIVIDAD  <sup><?=$this->sessIdProyecto == 19 ? "PROMOTOR" : "GTM"  ?></sup>
+					</h5>
+				</div>
+				<div class="col-md-3">
+					<?= getFiltros(['zonaUsuario' => ['label' => 'zona', 'name' => 'zona', 'id' => 'zona', 'data' => true, 'select2' => 'control-w-sm  text-left efectividad_usuario', 'html' => '']]) ?>
+				</div>
 				<div role="group" class="btn-group btn-group-toggle fechaHome" style="margin-left: auto; margin-right: 0; display: none;" data-toggle="buttons">
 					<label class="btn btn-outline-trade-visual border-0">
 						<input type="radio" name="tipoEfectividadGtm" value="1">
@@ -146,10 +151,9 @@ if (empty($idCuenta) || $idCuenta != 2) {
 						Detallado
 					</label>
 				</div>
-				<div class="zonaHome" style="text-align: left;margin-left: 60%;">
-					<?= getFiltros(['zonaUsuario' => ['label' => 'zona', 'name' => 'zona', 'id' => 'zona', 'data' => true, 'select2' => 'control-w-sm  text-left efectividad_usuario', 'html' => '']]) ?>
-				</div>
+			
 			</div>
+			
 			<div class="card-body centrarContenidoDiv vista-efectividadGtm" style="width: 100%;">
 				<i class="fas fa-spinner-third fa-spin icon-load"></i>
 			</div>

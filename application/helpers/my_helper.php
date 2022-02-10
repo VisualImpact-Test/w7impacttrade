@@ -1457,13 +1457,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 					
 
 					//Columnas para la consulta a base de datos
-					$columnas_bd  .= '
+					$columnas_bd  .= "
 						, d.nombre AS distribuidora
 						, ubi1.provincia AS ciudadDistribuidoraSuc
 						, ubi1.cod_ubigeo AS codUbigeoDisitrito
 						, ds.idDistribuidoraSucursal
 						, z.nombre AS zona
-						';
+						, ISNULL(d.nombre, '') + ' - '+ ISNULL(ubi1.provincia,'') distribuidoraSucursal
+						";
 					// JOINS para la consulta a base de datos
 					$join .= " LEFT JOIN trade.distribuidoraSucursal ds WITH(NOLOCK) ON ds.idDistribuidoraSucursal = sctd.idDistribuidoraSucursal ";
 					$join .= " LEFT JOIN trade.distribuidora d WITH(NOLOCK) ON d.idDistribuidora = ds.idDistribuidora ";
@@ -1481,7 +1482,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 				$join .= " JOIN trade.segmentacionClienteTradicional sct ON ch.idSegClienteTradicional = sct.idSegClienteTradicional {$filtro_permiso} ";
 				$join .= " LEFT JOIN trade.segmentacionClienteTradicionalDet sctd ON sct.idSegClienteTradicional = sctd.idSegClienteTradicional ";
 
-				if ($grupoCanal == 'WHLS') {
 					array_push(
 						$columnas,
 						['header' => 'Plaza', 'columna' => 'plaza', 'align' => 'left']
@@ -1500,7 +1500,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 					$join .= " LEFT JOIN General.dbo.ubigeo ubpl WITH(NOLOCK) ON ubpl.cod_ubigeo = pl.cod_ubigeo ";
 
 					$orderBy = 'pl.nombre,z.nombre';
-				};
 			}
 
 			if (in_array($grupoCanal, GC_MODERNOS)) {
