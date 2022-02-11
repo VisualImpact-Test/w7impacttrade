@@ -41,8 +41,11 @@ if (empty($idCuenta) || $idCuenta != 2) {
 						<input type="hidden" id="txtcuenta" value="<?= $this->sessIdCuenta ?>">
 						<a data-toggle="tab" href="javascript:;" class="active nav-link aFechaHome" data-value="1">
 							<i class="fad fa-calendar-alt fa-lg" style="margin-right:5px;"></i>
-							<input class="form-control input-sm txt-fecha fechaHome" type="text" name="fechaHome" patron="requerido" value="<?= date('d/m/Y') ?>">
+								<input class="form-control input-sm txt-fecha fechaHome" type="text" name="fechaHome" patron="requerido" value="<?= date('d/m/Y') ?>">
 							<i class="fad fa-road fa-lg pl-3" style="margin-right:5px;"></i>
+							<div class="fechaHome" style="text-align: left;">
+								<?= getFiltros(['zonaUsuario' => ['label' => 'zona', 'name' => 'zona', 'id' => 'zona', 'data' => true, 'select2' => 'control-w-sm  fechaHome text-left sl_filtros', 'html' => '']]) ?>
+							</div>
 							<div class="fechaHome" style="text-align: left;">
 								<?= getFiltros(['grupoCanal' => ['label' => 'Grupo canal', 'name' => 'grupo_filtro', 'id' => 'grupo_filtro', 'data' => true, 'select2' => 'control-w-sm fechaHome text-left sl_filtros', 'html' => '']]) ?>
 							</div>
@@ -138,9 +141,7 @@ if (empty($idCuenta) || $idCuenta != 2) {
 						<i class="fas fa-store fa-lg"></i> EFECTIVIDAD  <sup><?=$this->sessIdProyecto == 19 ? "PROMOTOR" : "GTM"  ?></sup>
 					</h5>
 				</div>
-				<div class="col-md-3">
-					<?= getFiltros(['zonaUsuario' => ['label' => 'zona', 'name' => 'zona', 'id' => 'zona', 'data' => true, 'select2' => 'control-w-sm  text-left efectividad_usuario', 'html' => '']]) ?>
-				</div>
+				
 				<div role="group" class="btn-group btn-group-toggle fechaHome" style="margin-left: auto; margin-right: 0; display: none;" data-toggle="buttons">
 					<label class="btn btn-outline-trade-visual border-0">
 						<input type="radio" name="tipoEfectividadGtm" value="1">

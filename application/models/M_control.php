@@ -117,8 +117,15 @@ class M_control extends MY_Model{
 			if( !empty($input['idPlaza']) ){
 				$filtro .= " AND pl.idPlaza = {$input['idPlaza']}";
 			}
-
-		$sql = "SELECT pl.idPlaza AS id, pl.nombre FROM trade.plaza pl WHERE pl.estado = 1 AND pl.flagMayorista = 1{$filtro} ORDER BY pl.nombre";
+			$cliente_historico = getClienteHistoricoCuenta();
+		$sql = "
+		SELECT DISTINCT
+		pl.idPlaza AS id
+		, pl.nombre FROM 
+		trade.plaza pl
+		JOIN trade.segmentacionClienteTradicional sct ON sct.idPlaza = pl.idPlaza
+		JOIN {$cliente_historico} ch ON ch.idSegClienteTradicional = sct.idSegClienteTradicional
+		WHERE pl.estado = 1 AND pl.flagMayorista = 1{$filtro} ORDER BY pl.nombre";
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -184,8 +191,16 @@ class M_control extends MY_Model{
 			if( !empty($input['idSubCanal']) ){
 				$filtro .= " AND sca.idSubCanal = {$input['idSubCanal']}";
 			}
+			$cliente_historico = getClienteHistoricoCuenta();
 
-		$sql = "SELECT sca.idSubCanal AS id, sca.nombre FROM trade.subCanal sca WHERE sca.estado = 1{$filtro} ORDER BY sca.nombre";
+		$sql = "
+		SELECT DISTINCT
+		sca.idSubCanal AS id
+		, sca.nombre 
+		FROM trade.subCanal sca
+		JOIN trade.segmentacionNegocio sn ON sn.idSubcanal = sca.idSubCanal
+		JOIN {$cliente_historico} ch ON ch.idSegNegocio = sn.idSegNegocio
+		WHERE sca.estado = 1{$filtro} ORDER BY sca.nombre";
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -199,7 +214,17 @@ class M_control extends MY_Model{
 				$filtro .= " AND d.idDistribuidora = {$input['idDistribuidora']}";
 			}
 
-		$sql = "SELECT d.idDistribuidora AS id, d.nombre FROM trade.distribuidora d WHERE d.estado = 1{$filtro} ORDER BY d.nombre";
+			$cliente_historico = getClienteHistoricoCuenta();
+
+		$sql = "
+		SELECT DISTINCT
+		d.idDistribuidora AS id
+		, d.nombre 
+		FROM trade.distribuidora d 
+		JOIN trade.distribuidoraSucursal ds ON ds.idDistribuidora = d.idDistribuidora
+		JOIN trade.segmentacionClienteTradicionalDet sctd ON sctd.idDistribuidoraSucursal = ds.idDistribuidoraSucursal
+		JOIN {$cliente_historico} ch ON ch.idSegClienteTradicional = sctd.idSegClienteTradicional
+		WHERE d.estado = 1{$filtro} ORDER BY d.nombre";
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -506,8 +531,18 @@ class M_control extends MY_Model{
 			if( !empty($input['idClienteTipo']) ){
 				$filtro .= " AND ct.idClienteTipo = {$input['idClienteTipo']}";
 			}
+			$cliente_historico = getClienteHistoricoCuenta();
 
-		$sql = "SELECT ct.idClienteTipo AS id, ct.nombre FROM trade.cliente_tipo ct WHERE ct.estado = 1{$filtro} ORDER BY ct.nombre";
+
+		$sql = "
+		SELECT DISTINCT 
+		ct.idClienteTipo AS id, 
+		ct.nombre 
+		FROM trade.cliente_tipo ct 
+		JOIN trade.segmentacionNegocio sn ON sn.idClienteTipo = ct.idClienteTipo
+		JOIN {$cliente_historico} ch ON ch.idSegNegocio = sn.idSegNegocio
+
+		WHERE ct.estado = 1{$filtro} ORDER BY ct.nombre";
 		return $this->db->query($sql)->result_array();
 	}
 	public function get_tab_menu_opcion($input = [])

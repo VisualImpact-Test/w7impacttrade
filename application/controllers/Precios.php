@@ -40,6 +40,8 @@ class Precios extends MY_Controller
 		$tabs = getTabPermisos(['idMenuOpcion'=>$idMenu])->result_array();
 		$config['data']['tabs'] = $tabs;
 
+		(empty($tabs)) ? $config['view'] = 'oops' : '';
+
 		$config['data']['anios'] = $this->m_precios->getAnios()->result_array();
 		$config['data']['nsemanas'] = $this->m_precios->getSemanas()->result_array();
 		$config['data']['semanaActual'] = $this->m_precios->getSemanas()->row_array()['idSemana'];

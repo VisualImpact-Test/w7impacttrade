@@ -26,6 +26,11 @@ class M_materialpop extends MY_Model{
 		$filtros .= !empty($input['tipoUsuario_filtro']) ? ' AND r.idTipoUsuario='.$input['tipoUsuario_filtro'] : '';
 		$filtros .= !empty($input['usuario_filtro']) ? ' AND r.idUsuario IN ('.$input['usuario_filtro'].')': '';
 
+		//Ubigeo
+		$filtros .= !empty($input['departamento_filtro']) ? ' AND ubi.cod_departamento='.$input['departamento_filtro'] : '';
+		$filtros .= !empty($input['provincia_filtro']) ? ' AND ubi.cod_provincia='.$input['provincia_filtro'] : '';
+		$filtros .= !empty($input['distrito_filtro']) ? ' AND ubi.cod_ubigeo='.$input['distrito_filtro'] : '';
+
 		}
 		$cliente_historico = getClienteHistoricoCuenta();
 		$segmentacion = getSegmentacion($input);
@@ -129,7 +134,7 @@ class M_materialpop extends MY_Model{
             JOIN trade.canal ca ON ca.idCanal=v.idCanal
             JOIN {$this->sessBDCuenta}.trade.data_visitaMaterialesPop dvv ON dvv.idVisita=v.idVisita
             JOIN {$this->sessBDCuenta}.trade.data_visitaMaterialesPopDet dvd ON dvd.idVisitaMaterialPop=dvv.idVisitaMaterialPop
-            JOIN trade.tipo_material tm ON tm.idTipoMaterial = dvd.idTipoMaterial
+            LEFT JOIN trade.tipo_material tm ON tm.idTipoMaterial = dvd.idTipoMaterial
             JOIN trade.producto_marca m ON m.idMarca = dvd.idMarca
             LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisitaFoto=dvd.idVisitaFoto
             LEFT JOIN trade.aplicacion_modulo am ON am.idModulo = vf.idModulo

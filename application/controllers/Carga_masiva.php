@@ -1326,7 +1326,7 @@ class Carga_masiva extends CI_Controller
 															$insert['nombreComercial']=$nombreComercial ;
 															$insert['razonSocial']=$razonSocial;
 															$insert['tipoError']='No se pudo identificar la distribuidora sucursal.';
-															$insert['datoIngresado']=$value;
+															$insert['datoIngresado']="";
 					
 															$this->model->insertar_carga_cliente_no_procesado($insert);
 															$error=true;

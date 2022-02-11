@@ -26,6 +26,10 @@ class M_checkproductos extends MY_Model{
 		$filtros .= !empty($input['tipoUsuario_filtro']) ? ' AND r.idTipoUsuario='.$input['tipoUsuario_filtro'] : '';
 		$filtros .= !empty($input['usuario_filtro']) ? ' AND r.idUsuario IN ('.$input['usuario_filtro'].')': '';
 
+		$filtros .= !empty($input['departamento_filtro']) ? ' AND ubi.cod_departamento='.$input['departamento_filtro'] : '';
+		$filtros .= !empty($input['provincia_filtro']) ? ' AND ubi.cod_provincia='.$input['provincia_filtro'] : '';
+		$filtros .= !empty($input['distrito_filtro']) ? ' AND ubi.cod_ubigeo='.$input['distrito_filtro'] : '';
+
 		}
 		$cliente_historico = getClienteHistoricoCuenta();
 		$segmentacion = getSegmentacion($input);
@@ -266,6 +270,11 @@ class M_checkproductos extends MY_Model{
 			
 			$filtros .= !empty($params['clientes']) ? " AND v.idCliente IN({$params['clientes']})" : '';
 			$filtros .= !empty($params['motivo']) ? " AND mo.idMotivo IN({$params['motivo']})" : "";
+
+			$filtros .= !empty($params['departamento_filtro']) ? ' AND ubi.cod_departamento='.$params['departamento_filtro'] : '';
+			$filtros .= !empty($params['provincia_filtro']) ? ' AND ubi.cod_provincia='.$params['provincia_filtro'] : '';
+			$filtros .= !empty($params['distrito_filtro']) ? ' AND ubi.cod_ubigeo='.$params['distrito_filtro'] : '';
+
 		}
 
 		$cliente_historico = getClienteHistoricoCuenta();
@@ -318,7 +327,8 @@ class M_checkproductos extends MY_Model{
 			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisitaFoto=dvd.idVisitaFoto
 			LEFT JOIN trade.aplicacion_modulo m ON m.idModulo = vf.idModulo
 			LEFT JOIN trade.aplicacion_modulo_grupo mg ON mg.idModuloGrupo = m.idModuloGrupo
-			
+			LEFT JOIN General.dbo.ubigeo ubi ON ubi.cod_ubigeo=v.cod_ubigeo
+
 			{$segmentacion['join']}
 			WHERE r.estado = 1 AND v.estado = 1 
 			AND r.fecha BETWEEN @fecIni AND @fecFin
@@ -365,6 +375,10 @@ class M_checkproductos extends MY_Model{
 				$filtros .= !empty($params['flagPropios']) ? ' AND ele.flagCompetencia = 0': '';
 				$filtros .= !empty($params['flagCompetencia']) ? ' AND ele.flagCompetencia = 1': '';
 			}
+
+			$filtros .= !empty($params['departamento_filtro']) ? ' AND ubi.cod_departamento='.$params['departamento_filtro'] : '';
+			$filtros .= !empty($params['provincia_filtro']) ? ' AND ubi.cod_provincia='.$params['provincia_filtro'] : '';
+			$filtros .= !empty($params['distrito_filtro']) ? ' AND ubi.cod_ubigeo='.$params['distrito_filtro'] : '';
 		}
 
 		$cliente_historico = getClienteHistoricoCuenta();
@@ -420,6 +434,7 @@ class M_checkproductos extends MY_Model{
 			LEFT JOIN trade.unidadMedida um ON um.idUnidadMedida = dvd.idUnidadMedida
 			LEFT JOIN trade.segmentacionNegocio segneg ON segneg.idSegNegocio = ch.idSegNegocio
 			LEFT JOIN trade.subCanal subca ON subca.idSubCanal = segneg.idSubcanal
+			LEFT JOIN General.dbo.ubigeo ubi ON ubi.cod_ubigeo=v.cod_ubigeo
 			{$segmentacion['join']}
 			WHERE r.estado = 1 AND v.estado = 1 
 			AND r.fecha BETWEEN @fecIni AND @fecFin

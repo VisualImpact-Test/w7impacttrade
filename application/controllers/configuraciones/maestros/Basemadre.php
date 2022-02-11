@@ -114,9 +114,9 @@ class Basemadre extends MY_Controller{
 		$input['idCuenta']=$cuenta;
 		$input['idProyecto']= !empty($this->session->userdata('idProyecto'))? $this->session->userdata('idProyecto') :"";
 
-		$input['departamento_filtro'] = $data->{'departamento_filtro'};
-		$input['provincia_filtro'] = $data->{'provincia_filtro'};
-		$input['distrito_filtro'] = $data->{'distrito_filtro'};
+		$input['departamento_filtro'] = !empty($data->{'departamento_filtro'}) ? $data->{'departamento_filtro'} : '' ;
+		$input['provincia_filtro'] = !empty($data->{'provincia_filtro'}) ? $data->{'provincia_filtro'} : '' ;
+		$input['distrito_filtro'] = !empty($data->{'distrito_filtro'}) ? $data->{'distrito_filtro'} : '' ;
 
 		$input['plaza_filtro'] = !empty($data->{'plaza_filtro'}) ?$data->{'plaza_filtro'} : '';
 		$input['distribuidora_filtro'] = !empty($data->{'distribuidora_filtro'}) ? $data->{'distribuidora_filtro'} : '';
