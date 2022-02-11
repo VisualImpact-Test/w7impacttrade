@@ -1,6 +1,6 @@
 var Visibilidad = {
 
-    secciones: ['Categoria', 'Lista'],
+    secciones: ['Lista_sos', 'Lista_sod'],
     tabSeleccionado: '',
     customDataTable: function () { },
 
@@ -9,23 +9,18 @@ var Visibilidad = {
         $(document).ready(function (e) {
             Visibilidad.eventos();
             Gestion.urlActivo = 'configuraciones/gestion/Visibilidad/';
-            $(".card-header > .nav > .nav-item > a[class*='active']").click();
+            $(".card-body > ul > li > a[class*='active']").click();
         });
 
-        $(".card-header > .nav > .nav-item > a").click(function (e) {
+        $(".card-body > ul > li > a").click(function (e) {
             e.preventDefault();
 
             var indiceSeccion = $(this).attr('href').split('-')[2];
             Visibilidad.tabSeleccionado = Visibilidad.secciones[indiceSeccion];
 
-            if(Visibilidad.secciones[indiceSeccion] == 'Categoria'){
-                $('.btn-CargaMasiva').hide();
-            }else if(Visibilidad.secciones[indiceSeccion] == 'Lista'){
-                $('.btn-CargaMasiva').show();
-            }
 
             Visibilidad.cambiarSeccionActivo();
-            Gestion.idContentActivo = 'content' + Visibilidad.tabSeleccionado;
+            Gestion.idContentActivo = 'tab-content-' + indiceSeccion;
             $('.contentGestion').addClass('d-none');
             $('#' + Gestion.idContentActivo).removeClass('d-none');
             $(".funciones a[class*='btn-seccion-']").addClass('d-none');
@@ -33,7 +28,7 @@ var Visibilidad = {
             if(typeof Gestion.$dataTable[Gestion.idContentActivo] != 'undefined') Gestion.$dataTable[Gestion.idContentActivo].columns.adjust().draw();
             Gestion.funcionCustomDT = Visibilidad.customDataTable;
             Gestion.seccionActivo = Visibilidad.tabSeleccionado
-            Gestion.idFormSeccionActivo = 'seccion' + Visibilidad.tabSeleccionado
+            Gestion.idFormSeccionActivo = 'frmFiltroVisibilidad'
             Gestion.getTablaActivo = 'getTabla' + Visibilidad.tabSeleccionado
             Gestion.getFormNewActivo = 'getFormNew' + Visibilidad.tabSeleccionado
             Gestion.getFormUpdateActivo = 'getFormUpdate' + Visibilidad.tabSeleccionado
@@ -46,10 +41,10 @@ var Visibilidad = {
 
     cambiarSeccionActivo: function () {
         switch (Visibilidad.tabSeleccionado) {
-            case 'Categoria':
+            case 'Lista_sos':
                 Visibilidad.customDataTable = Gestion.defaultDT;
                 break;
-            case 'Lista':
+            case 'Lista_sod':
                 Visibilidad.customDataTable = Gestion.defaultDT;
                 break;
         }
