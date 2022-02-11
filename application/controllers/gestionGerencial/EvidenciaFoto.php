@@ -56,11 +56,16 @@ class EvidenciaFoto extends MY_Controller
 		$input['banner_filtro'] = empty($data->{'banner_filtro'}) ? '' : $data->{'banner_filtro'};
 		$input['tipoUsuario_filtro'] = $data->{'tipoUsuario_filtro'};
 		$input['usuario_filtro'] = !empty($data->{'usuario_filtro'}) ? (is_array($data->{'usuario_filtro'}) ? implode(",", $data->{'usuario_filtro'}) : $data->{'usuario_filtro'}) : '';
+
+		$input['departamento_filtro'] = !empty($data->{'departamento_filtro'}) ? $data->{'departamento_filtro'} : '' ;
+		$input['provincia_filtro'] = !empty($data->{'provincia_filtro'}) ? $data->{'provincia_filtro'} : '' ;
+		$input['distrito_filtro'] = !empty($data->{'distrito_filtro'}) ? $data->{'distrito_filtro'} : '' ;
+
 		$rs_visitas = $this->model->obtener_visitas($input);
 
 		$html = '';
 		$array['visitas'] = $rs_visitas;
-
+		$segmentacion = getSegmentacion($input);
 		if (!empty($rs_visitas)) {
 			$array = array();
 			$array['visitas'] = $rs_visitas;
@@ -71,16 +76,13 @@ class EvidenciaFoto extends MY_Controller
 				$array['elementos'][$det['idTipoFoto']] = $det['tipoFoto'];
 				$array['detalle'][$det['idVisita']][$det['idTipoFoto']] = $det;
 			}
-
-			$segmentacion = getSegmentacion($input);
-
 			$array['segmentacion'] = $segmentacion;
 			$html = $this->load->view("modulos/gestionGerencial/evidenciaFotografica/detalle_evidenciaFoto", $array, true);
-			$result['data']['grupoCanal'] = $segmentacion['grupoCanal'];
 		} else {
 			$html = getMensajeGestion('noRegistros');
 		}
 		$result['result'] = 1;
+		$result['data']['grupoCanal'] = $segmentacion['grupoCanal'];
 		$result['data']['views']['idContentEvidenciaFotografica']['datatable'] = 'tb-evidenciaFoto';
 		$result['data']['views']['idContentEvidenciaFotografica']['html'] = $html;
 		$result['data']['configTable'] =  [

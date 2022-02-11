@@ -33,7 +33,7 @@ var EvidenciaFotografica = {
 				,'url': EvidenciaFotografica.url + EvidenciaFotografica.urlActivo
 				,'contentDetalle': EvidenciaFotografica.contentDetalle
 			};
-			console.log(config)
+			
 			Fn.loadReporte_validado(config);
 		});
 

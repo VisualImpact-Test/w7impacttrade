@@ -32,6 +32,10 @@ class M_evidenciaFoto extends MY_Model{
 		$filtros .= !empty($input['tipoUsuario_filtro']) ? ' AND r.idTipoUsuario='.$input['tipoUsuario_filtro'] : '';
 		$filtros .= !empty($input['usuario_filtro']) ? ' AND r.idUsuario IN ('.$input['usuario_filtro'].')': '';
 
+		$filtros .= !empty($input['departamento_filtro']) ? ' AND ubi.cod_departamento='.$input['departamento_filtro'] : '';
+		$filtros .= !empty($input['provincia_filtro']) ? ' AND ubi.cod_provincia='.$input['provincia_filtro'] : '';
+		$filtros .= !empty($input['distrito_filtro']) ? ' AND ubi.cod_ubigeo='.$input['distrito_filtro'] : '';
+
 		}
 		if( $sessIdTipoUsuario != 4 ){
 			if( empty($sessDemo) ) $filtros .=  " AND r.demo = 0";
@@ -41,6 +45,7 @@ class M_evidenciaFoto extends MY_Model{
 
 		$cliente_historico = getClienteHistoricoCuenta();
 		$segmentacion = getSegmentacion($input);
+		
 		$sql = "
 			DECLARE @fecIni date='".$input['fecIni']."',@fecFin date='".$input['fecFin']."';
 		SELECT

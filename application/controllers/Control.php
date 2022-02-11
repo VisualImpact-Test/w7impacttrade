@@ -341,12 +341,9 @@ class Control extends MY_Controller{
 	public function bat_rutas(){
 		execInBackground( RUTA_BAT.'carga_masiva procesar_archivos_rutas_v2',$_POST);
 	}
-
 	public function bat_clientes(){
 		execInBackground( RUTA_BAT.'carga_masiva procesar_archivos_clientes',$_POST);
 	}
-
-
 
 	
 }

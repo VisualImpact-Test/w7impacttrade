@@ -896,7 +896,6 @@ class M_carga_masiva extends CI_Model{
 			AND cc.idCuenta = {$params['idCuenta']}
 		WHERE c.nombre LIKE '{$params['canal']}'";
 
-		
 		return $this->db->query($sql)->result_array();
 	}
 

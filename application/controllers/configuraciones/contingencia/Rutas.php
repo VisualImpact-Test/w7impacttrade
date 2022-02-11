@@ -89,9 +89,9 @@ class Rutas extends MY_Controller{
 			$input['estadoUsuario'] = 3;
 		}
 		
-		$input['departamento_filtro'] = $data->{'departamento_filtro'};
-		$input['provincia_filtro'] = $data->{'provincia_filtro'};
-		$input['distrito_filtro'] = $data->{'distrito_filtro'};
+		$input['departamento_filtro'] = !empty($data->{'departamento_filtro'}) ? $data->{'departamento_filtro'} : '' ;
+		$input['provincia_filtro'] = !empty($data->{'provincia_filtro'}) ? $data->{'provincia_filtro'} : '' ;
+		$input['distrito_filtro'] = !empty($data->{'distrito_filtro'}) ? $data->{'distrito_filtro'} : '' ;
 
 		$rs_visitas = $this->model->obtener_rutas_visitas($input);
 		$segmentacion = getSegmentacion(['grupoCanal_filtro' => $input['grupoCanal_filtro']]);

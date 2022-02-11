@@ -92,6 +92,10 @@ class M_Home extends MY_Model{
         $idCuenta =$this->session->userdata('idCuenta');
         $idProyecto =$this->session->userdata('idProyecto');
 
+        if (!empty($params['zona'])) {
+            $filtros .= " AND uhz.idZona = {$params['zona']} ";
+        }
+
         if(!empty($params['grupoCanal'])){
             $segmentacion = getSegmentacion(['grupoCanal_filtro' => $params['grupoCanal']]);
 
@@ -161,6 +165,8 @@ class M_Home extends MY_Model{
             AND ch.idProyecto = r.idProyecto
         JOIN trade.canal c WITH(NOLOCK) ON c.idCanal = v.idCanal
         JOIN trade.grupoCanal gc WITH(NOLOCK) ON gc.idGrupoCanal = c.idGrupoCanal
+        LEFT JOIN trade.usuario_historico uh ON uh.idUsuario=r.idUsuario AND @hoy BETWEEN uh.fecIni AND ISNULL(uh.fecFin,@hoy)
+        LEFT JOIN trade.usuario_historicoZona uhz ON uhz.idUsuarioHist=uh.idUsuarioHist
         {$segmentacion['join']} 
     WHERE 
         r.fecha BETWEEN @inicio_mes AND @hoy
@@ -197,6 +203,10 @@ class M_Home extends MY_Model{
         $idProyecto =$this->session->userdata('idProyecto');
 
         // $grupoCanal = $this->db->get_where('trade.canal',['idCanal'=>$idCanal])->row_array()['idGrupoCanal'];
+
+        if (!empty($params['zona'])) {
+            $filtros .= " AND uhz.idZona = {$params['zona']} ";
+        }
 
         if(!empty($params['grupoCanal'])){
             $segmentacion = getSegmentacion(['grupoCanal_filtro' => $params['grupoCanal']]);
@@ -269,6 +279,8 @@ class M_Home extends MY_Model{
                 AND ch.idProyecto = r.idProyecto
             JOIN trade.canal c WITH(NOLOCK) ON c.idCanal = v.idCanal
             JOIN trade.grupoCanal gc WITH(NOLOCK) ON gc.idGrupoCanal = c.idGrupoCanal
+            LEFT JOIN trade.usuario_historico uh ON uh.idUsuario=r.idUsuario AND @hoy BETWEEN uh.fecIni AND ISNULL(uh.fecFin,@hoy)
+            LEFT JOIN trade.usuario_historicoZona uhz ON uhz.idUsuarioHist=uh.idUsuarioHist
            {$segmentacion['join']} 
         WHERE 
             r.fecha BETWEEN @inicio_mes AND @hoy
@@ -311,6 +323,10 @@ class M_Home extends MY_Model{
         }
         if (!empty($params['idCuenta'])) {
             $filtros .= " AND cu.idCuenta = {$params['idCuenta']} ";
+        }
+
+        if (!empty($params['zona'])) {
+            $filtros .= " AND uhz.idZona = {$params['zona']} ";
         }
 
         if(!empty($params['grupoCanal'])){$filtros.= " AND gc.idGrupoCanal = {$params['grupoCanal']} ";}
@@ -447,6 +463,7 @@ class M_Home extends MY_Model{
 				)
 			)
 			LEFT JOIN trade.usuario_historicoCanal uhd WITH(NOLOCK) ON uhd.idUsuarioHist = uh.idUsuarioHist
+            LEFT JOIN trade.usuario_historicoZona uhz ON uhz.idUsuarioHist=uh.idUsuarioHist
 			LEFT JOIN trade.canal ca WITH(NOLOCK) ON ca.idCanal = uhd.idCanal
 			LEFT JOIN trade.grupoCanal gc WITH(NOLOCK) ON gc.idGrupoCanal = ca.idGrupoCanal
 			LEFT JOIN trade.proyecto py WITH(NOLOCK) ON py.idProyecto = uh.idProyecto
@@ -525,6 +542,11 @@ class M_Home extends MY_Model{
         if (!empty($params['idCuenta'])) {
             $filtros .= " AND cu.idCuenta = {$params['idCuenta']} ";
         }
+
+        if (!empty($params['zona'])) {
+            $filtros .= " AND uhz.idZona = {$params['zona']} ";
+        }
+
         if(!empty($params['grupoCanal'])){$filtros.= " AND gc.idGrupoCanal = {$params['grupoCanal']} ";}
         if(!empty($params['canal'])){$filtros.= " AND ca.idCanal = {$params['canal']} ";}
         
@@ -538,6 +560,7 @@ class M_Home extends MY_Model{
         JOIN trade.usuario_historico uh ON u.idUsuario = uh.idUsuario
         AND @fecha BETWEEN uh.fecIni AND ISNULL(uh.fecFin, @fecha)
         LEFT JOIN trade.usuario_historicoCanal uhd ON uhd.idUsuarioHist = uh.idUsuarioHist
+        LEFT JOIN trade.usuario_historicoZona uhz ON uhz.idUsuarioHist=uh.idUsuarioHist
         LEFT JOIN trade.canal ca ON ca.idCanal = uhd.idCanal
         LEFT JOIN trade.grupoCanal gc ON gc.idGrupoCanal = ca.idGrupoCanal
         LEFT JOIN trade.proyecto py ON py.idProyecto = uh.idProyecto

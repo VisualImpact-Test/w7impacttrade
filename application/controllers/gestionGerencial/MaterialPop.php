@@ -73,11 +73,16 @@ class MaterialPop extends MY_Controller{
 		$input['flagPropios'] = !empty($data->{'ck-propios'}) ? true : '';
 		$input['flagCompetencia'] = !empty($data->{'ck-competencia'}) ? true : '';
 
+		$input['departamento_filtro'] = !empty($data->{'departamento_filtro'}) ? $data->{'departamento_filtro'} : '' ;
+		$input['provincia_filtro'] = !empty($data->{'provincia_filtro'}) ? $data->{'provincia_filtro'} : '' ;
+		$input['distrito_filtro'] = !empty($data->{'distrito_filtro'}) ? $data->{'distrito_filtro'} : '' ;
+
+
 		$rs_visitas = $this->model->obtener_visitas($input);
 
 		$html = '';
 		$array['visitas'] = $rs_visitas;
-
+		$segmentacion = getSegmentacion($input);
 		if(!empty($rs_visitas)){
 			$array=array();
 			$array['visitas'] = $rs_visitas;
@@ -95,7 +100,7 @@ class MaterialPop extends MY_Controller{
 				$array['lista'][$list['idVisita']][$list['idMarca']]='1';
 			}
 
-			$segmentacion = getSegmentacion($input);
+			
 			
 			$array['segmentacion'] = $segmentacion;
 			$html = $this->load->view("modulos/gestionGerencial/MaterialPop/detalle_material_pop",$array,true);
@@ -103,6 +108,7 @@ class MaterialPop extends MY_Controller{
 		} else {
 			$html = getMensajeGestion('noRegistros');
 		}
+		$result['data']['grupoCanal'] = $segmentacion['grupoCanal'];
 		$result['result'] = 1;
 		$result['data']['views']['idContentMaterialPop']['datatable'] = 'tb-material-pop';
 		$result['data']['views']['idContentMaterialPop']['html'] = $html;

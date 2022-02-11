@@ -998,12 +998,21 @@ var Fn = {
 					$('.filtros_gc').addClass('d-none');
 					$('.filtros_gc').find('select').attr('disabled', true);
 
+					$('.filtros_ubigeo').addClass('d-none');
+					$('.filtros_ubigeo').find('select').attr('disabled', true);
 					if ( typeof a.data.grupoCanal !== 'undefined') {
+
+						(a.data.grupoCanal == "Tradicional") ?  a.data.grupoCanal = "HFS" : '';
+						(a.data.grupoCanal == "Mayorista") ?  a.data.grupoCanal = "WHLS" : '';
+						(a.data.grupoCanal == "Moderno") ?  a.data.grupoCanal = "HSM" : '';
+
 						$('.filtros_'+a.data.grupoCanal).removeClass('d-none');
 						$('.filtros_'+a.data.grupoCanal).find('select').attr('disabled', false);
 
-						$('.filtros_ubigeo').removeClass('d-none');
-						$('.filtros_ubigeo').find('select').attr('disabled', false);
+						if(a.data.grupoCanal == "WHLS"){
+							$('.filtros_ubigeo').removeClass('d-none');
+							$('.filtros_ubigeo').find('select').attr('disabled', false);
+						}
 					}
 				});
 			} else {
@@ -1016,13 +1025,22 @@ var Fn = {
 
 					$('.filtros_gc').addClass('d-none');
 					$('.filtros_gc').find('select').attr('disabled', true);
-
+					
+					$('.filtros_ubigeo').addClass('d-none');
+					$('.filtros_ubigeo').find('select').attr('disabled', true);
 					if ( typeof a.data.grupoCanal !== 'undefined') {
+
+						(a.data.grupoCanal == "Tradicional") ?  a.data.grupoCanal = "HFS" : '';
+						(a.data.grupoCanal == "Mayorista") ?  a.data.grupoCanal = "WHLS" : '';
+						(a.data.grupoCanal == "Moderno") ?  a.data.grupoCanal = "HSM" : '';
+						
 						$('.filtros_'+a.data.grupoCanal).removeClass('d-none');
 						$('.filtros_'+a.data.grupoCanal).find('select').attr('disabled', false);
 
-						$('.filtros_ubigeo').removeClass('d-none');
-						$('.filtros_ubigeo').find('select').attr('disabled', false);
+						if(a.data.grupoCanal == "WHLS"){
+							$('.filtros_ubigeo').removeClass('d-none');
+							$('.filtros_ubigeo').find('select').attr('disabled', false);
+						}
 					}
 
 					

@@ -44,6 +44,8 @@ class Promociones extends MY_Controller{
 		$tabs = $this->model->get_tab_menu_opcion(['idMenuOpcion'=>$idMenu])->result_array();
 		
 		$config['data']['tabs'] = $tabs;
+		(empty($tabs)) ? $config['view'] = 'oops' : '';
+
 		$this->view($config);
 	}
 

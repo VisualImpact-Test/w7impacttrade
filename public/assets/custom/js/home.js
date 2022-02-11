@@ -34,12 +34,22 @@ var Home={
 			$('.vista-cobertura').addClass('centrarContenidoDiv');
 			$('.vista-cobertura').html('<i class="fas fa-spinner-third fa-spin icon-load"></i>');
 			$('.vista-efectividad').html('<i class="fas fa-spinner-third fa-spin icon-load"></i>');
+			$('.vista-gtm').html('<i class="fas fa-spinner-third fa-spin icon-load"></i>');
+			$('.vista-efectividadGtm').html('<i class="fas fa-spinner-third fa-spin icon-load"></i>');
+			$('.vista-asistencia').html('<i class="fas fa-spinner-third fa-spin icon-load"></i>');
 
 			$.when(
 				Home.mostrar_cartera()
 			).then(function(){
 				Home.mostrar_efectividad();
+				
 			});
+			
+			    Home.generarGraficosEfectividadGtm();
+				Home.generarGraficosAsistencia();
+				Home.generarGraficosGtm();
+
+			
 
 			if($("#txtcuenta").val() == 2){
 				//Home.mostrar_efectividad();
@@ -135,6 +145,7 @@ var Home={
 			fecha: $('.fechaHome').val(),
 			grupoCanal: $('#grupo_filtro').val(),
 			canal: $('#canal_filtro').val(),
+			zona: $('#zona').val(),
 
 			distribuidora_filtro: $("#distribuidora_filtro").val(),
 			distribuidoraSucursal_filtro: $("#distribuidoraSucursal_filtro").val(),
@@ -165,6 +176,7 @@ var Home={
 			fecha: $('.fechaHome').val(),
 			grupoCanal: $('#grupo_filtro').val(),
 			canal: $('#canal_filtro').val(),
+			zona: $('#zona').val(),
 
 			distribuidora_filtro: $("#distribuidora_filtro").val(),
 			distribuidoraSucursal_filtro: $("#distribuidoraSucursal_filtro").val(),
@@ -212,6 +224,7 @@ var Home={
 		let ad = $.Deferred();
 		let data = { 
 			fecha: $('.fechaHome').val(),
+			zona: $('#zona').val()
 		};
 		let jsonString = { 'data': JSON.stringify(data) };
 		let config = { 'url': Home.url + 'get_asistencia', 'data': jsonString };
@@ -247,6 +260,7 @@ var Home={
 		let ad = $.Deferred();
 		let data = { 
 			fecha: $('.fechaHome').val(),
+			zona: $('#zona').val(),
 		};
 		let jsonString = { 'data': JSON.stringify(data) };
 		let config = { 'url': Home.url + 'get_cantidadGtm', 'data': jsonString };
@@ -276,7 +290,7 @@ var Home={
 			grupoCanal: $('#grupo_filtro').val(),
 			canal: $('#canal_filtro').val(),
 			tipo: tipo,
-			zona:$('#zona').val(),
+			zona:$('#zona').val()
 		};
 		let jsonString = { 'data': JSON.stringify(data) };
 		let config = { 'url': Home.url + 'get_efectividadPorGtm', 'data': jsonString };

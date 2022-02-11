@@ -19,7 +19,6 @@ class CheckProductos extends MY_Controller{
 			'assets/libs/photoswipe/photoswipe',
 			'assets/libs/tableTools/datatables.min',
 			'assets/libs/photoswipe/default-skin',
-			
 
 		);
 		$config['js']['script'] = array(
@@ -89,6 +88,10 @@ class CheckProductos extends MY_Controller{
 		
 		$input['flagPropios'] = !empty($data->{'ck-propios'}) ? true : '';
 		$input['flagCompetencia'] = !empty($data->{'ck-competencia'}) ? true : '';
+
+		$input['departamento_filtro'] = !empty($data->{'departamento_filtro'}) ? $data->{'departamento_filtro'} : '' ;
+		$input['provincia_filtro'] = !empty($data->{'provincia_filtro'}) ? $data->{'provincia_filtro'} : '' ;
+		$input['distrito_filtro'] = !empty($data->{'distrito_filtro'}) ? $data->{'distrito_filtro'} : '' ;
 
 		$rs_visitas = $this->model->obtener_visitas($input);
 
@@ -201,6 +204,10 @@ class CheckProductos extends MY_Controller{
 		$input['cadena_filtro'] = empty($data->{'cadena_filtro'}) ? '' : $data->{'cadena_filtro'};
 		$input['banner_filtro'] = empty($data->{'banner_filtro'}) ? '' : $data->{'banner_filtro'};
 
+		$input['departamento_filtro'] = !empty($data->{'departamento_filtro'}) ? $data->{'departamento_filtro'} : '' ;
+		$input['provincia_filtro'] = !empty($data->{'provincia_filtro'}) ? $data->{'provincia_filtro'} : '' ;
+		$input['distrito_filtro'] = !empty($data->{'distrito_filtro'}) ? $data->{'distrito_filtro'} : '' ;
+
 		$rs_quiebres = $this->model->obtener_quiebre($input);
 
 		$html = '';
@@ -263,6 +270,11 @@ class CheckProductos extends MY_Controller{
 		if(empty($data->{'chk-fifo-vencido'}) && empty($data->{'chk-fifo-porVencer'}) ){
 			$input['fifo'] = 3;
 		}
+
+		$input['departamento_filtro'] = !empty($data->{'departamento_filtro'}) ? $data->{'departamento_filtro'} : '' ;
+		$input['provincia_filtro'] = !empty($data->{'provincia_filtro'}) ? $data->{'provincia_filtro'} : '' ;
+		$input['distrito_filtro'] = !empty($data->{'distrito_filtro'}) ? $data->{'distrito_filtro'} : '' ;
+
 
 		$rs_quiebres = $this->model->obtener_fifo($input);
 
@@ -820,6 +832,10 @@ class CheckProductos extends MY_Controller{
 		$input['flagPropios'] = !empty($data->{'ck-propios'}) ? true : '';
 		$input['flagCompetencia'] = !empty($data->{'ck-competencia'}) ? true : '';
 
+		$input['departamento_filtro'] = !empty($data->{'departamento_filtro'}) ? $data->{'departamento_filtro'} : '' ;
+		$input['provincia_filtro'] = !empty($data->{'provincia_filtro'}) ? $data->{'provincia_filtro'} : '' ;
+		$input['distrito_filtro'] = !empty($data->{'distrito_filtro'}) ? $data->{'distrito_filtro'} : '' ;
+
 		$rs_visitas = $this->model->obtener_visitas($input);
 
 		$html = '';
@@ -963,6 +979,8 @@ class CheckProductos extends MY_Controller{
 		
 		$input['flagPropios'] = !empty($data->{'ck-propios'}) ? true : '';
 		$input['flagCompetencia'] = !empty($data->{'ck-competencia'}) ? true : '';
+
+
 
 		$rs_visitas = $this->model->obtener_checklist_excel($input);
 

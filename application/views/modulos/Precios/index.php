@@ -19,7 +19,6 @@
         </div>
     </div>
 </div>
-<? if (empty($tabs)) { ?> <span> <?=getMensajeGestion('oops')?></span><? } ?>
 <div class="customizer border-left-blue-grey border-left-lighten-4 d-none d-xl-block">
     <a href="javascript:;" class="customizer-close"><i class="fal fa-times"></i></a>
     <a href="javascript:;" class="customizer-toggle box-shadow-3 bg-trade-visual-grad-left text-white">
