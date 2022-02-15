@@ -82,7 +82,7 @@ class M_iniciativas extends MY_Model{
 			DECLARE
 				@fecIni DATE = '".$input['fecIni']."'
 				, @fecFin DATE = '".$input['fecFin']."'
-			SELECT 
+			SELECT TOP 10
 				  gc.idGrupoCanal
 				, gc.nombre grupoCanal
 				, ca.idCanal

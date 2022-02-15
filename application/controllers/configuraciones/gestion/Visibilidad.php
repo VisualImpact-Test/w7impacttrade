@@ -18,7 +18,7 @@ class Visibilidad extends MY_Controller
 			'registrarPromocion' => 'Registrar Promoción',
 			'masivoPromocion' => 'Guardar Masivo Promoción',
 
-			'actualizarLista' => 'Actualizar Lista Promoción',
+			'actualizarLista' => 'Actualizar Lista SOS',
 			'registrarLista' => 'Registrar Lista Promoción',
 			'masivoLista' => 'Guardar Masivo Lista Promoción',
 
@@ -30,13 +30,13 @@ class Visibilidad extends MY_Controller
 			'elemento' => [
 				'tabla' => $this->carpetaHtml .  'tablaPromocion',
 				'new' => $this->carpetaHtml .  'formNewPromocion',
-				'update' => $this->carpetaHtml .  'formUpdatePromocion',
+				'update' => $this->carpetaHtml .  'formUpdateLista_sos',
 				'cargaMasiva' => $this->carpetaHtml .  'FormCargaMasivaListaPromocion'
 			],
 			'lista' => [
 				'tabla' => $this->carpetaHtml .  'tablaListaPromocion',
 				'new' => $this->carpetaHtml .  'formNewListaPromocion',
-				'update' => $this->carpetaHtml .  'formUpdateListaPromocion',
+				'update' => $this->carpetaHtml .  'formUpdateLista_sos',
 				'cargaMasiva' => $this->carpetaHtml .  'FormCargaMasivaListaPromocion'
 			],
 		];
@@ -212,17 +212,14 @@ class Visibilidad extends MY_Controller
 		echo json_encode($result);
 	}
 
-	public function getFormUpdatePromocion()
+	public function getFormUpdateLista_sos()
 	{
 		$result = $this->result;
 		
 		$post = json_decode($this->input->post('data'), true);
-		$result['msg']['title'] = $this->titulo['actualizar'.$post['seccionActivo']];
+		$result['msg']['title'] = 'LISTA SOS';
 
-		$dataParaVista['data'] = $this->model->getElementos($post)->row_array();
-        $dataParaVista['tipos'] = $this->model->getTiposPromocion()->result_array();
-
-
+		$dataParaVista['tipos'] = $this->m_productos->getMarcas()->result_array();
 		
 		$result['result'] = 1;
 		$result['data']['width'] = '45%';

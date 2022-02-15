@@ -8,6 +8,10 @@ var Storecheck = {
 
 	load: function () {
 
+		$(document).ready(function (e) {
+			$('.flt_grupoCanal').change();
+        });
+
 		$('.btn-getPuntosDeVenta').on('click', function (e) {
 			e.preventDefault();
 			var data = Fn.formSerializeObject(Storecheck.idFormFiltros);

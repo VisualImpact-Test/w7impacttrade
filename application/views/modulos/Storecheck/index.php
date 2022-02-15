@@ -1,167 +1,162 @@
-<style>
-	.color-C { color: #5cb85c; }
-	.color-I { color: #f6ea67; }
-	.color-F { color: #d9534f; }
-	.color-O { color: #6063d7; }
-	.color-V { color: #95cbe7; }
-	.color-Fe { color: #666; }
-
-	.page-item{
-		/*border: 5px solid red;*/
-	}
-
-	.page-item div.item-li{
-		position: relative;
-		display: block;
-		padding: .5rem .75rem;
-		margin-left: -1px;
-		line-height: 1.25;
-		background-color: #fff;
-		border: 1px solid #dee2e6;
-		min-height: inherit;
-	}
-	.textCondicion{
-		height: 35px;
-	}
-</style>
-<style>
-body { position: relative; }
-#ZoomBox { position: absolute; top: 50%; left: 50%; transform: translate(-0%, -0%); }
-.contenedor_hora { font-size: 10px !important; }
-
-.bg-warning-gradient { background: linear-gradient(90deg, #ffc107, #e52e71); }
-.bg-primary-gradient { background: linear-gradient(90deg, #007bff, #e52e71) }
-.bg-purple-gradient { background: linear-gradient(90deg, #5011ad , #e52e71); }
-.card-header>.nav>li.active {
-    border-bottom: none !important;
-}
-
-.nav-pills .nav-link.active, .nav-pills .show>.nav-link {
-    color: #fff !important;
-    background: linear-gradient(90deg, #5011ad , #e52e71) !important;
-}
-
-button.btn.btn-xs.btn-primary.buttons-collection.buttons-page-length {
-    background: linear-gradient(90deg, #007bff, #e52e71) !important;
-	border: none;
-}
-
-button.btn.btn-xs.btn-primary.buttons-excel.buttons-html5 {
-    background: linear-gradient(90deg, #ffc107, #e52e71) !important;
-	border: none;
-}
-</style>
-<div class="row">
-    <div class="col-12">
-
-        <div class="mb-3 card">
-
-            <div class="card-header-tab card-header">
-                <ul class="nav nav-pills">
-                    <li class="nav-item active"><a data-toggle="tab" href="#tab-content-0" class="active nav-link">Principal</a></li>
+<div class="row mt-4">
+    <div class="col-lg-2 d-flex justify-content-center align-items-center">
+        <h3 class="card-title mb-3">
+            <i class="<?= $icon ?>"></i>
+            <?= $title ?>
+        </h3>
+    </div>
+    <div class="col-lg-10 d-flex">
+        <div class="card w-100 mb-3 p-0">
+            <div class="card-body p-0">
+                <ul class="nav nav-tabs nav-justified">
+                    <li class="nav-item">
+                        <a class="nav-link active btnReporte" data-toggle="tab" href="#tab-content-0" data-value="1">Principal</a>
+                    </li>
                 </ul>
-                <div class="funciones">
-                    <a href="javascript:void(0);" class="btn btn-consultar btn-outline-primary border-0" title="Filtrar"><i class="fa fa-filter"></i></a>
-                    <button type="button" data-toggle="collapse" href="#collapseBodyBasemadre" class="btn btn-outline-primary border-0 btnCollapse" title="Desplegar filtros" aria-expanded="true"><i class="fas fa-lg fa-caret-down"></i></button>
-                </div>
-            </div>
-
-            <div class="card-body mostrarocultar collapse" id="collapseBodyBasemadre">
-                <div class="tab-content">
-
-                    <form id="formFiltroStorecheck">
-                        <div class="form-row mb-3">
-
-                            <div class='col-auto'>
-                                <!-- <label for='idMes'>Mes</label><br> -->
-                                <select id='idMes' name='idMes' class='form-control form-control-sm my_select2Full'>
-                                    <option value="">-- Mes --</option>
-                                    <option value="01">Enero</option>
-                                    <option value="02">Febrero</option>
-                                    <option value="03">Marzo</option>
-                                    <option value="04">Abril</option>
-                                    <option value="05">Mayo</option>
-                                    <option value="06">Junio</option>
-                                    <option value="07">Julio</option>
-                                    <option value="08">Agosto</option>
-                                    <option value="09">Setiembre</option>
-                                    <option value="10">Octubre</option>
-                                    <option value="11">Noviembre</option>
-                                    <option value="12">Diciembre</option>
-                                </select>
-                            </div>
-
-                            <div class='col-auto'>
-                                <!-- <label for='idAnio'>Mes</label><br> -->
-                                <?$anioProyecto = 2020;
-                                $anioActual = (int) date("Y");
-                                 ?>
-                                <select class="form-control form-control-sm my_select2" id="idAnio" name="idAnio">
-                                    <option value="">-- Año --</option>
-                                    <option value="<?= $anioActual ?>"><?= $anioActual ?></option>
-                                    <?php
-                                    while ($anioActual != $anioProyecto) {
-                                        $anioActual--; ?>
-                                        <option value="<?= $anioActual ?>"><?= $anioActual ?></option>
-                                    <?php } ?>
-                                </select>
-                            </div>
-
-                            <div class="col-auto">
-                                <!-- <label for='cuenta'>Cuenta</label><br> -->
-                                <?= getFiltros(['cuenta' => ['label' => 'Cuenta', 'name' => 'cuenta', 'id' => 'cuenta', 'data' => true, 'select2' => 'my_select2Full', 'html' => '']]) ?>
-                            </div>
-                            <div class="col-auto">
-                                <!-- <label for='proyecto'>Proyecto</label><br> -->
-                                <?= getFiltros(['proyecto' => ['label' => 'Proyecto', 'name' => 'proyecto', 'id' => 'proyecto', 'data' => true, 'select2' => 'my_select2Full', 'html' => '']]) ?>
-                            </div>
-                            <div class="col-auto">
-                                <!-- <label for='grupoCanal'>Grupo Canal</label><br> -->
-                                <?= getFiltros(['grupoCanal' => ['label' => 'Grupo Canal', 'name' => 'grupoCanal', 'id' => 'grupoCanal', 'data' => true, 'select2' => 'my_select2Full', 'html' => '']]) ?>
-                            </div>
-                            <div class="col-auto">
-                                <!-- <label for='canal'>Canal</label><br> -->
-                                <?= getFiltros(['canal' => ['label' => 'Canal', 'name' => 'canal', 'id' => 'canal', 'data' => true, 'select2' => 'my_select2Full', 'html' => '']]) ?>
-                            </div>
-                            <div class="col-auto">
-                                <!-- <label for='cadena'>Cadena</label><br> -->
-                                <?= getFiltros(['cadena' => ['label' => 'Cadena', 'name' => 'cadena', 'id' => 'cadena', 'data' => true, 'select2' => 'my_select2Full', 'html' => '']]) ?>
-                            </div>
-                        </div>
-
-                        <div class="form-row mb-3">
-                            <div class='col-auto'>
-                                <!-- <label for='idPuntoDeVenta'>Acción</label><br> -->
-                                <button type="submit" class="btn-getPuntosDeVenta btn btn-primary m-lg-0">Obtener puntos de venta</button>
-                            </div>
-
-                            <div class='col-auto'>
-                                <!-- <label for='idPuntoDeVenta'>Punto de Venta</label><br> -->
-                                <select id='idPuntoDeVenta' name='idPuntoDeVenta' class='form-control form-control-sm my_select2Full'>
-                                    <option value="">-- Punto de Venta --</option>
-                                </select>
-                            </div>
-                        </div>
-                    </form>
-                </div>
             </div>
         </div>
-
     </div>
-
 </div>
 
-<div class="row tipoDetallado" id="contentStorecheck">
-	<div class="col-lg-12">
-		<div class="main-card mb-3 card">
-			<div class="card-header bg-purple-gradient text-white">
-				<i class="fas fa-list-alt fa-lg"></i>&nbspDETALLE
-			</div>
-			<div class="card-body">
-				<div class="alert alert-info" role="alert">
-					<i class="fas fa-info-circle"></i> NO SE HA GENERADO NINGÚN RESULTADO.
-				</div>
-			</div>
-		</div>
-	</div>
+<div class="customizer border-left-blue-grey border-left-lighten-4 d-none d-xl-block">
+    <a href="javascript:;" class="customizer-close"><i class="fal fa-times"></i></a>
+    <a href="javascript:;" class="customizer-toggle box-shadow-3 bg-trade-visual-grad-left text-white">
+        <i class="fal fa-cog fa-lg fa-spin"></i>
+    </a>
+    <div class="customizer-content p-3 ps-container ps-theme-dark">
+        <form id="formFiltroStorecheck">
+            <h4>CONFIGURACIÓN</h4>
+            <hr>
+            <div class="customizer-content-button">
+                <button type="button" class="btn btn-outline-trade-visual border-0 btn-consultar" data-url="filtrar" id="btn-filtrarAsistencia" title="Filtrar">
+                    <i class="fa fa-search"></i> <span class="txt"></span>
+                </button>
+                <button type="button" class="btn btn-outline-trade-visual border-0 btn-getPuntosDeVenta" title="Obtener puntos de venta">
+                    <i class="fas fa-arrow-alt-circle-down"></i> <span class="txt"></span>
+                </button>
+            </div>
+            <hr>
+            <div class="customizer-content-filter">
+                <h5 class="mt-1 mb-1 text-bold-500"><i class="fal fa-table"></i> Filtros</h5>
+                <div class="form-row">
+                    <input type="hidden" name="tipoFormato" id="tipoFormato" value="1" />
+                    <div class="col-md-12">
+                        <!-- <div class="mb-2 mr-sm-2 position-relative form-group">
+                            <div class="field">
+                                <div class="ui my_calendar">
+                                    <div class="ui input left icon" style="width:100%">
+                                        <i class="calendar icon"></i>
+                                        <input type="text" name="txt-fechas" id="txt-fechas" placeholder="Date" value="<?= date("d/m/Y") . ' - ' . date("d/m/Y") ?>" class="form-control">
+                                        <input type="text" name="txt-fechas_simple" id="txt-fechas_simple" placeholder="Date" value="<?= date("d/m/Y") . ' - ' . date("d/m/Y") ?>" class="form-control d-none">
+                                    </div>
+                                </div>
+                            </div>
+                        </div> -->
+                        <div class="mb-2 mr-sm-2 position-relative form-group">
+                            <select id='idMes' name='idMes' class='form-control form-control-sm my_select2Full'>
+                                <option value="">-- Mes --</option>
+                                <option value="01">Enero</option>
+                                <option value="02">Febrero</option>
+                                <option value="03">Marzo</option>
+                                <option value="04">Abril</option>
+                                <option value="05">Mayo</option>
+                                <option value="06">Junio</option>
+                                <option value="07">Julio</option>
+                                <option value="08">Agosto</option>
+                                <option value="09">Setiembre</option>
+                                <option value="10">Octubre</option>
+                                <option value="11">Noviembre</option>
+                                <option value="12">Diciembre</option>
+                            </select>
+                        </div>
+                        <div class="mb-2 mr-sm-2 position-relative form-group">
+                            <? $anioProyecto = 2020;
+                            $anioActual = (int) date("Y");
+                            ?>
+                            <select class="form-control form-control-sm my_select2" id="idAnio" name="idAnio">
+                                <option value="">-- Año --</option>
+                                <option value="<?= $anioActual ?>"><?= $anioActual ?></option>
+                                <?php
+                                while ($anioActual != $anioProyecto) {
+                                    $anioActual--; ?>
+                                    <option value="<?= $anioActual ?>"><?= $anioActual ?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
+                        <div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia">
+                            <?= getFiltros(['cuenta' => ['label' => 'Cuenta', 'name' => 'cuenta', 'id' => 'cuenta', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]) ?>
+                        </div>
+                        <div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia">
+                            <?= getFiltros(['proyecto' => ['label' => 'Proyecto', 'name' => 'proyecto', 'id' => 'proyecto', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]) ?>
+                        </div>
+
+                        <div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip">
+                            <span class="tooltiptext">Grupo Canal</span>
+                            <?= getFiltros(['grupoCanal' => ['label' => false, 'name' => 'grupoCanal', 'id' => 'grupoCanal', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]) ?>
+                        </div>
+                        <div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip">
+                            <span class="tooltiptext">Canal</span>
+                            <?= getFiltros(['canal' => ['label' => 'Canal', 'name' => 'canal', 'id' => 'canal', 'data' => false, 'select2' => 'ui my_select2Full', 'html' => '']]) ?>
+                        </div>
+                        <div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip">
+                            <span class="tooltiptext">Punto de Venta</span>
+                            <select id='idPuntoDeVenta' name='idPuntoDeVenta' class='form-control form-control-sm my_select2Full'>
+                                <option value="">-- Seleccione --</option>
+                            </select>
+                        </div>
+                        <div class="filtros_secundarios">
+                            <div class="filtros_generados">
+                                <h5 class="mt-1 mb-1 text-bold-500"><i class="fal fa-table"></i> Filtros Generados</h5>
+                                <div class="filtros_gc filtros_HFS d-none">
+                                    <div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip">
+                                        <span class="tooltiptext">Distribuidora</span>
+                                        <?= getFiltros(['distribuidora' => ['label' => 'Distribuidora', 'name' => 'distribuidora', 'id' => 'distribuidora', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]); ?>
+                                    </div>
+                                    <div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip">
+                                        <span class="tooltiptext">Sucursal</span>
+                                        <?= getFiltros(['distribuidoraSucursal' => ['label' => 'Sucursal', 'name' => 'distribuidoraSucursal', 'id' => 'distribuidoraSucursal', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]); ?>
+                                    </div>
+                                    <div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip">
+                                        <span class="tooltiptext">Zona</span>
+                                        <?= getFiltros(['zona' => ['label' => 'Zona', 'name' => 'zona', 'id' => 'zona', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]); ?>
+                                    </div>
+                                </div>
+                                <div class="filtros_gc filtros_WHLS d-none">
+                                    <div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip">
+                                        <span class="tooltiptext">Plaza</span>
+                                        <?= getFiltros(['plaza' => ['label' => 'Plaza', 'name' => 'plaza', 'id' => 'plaza', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]); ?>
+                                    </div>
+                                </div>
+                                <div class="filtros_gc filtros_HSM filtros_Moderno d-none">
+                                    <div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip">
+                                        <span class="tooltiptext">Cadena</span>
+                                        <?= getFiltros(['cadena' => ['label' => 'Cadena', 'name' => 'cadena', 'id' => 'cadena', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]); ?>
+                                    </div>
+                                    <div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip">
+                                        <span class="tooltiptext">Banner</span>
+                                        <?= getFiltros(['banner' => ['label' => 'Banner', 'name' => 'banner', 'id' => 'banner', 'data' => false, 'select2' => 'ui my_select2Full', 'html' => '']]); ?>
+                                    </div>
+                                </div>
+
+                                <div class="filtros_gc">
+                                    <?= getFiltros(['zonaUsuario' => ['label' => 'zonausuario', 'name' => 'zonausuario', 'id' => 'zonausuario', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]) ?>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="main-card mb-3 card div-para-ocultar">
+    <div class="card-body p-0">
+        <div class="tab-content" id="content-auditoria">
+            <div class="tab-pane fade show active tipoDetallado" id="contentStorecheck" role="tabpanel">
+                <?= getMensajeGestion('noResultados') ?>
+            </div>
+        </div>
+    </div>
 </div>

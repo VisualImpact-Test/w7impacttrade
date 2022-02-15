@@ -47,8 +47,6 @@ class Storecheck extends MY_Controller
 		$elementosAValidar = [
 			'idMes' => ['selectRequerido'],
 			'idAnio' => ['selectRequerido'],
-			'cuenta' => ['selectRequerido'],
-			'proyecto' => ['selectRequerido'],
 			'grupoCanal' => ['selectRequerido'],
 			'canal' => ['selectRequerido'],
 			//'cadena' => ['selectRequerido'],

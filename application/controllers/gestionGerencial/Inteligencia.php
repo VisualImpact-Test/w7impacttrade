@@ -11,7 +11,7 @@ class Inteligencia extends MY_Controller{
 	public function index()
 	{
 		$config = array();
-		$config['nav']['menu_active'] = '110';
+		$config['nav']['menu_active'] = $idMenu = '110';
 		$config['css']['style'] = array(
 			'assets/custom/css/gestionGerencial/inteligencia'
 		);
@@ -28,6 +28,9 @@ class Inteligencia extends MY_Controller{
 
 		$tipos = $this->model->obtener_tipos();
 		$config['data']['tipos'] = $tipos;
+
+		$config['data']['tabs']  = $tabs = getTabPermisos(['idMenuOpcion'=>$idMenu])->result_array();
+		if(empty($tabs)) $config['view'] = 'oops';
 
 		$this->view($config);
 	}
@@ -117,6 +120,43 @@ class Inteligencia extends MY_Controller{
 		echo json_encode($result);
     }
 
+	public function filtrar_hsm(){
+		$result = $this->result;
+		$data = json_decode($this->input->post('data'));
+
+		$fechas = explode(' - ', $data->{'txt-fechas'});
+
+		$input = array();
+		$input['fecIni'] = $fechas[0];
+		$input['fecFin'] = $fechas[1];
+
+		$input['proyecto_filtro'] = $data->{'proyecto_filtro'};
+		$input['grupoCanal_filtro'] = $data->{'grupoCanal_filtro'};
+		$input['canal_filtro'] = $data->{'canal_filtro'};
+		$input['subcanal'] = $data->{'subcanal_filtro'};
+		$input['idTipo'] = $data->{'idTipo'};
+
+		$input['tipoUsuario_filtro'] = empty($data->{'tipoUsuario_filtro'}) ? '' : $data->{'tipoUsuario_filtro'};
+		$input['usuario_filtro'] = empty($data->{'usuario_filtro'}) ? '' : $data->{'usuario_filtro'};
+
+		$input['distribuidoraSucursal_filtro'] = empty($data->{'distribuidoraSucursal_filtro'}) ? '' : $data->{'distribuidoraSucursal_filtro'};
+		$input['distribuidora_filtro'] = empty($data->{'distribuidora_filtro'}) ? '' : $data->{'distribuidora_filtro'};
+		$input['zona_filtro'] = empty($data->{'zona_filtro'}) ? '' : $data->{'zona_filtro'};
+		$input['plaza_filtro'] = empty($data->{'plaza_filtro'}) ? '' : $data->{'plaza_filtro'};
+		$input['cadena_filtro'] = empty($data->{'cadena_filtro'}) ? '' : $data->{'cadena_filtro'};
+		$input['banner_filtro'] = empty($data->{'banner_filtro'}) ? '' : $data->{'banner_filtro'};
+
+		$array = [];
+		$html = $this->load->view("modulos/gestionGerencial/inteligencia/detalle_inteligencia_hsm", $array, true);
+				
+		$result['result'] = 1;
+		$result['data']['views']['idContentInteligencia']['datatable'] = 'tb-inteligencia-hsm';
+		$result['data']['views']['idContentInteligencia']['html'] = $html;
+		$result['data']['configTable'] =  [];
+	
+		echo json_encode($result);
+
+	}
 
 
 }

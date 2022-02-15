@@ -3,9 +3,18 @@ var Inteligencia = {
 	frmInteligencia: 'frm-inteligencia',
 	contentDetalle: 'idContentInteligencia',
 	url : 'gestionGerencial/inteligencia/', 
+	urlActivo : 'filtrar',
 
 	load: function(){
 
+		$(document).ready(function (e) {
+			Inteligencia.urlActivo = $(".card-body > ul > li > .active").data("url");
+			Inteligencia.contentDetalle = $(".card-body > ul > li > .active").data("contentdetalle");
+			$('.card-body > ul > li > .active').click();
+			$('.flt_grupoCanal').change();
+
+			$('#btn-filtrarInteligencia').click();
+        });
 
 		$(document).on('click','#btn-filtrarInteligencia', function(e){
 			e.preventDefault();
@@ -13,12 +22,18 @@ var Inteligencia = {
 			var control = $(this);
 			var config = {
 				'idFrm' : Inteligencia.frmInteligencia
-				,'url': Inteligencia.url + control.data('url')
+				,'url': Inteligencia.url + Inteligencia.urlActivo
 				,'contentDetalle': Inteligencia.contentDetalle
 			}; 
 			Fn.loadReporte_new(config);
 		});
 
+		$(document).on('click', '.card-body > ul > li > a', function (e) {
+			var control = $(this);
+            Inteligencia.urlActivo = control.data('url');
+			Inteligencia.contentDetalle = control.data('contentdetalle');
+
+        });
 		$(document).on('dblclick', '.card-body > ul > li > a', function (e) {
             $('#btn-filtrarInteligencia').click();
         });
@@ -54,10 +69,6 @@ var Inteligencia = {
 		
 		$('#idTipo').select2( );
 
-		$(document).ready(function () {
-			$('#btn-filtrarInteligencia').click();
-			$(".flt_grupoCanal").change();
-		});
 	}
 }
 

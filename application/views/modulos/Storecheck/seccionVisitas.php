@@ -2,7 +2,7 @@
 $ubicacionFotos = "http://movil.visualimpact.com.pe/fotos/impactTrade_android/incidencias/";
 
 ?>
-<div class="col-md-7">
+<div class="col-md-12">
     <div class="mb-3 card">
         <div class="card-header"><i class="fa fa-table" aria-hidden="true"></i> &nbsp;&nbsp;Visitas&nbsp;<span class="badge badge-secondary"><?= $cantidadVisitas ?> Visitas</span></div>
         <div class="card-body">

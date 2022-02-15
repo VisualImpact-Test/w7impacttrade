@@ -352,7 +352,7 @@ class M_visibilidad extends My_Model
 			foreach ($multiDataRefactorizada as $value) {
 				if (empty($value['id'])) {
 					$input[] = [
-						$this->model->tablas['lista_sos_det']['id'] => $idLista,
+						$this->model->tablas['lista_sos']['id'] => $idLista,
 						 $this->model->tablas['elemento_sos']['id'] =>$value['elemento_lista'],
 						
 					];

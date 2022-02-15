@@ -9,9 +9,11 @@
         <div class="card w-100 mb-3 p-0">
             <div class="card-body p-0">
                 <ul class="nav nav-tabs nav-justified">
-                    <li class="nav-item">
-                        <a class="nav-link active" data-toggle="tab" href="#contentIniciativas">Principal</a>
-                    </li>
+					<? foreach ($tabs as $k => $v) { ?>
+						<li class="nav-item btnReporte" id="tipoReporte" name="tipoReporte">
+							<a data-toggle="tab" href="#<?= $v['contenedor'] ?>" class="<?= ($k == 0) ? 'active' : '' ?> nav-link" data-value="1" data-url="<?= $v['url'] ?>" data-contentdetalle="<?= $v['contenedor'] ?>"><?= $v['nombre'] ?></a>
+						</li>
+					<? } ?>
                 </ul>
             </div>
         </div>
@@ -214,9 +216,11 @@
 <div class="main-card mb-3 card ">
 	<div class="card-body p-0">
 		<div class="tab-content" id="content-iniciativas">
-			<div class="tab-pane fade show active" id="contentIniciativas" role="tabpanel" >
-				<?= getMensajeGestion('noResultados') ?>
-			</div>
+			<? foreach ($tabs as $k => $v) { ?>
+				<div class="tab-pane fade <?= ($k == 0) ? 'show active' : '' ?>" id="<?= $v['contenedor'] ?>" role="tabpanel">
+					<?= getMensajeGestion('noResultados') ?>
+				</div>
+			<? } ?>
 		</div>
 	</div>
 </div>

@@ -26,8 +26,8 @@ class M_storecheck extends MY_Model
 			$filtros = getPermisos($aliasParaConsulta);
 		} else {
 			$filtros = '';
-			if (!empty($post['cuenta'])) $filtros .= ' AND cu.idCuenta = ' . $post['cuenta'];
-			if (!empty($post['proyecto'])) $filtros .= ' AND py.idProyecto = ' . $post['proyecto'];
+			if (!empty($post['cuenta'])) $filtros .= ' AND cu.idCuenta = ' . $this->sessIdCuenta;
+			if (!empty($post['proyecto'])) $filtros .= ' AND py.idProyecto = ' . $this->sessIdProyecto;
 			if (!empty($post['grupoCanal'])) $filtros .= ' AND ca.idGrupocanal = ' . $post['grupoCanal'];
 			if (!empty($post['canal'])) $filtros .= ' AND ca.idCanal = ' . $post['canal'];
 			//if (!empty($post['cadena'])) $filtros .= ' AND cd.idCadena = ' . $post['cadena'];
@@ -56,28 +56,6 @@ class M_storecheck extends MY_Model
 		";
 
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.cliente' ];
-
-		$sqlTest = "
-			DECLARE @fecIni DATE= '01/01/2020', @fecFin DATE= '31/01/2020';
-			SELECT DISTINCT 
-				c.idCliente, 
-				c.razonSocial
-			FROM trade.cliente c
-				JOIN {$this->sessBDCuenta}.trade.cliente_historico ch ON ch.idCliente = c.idCliente
-				JOIN trade.proyecto py ON py.idProyecto = ch.idProyecto
-				JOIN trade.cuenta cu ON cu.idCuenta = py.idCuenta
-				LEFT JOIN trade.segmentacionNegocio sn ON sn.idSegNegocio = ch.idSegNegocio
-														AND sn.estado = 1
-				LEFT JOIN trade.canal ca ON ca.idCanal = sn.idCanal
-											AND ca.estado = 1
-				LEFT JOIN trade.segmentacionClienteModerno scm ON scm.idSegClienteModerno = ch.idSegClienteModerno
-				LEFT JOIN trade.banner b ON b.idBanner = scm.idBanner
-				LEFT JOIN trade.cadena cd ON cd.idCadena = b.idCadena
-			WHERE 1 = 1
-				AND c.estado = 1
-				AND cu.idCuenta = 3
-				AND py.idProyecto = 2;
-		";
 
 		return $this->db->query($sql);
 	}
@@ -694,14 +672,14 @@ class M_storecheck extends MY_Model
 			FROM {$this->sessBDCuenta}.trade.data_visita v
 				INNER JOIN {$this->sessBDCuenta}.trade.data_visitaEncuestaPremio vep ON vep.idVisita = v.idVisita
 				LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaEncuestaPremioDet vepd ON vepd.idVisitaEncuesta = vep.idVisitaEncuesta
-				LEFT JOIN {$this->sessBDCuenta}.trade.encuesta_premio_pregunta epp ON epp.idPregunta = vepd.idPregunta
-				LEFT JOIN {$this->sessBDCuenta}.trade.encuesta_premio_alternativa epa ON epa.idAlternativa = CASE
+				LEFT JOIN trade.encuesta_premio_pregunta epp ON epp.idPregunta = vepd.idPregunta
+				LEFT JOIN trade.encuesta_premio_alternativa epa ON epa.idAlternativa = CASE
 					WHEN ISNUMERIC(vepd.respuesta) = 1
 					THEN vepd.respuesta
 					ELSE 0
 				END
 				LEFT JOIN master.tipoPregunta tp ON tp.idTipoPregunta = epp.idPreguntaTipo
-				LEFT JOIN {$this->sessBDCuenta}.trade.encuesta_premio ep ON ep.idEncuesta = vep.idEncuesta
+				LEFT JOIN trade.encuesta_premio ep ON ep.idEncuesta = vep.idEncuesta
 				LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisitaFoto = vep.idVisitaFoto
 				INNER JOIN {$this->sessBDCuenta}.trade.data_ruta r ON r.idRuta = v.idRuta
 			WHERE v.idVisita IN( ".$post['ids']." )

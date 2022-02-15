@@ -9,7 +9,7 @@ class Iniciativas extends MY_Controller
 
 	public function index(){
 		$config = array();
-		$config['nav']['menu_active'] = '85';
+		$config['nav']['menu_active'] = $idMenu = '85';
 		$config['css']['style'] = array(
 			'assets/libs/datatables/dataTables.bootstrap4.min',
 			'assets/libs/datatables/buttons.bootstrap4.min',
@@ -23,10 +23,18 @@ class Iniciativas extends MY_Controller
 			'assets/custom/js/iniciativas'
 		);
 
+		$tabs = getTabPermisos(['idMenuOpcion' => $idMenu])->result_array();
+
 		$config['data']['icon'] = 'fad fa-chart-pie';
 		$config['data']['title'] = 'Iniciativas';
 		$config['data']['message'] = 'Iniciativas';
-		$config['view'] = 'modulos/iniciativas/index';
+
+		if (empty($tabs)) {
+            $config['view'] = 'oops';
+        } else {
+            $config['view'] = 'modulos/iniciativas/index';
+            $config['data']['tabs'] = $tabs;
+        }
 
 		$params = [];
 		$params['cuenta'] = $this->sessIdCuenta;
@@ -115,6 +123,20 @@ class Iniciativas extends MY_Controller
 		}
 		
 		echo json_encode($result);
+	}
+
+	public function filtrarHsm(){
+		$result = $this->result;
+        $data = json_decode($this->input->post('data'));
+
+		$array = [];
+        $result['result'] = 1;
+        $result['data']['views']['contentIniciativasHsm']['html'] = $this->load->view("modulos/iniciativas/listaIniciativasHsm", $array, true);
+        $result['data']['views']['contentIniciativasHsm']['datatable'] = 'tb-iniciativasHsm';
+        $result['data']['configTable'] = [];
+
+        respuesta:
+        echo json_encode($result);
 	}
 
 	public function editar_iniciativas(){
