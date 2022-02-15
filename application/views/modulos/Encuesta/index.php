@@ -11,6 +11,11 @@
 				<ul class="nav nav-tabs nav-justified">
 					<li class="nav-item btnReporte" id="tipoReporte" name="tipoReporte" url="visibilidad" data-value="1" data-tiporeporte="1"><a data-toggle="tab" href="#idDetalleHorizontal" class="active nav-link">Detallado</a></li>
 					<li class="nav-item btnReporte" id="tipoReporte" name="tipoReporte" url="preciomarcado" data-value="2" data-tiporeporte="2"><a data-toggle="tab" href="#idDetalleGraficas" class="nav-link">Resumen</a></li>
+					<? foreach ($tabs as $k => $v) { ?>
+						<li class="nav-item btnReporte" id="tipoReporte" name="tipoReporte" data-value="<?= $v['orden'] ?>">
+							<a data-toggle="tab" href="#<?= $v['contenedor'] ?>" class="nav-link" data-url="<?= $v['url'] ?>" data-contenedor="<?= $v['contenedor'] ?>"><?= $v['nombre'] ?></a>
+						</li>
+					<? } ?>
 				</ul>
 			</div>
 		</div>
@@ -36,6 +41,9 @@
 				</button>
 				<button type="button" class="btn btn-outline-trade-visual border-0" data-url="pdf" id="btn-encuesta-pdf" title="PDF">
 					<i class="fa fa-file-pdf"></i> <span class="txt_filtro"></span>
+				</button>
+				<button type="button" class="btn btn-outline-trade-visual border-0" data-url="excel" id="btn-descargarExcel" title="Excel">
+					<i class="far fa-file-excel"></i> <span class="txt_filtro"></span>
 				</button>
 			</div>
 			<hr>
@@ -168,6 +176,9 @@
 				<?= getMensajeGestion('noResultados') ?>
 			</div>
 			<div class="tab-pane fade" id="idDetalleGraficas" role="tabpanel">
+				<?= getMensajeGestion('noResultados') ?>
+			</div>
+			<div class="tab-pane fade" id="idDetalleHorizontalConsolidado" role="tabpanel">
 				<?= getMensajeGestion('noResultados') ?>
 			</div>
 		</div>

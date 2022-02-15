@@ -1,41 +1,176 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-class M_encuesta extends MY_Model
+class M_cobertura extends MY_Model
 {
 	public function __construct()
 	{
 		parent::__construct();
 	}
 
-	public function getTiposDePregunta()
+	public function getClientesProgramados($params = [])
 	{
+		$filtros = "";
+		$filtros .= !empty($params['idCuenta']) ? ' AND e.idCuenta = ' . $params['idCuenta'] : '';
+
 		$sql = "
-			SELECT *
-			FROM master.tipoPregunta;
+		DECLARE
+			@fecIni DATE = '{$params['fecIni']}'
+			, @fecFin DATE = '{$params['fecFin']}'
+		SELECT * , COUNT(idCliente) OVER(PARTITION BY idCanal) total_canal FROM (
+		SELECT DISTINCT
+			c.codCliente
+			, c.idCliente
+			, c.razonSocial AS cliente
+			, ca.idCanal
+			, ca.nombre AS canal
+		FROM
+			ImpactTrade_pg.trade.programacion_ruta pr
+			JOIN ImpactTrade_pg.trade.programacion_visita pv ON pr.idProgRuta = pv.idProgRuta
+			LEFT JOIN ImpactTrade_bd.trade.cliente c ON pv.idCliente = c.idCliente
+			LEFT JOIN ImpactTrade_pg.trade.cliente_historico ch ON c.idCliente = ch.idCliente AND ch.idProyecto = pr.idProyecto-- AND ch.fecFin IS NULL
+			LEFT JOIN ImpactTrade_bd.trade.segmentacionNegocio sn ON ch.idSegNegocio = sn.idSegNegocio
+			JOIN ImpactTrade_bd.trade.canal ca ON sn.idCanal = ca.idCanal
+		WHERE fn.datesBetween(pr.fecIni, pr.fecFin, @fecIni, @fecFin) = 1
+		) AS a
 		";
 
 		return $this->db->query($sql);
 	}
 
-	public function getEncuestasActivas($input=array())
+	public function getFechas($params = [])
 	{
-		$filtros = "";
-		$filtros .= !empty($input['idCuenta']) ? ' AND e.idCuenta = '.$input['idCuenta'] : '';
-
 		$sql = "
-			SELECT DISTINCT 
-				e.idEncuesta, 
-				e.nombre 'encuesta'
-			FROM {$this->sessBDCuenta}.trade.list_encuesta le
-				JOIN {$this->sessBDCuenta}.trade.list_encuestaDet led ON le.idListEncuesta = led.idListEncuesta
-				JOIN {$this->sessBDCuenta}.trade.encuesta e ON led.idEncuesta = e.idEncuesta
-			
-			WHERE 1=1
-				$filtros
-			ORDER BY e.nombre;
+		DECLARE
+			@fecIni DATE = '{$params['fecIni']}'
+			, @fecFin DATE = '{$params['fecFin']}'
+		SELECT
+			idTiempo,
+			CONVERT(VARCHAR(10), fecha, 103) fecha,
+			dia
+		FROM
+			general.dbo.tiempo tt
+		WHERE
+			fecha BETWEEN @fecIni
+			AND @fecFin
+		ORDER BY
+			tt.fecha ASC
 		";
+
+		return $this->db->query($sql);
+	}
+
+	public function getHorasProgramadas($params = [])
+	{
+		$sql = "
+		DECLARE
+			@fecIni DATE = '{$params['fecIni']}'
+			, @fecFin DATE = '{$params['fecFin']}';
+		WITH horario_programado AS (
+			SELECT
+			DISTINCT 
+			pv.idCliente
+			, prd.idUsuario
+			, tt.fecha
+			, tt.idTiempo
+			, h.horaIni
+			, h.horaFin
+			, (CONVERT(float,DATEDIFF(mi, h.horaIni, h.horaFin))/60)
+				- CONVERT(TINYINT, ISNULL(pvd.flagRefrigerio, 0))
+			AS hp_dia
+			FROM 
+			ImpactTrade_pg.trade.programacion_ruta pr
+			JOIN ImpactTrade_pg.trade.programacion_rutaDet prd ON pr.idProgRuta = prd.idProgRuta
+			JOIN ImpactTrade_pg.trade.programacion_visita pv ON pr.idProgRuta = pv.idProgRuta
+			JOIN ImpactTrade_pg.trade.programacion_visitaDet pvd ON pv.idProgVisita = pvd.idProgVisita
+			JOIN ImpactTrade_pg.trade.horarios h ON pvd.idHorario = h.idHorario
 		
+			JOIN general.dbo.tiempo tt ON tt.idDia = pvd.dia
+			AND tt.fecha BETWEEN @fecIni
+			AND @fecFin
+			JOIN ImpactTrade_bd.trade.cliente c ON pv.idCliente = c.idCliente
+			JOIN ImpactTrade_pg.trade.cliente_historico ch ON c.idCliente = ch.idCliente AND ch.idProyecto = pr.idProyecto
+			AND fn.datesBetween(ch.fecIni, ch.fecFin, @fecIni,@fecFin) = 1
+			WHERE
+			prd.estado = 1
+			AND c.estado = 1
+			AND tt.fecha BETWEEN prd.fecIni AND ISNULL(prd.fecFin,tt.fecha)
+		)
+		SELECT DISTINCT
+			idCliente,
+			HP,
+			SUM(hp_dia) OVER (PARTITION BY idCliente,fecha) hp_dia,
+			fecha,
+			idTiempo,
+			idUsuario
+		FROM (
+		SELECT
+			DISTINCT idCliente,
+			SUM(hp_dia) OVER (PARTITION BY idCliente) HP,
+			hp_dia,
+			idUsuario,
+			fecha,
+			idTiempo
+		FROM horario_programado
+		)a
+		";
+
+		return $this->db->query($sql);
+	}
+
+	public function getVisitas($params = [])
+	{
+		$sql = "
+		DECLARE
+			@fecIni DATE = '{$params['fecIni']}'
+			, @fecFin DATE = '{$params['fecFin']}';
+		SELECT DISTINCT
+			idCliente 
+			, idTiempo
+			, SUM(HT) OVER (PARTITION BY idCliente,idTiempo ) HT
+			, idUsuario
+		
+		FROM (
+			SELECT DISTINCT
+					r.idUsuario
+				, v.idCliente 
+				, tt.idTiempo
+				, ROUND(CONVERT(FLOAT, (
+						DATEDIFF(MI, v.horaIni, v.horaFin)/*- (
+							CASE pvd.flagRefrigerio
+								WHEN 1 THEN DATEDIFF(MI,
+									ISNULL(asi.horaIniRefrigerio, '00:00:00'),
+									ISNULL(asi.horaFinRefrigerio, '00:00:00')
+								)
+								ELSE 0
+							END
+						)*/
+					)) / 60, 1) AS HT
+		
+			FROM
+				ImpactTrade_pg.trade.data_ruta r
+				JOIN ImpactTrade_pg.trade.data_visita v ON r.idRuta = v.idRuta
+				JOIN ImpactTrade_bd.trade.cliente t ON v.idCliente = t.idCliente
+				LEFT JOIN ImpactTrade_bd.trade.cliente_historico ht ON t.idCliente = ht.idCliente
+				AND r.fecha BETWEEN ht.fecIni AND ISNULL(ht.fecFin, r.fecha) AND ht.idProyecto = r.idProyecto
+		
+				JOIN ImpactTrade_pg.trade.programacion_rutaDet pr ON r.idUsuario = pr.idUsuario AND r.fecha BETWEEN pr.fecIni AND ISNULL(pr.fecFin, r.fecha)
+				JOIN ImpactTrade_pg.trade.programacion_visita pv ON v.idCliente = pv.idCliente AND pr.idProgRuta = pv.idProgRuta
+				JOIN ImpactTrade_pg.trade.programacion_visitaDet pvd ON pv.idProgVisita = pvd.idProgVisita
+		
+				JOIN General.dbo.tiempo tt ON tt.fecha = r.fecha
+				JOIN ImpactTrade_bd.trade.usuario u on r.idUsuario = u.idUsuario AND u.demo = 0
+		
+			WHERE 
+				r.fecha BETWEEN @fecIni AND @fecFin
+				AND r.demo = 0
+				AND v.horaIni IS NOT NULL
+				AND v.horaFin IS NOT NULL
+				--AND dso.idDescanso IS NULL
+		)a
+		ORDER BY
+			idCliente ASC
+		";
 
 		return $this->db->query($sql);
 	}
@@ -45,40 +180,33 @@ class M_encuesta extends MY_Model
 		$fechas = getFechasDRP($input["txt-fechas"]);
 
 		$filtros = '';
-		$filtros .= !empty($input['idCuenta']) ? ' AND py.idCuenta = '.$input['idCuenta'] : '';
-		$filtros .= !empty($input['idProyecto']) ? ' AND py.idProyecto = '.$input['idProyecto'] : '';
-		$filtros .= !empty($input['idGrupoCanal']) ? ' AND ca.idGrupoCanal = '.$input['idGrupoCanal'] : '';
-		$filtros .= !empty($input['idCanal']) ? ' AND ca.idCanal = '.$input['idCanal'] : '';
-		$filtros .= !empty($input['subcanal']) ? ' AND ct.idClienteTipo='.$input['subcanal'] : '';
-		$filtros .= !empty($input['distribuidora_filtro']) ? ' AND d.idDistribuidora='.$input['distribuidora_filtro'] : '';
-		$filtros .= !empty($input['zona_filtro']) ? ' AND z.idZona='.$input['zona_filtro'] : '';
-		$filtros .= !empty($input['plaza_filtro']) ? ' AND pl.idPlaza='.$input['plaza_filtro'] : '';
-		$filtros .= !empty($input['cadena_filtro']) ? ' AND cad.idCadena='.$input['cadena_filtro'] : '';
-		$filtros .= !empty($input['banner_filtro']) ? ' AND ba.idBanner='.$input['banner_filtro'] : '';
+		$filtros .= !empty($input['idCuenta']) ? ' AND py.idCuenta = ' . $input['idCuenta'] : '';
+		$filtros .= !empty($input['idProyecto']) ? ' AND py.idProyecto = ' . $input['idProyecto'] : '';
+		$filtros .= !empty($input['idGrupoCanal']) ? ' AND ca.idGrupoCanal = ' . $input['idGrupoCanal'] : '';
+		$filtros .= !empty($input['idCanal']) ? ' AND ca.idCanal = ' . $input['idCanal'] : '';
+		$filtros .= !empty($input['subcanal']) ? ' AND ct.idClienteTipo=' . $input['subcanal'] : '';
+		$filtros .= !empty($input['distribuidora_filtro']) ? ' AND d.idDistribuidora=' . $input['distribuidora_filtro'] : '';
+		$filtros .= !empty($input['zona_filtro']) ? ' AND z.idZona=' . $input['zona_filtro'] : '';
+		$filtros .= !empty($input['plaza_filtro']) ? ' AND pl.idPlaza=' . $input['plaza_filtro'] : '';
+		$filtros .= !empty($input['cadena_filtro']) ? ' AND cad.idCadena=' . $input['cadena_filtro'] : '';
+		$filtros .= !empty($input['banner_filtro']) ? ' AND ba.idBanner=' . $input['banner_filtro'] : '';
 
-		$filtros .= !empty($input['departamento_filtro']) ? ' AND ubi01.cod_departamento='.$input['departamento_filtro'] : '';
-		$filtros .= !empty($input['provincia_filtro']) ? ' AND ubi01.cod_provincia='.$input['provincia_filtro'] : '';
-		$filtros .= !empty($input['distrito_filtro']) ? ' AND ubi01.cod_ubigeo='.$input['distrito_filtro'] : '';
+		if (!empty($input['idEncuesta'])) $filtros .= " AND ve.idEncuesta IN ( " . $input['idEncuesta'] . ')';
 
-		if (!empty($input['idEncuesta'])) $filtros .= " AND ve.idEncuesta IN ( " . $input['idEncuesta']. ')';
-
-		$segmentacion = getSegmentacion([ 'grupoCanal_filtro' => $input['idGrupoCanal'] ]);
+		$segmentacion = getSegmentacion(['grupoCanal_filtro' => $input['idGrupoCanal']]);
 
 		$orderby = '';
-		if($segmentacion['grupoCanal'] == 'HSM' OR $segmentacion['grupoCanal'] == 'Moderno')
-		{
+		if ($segmentacion['grupoCanal'] == 'HSM' or $segmentacion['grupoCanal'] == 'Moderno') {
 			$orderby = 'ORDER BY fecha, tipoUsuario, cadena, canal, ciudad, provincia, distrito ASC';
 		}
-		if($segmentacion['grupoCanal'] == 'WHLS')
-		{
+		if ($segmentacion['grupoCanal'] == 'WHLS') {
 			$orderby = 'ORDER BY fecha, tipoUsuario, zona, canal, ciudad, provincia, distrito ASC';
 		}
-		if($segmentacion['grupoCanal'] == 'HFS')
-		{
+		if ($segmentacion['grupoCanal'] == 'HFS') {
 			$orderby = 'ORDER BY fecha, tipoUsuario, distribuidora, canal, ciudad, provincia, distrito ASC';
 		}
 
-		if (!empty($input['elementos_det'])) $filtros .= " AND v.idVisita IN (  ".$input['elementos_det']." )";
+		if (!empty($input['elementos_det'])) $filtros .= " AND v.idVisita IN (  " . $input['elementos_det'] . " )";
 
 		$sql = "
 		DECLARE @fecIni DATE='" . $fechas[0] . "',@fecFin DATE='" . $fechas[1] . "';
@@ -130,7 +258,7 @@ class M_encuesta extends MY_Model
 			LEFT JOIN trade.encargado_usuario sub ON sub.idUsuario=r.idUsuario
 			LEFT JOIN trade.encargado enc ON enc.idEncargado=sub.idEncargado
 
-			JOIN ".getClienteHistoricoCuenta()." ch ON ch.idCliente = c.idCliente
+			JOIN " . getClienteHistoricoCuenta() . " ch ON ch.idCliente = c.idCliente
 			LEFT JOIN trade.segmentacionNegocio sn ON ch.idSegNegocio = sn.idSegNegocio AND sn.estado = 1
 			LEFT JOIN trade.cliente_tipo ct
 				ON ct.idClienteTipo = sn.idClienteTipo
@@ -138,7 +266,7 @@ class M_encuesta extends MY_Model
 			{$segmentacion['join']}
 			AND r.fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin,r.fecha) AND ch.flagCartera=1 
 
-			WHERE r.fecha between @fecIni AND @fecFin --AND r.demo=0
+			WHERE r.fecha between @fecIni AND @fecFin AND r.demo=0
 				AND r.estado=1 AND v.estado=1
 				{$filtros}
 				{$orderby}
@@ -150,11 +278,10 @@ class M_encuesta extends MY_Model
 	public function list_encuesta($input)
 	{
 		$fechas = getFechasDRP($input["txt-fechas"]);
-		$idProyecto = $this->sessIdProyecto ;
+
 		$filtros = '';
-		if (!empty($input['idEncuesta'])) $filtros .= " AND e.idEncuesta IN ( " . $input['idEncuesta']. ')';
-		$filtros .= !empty($input['tipoPregunta']) ? ' AND ep.idTipoPregunta = '.$input['tipoPregunta'] : '';
-		$filtros .= !empty($idProyecto) ? ' AND le.idProyecto = '.$idProyecto : '';
+		if (!empty($input['idEncuesta'])) $filtros .= " AND e.idEncuesta IN ( " . $input['idEncuesta'] . ')';
+		$filtros .= !empty($input['tipoPregunta']) ? ' AND ep.idTipoPregunta = ' . $input['tipoPregunta'] : '';
 
 		$sql = "
 			DECLARE @fecIni DATE='" . $fechas[0] . "',@fecFin DATE='" . $fechas[1] . "';
@@ -184,20 +311,23 @@ class M_encuesta extends MY_Model
 		$fechas = getFechasDRP($input["txt-fechas"]);
 
 		$filtros = '';
-		$filtros .= !empty($input['idCuenta']) ? ' AND py.idCuenta = '.$input['idCuenta'] : '';
-		$filtros .= !empty($input['idProyecto']) ? ' AND py.idProyecto = '.$input['idProyecto'] : '';
-		$filtros .= !empty($input['idGrupoCanal']) ? ' AND ca.idGrupoCanal = '.$input['idGrupoCanal'] : '';
-		$filtros .= !empty($input['idCanal']) ? ' AND ca.idCanal = '.$input['idCanal'] : '';
+		$filtros .= !empty($input['idCuenta']) ? ' AND py.idCuenta = ' . $input['idCuenta'] : '';
+		$filtros .= !empty($input['idProyecto']) ? ' AND py.idProyecto = ' . $input['idProyecto'] : '';
+		$filtros .= !empty($input['idGrupoCanal']) ? ' AND ca.idGrupoCanal = ' . $input['idGrupoCanal'] : '';
+		$filtros .= !empty($input['idCanal']) ? ' AND ca.idCanal = ' . $input['idCanal'] : '';
 
-		if (!empty($input['idEncuesta'])) $filtros .= " AND ve.idEncuesta IN ( " . $input['idEncuesta']. ')';
 
-		if (!empty($input['elementos_det'])) $filtros .= " AND v.idVisita IN (  ".$input['elementos_det']." )";
+
+
+		if (!empty($input['idEncuesta'])) $filtros .= " AND ve.idEncuesta IN ( " . $input['idEncuesta'] . ')';
+
+		if (!empty($input['elementos_det'])) $filtros .= " AND v.idVisita IN (  " . $input['elementos_det'] . " )";
 
 		$sql = "
 		DECLARE @fecIni DATE='" . $fechas[0] . "',@fecFin DATE='" . $fechas[1] . "';
 			SELECT
 			DISTINCT
-				v.idVisita,ve.idEncuesta,vf.idVisitaFoto,vf.fotoUrl imgRef,vfd.fotoUrl imgRefSub,
+				v.idVisita,ve.idEncuesta,vf.idVisitaFoto,vf.fotoUrl imgRef,
 				ep.idPregunta,
 				ep.idTipoPregunta,
 				isnull(ea.nombre,ved.respuesta) 'respuesta'
@@ -211,8 +341,6 @@ class M_encuesta extends MY_Model
 				, c.codCliente
 				, c.razonSocial
 				, CONVERT(varchar,r.fecha,103) fecha
-				, ve.idVisitaEncuesta
-				, ve.flagFotoMultiple
 			FROM {$this->sessBDCuenta}.trade.data_ruta r
 			JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta=v.idRuta
 			JOIN trade.cliente c ON v.idCliente=c.idCliente
@@ -221,12 +349,11 @@ class M_encuesta extends MY_Model
 			JOIN {$this->sessBDCuenta}.trade.data_visitaEncuestaDet ved ON ve.idVisitaEncuesta=ved.idVisitaEncuesta
 			JOIN {$this->sessBDCuenta}.trade.encuesta e ON e.idEncuesta = ve.idEncuesta
 			JOIN {$this->sessBDCuenta}.trade.encuesta_pregunta ep ON ved.idPregunta=ep.idPregunta
-			LEFT JOIN {$this->sessBDCuenta}.trade.encuesta_alternativa ea ON ved.idAlternativa=ea.idAlternativa
+			left JOIN {$this->sessBDCuenta}.trade.encuesta_alternativa ea ON ved.idAlternativa=ea.idAlternativa
 			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisitaFoto = ve.idVisitaFoto
-			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vfd ON vfd.idVisitaFoto = ved.idVisitaFoto
 			LEFT JOIN trade.canal ca ON ca.idCanal = v.idCanal
 			
-			JOIN ".getClienteHistoricoCuenta()." ch ON ch.idCliente = c.idCliente
+			JOIN " . getClienteHistoricoCuenta() . " ch ON ch.idCliente = c.idCliente
 			AND r.fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin,r.fecha) AND ch.flagCartera=1 
 			
 			JOIN trade.usuario_historico uh ON uh.idUsuario=r.idUsuario
@@ -237,13 +364,11 @@ class M_encuesta extends MY_Model
 			LEFT JOIN trade.encargado_usuario sub ON sub.idUsuario=r.idUsuario
 			LEFT JOIN trade.encargado enc ON enc.idEncargado=sub.idEncargado
 
-			WHERE r.estado=1 AND v.estado=1  --AND r.demo=0
+			WHERE r.estado=1 AND v.estado=1  AND r.demo=0
 			
 			AND r.fecha between @fecIni AND @fecFin 
 		$filtros
-		ORDER BY respuesta
 		";
-
 		return $this->db->query($sql);
 	}
 
@@ -253,17 +378,17 @@ class M_encuesta extends MY_Model
 		$fechas = getFechasDRP($input["txt-fechas"]);
 
 		$filtros = '';
-		$filtros .= !empty($input['idCuenta']) ? ' AND py.idCuenta = '.$input['idCuenta'] : '';
-		$filtros .= !empty($input['idProyecto']) ? ' AND py.idProyecto = '.$input['idProyecto'] : '';
-		$filtros .= !empty($input['idGrupoCanal']) ? ' AND ca.idGrupoCanal = '.$input['idGrupoCanal'] : '';
-		$filtros .= !empty($input['idCanal']) ? ' AND ca.idCanal = '.$input['idCanal'] : '';
-		
-		
+		$filtros .= !empty($input['idCuenta']) ? ' AND py.idCuenta = ' . $input['idCuenta'] : '';
+		$filtros .= !empty($input['idProyecto']) ? ' AND py.idProyecto = ' . $input['idProyecto'] : '';
+		$filtros .= !empty($input['idGrupoCanal']) ? ' AND ca.idGrupoCanal = ' . $input['idGrupoCanal'] : '';
+		$filtros .= !empty($input['idCanal']) ? ' AND ca.idCanal = ' . $input['idCanal'] : '';
 
 
-		if (!empty($input['idEncuesta'])) $filtros .= " AND ve.idEncuesta IN ( " . $input['idEncuesta']. ')';
 
-		if (!empty($input['elementos_det'])) $filtros .= " AND v.idVisita IN (  ".$input['elementos_det']." )";
+
+		if (!empty($input['idEncuesta'])) $filtros .= " AND ve.idEncuesta IN ( " . $input['idEncuesta'] . ')';
+
+		if (!empty($input['elementos_det'])) $filtros .= " AND v.idVisita IN (  " . $input['elementos_det'] . " )";
 
 		$sql = "
 		DECLARE @fecIni DATE='" . $fechas[0] . "',@fecFin DATE='" . $fechas[1] . "';
@@ -301,7 +426,7 @@ class M_encuesta extends MY_Model
 
 			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vfAlt ON vfAlt.idVisitaFoto = ved.idVisitaFoto
 			
-			JOIN ".getClienteHistoricoCuenta()." ch ON ch.idCliente = c.idCliente
+			JOIN " . getClienteHistoricoCuenta() . " ch ON ch.idCliente = c.idCliente
 			AND r.fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin,r.fecha) AND ch.flagCartera=1 
 			
 			JOIN trade.usuario_historico uh ON uh.idUsuario=r.idUsuario
@@ -312,13 +437,13 @@ class M_encuesta extends MY_Model
 			LEFT JOIN trade.encargado_usuario sub ON sub.idUsuario=r.idUsuario
 			LEFT JOIN trade.encargado enc ON enc.idEncargado=sub.idEncargado
 
-			WHERE r.estado=1 AND v.estado=1  --AND r.demo=0
+			WHERE r.estado=1 AND v.estado=1  AND r.demo=0
 			
 			AND r.fecha between @fecIni AND @fecFin 
 		$filtros
 		";
 
-		
+
 		return $this->db->query($sql);
 	}
 
@@ -328,36 +453,33 @@ class M_encuesta extends MY_Model
 		$fechas = getFechasDRP($input["txt-fechas"]);
 
 		$filtros = '';
-		$filtros .= !empty($input['idCuenta']) ? ' AND py.idCuenta = '.$input['idCuenta'] : '';
-		$filtros .= !empty($input['idProyecto']) ? ' AND py.idProyecto = '.$input['idProyecto'] : '';
-		$filtros .= !empty($input['idGrupoCanal']) ? ' AND ca.idGrupoCanal = '.$input['idGrupoCanal'] : '';
-		$filtros .= !empty($input['idCanal']) ? ' AND ca.idCanal = '.$input['idCanal'] : '';
+		$filtros .= !empty($input['idCuenta']) ? ' AND py.idCuenta = ' . $input['idCuenta'] : '';
+		$filtros .= !empty($input['idProyecto']) ? ' AND py.idProyecto = ' . $input['idProyecto'] : '';
+		$filtros .= !empty($input['idGrupoCanal']) ? ' AND ca.idGrupoCanal = ' . $input['idGrupoCanal'] : '';
+		$filtros .= !empty($input['idCanal']) ? ' AND ca.idCanal = ' . $input['idCanal'] : '';
 
-		$filtros .= !empty($input['distribuidora_filtro']) ? ' AND d.idDistribuidora='.$input['distribuidora_filtro'] : '';
-		$filtros .= !empty($input['zona_filtro']) ? ' AND z.idZona='.$input['zona_filtro'] : '';
-		$filtros .= !empty($input['plaza_filtro']) ? ' AND pl.idPlaza='.$input['plaza_filtro'] : '';
-		$filtros .= !empty($input['cadena_filtro']) ? ' AND cad.idCadena='.$input['cadena_filtro'] : '';
-		$filtros .= !empty($input['banner_filtro']) ? ' AND ba.idBanner='.$input['banner_filtro'] : '';
+		$filtros .= !empty($input['distribuidora_filtro']) ? ' AND d.idDistribuidora=' . $input['distribuidora_filtro'] : '';
+		$filtros .= !empty($input['zona_filtro']) ? ' AND z.idZona=' . $input['zona_filtro'] : '';
+		$filtros .= !empty($input['plaza_filtro']) ? ' AND pl.idPlaza=' . $input['plaza_filtro'] : '';
+		$filtros .= !empty($input['cadena_filtro']) ? ' AND cad.idCadena=' . $input['cadena_filtro'] : '';
+		$filtros .= !empty($input['banner_filtro']) ? ' AND ba.idBanner=' . $input['banner_filtro'] : '';
 
-		if (!empty($input['idEncuesta'])) $filtros .= " AND ve.idEncuesta IN ( " . $input['idEncuesta']. ')';
+		if (!empty($input['idEncuesta'])) $filtros .= " AND ve.idEncuesta IN ( " . $input['idEncuesta'] . ')';
 
-		$segmentacion = getSegmentacion([ 'grupoCanal_filtro' => $input['idGrupoCanal'] ]);
+		$segmentacion = getSegmentacion(['grupoCanal_filtro' => $input['idGrupoCanal']]);
 
 		$orderby = '';
-		if($segmentacion['grupoCanal'] == 'HSM' OR $segmentacion['grupoCanal'] == 'Moderno')
-		{
+		if ($segmentacion['grupoCanal'] == 'HSM' or $segmentacion['grupoCanal'] == 'Moderno') {
 			$orderby = 'ORDER BY fecha, tipoUsuario, cadena, canal, ciudad, provincia, distrito ASC';
 		}
-		if($segmentacion['grupoCanal'] == 'WHLS')
-		{
+		if ($segmentacion['grupoCanal'] == 'WHLS') {
 			$orderby = 'ORDER BY fecha, tipoUsuario, zona, canal, ciudad, provincia, distrito ASC';
 		}
-		if($segmentacion['grupoCanal'] == 'HFS')
-		{
+		if ($segmentacion['grupoCanal'] == 'HFS') {
 			$orderby = 'ORDER BY fecha, tipoUsuario, distribuidora, canal, ciudad, provincia, distrito ASC';
 		}
 
-		if (!empty($input['elementos_det'])) $filtros .= " AND v.idVisita IN (  ".$input['elementos_det']." )";
+		if (!empty($input['elementos_det'])) $filtros .= " AND v.idVisita IN (  " . $input['elementos_det'] . " )";
 
 		$sql = "
 		DECLARE @fecIni DATE='" . $fechas[0] . "',@fecFin DATE='" . $fechas[1] . "';
@@ -407,7 +529,7 @@ class M_encuesta extends MY_Model
 			LEFT JOIN trade.encargado_usuario sub ON sub.idUsuario=r.idUsuario
 			LEFT JOIN trade.encargado enc ON enc.idEncargado=sub.idEncargado
 
-			JOIN ".getClienteHistoricoCuenta()." ch ON ch.idCliente = c.idCliente
+			JOIN " . getClienteHistoricoCuenta() . " ch ON ch.idCliente = c.idCliente
 			LEFT JOIN trade.segmentacionNegocio sn ON ch.idSegNegocio = sn.idSegNegocio AND sn.estado = 1
 			LEFT JOIN trade.cliente_tipo ct
 				ON ct.idClienteTipo = sn.idClienteTipo
@@ -415,12 +537,12 @@ class M_encuesta extends MY_Model
 			{$segmentacion['join']}
 			AND r.fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin,r.fecha) AND ch.flagCartera=1 
 
-			WHERE r.fecha between @fecIni AND @fecFin --AND r.demo=0
+			WHERE r.fecha between @fecIni AND @fecFin AND r.demo=0
 				AND r.estado=1 AND v.estado=1
 				{$filtros}
 				{$orderby}
 		";
-	
+
 		return $this->db->query($sql);
 	}
 
@@ -451,9 +573,6 @@ class M_encuesta extends MY_Model
 
 	public function getVisitaEncuestaDetallado($params)
 	{
-		$filtros = "";
-		if (!empty($params['idEncuesta'])) $filtros .= " AND ve.idEncuesta IN ( " . $params['idEncuesta']. ')';
-
 		$sql = "
 		DECLARE @fechaInicio DATE = '" . $params['fecIni'] . "', @fechaFin DATE = '" . $params['fecFin'] . "'
 		SELECT DISTINCT
@@ -471,12 +590,12 @@ class M_encuesta extends MY_Model
 			JOIN ImpactTrade_pg.trade.data_visita v ON v.idRuta = r.idRuta
 			JOIN ImpactTrade_pg.trade.data_visitaEncuesta ve ON ve.idVisita = v.idVisita
 			JOIN ImpactTrade_pg.trade.data_visitaEncuestaDet ved ON ved.idVisitaEncuesta=ve.idVisitaEncuesta
-			JOIN ImpactTrade_pg.trade.encuesta e ON ve.idEncuesta = e.idEncuesta
-			JOIN ImpactTrade_pg.trade.encuesta_pregunta ep ON ved.idPregunta = ep.idPregunta
-			JOIN ImpactTrade_pg.trade.encuesta_alternativa ea ON ved.idAlternativa = ea.idAlternativa
+			LEFT JOIN ImpactTrade_pg.trade.encuesta e ON ve.idEncuesta = e.idEncuesta
+			LEFT JOIN ImpactTrade_pg.trade.encuesta_pregunta ep ON ved.idPregunta = ep.idPregunta
+			LEFT JOIN ImpactTrade_pg.trade.encuesta_alternativa ea ON ved.idAlternativa = ea.idAlternativa
 			JOIN ImpactTrade_bd.trade.cliente c ON v.idCliente = c.idCliente
 				AND c.estado = 1
-			JOIN ImpactTrade_pg.trade.cliente_historico ch ON c.idCliente = ch.idCliente
+			LEFT JOIN ImpactTrade_pg.trade.cliente_historico ch ON c.idCliente = ch.idCliente
 			AND ch.idProyecto = r.idProyecto AND ch.fecFin IS NULL
 			LEFT JOIN ImpactTrade_bd.trade.segmentacionNegocio sn ON ch.idSegNegocio = sn.idSegNegocio
 			LEFT JOIN ImpactTrade_bd.trade.canal ca ON sn.idCanal = ca.idCanal
@@ -485,28 +604,10 @@ class M_encuesta extends MY_Model
 			r.estado = 1
 			AND v.estado = 1
 			AND r.fecha BETWEEN @fechaInicio AND @fechaFin
-			{$filtros}
+			AND ve.idEncuesta = {$params['idEncuesta']}
 		ORDER BY fecha, razonSocial, encuesta, pregunta, alternativa
 		";
 
 		return $this->db->query($sql);
 	}
-
-	public function obtenerFotosEncuesta($idVisitaEncuesta){
-		$sql = "
-			SELECT DISTINCT
-				CONVERT(VARCHAR(8),vf.hora) AS hora
-				, vf.fotoUrl AS foto
-				, CONVERT(VARCHAR(8),vfm.hora) AS horaMultiple
-				, vfm.fotoUrl AS fotoMultiple
-			FROM {$this->sessBDCuenta}.trade.data_visitaEncuesta ve
-			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaEncuestaFotos vef ON ve.idVisitaEncuesta = vef.idVisitaEncuesta
-			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisitaFoto=ve.idVisitaFoto
-			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vfm ON vfm.idVisitaFoto=vef.idVisitaFoto
-			WHERE ve.idVisitaEncuesta={$idVisitaEncuesta}
-		";
-		return $this->db->query($sql)->result_array();
-	}
-
-	
 }

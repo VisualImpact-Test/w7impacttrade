@@ -18,6 +18,11 @@
 					<li class="nav-item">
 						<a class="nav-link btnReporte" data-toggle="tab" href="#idDetalleGraficas" data-value="3">Resumen General</a>
 					</li>
+					<? foreach ($tabs as $k => $v) { ?>
+						<li class="nav-item" id="tipoReporte" name="tipoReporte">
+							<a data-toggle="tab" href="#<?= $v['contenedor'] ?>" class="nav-link btnReporte" data-value="<?= $v['orden'] ?>" data-url="<?= $v['url'] ?>" data-contentdetalle="<?= $v['contenedor'] ?>"><?= $v['nombre'] ?></a>
+						</li>
+					<? } ?>
 				</ul>
 			</div>
 		</div>
@@ -25,7 +30,7 @@
 </div>
 
 <div class="customizer border-left-blue-grey border-left-lighten-4 d-none d-xl-block">
-	<a href="javascript:;" class="customizer-close" ><i class="fal fa-times"></i></a>
+	<a href="javascript:;" class="customizer-close"><i class="fal fa-times"></i></a>
 	<a href="javascript:;" class="customizer-toggle box-shadow-3 bg-trade-visual-grad-left text-white">
 		<i class="fal fa-cog fa-lg fa-spin"></i>
 	</a>
@@ -50,6 +55,7 @@
 									<div class="ui input left icon" style="width:100%">
 										<i class="calendar icon"></i>
 										<input type="text" name="txt-fechas" id="txt-fechas" placeholder="Date" value="<?= date("d/m/Y") . ' - ' . date("d/m/Y") ?>" class="form-control">
+										<input type="text" name="txt-fechas_simple" id="txt-fechas_simple" placeholder="Date" value="<?= date("d/m/Y") . ' - ' . date("d/m/Y") ?>" class="form-control d-none">
 									</div>
 								</div>
 							</div>
@@ -64,11 +70,11 @@
 
 						<div class="mb-2 mr-sm-2  position-relative form-group filtros_asistencia custom_tooltip">
 							<span class="tooltiptext">Grupo Canal</span>
-							<?= getFiltros(['grupoCanal' => ['label' => 'Grupo Canal', 'name' => 'grupo_filtro', 'id' => 'grupo_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]) ?>
+							<?= getFiltros(['grupoCanal' => ['label' => false, 'name' => 'grupo_filtro', 'id' => 'grupo_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]) ?>
 						</div>
 						<div class="mb-2 mr-sm-2  position-relative form-group filtros_asistencia custom_tooltip">
 							<span class="tooltiptext">Canal</span>
-							<?= getFiltros(['canal' => ['label' => 'Canal', 'name' => 'canal_filtro', 'id' => 'canal_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]) ?>
+							<?= getFiltros(['canal' => ['label' => 'Canal', 'name' => 'canal_filtro', 'id' => 'canal_filtro', 'data' => false, 'select2' => 'ui my_select2Full', 'html' => '']]) ?>
 						</div>
 						<div class="mb-2 mr-sm-2  position-relative form-group filtros_asistencia custom_tooltip">
 							<span class="tooltiptext">Tipo Usuario</span>
@@ -128,7 +134,7 @@
 					<h5 class="mt-1 text-bold-500"><i class="far fa-info-circle"></i> Leyenda</h5>
 					<div class="form-group">
 						<div class="custom-control custom-checkbox mb-1">
-							<input type="checkbox" class="custom-control-input" id="ckb-todos" name="ckb-todos" checked="" >
+							<input type="checkbox" class="custom-control-input" id="ckb-todos" name="ckb-todos" checked="">
 							<label class="custom-control-label" for="ckb-todos"><span class="color-C"><i class="fa fa-circle"></i></span> Todo </label>
 						</div>
 						<div class="custom-control custom-checkbox mb-1">
@@ -167,19 +173,25 @@
 </div>
 
 <div class="main-card mb-3 card div-para-ocultar">
-    <div class="card-body p-0">
-        <div class="tab-content" id="content-auditoria">
-            <div class="tab-pane fade show active contentGestion" id="idDetalleHorizontal" role="tabpanel">
-                <?= getMensajeGestion('noResultados') ?>
-            </div>
-            <div class="tab-pane fade show contentGestion" id="idDetalleVertical" role="tabpanel">
-                <?= getMensajeGestion('noResultados') ?>
-            </div>
-            <div class="tab-pane fade show contentGestion" id="idDetalleGraficas" role="tabpanel">
-                <?= getMensajeGestion('noResultados') ?>
-            </div>
-        </div>
-    </div>
+	<div class="card-body p-0">
+		<div class="tab-content" id="content-auditoria">
+			<div class="tab-pane fade show active contentGestion" id="idDetalleHorizontal" role="tabpanel">
+				<?= getMensajeGestion('noResultados') ?>
+			</div>
+			<div class="tab-pane fade show contentGestion" id="idDetalleVertical" role="tabpanel">
+				<?= getMensajeGestion('noResultados') ?>
+			</div>
+			<div class="tab-pane fade show contentGestion" id="idDetalleGraficas" role="tabpanel">
+				<?= getMensajeGestion('noResultados') ?>
+			</div>
+			<div class="tab-pane fade show contentGestion" id="idDetalleHsm" role="tabpanel">
+				<?= getMensajeGestion('noResultados') ?>
+			</div>
+			<div class="tab-pane fade show contentGestion" id="idConsolidadoHsm" role="tabpanel">
+				<?= getMensajeGestion('noResultados') ?>
+			</div>
+		</div>
+	</div>
 </div>
 
 <!--script src="https://cdn.anychart.com/releases/8.7.1/js/anychart-base.min.js" type="text/javascript"></script-->

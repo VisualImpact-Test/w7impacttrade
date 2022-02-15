@@ -235,11 +235,11 @@ var View={
 			var show = control.attr('data-show');
 			if( show == 'true' ){
 				control.attr('data-show', 'false');
-				control.html('<i class="fa fa-window-maximize"></i>');
+				control.html('<i class="fas fa-lg fa-bars"></i>');
 			}
 			else{
 				control.attr('data-show', 'true');
-				control.html('<i class="fa fa-columns"></i>');
+				control.html('<i class="fad fa-lg fa-bars"></i>');
 			}
 		
 		});
@@ -1506,8 +1506,8 @@ var View={
 		//MOSTRAR FOTO EN UN MODAL
 		$(document).on("click",".lk-foto-1",function(){
 			var control = $(this);
-			var img = control.data('content');
-			var fotoUrl = $('#'+img).attr("src");
+			var imgid = control.data('content');
+			var fotoUrl = $('#'+imgid).attr("src");
 			var img='<img src="'+fotoUrl+'" class="img-responsive center-block img-thumbnail" />';
 			var html = img;
 			
@@ -1539,7 +1539,7 @@ var View={
 			$.when(Fn.ajaxNoLoad(config)).then(function(a){
 				if(a.result == 1){
 					++modalId;
-					Fn.showModalOnlyBody({ id:modalId,show:true,title:"Aviso",frm:a.data.html,width:'600px',padding:0});
+					Fn.showModalOnlyBody({ id:modalId,show:true,title:"Aviso",frm:a.data.html,width: 'auto',maxwidth:'600px',padding:0});
 				}
 			});
 		});
@@ -1550,7 +1550,7 @@ var View={
 			
 			$.when(Fn.ajax(config)).then(function(a){
 				++modalId;
-				Fn.showModalOnlyBody({ id:modalId,show:true,title:"Aviso",frm:a.data.html,width:'600px',padding:0});
+				Fn.showModalOnlyBody({ id:modalId,show:true,title:"Aviso",frm:a.data.html,width: 'auto',maxwidth:'600px',padding:0});
 			});
 		});
 
@@ -1626,6 +1626,20 @@ var View={
 				  }
 			});
 		}
+
+		$( document ).ready(function() {
+			let esmovil = Fn.mobileCheck();
+			if(esmovil == true){
+				$('div.customizer.border-left-blue-grey.border-left-lighten-4').removeClass('d-none d-xl-block');
+				$('div.customizer.border-left-blue-grey.border-left-lighten-4').addClass('d-sm-block customizerGraphics');
+			}
+		});
+
+		$(document).on("click",'.btn-datatable-excel',function(e){
+			e.preventDefault();
+			let idTabla = $(this).attr('aria-controls');
+			Fn.exportarExcelDataTable(idTabla);
+		});
 	},
 	toast: (config = {}) => {
 		var defaults = { 'type': 0, 

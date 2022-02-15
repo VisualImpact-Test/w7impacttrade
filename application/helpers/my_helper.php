@@ -1425,6 +1425,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		$CI->load->model('M_control', 'm_control');
 		$array = [];
 		$filtro_permiso = "";
+		$arreglo_columnas = [];
 		
 		$gruposCanal = $CI->m_control->get_grupoCanal();
 		foreach ($gruposCanal as $key => $row) {
@@ -1465,6 +1466,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 						, z.nombre AS zona
 						, ISNULL(d.nombre, '') + ' - '+ ISNULL(ubi1.provincia,'') distribuidoraSucursal
 						";
+					//Columnas para diferentes usos adicionales
+					$arreglo_columnas = ['distribuidora', 'ciudadDistribuidoraSuc', 'codUbigeoDisitrito', 'idDistribuidoraSucursal', 'zona'];
 					// JOINS para la consulta a base de datos
 					$join .= " LEFT JOIN trade.distribuidoraSucursal ds WITH(NOLOCK) ON ds.idDistribuidoraSucursal = sctd.idDistribuidoraSucursal ";
 					$join .= " LEFT JOIN trade.distribuidora d WITH(NOLOCK) ON d.idDistribuidora = ds.idDistribuidora ";
@@ -1493,7 +1496,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 						, ds.idDistribuidoraSucursal
 						, ubpl.provincia ciudadPlaza
 						';
-
+					$arreglo_columnas = ['plaza', 'idPlaza', 'zona', 'idDistribuidoraSucursal', 'ciudadPlaza'];
 					$join .= " LEFT JOIN trade.plaza pl WITH(NOLOCK) ON pl.idPlaza = sct.idPlaza";
 					$join .= " LEFT JOIN trade.zona z WITH(NOLOCK) ON ch.idZona = z.idZona";
 					$join .= " LEFT JOIN trade.distribuidoraSucursal ds WITH(NOLOCK) ON ds.idDistribuidoraSucursal = sctd.idDistribuidoraSucursal ";
@@ -1522,7 +1525,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 						, ba.nombre AS banner
 						, cad.nombre AS cadena
 						';
-
+					$arreglo_columnas = ['idCadena', 'idBanner', 'banner', 'cadena'];
 					// JOINS para la consulta a base de datos
 					$join .= " LEFT JOIN trade.banner ba WITH(NOLOCK) ON ba.idBanner = scm.idBanner";
 					$join .= " LEFT JOIN trade.cadena cad WITH(NOLOCK) ON cad.idCadena = ba.idCadena";
@@ -1538,6 +1541,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		$result['grupoCanal'] = !empty($grupoCanal) ? $grupoCanal : '';
 		$result['tipoSegmentacion'] = !empty($tiposegmentacion) ? $tiposegmentacion : '';
 		$result['orderBy'] = !empty($orderBy) ? $orderBy : '';
+		$result['arreglo_columnas'] = $arreglo_columnas;
 
 		return $result;
 	}
@@ -1721,6 +1725,58 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 		return $array['usuarios'] ;
 	}
+	function segmentacion_usuarios($usuarios = [], $row = []){
+		//Funcion para la segmentación de los usuarios Supervisor, Ejecutivo y Coordinador
+		$retorno = [];
+
+		$grupoCanal = $row['grupoCanal'];
+
+		if(in_array($grupoCanal, GC_TRADICIONALES)) {
+			$ejecutivo = !empty($usuarios['tradicional'][11][$row['idDistribuidoraSucursal']])? $usuarios['tradicional'][11][$row['idDistribuidoraSucursal']] : ' - ' ;
+			$supervisor = !empty($usuarios['tradicional'][2][$row['idDistribuidoraSucursal']])? $usuarios['tradicional'][2][$row['idDistribuidoraSucursal']] : ' - ' ;
+			$coordinador = !empty($usuarios['tradicional'][17][$row['idDistribuidoraSucursal']])? $usuarios['tradicional'][17][$row['idDistribuidoraSucursal']] : ' - ' ;
+		}else if(in_array($grupoCanal, GC_MAYORISTAS)){
+			$ejecutivo = !empty($usuarios['mayorista'][11][$row['idPlaza']])? $usuarios['mayorista'][11][$row['idPlaza']] : ' - ' ;
+			$supervisor = !empty($usuarios['mayorista'][2][$row['idPlaza']])? $usuarios['mayorista'][2][$row['idPlaza']] : ' - ' ;
+			$coordinador = !empty($usuarios['mayorista'][17][$row['idPlaza']])? $usuarios['mayorista'][17][$row['idPlaza']] : ' - ';
+		}else if(in_array($grupoCanal, GC_MODERNOS)){
+			$ejecutivo = !empty($usuarios['moderno'][11][$row['idBanner']])? $usuarios['moderno'][11][$row['idBanner']] : ' - ' ;
+			$supervisor = !empty($usuarios['moderno'][2][$row['idBanner']])? $usuarios['moderno'][2][$row['idBanner']] : ' - ' ;
+			$coordinador = !empty($usuarios['moderno'][17][$row['idBanner']])? $usuarios['moderno'][17][$row['idBanner']] : ' - ' ;
+		}else{
+			$ejecutivo = '-';
+			$supervisor = '-';
+			$coordinador = '-';
+		}
+
+		$retorno['ejecutivo'] = $ejecutivo; //Gerente Zonal
+		$retorno['supervisor'] = $supervisor;
+		$retorno['coordinador'] = $coordinador; //Coordinador Zonal
+
+		return $retorno;
+	}
+
+	function difMin($horaini, $horafin)
+	{
+		$horai = substr($horaini, 0, 2);
+		$mini = substr($horaini, 3, 2);
+		$segi = substr($horaini, 6, 2);
+
+		$horaf = substr($horafin, 0, 2);
+		$minf = substr($horafin, 3, 2);
+		$segf = substr($horafin, 6, 2);
+
+		$ini = ((($horai * 60) * 60) + ($mini * 60) + $segi);
+		$fin = ((($horaf * 60) * 60) + ($minf * 60) + $segf);
+
+		$dif = $fin - $ini;
+
+		$array['difh'] = $difh = floor($dif / 3600);
+		$array['difm'] = $difm = floor(($dif - ($difh * 3600)) / 60);
+		$array['difs'] = $difs = $dif - ($difm * 60) - ($difh * 3600);
+		//
+		return $array;
+	}
 
 	function execInBackground($cmd = "",$input = []) {
 		$idCuenta = !empty($input['idCuenta']) ? $input['idCuenta'] : '' ;
@@ -1781,6 +1837,3 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		}
 		return $day_name;
 	}
-
-
-

@@ -97,6 +97,12 @@
                                 <?php } ?>
                             </select>
                         </div>
+                        <div class="mb-2 mr-sm-2 position-relative form-group custom_tooltip">
+                            <span class="tooltiptext">Modulo</span>
+                            <select class="pt-0 custom-select my_select2Full" name="tipoModulo" id="tipoModulo">
+                                <?=htmlSelectOptionArray($modulos)?>
+                            </select>
+                        </div>
                         <div class="filtros_secundarios">
                             <div class="filtros_generados">
 								<h5 class="mt-1 mb-1 text-bold-500"><i class="fal fa-table"></i> Filtros Generados</h5>

@@ -153,12 +153,6 @@ small, .small {
   box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
 }
 
-@media (max-width: 767.98px) {
-  .sidebar {
-    top: 5rem;
-  }
-}
-
 .sidebar-sticky {
   position: relative;
   top: 0;
@@ -358,22 +352,17 @@ small, .small {
 .bg-pg {
     /*background-color: #003da7 !important;*/
   background-color: #343a40 !important;
+  -webkit-transition: transform 200ms;
+  -webkit-transition: -webkit-transform 200ms;
   transition: width 0.5s;
+  transition-duration: 500ms;
+  transition-property: width;
 }
 
 @media (min-width: 992px){
 	.d-lg-block {
 		display: block !important;
 	}
-}
-
-@media (max-width: 992px){
-	.navbar-collapse{
-		margin: 1em;
-	}
-	
-	#btn-toggle-menu{
-display:none;	}
 }
 
 .funciones {
@@ -421,16 +410,11 @@ display:none;	}
 		display: table-cell;
 		font-size: 75%
 	}
-    .card-header.card-header-tab>.nav {
-		margin: .75rem 0 -.75rem;
-		display: table !important;
-		width: 100%;
-    }
-	
-	.nav-link {
-		padding: 0rem 0.5rem 0rem 0.5rem;
-		text-align: center;
-	}
+  .card-header.card-header-tab>.nav {
+  margin: .75rem 0 -.75rem;
+  display: table !important;
+  width: 100%;
+  }
 }
 
 .fs90{
@@ -776,6 +760,7 @@ div.dataTables_wrapper div.dataTables_filter input {
 
 .disabled {
   pointer-events: none;
+  opacity: 0.5;
 }
 
 .centrarContenidoDiv {
@@ -882,7 +867,6 @@ td,
   text-align: center;
   display: inline;
 }
-
 #notfound {
   position: relative;
   height: 100vh;
@@ -968,6 +952,98 @@ td,
     }
 }
 
+.center-items_mlr {
+  margin-left: auto!important;
+}
+
+table.dataTable tbody td.select-checkbox:after,
+table.dataTable tbody td.select-checkbox:before{
+  top: auto !important;
+}
+
+/* @media (max-width: 991.98px) { */
+@media (max-width: 767px) {
+
+  .center-items_mlr {
+    margin-left: auto!important;
+    margin-right: auto!important;
+  }
+
+  .navbar-nav .dropdown-menu{
+    position: absolute;
+    text-align: right;
+    background: rgb(255 255 255 / 95%);
+    border-radius: 15px;
+  }
+
+  .main-nonone{
+    max-width: 100%;
+  }
+
+  .d-nonone{
+    width: 100%;
+  }
+
+  .sidebar {
+    top: 17%;
+  }
+
+  .nav-link {
+    display: block;
+    padding: 1rem 1rem;
+  }
+
+  .sidebar .nav-link {
+    font-weight: normal;
+    font-size: 140%;
+    color: #fff !important;
+  }
+
+  .sticky-top{
+    position: fixed;
+  }
+
+  #main{
+    top: 30%;
+  }
+
+  .fechaHome{
+    width: 85%;
+    text-align: center;
+    display: inline;
+    margin-bottom: 5px;
+  }
+
+  .main-card{
+    height: 100% !important;
+  }
+
+  .modal::-webkit-scrollbar {
+    display: none;
+  }
+
+  .card-body{
+    height: 100% !important;
+  }
+
+  li.text-center{
+    text-align: left !important;
+  }
+
+  .dtr-details{
+    width: 100%;
+  }
+
+  .modal-dialog{
+    width: 96% !important;
+  }
+
+  .customizer-toggle{
+    left: -45px !important;
+  }
+
+}
+
 .toast {
   opacity: 1 !important;
 }
@@ -978,3 +1054,7 @@ td,
   top: 4.857143em !important;
 }
 
+.imgFotoMin{
+  width: 50px;
+  border-radius: 10px;
+}

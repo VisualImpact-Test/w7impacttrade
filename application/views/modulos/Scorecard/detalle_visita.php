@@ -55,30 +55,14 @@
 						$incidencia = !empty($row['incidencia_nombre']) ? (!empty($row['incidencia_foto']) ? '<a href="javascript:;" data-fotoUrl="' . $row['incidencia_foto'] . '" data-hora ="' . $row['incidencia_hora'] . '" data-html="' . $row['incidencia_nombre'] . '" class="lk-incidencia-foto"  data-perfil="' . $row['tipoUsuario'] . '"  data-usuario="' . $row['nombreUsuario'] . '" data-cliente="' . $row['razonSocial'] . '"  ><i class="fa fa-camera" ></i><br />' : '') . $row['incidencia_nombre'] : '<center>-</center>';
 
 						$grupoCanal = $row['grupoCanal'];
-						if(in_array($grupoCanal, GC_TRADICIONALES)) {
-							$ejecutivo = !empty($usuarios['tradicional'][11][$row['idDistribuidoraSucursal']])? $usuarios['tradicional'][11][$row['idDistribuidoraSucursal']] : ' - ' ;
-							$supervisor = !empty($usuarios['tradicional'][2][$row['idDistribuidoraSucursal']])? $usuarios['tradicional'][2][$row['idDistribuidoraSucursal']] : ' - ' ;
-							$coordinador = !empty($usuarios['tradicional'][17][$row['idDistribuidoraSucursal']])? $usuarios['tradicional'][17][$row['idDistribuidoraSucursal']] : ' - ' ;
-						}else if(in_array($grupoCanal, GC_MAYORISTAS)){
-							$ejecutivo = !empty($usuarios['mayorista'][11][$row['idPlaza']])? $usuarios['mayorista'][11][$row['idPlaza']] : ' - ' ;
-							$supervisor = !empty($usuarios['mayorista'][2][$row['idPlaza']])? $usuarios['mayorista'][2][$row['idPlaza']] : ' - ' ;
-							$coordinador = !empty($usuarios['mayorista'][17][$row['idPlaza']])? $usuarios['mayorista'][17][$row['idPlaza']] : ' - ';
-						}else if(in_array($grupoCanal, GC_MODERNOS)){
-							$ejecutivo = !empty($usuarios['moderno'][11][$row['idBanner']])? $usuarios['moderno'][11][$row['idBanner']] : ' - ' ;
-							$supervisor = !empty($usuarios['moderno'][2][$row['idBanner']])? $usuarios['moderno'][2][$row['idBanner']] : ' - ' ;
-							$coordinador = !empty($usuarios['moderno'][17][$row['idBanner']])? $usuarios['moderno'][17][$row['idBanner']] : ' - ' ;
-						}else{
-							$ejecutivo = '-';
-							$supervisor = '-';
-							$coordinador = '-';
-						}
+						$segmentacionUsuarios = segmentacion_usuarios($usuarios, $row);
 					?>
 					<tr>
 						<td style="text-align:center;"><?=$i?></td>
 						<td style="text-align:center;"><?=!empty($row['fecha'])? ($row['fecha']) : ' - ' ?></td>
-						<td style="text-align:left;"><?=$ejecutivo?></td>
-						<td style="text-align:left;"><?=$coordinador?></td>
-						<td style="text-align:left;"><?=$supervisor?></td>
+						<td style="text-align:left;"><?=$segmentacionUsuarios['ejecutivo']?></td>
+						<td style="text-align:left;"><?=$segmentacionUsuarios['coordinador']?></td>
+						<td style="text-align:left;"><?=$segmentacionUsuarios['supervisor']?></td>
 						<td style="text-align:center;"><?=!empty($row['idUsuario'])? $row['idUsuario'] : ' - ' ?></td>
 						<td class="text-center"><?= (!empty($row['cesado']) ? "<h4 class='text-center'><span class=' badge badge-danger'>Cesado</span></h4>" : "<h4 class='text-center'><span class='badge badge-primary'>Activo</span></h4>") ?></td>
 						<td class="<?=!empty($row['cesado']) ? 'text-danger': ''?>" style="text-align:left;"><?=!empty($row['nombreUsuario'])? $row['nombreUsuario'] : ' - ' ?></td>

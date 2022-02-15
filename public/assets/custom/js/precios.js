@@ -57,6 +57,7 @@ var Precios = {
 				'idFrm': Precios.idFormFiltros
 				, 'url': Precios.url + Precios.urlActivo
 				, 'contentDetalle': Precios.idContent
+				, 'responsive': true
 			};
 			Fn.loadReporte_new(config);
 		});

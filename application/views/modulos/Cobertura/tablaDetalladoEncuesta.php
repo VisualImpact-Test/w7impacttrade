@@ -79,20 +79,15 @@
                         <?
                         foreach ($listaPregunta[$keyEncuesta] as $keyPregunta => $pregunta) {
                             $respuesta = (isset($visitaEncuesta[$visita['idVisita']][$keyPregunta])) ? implode(", ", $visitaEncuesta[$visita['idVisita']][$keyPregunta]) : '-';
-                            if (isset($visitaFotoSub[$visita['idVisita']][$keyEncuesta])) {
-                                $fotoSub = '<a href="javascript:;" class="lk-show-foto a-fa" data-foto="' . $visitaFotoSub[$visita['idVisita']][$keyEncuesta] . '" data-modulo="encuestas" data-comentario="" ><i class="fa fa-camera" ></i></a>';
-                            } else {
-                                $fotoSub = "";
-                            }
                         ?>
-                            <td><?= $respuesta ." ". $fotoSub?></td>
+                            <td><?= $respuesta ?></td>
                         <?
                         }
                         ?>
                         <?
                         if ($encuesta["foto"] == 1) {
-                            if (isset($visitaFoto[$visita['idVisita']][$keyEncuesta]) || isset($flagFotoMultiple[$visita['idVisita']][$keyEncuesta])) {
-                                $foto = '<a href="javascript:;" class="lk-encuesta-foto a-fa text-center" data-foto="' . $visitaFoto[$visita['idVisita']][$keyEncuesta] . '" data-modulo="encuestas" data-comentario="" data-idvisitaencuesta="' . $idVisitaEncuesta[$visita['idVisita']][$keyEncuesta] . '"><i class="fa fa-camera" ></i></a>';
+                            if (isset($visitaFoto[$visita['idVisita']][$keyEncuesta])) {
+                                $foto = '<a href="javascript:;" class="lk-show-foto a-fa" data-foto="' . $visitaFoto[$visita['idVisita']][$keyEncuesta] . '" data-modulo="encuestas" data-comentario="" ><i class="fa fa-camera" ></i></a>';
                             } else {
                                 $foto = "-";
                             }

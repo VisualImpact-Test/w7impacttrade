@@ -15,6 +15,11 @@
 					<li class="nav-item">
 						<a class="nav-link btnReporte" data-toggle="tab" href="#tab-content-0" data-value="1" data-tiporeporte="2">Resumen</a>
 					</li>
+					<? foreach ($tabs as $k => $v) { ?>
+						<li class="nav-item">
+							<a data-toggle="tab" href="#<?= $v['contenedor'] ?>" class="nav-link btnReporte" data-value="<?= $v['orden'] ?>" data-url="<?= $v['url'] ?>" data-contenedor="<?= $v['contenedor'] ?>"><?= $v['nombre'] ?></a>
+						</li>
+					<? } ?>
 				</ul>
 			</div>
 		</div>
@@ -84,6 +89,24 @@
 						<div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip">
 							<span class="tooltiptext">SubCanal</span>
 							<?= getFiltros(['tipoCliente' => ['label' => 'Sub Canal', 'name' => 'subcanal_filtro', 'id' => 'subcanal_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]); ?>
+						</div>
+						<div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip">
+							<span class="tooltiptext">Ciudad</span>
+							<select id="ciudad_filtro" class="my_select2 form-control" name="ciudad_filtro" required="">
+								<?= htmlSelectOptionArray($ciudades) ?>
+							</select>
+						</div>
+						<div class="mb-2 mr-sm-2 position-relative form-group chk_atendidos" style="display: none;">
+							<div class="btn-group btn-group-toggle w-100 " data-toggle="buttons">
+								<label class="btn btn-outline-secondary custom_tooltip active">
+									<span class="tooltiptextButton">Clientes Atendidos</span>
+									<input type="checkbox" name="chk-atendidos" id="chk-atendidos" autocomplete="off" checked="checked"> Atendidos 
+								</label>
+								<label class="btn btn-outline-secondary custom_tooltip active">
+									<span class="tooltiptextButton">Clientes Desatendidos</span>
+									<input type="checkbox" name="chk-desatendidos" id="chk-desatendidos" autocomplete="off"> Desatendidos 
+								</label>
+							</div>
 						</div>
 						<div class="filtros_secundarios">
 							<div class="filtros_generados">
@@ -197,6 +220,18 @@
 		<div class="main-card mb-3 card">
 			<div class="card-body p-0">
 				<div id="idContentDetallado">
+					<?= getMensajeGestion('noResultados') ?>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="row tipoDetalladoHsm" style="display:none">
+	<div class="col-lg-12">
+		<div class="main-card mb-3 card">
+			<div class="card-body p-0">
+				<div id="idContentDetalladoHsm">
 					<?= getMensajeGestion('noResultados') ?>
 				</div>
 			</div>

@@ -42,7 +42,17 @@ var Encuesta = {
 						$(".div-para-ocultar").addClass('card');
 					}
 				});
-			}
+			} else if (idTipoFormato == 3) {
+				var data = Fn.formSerializeObject(Encuesta.idFormFiltros);
+				var jsonString = { 'data': JSON.stringify(data) };
+				var config = { 'url': Encuesta.url + 'getTablaEncuestasConsolidado', 'data': jsonString };
+
+				$.when(Fn.ajax(config)).then(function (a) {
+					$('#idDetalleHorizontalConsolidado').html(a.data.html);
+					$('#tablaDetalladoEncuestaConsolidado').DataTable(a.data.configTable);
+					Fn.showLoading(false);
+				});
+			} 
 		});
 
 		$('.btnReporte').on('click', function (e) {
@@ -58,6 +68,8 @@ var Encuesta = {
 				if(Encuesta.estadoConsulta == 1){
 					$(".div-para-ocultar").removeClass('card');
 				}
+			} else if (opcion == 3) {
+				$('#idTipoFormato').val(3);
 			}
 		});
 
@@ -114,6 +126,37 @@ var Encuesta = {
 				});
 			}
 
+		});
+
+		$(document).on('click','#btn-descargarExcel', function(e){
+			e.preventDefault();
+			var data = Fn.formSerializeObject(Encuesta.idFormFiltros);
+			var jsonString = { 'data': JSON.stringify(data) };
+			var config = { 'url': Encuesta.url + 'descargarExcel', 'data': jsonString };
+
+			$.when(Fn.ajax(config)).then(function (a) {
+				let fechas = $('#txt-fechas').val();
+				fechas = fechas.replace(/\//g, '');
+				fechas = fechas.replace(/\ /g, '');
+	
+				Fn.exportarTablaAExcelXLSX_Directo(a.data.tablaExcel, 'Encuestas '+fechas, 'Encuestas');
+			});
+		});
+
+		$(document).on("click", ".lk-encuesta-foto", function () {
+			var control = $(this);
+
+			var data = { idVisitaEncuesta: control.data('idvisitaencuesta') };
+			var jsonString = { 'data': JSON.stringify(data) };
+			var configAjax = { 'url': Encuesta.url + 'mostrarFotos', 'data': jsonString };
+
+			$.when(Fn.ajax(configAjax)).then(function (a) {
+				++modalId;
+				var fn = 'Fn.showModal({ id:' + modalId + ',show:false });';
+				var btn = [];
+				btn[0] = { title: 'Cerrar', fn: fn };
+				Fn.showModal({ id: modalId, show: true, title: a.msg.title, frm: a.data, btn: btn });
+			});
 		});
 
 	},

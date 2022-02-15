@@ -10,6 +10,7 @@
 			<tr class="text-black">
 				<th rowspan="2" class="noVis">#</th>
 				<th rowspan="2" class="text-center">FECHA</th>
+				<th rowspan="2" class="text-center">SUPERVISOR</th>
 				<th rowspan="2" class="text-center">PERFIL USUARIO</th>
 				<th rowspan="2" class="text-center hideCol">COD<br>EMPLEADO</th>
 				<th rowspan="2" class="text-center">COD<br>USUARIO</th>

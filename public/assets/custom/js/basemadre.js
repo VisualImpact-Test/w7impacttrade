@@ -6,6 +6,7 @@ var Basemadre = {
 	contentCanal: 'idContentCanal',
 	contentSegmento: 'idContentSegmento',
 	contentDetallado: 'idContentDetallado',
+	contentDetalladoHsm: 'idContentDetalladoHsm',
 	url : 'basemadre/', 
 
 	generate_map: function (content, data, color){
@@ -87,7 +88,20 @@ var Basemadre = {
 				} else if (a.data.tipoFormato==2) {
 					$("#"+Basemadre.contentDetallado).html(a.data.detalle);
 
+					if ( typeof a.data.configTable !== 'undefined') {
+						a.data.configTable.responsive = Fn.mobileCheck();
+					}
 					$('#tb-basemadreDetalle').DataTable(
+						a.data.configTable
+					);
+					Fn.showLoading(false);
+				} else if (a.data.tipoFormato==3) {
+					$("#"+Basemadre.contentDetalladoHsm).html(a.data.detalle);
+
+					if ( typeof a.data.configTable !== 'undefined') {
+						a.data.configTable.responsive = Fn.mobileCheck();
+					}
+					$('#tb-basemadreDetalleHsm').DataTable(
 						a.data.configTable
 					);
 					Fn.showLoading(false);
@@ -112,7 +126,9 @@ var Basemadre = {
 				$('.tipoDetallado').hide(500);
 				$('input[name=flag_cartera]').val('1');
 				$('#filtro_cartera').hide(500);
+				$('.tipoDetalladoHsm').hide(500);
 				$('#idTipoFormato').val(1);
+				$('.chk_atendidos').hide(500);
 				if($("#"+Basemadre.contentGeneral).find('.noResultado').length > 0 || $("#"+Basemadre.contentCanal).find('.noResultado').length > 0 || $("#"+Basemadre.contentRegional).find('.noResultado').length > 0 || $("#"+Basemadre.contentSegmento).find('.noResultado').length > 0){
 					setTimeout(
 					function(){
@@ -125,7 +141,23 @@ var Basemadre = {
 				$('.tipoGrafica').hide(500);
 				$('.tipoDetallado').show(500);
 				$('#filtro_cartera').show(500);
+				$('.tipoDetalladoHsm').hide(500);
 				$('#idTipoFormato').val(2);
+				$('.chk_atendidos').hide(500);
+				if($("#"+Basemadre.contentDetallado).find('.noResultado').length > 0){
+					setTimeout(
+					function(){
+						// $('#btn-filtrarBasemadre').click()
+					}
+					, 1000);
+				}
+			} else if (opcion==3) {
+				$('.tipoGrafica').hide(500);
+				$('.tipoDetallado').hide(500);
+				$('#filtro_cartera').hide(500);
+				$('.tipoDetalladoHsm').show(500);
+				$('#idTipoFormato').val(3);
+				$('.chk_atendidos').show(500);
 				if($("#"+Basemadre.contentDetallado).find('.noResultado').length > 0){
 					setTimeout(
 					function(){

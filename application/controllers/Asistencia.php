@@ -10,7 +10,8 @@ class Asistencia extends MY_Controller{
 
 	public function index(){
 		$config = array();
-		$config['nav']['menu_active'] = '1';
+		$idMenu = '1';
+		$config['nav']['menu_active'] = $idMenu;
 		$config['css']['style'] = array(
 			'assets/custom/css/asistencia'
 		);
@@ -20,12 +21,15 @@ class Asistencia extends MY_Controller{
 			'assets/custom/js/core/datatables-defaults',
 			'assets/custom/js/asistencia'
 		);
+		
+		$tabs = getTabPermisos(['idMenuOpcion'=>$idMenu])->result_array();
 
 		$config['data']['icon'] = 'fal fa-clock';
 		$config['data']['title'] = 'Asistencia';
 		$config['data']['message'] = 'Control de asistencia';
+		$config['data']['tabs'] = $tabs;
 		$config['view']='modulos/asistencia/index';
-		
+
 		$this->view($config);
 	}
 
@@ -55,8 +59,17 @@ class Asistencia extends MY_Controller{
 		$input['banner_filtro'] = !empty($data->{'banner_filtro'}) ?$data->{'banner_filtro'} : '';
 		$input['zonausuario'] = !empty($data->{'zonausuario'}) ?$data->{'zonausuario'} : '';
 		/*=======*/
-		$rs_usuarios = $this->model->obtener_usuarios_asistencia($input);
 		$rs_asistencia = $this->model->obtener_asistencias($input);
+
+		if(!in_array($data->{'tipoFormato'}, [4, 5])){
+			$rs_usuarios = $this->model->obtener_usuarios_asistencia($input);
+		}else{
+			if($data->{'tipoFormato'} == 4){
+				$input['fecIni'] = $data->{'txt-fechas_simple'};
+				$input['fecFin'] = $data->{'txt-fechas_simple'};
+			}
+			$rs_usuarios = $this->model->obtener_usuarios_asistencia_hsm($input);
+		}
 
 		$html = '';
 		if ( !empty($rs_usuarios)) {
@@ -144,8 +157,6 @@ class Asistencia extends MY_Controller{
 					}
 					$html .= $this->load->view("modulos/asistencia/asistenciaConsolidado", $array, true);
 
-					$result['data']['configTable'] =  [];
-
 					$result['data']['views']['idDetalleVertical']['html'] = $html;
 					$result['data']['views']['idDetalleVertical']['datatable'] = 'tb-asistenciaConsolidado';
 					break;
@@ -175,16 +186,82 @@ class Asistencia extends MY_Controller{
 
 					$result['data']['views']['idDetalleGraficas']['html'] = $html;
 					break;
+				case 4:
+					$segmentacion = getSegmentacion(['grupoCanal_filtro' => $data->{'grupo_filtro'}]);
+					$usuariosSegmentacion = permisos_usuarios($segmentacion['tipoSegmentacion'],$input);
+
+					$array['listaUsuarios'] = $rs_usuarios;
+					$array['segmentacion'] = $segmentacion;
+					$array['usuarios'] = $usuariosSegmentacion;
+
+					$html .= $this->load->view("modulos/asistencia/HSM/asistenciaDetalle", $array, true);
+
+					$result['data']['views']['idDetalleHsm']['html'] = $html;
+					$result['data']['views']['idDetalleHsm']['datatable'] = 'tb-asistenciaDetalleHsm';
+					break;
+				case 5:
+					$segmentacion = getSegmentacion(['grupoCanal_filtro' => $data->{'grupo_filtro'}]);
+					$usuariosSegmentacion = permisos_usuarios($segmentacion['tipoSegmentacion'],$input);
+
+					$detalleFechas = $this->model->getFechas($input);
+
+					$array['listaUsuarios'] = [];
+					$array['detalleFechas'] = [];
+
+					foreach($detalleFechas AS $k => $r){
+						$array['detalleFechas']['meses'][$r['idMes']] = $r['mes'];
+						$array['detalleFechas']['fecha_id'][$r['idMes']][$r['fecha_id']] = $r['fecha_id'];
+						$array['detalleFechas']['dia'][$r['idMes']][$r['fecha_id']] = $r['dia'];
+						$array['detalleFechas']['fecha'][$r['idMes']][$r['fecha_id']] = $r['fecha'];
+					}
+
+					foreach($rs_usuarios AS $k => $r){
+						$array['listaUsuarios'][$r['idUsuario'].$r['idCliente']]['grupoCanal'] = $r['grupoCanal'];
+						foreach($segmentacion['arreglo_columnas'] AS $sk => $sr){
+							$array['listaUsuarios'][$r['idUsuario'].$r['idCliente']][$sr] = $r[$sr];
+						}
+						$array['listaUsuarios'][$r['idUsuario'].$r['idCliente']]['ciudad'] = $r['ciudad'];
+						$array['listaUsuarios'][$r['idUsuario'].$r['idCliente']]['cliente'] = $r['cliente'];
+						$array['listaUsuarios'][$r['idUsuario'].$r['idCliente']]['idEmpleado'] = $r['idEmpleado'];
+						$array['listaUsuarios'][$r['idUsuario'].$r['idCliente']]['idUsuario'] = $r['idUsuario'];
+						$array['listaUsuarios'][$r['idUsuario'].$r['idCliente']]['tipoUsuario'] = $r['tipoUsuario'];
+						$array['listaUsuarios'][$r['idUsuario'].$r['idCliente']]['usuario'] = $r['usuario'];
+						$array['listaUsuarios'][$r['idUsuario'].$r['idCliente']]['fecha_ingreso'] = $r['fecha_ingreso'];
+						$array['listaUsuarios'][$r['idUsuario'].$r['idCliente']]['movil'] = $r['movil'];
+						$array['listaUsuarios'][$r['idUsuario'].$r['idCliente']]['horasProgramadas'] = $r['horasProgramadas'];
+						$array['listaUsuarios'][$r['idUsuario'].$r['idCliente']][$r['fecha_id']]['horasTrabajadas'] = $r['horasTrabajadas'];
+						$array['listaUsuarios'][$r['idUsuario'].$r['idCliente']][$r['fecha_id']]['horaIniVisita'] = $r['horaIniVisita'];
+						$array['listaUsuarios'][$r['idUsuario'].$r['idCliente']][$r['fecha_id']]['horaFinVisita'] = $r['horaFinVisita'];
+						$array['listaUsuarios'][$r['idUsuario'].$r['idCliente']][$r['fecha_id']]['horarioIng'] = $r['horarioIng'];
+						$array['listaUsuarios'][$r['idUsuario'].$r['idCliente']][$r['fecha_id']]['horarioSal'] = $r['horarioSal'];
+					}
+					$array['segmentacion'] = $segmentacion;
+					$array['usuarios'] = $usuariosSegmentacion;
+
+					$html .= $this->load->view("modulos/asistencia/HSM/asistenciaConsolidado", $array, true);
+
+					$result['data']['views']['idConsolidadoHsm']['html'] = $html;
+					$result['data']['views']['idConsolidadoHsm']['datatable'] = 'tb-asistenciaConsolidadoHsm';
+					break;
 				default:
 					# code...
 					break;
 			}
-
 			
 		} else {
 			$html = getMensajeGestion("noRegistros");
 
-			$result['data']['html'] = $html;
+			switch ($data->{'tipoFormato'}) {
+				case 4:
+					$result['data']['views']['idDetalleHsm']['html'] = $html;
+					break;
+				case 5:
+					$result['data']['views']['idConsolidadoHsm']['html'] = $html;
+					break;
+				default:
+					$result['data']['html'] = $html;
+					break;
+			}
 		}
 
 		echo json_encode($result);

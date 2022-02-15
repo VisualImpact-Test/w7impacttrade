@@ -1322,7 +1322,7 @@ class M_precios extends CI_Model{
 			{$filtros_query}
 			{$orderby}
 		";
-// die($sql);
+
 		$query = $this->db->query($sql);
 		$result = array();
 		if ( $query ) {

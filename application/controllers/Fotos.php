@@ -31,6 +31,7 @@ class Fotos extends MY_Controller
 		$config['view'] = 'modulos/fotos/index';
 		$config['data']['tipoFotos'] = $this->m_foto->getTipoFotos()->result_array();
 		$config['data']['tipoCliente'] = $this->m_foto->getTipoCliente()->result_array();
+		$config['data']['modulos'] = $this->m_foto->getPermisosModulos()->result_array();
 		$this->view($config);
 	}
 
@@ -41,9 +42,17 @@ class Fotos extends MY_Controller
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaFotos" ];
 		$fotosClientes = $this->m_foto->getFotosNew($post,$visitas)->result_array();
 
+		$post['fecIni'] = getFechasDRP($post['txt-fechas'])[0];
+		$post['fecFin'] = getFechasDRP($post['txt-fechas'])[1];
+
+		$segmentacion = getSegmentacion(['grupoCanal_filtro' => $post['grupoCanal_filtro']]);
+		$usuariosSegmentacion = permisos_usuarios($segmentacion['tipoSegmentacion'],$post);
+
 		$fotosClientesRefactorizado = [];
 		
 		foreach ($fotosClientes as $key => $row) {
+			$segmentacionUsuarios = segmentacion_usuarios($usuariosSegmentacion, $row);
+
 			$fotosClientesRefactorizado[$row['idCliente']]['idCliente'] = $row['idCliente'];
 			$fotosClientesRefactorizado[$row['idCliente']]['codCliente'] = $row['codCliente'];
 			$fotosClientesRefactorizado[$row['idCliente']]['canal'] = $row['canal'];
@@ -56,6 +65,13 @@ class Fotos extends MY_Controller
 			
 			$fotosClientesRefactorizado[$row['idCliente']]['cuenta'] = $row['cuenta'];
 			$fotosClientesRefactorizado[$row['idCliente']]['proyecto'] = $row['proyecto'];
+
+			foreach($segmentacion['arreglo_columnas'] AS $sk => $sr){
+				$fotosClientesRefactorizado[$row['idCliente']][$sr] = $row[$sr];
+			}
+
+			$fotosClientesRefactorizado[$row['idCliente']]['ejecutivo'] = $segmentacionUsuarios['ejecutivo'];
+			$fotosClientesRefactorizado[$row['idCliente']]['supervisor'] = $segmentacionUsuarios['supervisor'];
 
 			if (empty($fotosClientesRefactorizado[$row['idCliente']]['visitas'])) $fotosClientesRefactorizado[$row['idCliente']]['visitas'] = [];
 			$fotosClientesRefactorizado[$row['idCliente']]['visitas'][$row['idVisita']]['idVisita'] = $row['idVisita'];
@@ -352,10 +368,14 @@ class Fotos extends MY_Controller
 		$fotosClientes = $this->m_foto->getFotosNew($data,$filtro_visitas)->result_array();
 		
 		$segmentacion = getSegmentacion($data);
+		$data['fecIni'] = getFechasDRP($data['txt-fechas'])[0];
+		$data['fecFin'] = getFechasDRP($data['txt-fechas'])[1];
+		$usuariosSegmentacion = permisos_usuarios($segmentacion['tipoSegmentacion'],$data);
 		$dataPdf = []; 
 
 		if(!empty($fotosClientes)){
 			foreach ($fotosClientes as $k => $v) {
+				$segmentacionUsuarios = segmentacion_usuarios($usuariosSegmentacion, $v);
 
 				if(empty($v['imgRef'])){
 					continue;
@@ -368,6 +388,8 @@ class Fotos extends MY_Controller
 				$dataPdf[$v['idVisita']]['direccion'] = !empty($v['direccion']) ? $v['direccion'] : '-' ;
 				$dataPdf[$v['idVisita']]['nombreUsuario'] = !empty($v['nombreUsuario']) ? $v['nombreUsuario'] : '-' ;
 				$dataPdf[$v['idVisita']]['grupoCanal'] = !empty($v['grupoCanal']) ? $v['grupoCanal'] : '-' ;
+				$dataPdf[$v['idVisita']]['ejecutivo'] = !empty($segmentacionUsuarios['ejecutivo']) ? $segmentacionUsuarios['ejecutivo'] : '-' ;
+				$dataPdf[$v['idVisita']]['supervisor'] = !empty($segmentacionUsuarios['supervisor']) ? $segmentacionUsuarios['supervisor'] : '-' ;
 				$dataPdf[$v['idVisita']]['canal'] = !empty($v['canal']) ? $v['canal'] : '-' ;
 				$dataPdf[$v['idVisita']]['colDyn']['distribuidora'] = !empty($v['distribuidora']) ? strtoupper($v['distribuidora']) : '' ;
 				$dataPdf[$v['idVisita']]['colDyn']['ciudadDistribuidoraSuc'] = !empty($v['ciudadDistribuidoraSuc']) ? strtoupper($v['ciudadDistribuidoraSuc']) : '' ;
@@ -447,7 +469,7 @@ class Fotos extends MY_Controller
 
 			foreach($dataPdf as $k => $v){
 				$mpdf->setFooter('{PAGENO}');
-				$arr_header['L']['content'] = date_change_format($v['fecha']);
+				$arr_header['L']['content'] = $v['fecha'];
 				if($segmentacion['tipoSegmentacion'] == "tradicional"){
 					$arr_header['C']['content'] = strtoupper($v['colDyn']['distribuidora']) . ' - ' . strtoupper($v['colDyn']['ciudadDistribuidoraSuc']);
 
