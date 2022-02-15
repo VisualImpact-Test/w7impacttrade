@@ -33,6 +33,7 @@ class MY_Model extends CI_Model{
 	public function validar_filas_unicas_HT($post){
 		$listas = array();
 		foreach($post as $index => $value){
+			if(empty($value['idLista']))  continue ;
 			$listas[$index] = $value['idLista'];
 		}
 

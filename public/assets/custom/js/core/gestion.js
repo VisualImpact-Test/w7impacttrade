@@ -380,6 +380,16 @@ var Gestion = {
 
 			$('.invalid-feedback', contenedorElementoValidacion).remove();
 		});
+		$(document).on("click", ".tabCargaMasiva", function (e) {
+            let hoja = $(".tabCargaMasiva.active").data("nrohoja");
+            
+            if(hoja == 1){
+                $(".msgCargaElementos").removeClass("d-none");
+            }else{
+                $(".msgCargaElementos").addClass("d-none");
+            }
+		});
+		
 
 		// Cargando load de variable HTCustom
 		HTCustom.load();

@@ -44,17 +44,10 @@
 			<hr>
 			<div class="customizer-content-filter">
 
-				<div class="mb-2 mr-sm-2 position-relative form-group">
-					<div class="ui slider checkbox">
-						<input type="checkbox" name="chk-consolidado1q2q" id="chk-consolidado1q2q">
-						<label>Consolidado 1Q - 2Q</label>
-					</div>
-				</div>
-
 				<h5 class="mt-1 mb-1 text-bold-500"><i class="fal fa-table"></i> Filtros</h5>
 				<div class="form-row">
 					<div class="col-md-12">
-						<div class="mb-2 mr-sm-2 position-relative form-group consolidado">
+						<div class="mb-2 mr-sm-2 position-relative form-group">
 							<div class="field">
 								<div class="ui my_calendar">
 									<div class="ui input left icon" style="width:100%">
@@ -63,18 +56,6 @@
 									</div>
 								</div>
 							</div>
-						</div>
-						<div class="mb-2 mr-sm-2 position-relative form-group custom_tooltip consolidado1q2q" >
-							<span class="tooltiptext">Año</span>
-							<select class="form-control my_select2Full"  name="anio" id="anio">
-								<?=htmlSelectOptionArray2(['query'=>$anios,'id'=>'id','value'=>'nombre','selected'=>$tiempoHoy['anio']])?>
-							</select>
-						</div>
-						<div class="mb-2 mr-sm-2 position-relative form-group custom_tooltip consolidado1q2q" >
-							<span class="tooltiptext">Mes</span>
-							<select class="form-control my_select2Full"  name="mes" id="mes">
-								<?=htmlSelectOptionArray2(['query'=>$meses,'id'=>'id','value'=>'nombre','selected'=>$tiempoHoy['idMes']])?>
-							</select>
 						</div>
 						<div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia">
 							<?= getFiltros(['cuenta' => ['label' => 'Cuenta', 'name' => 'cuenta_filtro', 'id' => 'cuenta_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]) ?>
@@ -115,7 +96,7 @@
 							</select>
 						</div>
 
-						<div class="mb-2 mr-sm-2 position-relative form-group chk_tipoReporte consolidado" >
+						<div class="mb-2 mr-sm-2 position-relative form-group chk_tipoReporte">
 							<label for="chk-cadena"> Seleccionar Reporte: </label> <br>
 							<div class="btn-group btn-group-toggle w-100 " data-toggle="buttons">
 								<label class="btn btn-outline-secondary custom_tooltip">

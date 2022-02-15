@@ -1033,4 +1033,24 @@ class M_control extends MY_Model{
 
 		return $this->db->query($sql)->result_array();
 	}
+
+	public function get_tiempo($input = []){
+		$filtros = "WHERE 1 = 1 ";
+		!empty($input['fecha']) ? $filtros .= " AND fecha = '{$input['fecha']}'" : '';
+		!empty($input['mes']) ? $filtros .= " AND mes = {$input['mes']}" : '';
+		!empty($input['anio']) ? $filtros .= " AND anio = {$input['anio']}" : '';
+		!empty($input['anio_menor']) ? $filtros .= " AND anio <= {$input['anio_menor']}" : '';
+
+		$sql = "
+		DECLARE @hoy DATE = GETDATE();
+		SELECT 
+		* 
+		FROM General.dbo.tiempo
+		{$filtros}
+		ORDER BY anio DESC,idMes ASC
+
+		";
+
+		return $this->db->query($sql)->result_array();
+	}
 }

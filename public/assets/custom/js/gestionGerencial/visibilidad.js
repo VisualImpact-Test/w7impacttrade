@@ -3,11 +3,16 @@ var Visibilidad = {
 	frmRutas: 'frm-visibilidad',
 	contentDetalle: 'idContentVisibilidad',
 	url : 'gestionGerencial/visibilidad/', 
+	urlActivo : 'filtrar',
 
 	load: function(){
 		$(document).ready(function (e) {
+			Visibilidad.urlActivo = $(".card-body > ul > li > .active").data("url");
+			Visibilidad.contentDetalle = $(".card-body > ul > li > .active").data("contentdetalle");
+
 			$('.flt_grupoCanal').change();
-			$('#btn-filtrarVisibilidad').click();
+			$("#chk-consolidado1q2q").change();
+			// $('#btn-filtrarVisibilidad').click();
         });
 		$(document).on('dblclick', '.card-body > ul > li > a', function (e) {
 			$('#btn-filtrarVisibilidad').click();
@@ -18,44 +23,33 @@ var Visibilidad = {
 			var control = $(this);
 			var config = {
 				'idFrm' : Visibilidad.frmRutas
-				,'url': Visibilidad.url + control.data('url')
+				,'url': Visibilidad.url + Visibilidad.urlActivo
 				,'contentDetalle': Visibilidad.contentDetalle
 			}; 
 			Fn.loadReporte_new(config);
 		});
+		$(document).on('click', '.card-body > ul > li > a', function (e) {
+			var control = $(this);
+            Visibilidad.urlActivo = control.data('url');
+			Visibilidad.contentDetalle = control.data('contentdetalle');
+		
+        });
+		$(document).on('change', '#chk-consolidado1q2q', function (e) {
+			var control = $(this);
+           
+			if(control.prop("checked") == true){
+				$(".consolidado1q2q").removeClass("d-none");
+				$(".consolidado").addClass("d-none");
+			}
 
-		// $(document).on("click",".lk-show-foto",function(){
-		// 	var control = $(this);
-		// 	//
-		// 	var data = { idVisita: control.data('visita'), cliente: control.data('cliente'), usuario: control.data('usuario'), perfil: control.data('perfil') };
-		// 	var jsonString = { 'data': JSON.stringify(data) };
-		// 	var configAjax = { 'url': Visibilidad.url + 'mostrarFotos', 'data': jsonString };
+			if(control.prop("checked") == false){
+				$(".consolidado1q2q").addClass("d-none");
+				$(".consolidado").removeClass("d-none");
+			}
+		
+        });
 
-		// 	$.when( Fn.ajax(configAjax) ).then( function(a){
-		// 		++modalId;
-		// 		var fn='Fn.showModal({ id:'+modalId+',show:false });';
-		// 		var btn=new Array();
-		// 			btn[0]={title:'Cerrar',fn:fn};
-		// 		Fn.showModal({ id:modalId,show:true,title:a.msg.title,content:a.data,btn:btn});
-		// 	});
-		// });
 
-	
-
-		// $(document).on("click",".lk-foto",function(){
-		// 	var control = $(this);
-		// 	var fotoUrl = control.data('fotourl');
-		// 	//var hora=control.data('hora');
-		// 	//var html_content = control.data('html');
-		// 	var img='<img src="'+fotoUrl+'" class="img-responsive center-block img-thumbnail" />';
-		// 	var html = img;
-			
-		// 	++modalId;
-		// 	var fn='Fn.showModal({ id:'+modalId+',show:false });';
-		// 	var btn=new Array();
-		// 		btn[0]={title:'Cerrar',fn:fn};
-		// 	Fn.showModal({ id:modalId,show:true,title:"ZOOM FOTO",content:html,btn:btn});
-		// });
 
 		$(document).on('click','#btn-visibilidad-pdf', function(e){
 			e.preventDefault();
