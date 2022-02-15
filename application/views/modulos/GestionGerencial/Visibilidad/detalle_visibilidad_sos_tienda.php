@@ -1,6 +1,6 @@
 <div class="card-datatable">
 <table id="tb-visibilidad-sos" class="table table-bordered">
-   <thead>
+   <thead class="thead-light">
       <tr class="table-active ">
          <th rowspan="3">CADENA</th>
          <th rowspan="3">TIENDA</th>
@@ -10,7 +10,7 @@
          <th colspan="10">GROOMING SECTOR</th>
          <th colspan="20">HEALTH CARE SECTOR</th>
       </tr>
-      <tr class="table-active ">
+      <tr >
          <th colspan="2">CUIDADO DEL BEBE</th>
          <th colspan="10">CUIDADO CABELLO</th>
          <th colspan="2">DESODORANTES</th>
@@ -35,7 +35,7 @@
          <th colspan="1">PASTA DENTAL</th>
          <th colspan="1">TOALLAS HIGIENICAS</th>
       </tr>
-      <tr class="table-active ">
+      <tr>
          <th>PAÑALES - GONDOLA</th>
          <th>TOALLITAS HUMEDAS - GONDOLA</th>
          <th>ANTICASPA - GONDOLA</th>

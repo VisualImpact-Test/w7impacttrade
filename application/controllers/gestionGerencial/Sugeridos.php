@@ -1,7 +1,7 @@
 <?php 
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class CategoryVision extends MY_Controller{
+class Sugeridos extends MY_Controller{
 
 	public function __construct(){
 		parent::__construct();
@@ -11,7 +11,7 @@ class CategoryVision extends MY_Controller{
     public function index()
 	{
 		$config = array();
-		$config['nav']['menu_active'] = $idMenu = '144';
+		$config['nav']['menu_active'] = $idMenu = '147';
 		$config['css']['style'] = array(
 			'assets/custom/css/gestionGerencial/iniciativas'
 		);
@@ -19,13 +19,13 @@ class CategoryVision extends MY_Controller{
 			'assets/libs/fileDownload/jquery.fileDownload',
 			'assets/libs/datatables/responsive.bootstrap4.min',
 			'assets/custom/js/core/datatables-defaults',
-			'assets/custom/js/gestionGerencial/categoryVision'
+			'assets/custom/js/gestionGerencial/sugeridos'
 		);
 
 		$config['data']['icon'] = 'fas fa-share-alt';
-		$config['data']['title'] = 'Category Vision';
-		$config['data']['message'] = 'Category Vision';
-		$config['view'] = 'modulos/gestionGerencial/categoryVision/index';
+		$config['data']['title'] = 'Sugeridos';
+		$config['data']['message'] = 'Sugeridos';
+		$config['view'] = 'modulos/gestionGerencial/sugeridos/index';
         $config['data']['tabs']  = $tabs = getTabPermisos(['idMenuOpcion'=>$idMenu])->result_array();
 		$params = array();
 		$params['idCuenta'] = $this->session->userdata('idCuenta');
@@ -83,8 +83,8 @@ class CategoryVision extends MY_Controller{
 			if(empty($rs_det)){
 				$html = getMensajeGestion('noRegistros');
 				$result['result'] = 0;
-				$result['data']['views']['idContentcategoryVision']['datatable'] = 'tb-categoryVision';
-				$result['data']['views']['idContentcategoryVision']['html'] = $html;
+				$result['data']['views']['idContentsugeridos']['datatable'] = 'tb-sugeridos';
+				$result['data']['views']['idContentsugeridos']['html'] = $html;
 				goto respuesta;
 			}
 			foreach($rs_det as $det){
@@ -92,7 +92,7 @@ class CategoryVision extends MY_Controller{
 				$array['elementos'][$det['idCategoria']][$det['idElementoVis']]=$det['elemento'];
 			}
 
-			$rs_lista=$this->model->obtener_lista_elementos_categoryVision($input);
+			$rs_lista=$this->model->obtener_lista_elementos_sugeridos($input);
 			foreach($rs_lista as $list){
 				$array['lista'][$list['idVisita']][$list['idElementoVis']]='1';
 			}
@@ -100,15 +100,15 @@ class CategoryVision extends MY_Controller{
 			// $array['detalle'] = $rs_det;
 			$segmentacion = getSegmentacion($input);
 			$array['segmentacion'] = $segmentacion;
-			//$html = $this->load->view("modulos/gestionGerencial/categoryVision/detalle_categoryVision",$array,true);
+			//$html = $this->load->view("modulos/gestionGerencial/sugeridos/detalle_sugeridos",$array,true);
 		} else {
 			//$html = getMensajeGestion('noRegistros');
-			//$html = $this->load->view("modulos/gestionGerencial/categoryVision/detalle_categoryVision",$array,true);
+			//$html = $this->load->view("modulos/gestionGerencial/sugeridos/detalle_sugeridos",$array,true);
 		}
 		$array=array();
 		$result['result'] = 1;
-		//$result['data']['views']['idContentcategoryVision']['datatable'] = 'tb-categoryVision';
-		$result['data']['views']['idContentcategoryVision']['html'] = $this->load->view("modulos/gestionGerencial/categoryVision/detalle_categoryVision",$array,true);
+		$result['data']['views']['idContentSugeridos']['html'] = $this->load->view("modulos/gestionGerencial/sugeridos/detalle_sugeridos",$array,true);
+		$result['data']['views']['idContentsugeridos']['datatable'] = 'tb-sugeridos';
 		$result['data']['configTable'] = [];
 
 		respuesta:

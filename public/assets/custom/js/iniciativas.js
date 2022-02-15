@@ -2,11 +2,14 @@ var Iniciativas = {
 	
 	idFormFiltros: 'formFiltroIniciativas',
 	url: 'Iniciativas/',
-	idDivContent: 'contentIniciativas',
+	contentDetalle: 'contentIniciativas',
 	idTableDetalle : 'tb-Iniciativas',
+	urlActivo: '',
 	
 	load: function () {
 		$(document).ready(function (e) {
+			Iniciativas.urlActivo = $(".card-body > ul > li > .active").data("url");
+			Iniciativas.contentDetalle = $(".card-body > ul > li > .active").data("contentdetalle");
 			$('.btn-consultar').click();
 			$('.flt_grupoCanal').change();
         });
@@ -14,17 +17,13 @@ var Iniciativas = {
 		$('.btn-consultar').on('click', function (e) {
 			e.preventDefault();
 
-			var data = Fn.formSerializeObject(Iniciativas.idFormFiltros);
-			var jsonString = { 'data': JSON.stringify(data) };
-			var config = { 'url': Iniciativas.url + 'lista_iniciativas', 'data': jsonString };
-
-			$.when(Fn.ajax(config)).then(function (a) {
-				$('#'+Iniciativas.idDivContent).parent().removeClass("hide");
-				$('#'+Iniciativas.idDivContent).html(a.data);
-				var $datatable = $('#data-table');
-				
-				$datatable.DataTable();
-			}); 
+			var control = $(this);
+			var config = {
+				'idFrm' : Iniciativas.frmRutas
+				,'url': Iniciativas.url + Iniciativas.urlActivo
+				,'contentDetalle': Iniciativas.contentDetalle
+			}; 
+			Fn.loadReporte_new(config);
 		});
 
 		$(document).on('dblclick', '.card-body > ul > li > a', function (e) {

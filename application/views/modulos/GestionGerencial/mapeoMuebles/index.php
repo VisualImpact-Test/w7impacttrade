@@ -9,7 +9,11 @@
 		<div class="card w-100 mb-3 p-0">
 			<div class="card-body p-0">
 				<ul class="nav nav-tabs nav-justified">
-					<a class="nav-link active" data-toggle="tab" href="#tab-content-0">Detallado</a>
+					<? foreach ($tabs as $k => $v) { ?>
+						<li class="nav-item btnReporte" id="tipoReporte" name="tipoReporte">
+							<a data-toggle="tab" href="#<?= $v['contenedor'] ?>" class="<?= ($k == 0) ? 'active' : '' ?> nav-link" data-value="<?= $v['orden'] ?>" data-url="<?= $v['url'] ?>" data-contentdetalle="<?= $v['contenedor'] ?>"><?= $v['nombre'] ?></a>
+						</li>
+					<? } ?>
 				</ul>
 			</div>
 		</div>
@@ -22,7 +26,7 @@
 		<i class="fal fa-cog fa-lg fa-spin"></i>
 	</a>
 	<div class="customizer-content p-2 ps-container ps-theme-dark" data-ps-id="aca1f25c-4ed9-a04b-d154-95a5d6494748">
-		<form id="frm-categoryVision">
+		<form id="frm-mapeoMuebles">
 			<div class="card-header" style="margin-bottom: 14px;">
 				<h4>CONFIGURACIÓN</h4>
 			</div>
@@ -30,16 +34,12 @@
 				<input type="hidden" id="idTipoFormato" name="tipoFormato" value="1">
 			</div>
 			<div class="customizer-content-button">
-				<button type="button" class="btn btn-outline-trade-visual border-0" data-url="filtrar" id="btn-filtrarcategoryVision" title="Filtrar">
+				<button type="button" class="btn btn-outline-trade-visual border-0" data-url="filtrar" id="btn-filtrarMapeoMuebles" title="Filtrar">
 					<i class="fa fa-search"></i> <span class="txt_filtro"></span>
 				</button>
-				<!--<button type="button" class="btn btn-outline-trade-visual border-0" data-url="pdf" id="btn-categoryVision-pdf" title="PDF">
-					<i class="fa fa-file-pdf"></i> <span class="txt_filtro"></span>
-				</button>-->
 			</div>
 			<hr>
 			<div class="customizer-content-filter">
-
 				<h5 class="mt-1 mb-1 text-bold-500"><i class="fal fa-table"></i> Filtros</h5>
 				<div class="form-row">
 					<div class="col-md-12">
@@ -66,44 +66,6 @@
 						<div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip">
 							<span class="tooltiptext">Canal</span>
 							<?= getFiltros(['canal' => ['label' => 'Canal', 'name' => 'canal_filtro', 'id' => 'canal_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]) ?>
-						</div>
-						<div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip">
-							<span class="tooltiptext">SubCanal</span>
-							<?= getFiltros(['tipoCliente' => ['label' => 'Sub Canal', 'name' => 'subcanal_filtro', 'id' => 'subcanal_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]); ?>
-						</div>
-						<div class="mb-2 mr-sm-2 position-relative form-group custom_tooltip">
-							<span class="tooltiptext">Elemento</span>
-							<select id="idElemento" class="ui my_select2Full" name="idElemento" title="Elementos (Todo)">
-								<option value="">-- Elemento --</option>
-								<? foreach ($elementos as $row) { ?>
-									<option value="<?= $row['idElementoVis'] ?>"><?= $row['nombre'] ?></option>
-								<? } ?>
-							</select>
-						</div>
-
-						<div class="mb-2 mr-sm-2  position-relative form-group filtros_asistencia custom_tooltip">
-							<span class="tooltiptext">Tipo Usuario</span>
-							<?= getFiltros(['tipoUsuario' => ['label' => 'Tipo usuario', 'name' => 'tipoUsuario_filtro', 'id' => 'tipoUsuario_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]) ?>
-						</div>
-						<div class="mb-2 mr-sm-2  position-relative form-group filtros_asistencia custom_tooltip">
-							<span class="tooltiptext">Usuarios <i class="clean_usuario_filtro fas fa-times"></i></span>
-							<select class="form-control" id="usuario_filtro" name="usuario_filtro">
-								<option value=""> Cod Usuario -- Nombre Usuario </option>
-							</select>
-						</div>
-
-						<div class="mb-2 mr-sm-2 position-relative form-group chk_tipoReporte">
-							<label for="chk-cadena"> Seleccionar Reporte: </label> <br>
-							<div class="btn-group btn-group-toggle w-100 " data-toggle="buttons">
-								<label class="btn btn-outline-secondary custom_tooltip">
-									<span class="tooltiptextButton">Por Cadena</span>
-									<input type="radio" name="chk-tipoReporte" id="chk-cadena" autocomplete="off" value="cadena"> Cadena </i>
-								</label>
-								<label class="btn btn-outline-secondary  custom_tooltip">
-									<span class="tooltiptextButton">Por Tienda</span>
-									<input type="radio" name="chk-tipoReporte" id="chk-tienda" autocomplete="off" checked="checked" value="tienda"> Tienda </i>
-								</label>
-							</div>
 						</div>
 						<div class="filtros_secundarios">
 							<div class="filtros_generados">
@@ -140,7 +102,32 @@
 								</div>
 							</div>
 						</div>
-						
+					</div>
+				</div>
+				<div id="dv-leyenda">
+					<hr>
+					<h5 class="mt-1 text-bold-500"><i class="far fa-info-circle"></i> Leyenda</h5>
+					<div class="form-group">
+						<div class="custom-control custom-checkbox mb-1">
+							<input type="checkbox" class="custom-control-input filtroCondicion" id="ckb-todos" name="ckb-noactivo" value="Negro">
+							<label class="custom-control-label" for="ckb-todos"><span class="color-Fe"><i class="fa fa-circle"></i></span> No cuenta con activo </label>
+						</div>
+						<div class="custom-control custom-checkbox mb-1">
+							<input type="checkbox" class=" custom-control-input filtroCondicion" id="ckb-nopermitido" name="ckb-feriado" value="Negro">
+							<label class="custom-control-label" for="ckb-feriado"><span class="color-Negro"><i class="fa fa-circle"></i></span> No permiten muebles </label>
+						</div>
+						<div class="custom-control custom-checkbox mb-1">
+							<input type="checkbox" class="custom-control-input filtroCondicion" id="ckb-faltacorreo" name="ckb-completa" value="F">
+							<label class="custom-control-label" for="ckb-completa"> <span class="color-F"><i class="fa fa-circle"></i></span> Falta correo de autorización </label>
+						</div>
+						<div class="custom-control custom-checkbox mb-1">
+							<input type="checkbox" class="custom-control-input filtroCondicion" id="ckb-faltastock" name="ckb-incompleta" value="I">
+							<label class="custom-control-label" for="ckb-incompleta"><span class="color-I"><i class="fa fa-circle"></i></span> Falta de Stock</label>
+						</div>
+						<div class="custom-control custom-checkbox mb-1">
+							<input type="checkbox" class="custom-control-input filtroCondicion" id="ckb-cambioelemento" name="ckb-falta" value="C">
+							<label class="custom-control-label" for="ckb-falta"><span class="color-C"><i class="fa fa-circle"></i></span> Cambio de elemento</label>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -156,10 +143,13 @@
 
 <div class="main-card mb-3 card ">
 	<div class="card-body p-0">
-		<div class="tab-content" id="idContentcategoryVision">
-			<div class="tab-pane fade show active" id="tab-content-0" role="tabpanel">
-                <?= getMensajeGestion('noResultados') ?>
-            </div>
+		<div class="tab-content">
+			<div class="tab-pane fade show active" id="idContentMapeoMuebles" role="tabpanel">
+				<?= getMensajeGestion('noResultados') ?>
+			</div>
+			<div class="tab-pane fade" id="idContentMMSummary" role="tabpanel">
+				<?= getMensajeGestion('noResultados') ?>
+			</div>
 		</div>
 	</div>
 </div>

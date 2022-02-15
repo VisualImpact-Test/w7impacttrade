@@ -949,12 +949,11 @@ var Fn = {
 		var data = Fn.formSerializeObject(config.idFrm);
 		var jsonString = { 'data': JSON.stringify(data) };
 		var configAjax = { 'url': config.url, 'data': jsonString };
-
+		
 		$.when( Fn.ajax_new(configAjax) ).then(function(a){
 			if ( a['status'] == null) {
 				return false;
 			}
-
 			if ( typeof a.data.views !== 'undefined' ) {
 				$.each(a.data.views, function(id,value){
 					$('#'+id).html('');

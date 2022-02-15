@@ -1,4 +1,4 @@
-<div class="col-md-5">
+<div class="col-md-12" style="margin-top: 15px;text-align: center;">
     <div class="mb-3 card">
         <div class="card-header"><i class="fa fa-align-justify" aria-hidden="true"></i> &nbsp;&nbsp;Información de Punto de Venta</div>
         <div class="card-body">

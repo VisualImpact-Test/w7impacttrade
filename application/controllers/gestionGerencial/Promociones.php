@@ -133,6 +133,91 @@ class Promociones extends MY_Controller{
 		echo json_encode($result);
 	}
 
+	public function filtrar_hsm(){
+		$result = $this->result;
+		$data = json_decode($this->input->post('data'));
+
+		$fechas = explode(' - ', $data->{'txt-fechas'});
+
+		$input = array();
+		$input['fecIni'] = $fechas[0];
+		$input['fecFin'] = $fechas[1];
+
+		$input['proyecto_filtro'] = $data->{'proyecto_filtro'};
+		$input['grupoCanal_filtro'] = $data->{'grupoCanal_filtro'};
+		$input['canal_filtro'] = $data->{'canal_filtro'};
+		$input['subcanal'] = $data->{'subcanal_filtro'};
+		$input['distribuidora_filtro'] = empty($data->{'distribuidora_filtro'}) ? '' : $data->{'distribuidora_filtro'};
+		$input['zona_filtro'] = empty($data->{'zona_filtro'}) ? '' : $data->{'zona_filtro'};
+		$input['plaza_filtro'] = empty($data->{'plaza_filtro'}) ? '' : $data->{'plaza_filtro'};
+		$input['cadena_filtro'] = empty($data->{'cadena_filtro'}) ? '' : $data->{'cadena_filtro'};
+		$input['banner_filtro'] = empty($data->{'banner_filtro'}) ? '' : $data->{'banner_filtro'};
+
+		/*if(isset( $data->{'idElemento'})){
+			$elementos = $data->{'idElemento'};
+			if(is_array($elementos)){
+				$input['idElemento'] = implode(",",$elementos);
+			}else{
+				$input['idElemento'] = $elementos;
+			}
+		}*/
+
+		//$rs_visitas = $this->model->obtener_visitas($input);
+
+		$html = '';
+		$array['visitas'] = array();//$rs_visitas;
+
+		if(!empty($rs_visitas)){
+			$array=array();
+			$array['visitas'] = $rs_visitas;
+
+			$rs_det=$this->model->obtener_detalle_promociones($input);
+
+			if(empty($rs_det)){
+				$html = getMensajeGestion('noRegistros');
+				$result['result'] = 0;
+				$result['data']['views']['idContentPromociones']['datatable'] = 'tb-promociones';
+				$result['data']['views']['idContentPromociones']['html'] = $html;
+				goto respuesta;
+			}
+			foreach($rs_det as $det){
+				$array['categorias'][$det['idTipoPromocion']]=$det['categoria'];
+				$array['elementos'][$det['idTipoPromocion']][$det['idPromocion']]=$det['elemento'];
+			}
+
+			$rs_lista=$this->model->obtener_lista_promociones($input);
+			foreach($rs_lista as $list){
+				$array['lista'][$list['idVisita']][$list['idPromocion']]='1';
+			}
+
+			$array['detalle'] = $rs_det;
+
+			$segmentacion = getSegmentacion($input);
+			$array['segmentacion'] = $segmentacion;
+			$html = $this->load->view("modulos/gestionGerencial/promociones/detalle_promociones_hsm",$array,true);
+		} else {
+			$html = getMensajeGestion('noRegistros');
+		}
+		$array=array();
+		$result['result'] = 1;
+		$result['data']['views']['idContentPromociones']['datatable'] = 'tb-promociones';
+		$result['data']['views']['idContentPromociones']['html'] = $this->load->view("modulos/gestionGerencial/promociones/detalle_promociones_hsm",$array,true); //$html;
+		$result['data']['configTable'] =  [
+			'columnDefs' =>
+			[
+				0 =>
+				[
+					"visible" => false,
+					"targets" => []
+				]
+			],
+			// 'dom' => '<"ui icon input"f>tip',
+		];
+	
+		respuesta:
+		echo json_encode($result);
+	}
+
 	public function filtrar_aje()
 	{
 		ini_set('memory_limit','1024M');

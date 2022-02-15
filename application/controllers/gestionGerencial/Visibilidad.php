@@ -398,9 +398,119 @@ class Visibilidad extends MY_Controller{
 		$array['segmentacion'] = $segmentacion;
 		if($data->{'chk-tipoReporte'} == 'cadena') $html = $this->load->view("modulos/gestionGerencial/visibilidad/detalle_visibilidad_sos_cadena",$array,true);
 		if($data->{'chk-tipoReporte'} == 'tienda') $html = $this->load->view("modulos/gestionGerencial/visibilidad/detalle_visibilidad_sos_tienda",$array,true);
+		
+		if(!empty($data->{'chk-consolidado1q2q'})) $html = $this->load->view("modulos/gestionGerencial/visibilidad/detalle_visibilidad_sos",$array,true);
+
+
 		$result['result'] = 1;
 		$result['data']['views']['idContentVisibilidadSos']['datatable'] = 'tb-visibilidad-sos';
 		$result['data']['views']['idContentVisibilidadSos']['html'] = $html;
+		$result['data']['configTable'] = [];
+
+		respuesta:
+		echo json_encode($result);
+	}
+
+	public function filtrarSosCategoria(){
+		$result = $this->result;
+		$data = json_decode($this->input->post('data'));
+
+		$fechas = explode(' - ', $data->{'txt-fechas'});
+
+		$input = array();
+		$input['fecIni'] = $fechas[0];
+		$input['fecFin'] = $fechas[1];
+
+		$input['proyecto_filtro'] = $data->{'proyecto_filtro'};
+		$input['grupoCanal_filtro'] = $data->{'grupoCanal_filtro'};
+		$input['canal_filtro'] = $data->{'canal_filtro'};
+		$input['subcanal'] = $data->{'subcanal_filtro'};
+		$input['subcanal_filtro'] = empty($data->{'subcanal_filtro'}) ? '' : $data->{'subcanal_filtro'};
+
+		$input['tipoUsuario_filtro'] = empty($data->{'tipoUsuario_filtro'}) ? '' : $data->{'tipoUsuario_filtro'};
+		$input['usuario_filtro'] = empty($data->{'usuario_filtro'}) ? '' : $data->{'usuario_filtro'};
+
+		$input['distribuidoraSucursal_filtro'] = empty($data->{'distribuidoraSucursal_filtro'}) ? '' : $data->{'distribuidoraSucursal_filtro'};
+		$input['distribuidora_filtro'] = empty($data->{'distribuidora_filtro'}) ? '' : $data->{'distribuidora_filtro'};
+		$input['zona_filtro'] = empty($data->{'zona_filtro'}) ? '' : $data->{'zona_filtro'};
+		$input['plaza_filtro'] = empty($data->{'plaza_filtro'}) ? '' : $data->{'plaza_filtro'};
+		$input['cadena_filtro'] = empty($data->{'cadena_filtro'}) ? '' : $data->{'cadena_filtro'};
+		$input['banner_filtro'] = empty($data->{'banner_filtro'}) ? '' : $data->{'banner_filtro'};
+
+		$segmentacion = getSegmentacion($input);
+		$array['segmentacion'] = $segmentacion;
+		
+		$html = $this->load->view("modulos/gestionGerencial/visibilidad/detalle_visibilidad_sos_categoria",$array,true);
+
+		if(!empty($data->{'chk-consolidado'})){
+			if($data->{'chk-tipoReporte-cat'} == 'tienda') $html = $this->load->view("modulos/gestionGerencial/visibilidad/detalle_visibilidad_sos_cat_tienda",$array,true);
+			if($data->{'chk-tipoReporte-cat'} == 'banner') $html = $this->load->view("modulos/gestionGerencial/visibilidad/detalle_visibilidad_sos_cat_banner",$array,true);
+			if($data->{'chk-tipoReporte-cat'} == 'cadena') $html = $this->load->view("modulos/gestionGerencial/visibilidad/detalle_visibilidad_sos_cat_cadena",$array,true);
+			if($data->{'chk-tipoReporte-cat'} == 'cluster') $html = $this->load->view("modulos/gestionGerencial/visibilidad/detalle_visibilidad_sos_cat_cluster",$array,true);
+		} 
+		
+		if(!empty($data->{'chk-consolidado1q2q'})){
+			if($data->{'chk-tipoReporte-cat'} == 'tienda') $html = $this->load->view("modulos/gestionGerencial/visibilidad/detalle_visibilidad_sos_cat1q2q_tienda",$array,true);
+			if($data->{'chk-tipoReporte-cat'} == 'banner') $html = $this->load->view("modulos/gestionGerencial/visibilidad/detalle_visibilidad_sos_cat1q2q_banner",$array,true);
+			if($data->{'chk-tipoReporte-cat'} == 'cadena') $html = $this->load->view("modulos/gestionGerencial/visibilidad/detalle_visibilidad_sos_cat1q2q_cadena",$array,true);
+			if($data->{'chk-tipoReporte-cat'} == 'cluster') $html = $this->load->view("modulos/gestionGerencial/visibilidad/detalle_visibilidad_sos_cat1q2q_cluster",$array,true);
+		}
+
+
+		$result['result'] = 1;
+		$result['data']['views']['idContentVisibilidadSosCat']['datatable'] = 'tb-visibilidad-sos-cat';
+		$result['data']['views']['idContentVisibilidadSosCat']['html'] = $html;
+		$result['data']['configTable'] = [];
+
+		respuesta:
+		echo json_encode($result);
+	}
+	public function filtrarSod(){
+		$result = $this->result;
+		$data = json_decode($this->input->post('data'));
+
+		$fechas = explode(' - ', $data->{'txt-fechas'});
+
+		$input = array();
+		$input['fecIni'] = $fechas[0];
+		$input['fecFin'] = $fechas[1];
+
+		$input['proyecto_filtro'] = $data->{'proyecto_filtro'};
+		$input['grupoCanal_filtro'] = $data->{'grupoCanal_filtro'};
+		$input['canal_filtro'] = $data->{'canal_filtro'};
+		$input['subcanal'] = $data->{'subcanal_filtro'};
+		$input['subcanal_filtro'] = empty($data->{'subcanal_filtro'}) ? '' : $data->{'subcanal_filtro'};
+
+		$input['tipoUsuario_filtro'] = empty($data->{'tipoUsuario_filtro'}) ? '' : $data->{'tipoUsuario_filtro'};
+		$input['usuario_filtro'] = empty($data->{'usuario_filtro'}) ? '' : $data->{'usuario_filtro'};
+
+		$input['distribuidoraSucursal_filtro'] = empty($data->{'distribuidoraSucursal_filtro'}) ? '' : $data->{'distribuidoraSucursal_filtro'};
+		$input['distribuidora_filtro'] = empty($data->{'distribuidora_filtro'}) ? '' : $data->{'distribuidora_filtro'};
+		$input['zona_filtro'] = empty($data->{'zona_filtro'}) ? '' : $data->{'zona_filtro'};
+		$input['plaza_filtro'] = empty($data->{'plaza_filtro'}) ? '' : $data->{'plaza_filtro'};
+		$input['cadena_filtro'] = empty($data->{'cadena_filtro'}) ? '' : $data->{'cadena_filtro'};
+		$input['banner_filtro'] = empty($data->{'banner_filtro'}) ? '' : $data->{'banner_filtro'};
+
+		$segmentacion = getSegmentacion($input);
+		$array['segmentacion'] = $segmentacion;
+		
+		if($data->{'chk-tipoReporte-sod'} == 'categoria') 	$html = $this->load->view("modulos/gestionGerencial/visibilidad/detalle_visibilidad_sod_categoria",$array,true);
+		if($data->{'chk-tipoReporte-sod'} == 'marca') 	$html = $this->load->view("modulos/gestionGerencial/visibilidad/detalle_visibilidad_sod_categoria",$array,true);
+
+		if(!empty($data->{'chk-consolidado1q2q'})){
+			if($data->{'chk-tipoReporte-sod'} == 'categoria') 	$html = $this->load->view("modulos/gestionGerencial/visibilidad/detalle_visibilidad_sod1q2q_categoria",$array,true);
+			if($data->{'chk-tipoReporte-sod'} == 'marca') 	$html = $this->load->view("modulos/gestionGerencial/visibilidad/detalle_visibilidad_sod1q2q_categoria",$array,true);
+		}
+
+		if(!empty($data->{'chk-nuevoFormatosod'})){
+			if($data->{'chk-tipoReporte-sod-nuevo'} == 'tienda') $html = $this->load->view("modulos/gestionGerencial/visibilidad/detalle_visibilidad_sos_new_tienda",$array,true);
+			if($data->{'chk-tipoReporte-sod-nuevo'} == 'banner') $html = $this->load->view("modulos/gestionGerencial/visibilidad/detalle_visibilidad_sos_new_banner",$array,true);
+			if($data->{'chk-tipoReporte-sod-nuevo'} == 'cadena') $html = $this->load->view("modulos/gestionGerencial/visibilidad/detalle_visibilidad_sos_new_cadena",$array,true);
+		} 
+
+		$result['result'] = 1;
+		$result['data']['views']['idContentVisibilidadSod']['datatable'] = 'tb-visibilidad-sod';
+		$result['data']['views']['idContentVisibilidadSod']['html'] = $html;
 		$result['data']['configTable'] = [];
 
 		respuesta:

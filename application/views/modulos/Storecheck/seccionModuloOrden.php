@@ -10,7 +10,7 @@ $primeraIteracion = true;
 $numeroVisita = 1;
 ?>
 
-<div class="col-md-6">
+<div class="col-md-12">
     <div class="mb-3 card">
         <div class="card-header"><i class="fa fa-picture-o" aria-hidden="true"></i> &nbsp;&nbsp;Módulo Orden &nbsp;<span class="badge badge-secondary"><?= $cantidadVisitasOrden ?> Visitas</span></div>
         <div class="card-body">

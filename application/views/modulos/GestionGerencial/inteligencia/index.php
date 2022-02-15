@@ -9,9 +9,11 @@
 		<div class="card w-100 mb-3 p-0">
 			<div class="card-body p-0">
 				<ul class="nav nav-tabs nav-justified">
-					<li class="nav-item btnReporte" id="tipoReporte" name="tipoReporte" url="visibilidad" data-value="1">
-						<a data-toggle="tab" href="#idContentInteligencia" class="active nav-link">Detallado</a>
-					</li>
+					<? foreach ($tabs as $k => $v) { ?>
+						<li class="nav-item btnReporte" id="tipoReporte" name="tipoReporte">
+							<a data-toggle="tab" href="#<?= $v['contenedor'] ?>" class="<?= ($k == 0) ? 'active' : '' ?> nav-link" data-value="1" data-url="<?= $v['url'] ?>" data-contentdetalle="<?= $v['contenedor'] ?>"><?= $v['nombre'] ?></a>
+						</li>
+					<? } ?>
 				</ul>
 			</div>
 		</div>
@@ -141,9 +143,11 @@
 <div class="row tipoDetallado">
 	<div class="col-lg-12">
 		<div class="main-card mb-3 card">
-			<div class="table-responsive" id="idContentInteligencia">
-				<?= getMensajeGestion('noResultados') ?>
-			</div>
+			<? foreach ($tabs as $k => $v) { ?>
+				<div class="tab-pane fade <?= ($k == 0) ? 'show active' : '' ?>" id="<?= $v['contenedor'] ?>" role="tabpanel">
+					<?= getMensajeGestion('noResultados') ?>
+				</div>
+			<? } ?>
 		</div>
 	</div>
 </div>
