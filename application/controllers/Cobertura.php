@@ -28,10 +28,10 @@ class Cobertura extends MY_Controller
 		$config['data']['title'] = 'Cobertura';
 		$config['data']['message'] = 'Aquí encontrará datos de Cobertura.';
 
-		$tabs = getTabPermisos(['idMenuOpcion'=>$idMenu])->result_array();
-		if (empty($tabs)) { 
+		$tabs = getTabPermisos(['idMenuOpcion' => $idMenu])->result_array();
+		if (empty($tabs)) {
 			$config['view'] =  'oops';
-		}else{
+		} else {
 			$config['data']['tabs'] = $tabs;
 			$config['view'] = 'modulos/cobertura/index';
 		}
@@ -41,7 +41,7 @@ class Cobertura extends MY_Controller
 
 	public function detallado()
 	{
-		ini_set('memory_limit','1024M');
+		ini_set('memory_limit', '1024M');
 		set_time_limit(0);
 
 		$result = $this->result;
@@ -84,12 +84,61 @@ class Cobertura extends MY_Controller
 		}
 
 		$result['result'] = 1;
-		if (count($data['tiendas']->result()) < 1 OR empty($visitas->result())) {
+		if (count($data['tiendas']->result()) < 1 or empty($visitas->result())) {
 			$result['data']['html'] = getMensajeGestion('noRegistros');
 		} else {
-			$segmentacion = getSegmentacion([ 'grupoCanal_filtro' => $post['grupo_filtro'] ]);
+			$segmentacion = getSegmentacion(['grupoCanal_filtro' => $post['grupo_filtro']]);
 			$dataParaVista['segmentacion'] = $segmentacion;
 			$result['data']['html'] = $this->load->view("modulos/Cobertura/detalle", $data, true);
+			$result['data']['configTable'] = [];
+		}
+
+		responder:
+		echo json_encode($result);
+	}
+
+	public function resumen()
+	{
+		$result = $this->result;
+		$result['msg']['title'] = 'Resumen';
+		$post = json_decode($this->input->post('data'), true);
+
+		$post['fecIni'] = getFechasDRP($post["txt-fechas"])[0];
+		$post['fecFin'] = getFechasDRP($post["txt-fechas"])[1];
+
+		$data = [];
+
+		$data['tiendas'] = $this->m_cobertura->getClientesProgramadosSpoc($post);
+
+		$data['fechas'] = $this->m_cobertura->getFechas($post);
+
+		$prog = $this->m_cobertura->getHorasProgramadas($post);
+
+		$visitas = $this->m_cobertura->getVisitaSpoc($post);
+
+		if (count($data['tiendas']->result()) <= 0) {
+			$result['data']['html'] = getMensajeGestion('noRegistros');
+			goto responder;
+		}
+		foreach ($prog->result() as $row) {
+			$data['prog'][$row->idUsuario][$row->idCliente][$row->idTiempo]['HP'] = 1;
+		}
+
+		foreach ($visitas->result() as $row) {
+			$data['visitas'][$row->idUsuario][$row->idCliente][$row->idTiempo]['HT'] = 1;
+		}
+
+		foreach ($data['tiendas']->result() as $row) {
+			$data['supervisor'][$row->idUsuario]['supervisor'] = $row->usuario;
+		}
+
+		$result['result'] = 1;
+		if (count($data['tiendas']->result()) < 1 or empty($visitas->result())) {
+			$result['data']['html'] = getMensajeGestion('noRegistros');
+		} else {
+			$segmentacion = getSegmentacion(['grupoCanal_filtro' => $post['grupo_filtro']]);
+			$dataParaVista['segmentacion'] = $segmentacion;
+			$result['data']['html'] = $this->load->view("modulos/Cobertura/resumen", $data, true);
 			$result['data']['configTable'] = [];
 		}
 

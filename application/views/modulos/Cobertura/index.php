@@ -10,8 +10,8 @@
 			<div class="card-body p-0">
 				<ul class="nav nav-tabs nav-justified">
 					<? foreach ($tabs as $k => $v) { ?>
-						<li class="nav-item btnReporte" id="tipoReporte" name="tipoReporte" data-url="<?= $v['url'] ?>" data-value="<?= $v['orden'] ?>" data-tiporeporte="1">
-							<a data-toggle="tab" href="#<?= $v['contenedor'] ?>" class="<?= ($k == 0) ? 'active' : '' ?> nav-link" data-contentdetalle="<?= $v['contenedor'] ?>"><?= $v['nombre'] ?></a>
+						<li class="nav-item btnReporte" id="tipoReporte" name="tipoReporte" data-value="<?= $v['orden'] ?>" data-tiporeporte="<?= $v['orden'] ?>">
+							<a data-toggle="tab" href="#<?= $v['contenedor'] ?>" data-url="<?= $v['url'] ?>" class="<?= ($k == 0) ? 'active' : '' ?> nav-link" data-contentdetalle="<?= $v['contenedor'] ?>"><?= $v['nombre'] ?></a>
 						</li>
 					<? } ?>
 				</ul>
