@@ -6,12 +6,13 @@ class Visibilidad extends MY_Controller{
 	public function __construct(){
 		parent::__construct();
 		$this->load->model('gestionGerencial/M_visibilidad','model');
+		$this->load->model('m_control');
 	}
 
 	public function index()
 	{
 		$config = array();
-		$config['nav']['menu_active'] = '109';
+		$config['nav']['menu_active'] = $idMenu = '109';
 		$config['css']['style'] = array(
 			'assets/custom/css/gestionGerencial/iniciativas'
 		);
@@ -31,6 +32,30 @@ class Visibilidad extends MY_Controller{
 		$params['idCuenta'] = $this->session->userdata('idCuenta');
 		$elementos = $this->model->obtener_elementos($params);
 		$config['data']['elementos'] = $elementos;
+
+		$config['data']['tabs']  = $tabs = getTabPermisos(['idMenuOpcion'=>$idMenu])->result_array();
+		empty($tabs) ? $config['view'] = 'oops' : '';
+
+		$tiempo_hoy = $this->m_control->get_tiempo(['fecha'=> date('Y-m-d')]);
+		$anio_actual = $this->m_control->get_tiempo(['anio_menor'=> date('Y')]);
+
+		$meses = [];
+		$anios = [];
+		foreach($anio_actual as $row){
+			$meses[$row['idMes']] = [
+				'id'=>$row['idMes'],
+				'nombre' => $row['mes'],
+			];
+
+			$anios[$row['anio']] = [
+				'id' => $row['anio'],
+				'nombre' => $row['anio'],
+			];
+
+		}
+		$config['data']['tiempoHoy'] = $tiempo_hoy[0];
+		$config['data']['anios'] = $anios;
+		$config['data']['meses'] = $meses;
 
 		$this->view($config);
 	}
@@ -342,5 +367,44 @@ class Visibilidad extends MY_Controller{
 		$mpdf->Output("Visibilidad.pdf", \Mpdf\Output\Destination::DOWNLOAD);
 	}
 
+	public function filtrarSos(){
+
+		$result = $this->result;
+		$data = json_decode($this->input->post('data'));
+
+		$fechas = explode(' - ', $data->{'txt-fechas'});
+
+		$input = array();
+		$input['fecIni'] = $fechas[0];
+		$input['fecFin'] = $fechas[1];
+
+		$input['proyecto_filtro'] = $data->{'proyecto_filtro'};
+		$input['grupoCanal_filtro'] = $data->{'grupoCanal_filtro'};
+		$input['canal_filtro'] = $data->{'canal_filtro'};
+		$input['subcanal'] = $data->{'subcanal_filtro'};
+		$input['subcanal_filtro'] = empty($data->{'subcanal_filtro'}) ? '' : $data->{'subcanal_filtro'};
+
+		$input['tipoUsuario_filtro'] = empty($data->{'tipoUsuario_filtro'}) ? '' : $data->{'tipoUsuario_filtro'};
+		$input['usuario_filtro'] = empty($data->{'usuario_filtro'}) ? '' : $data->{'usuario_filtro'};
+
+		$input['distribuidoraSucursal_filtro'] = empty($data->{'distribuidoraSucursal_filtro'}) ? '' : $data->{'distribuidoraSucursal_filtro'};
+		$input['distribuidora_filtro'] = empty($data->{'distribuidora_filtro'}) ? '' : $data->{'distribuidora_filtro'};
+		$input['zona_filtro'] = empty($data->{'zona_filtro'}) ? '' : $data->{'zona_filtro'};
+		$input['plaza_filtro'] = empty($data->{'plaza_filtro'}) ? '' : $data->{'plaza_filtro'};
+		$input['cadena_filtro'] = empty($data->{'cadena_filtro'}) ? '' : $data->{'cadena_filtro'};
+		$input['banner_filtro'] = empty($data->{'banner_filtro'}) ? '' : $data->{'banner_filtro'};
+
+		$segmentacion = getSegmentacion($input);
+		$array['segmentacion'] = $segmentacion;
+		if($data->{'chk-tipoReporte'} == 'cadena') $html = $this->load->view("modulos/gestionGerencial/visibilidad/detalle_visibilidad_sos_cadena",$array,true);
+		if($data->{'chk-tipoReporte'} == 'tienda') $html = $this->load->view("modulos/gestionGerencial/visibilidad/detalle_visibilidad_sos_tienda",$array,true);
+		$result['result'] = 1;
+		$result['data']['views']['idContentVisibilidadSos']['datatable'] = 'tb-visibilidad-sos';
+		$result['data']['views']['idContentVisibilidadSos']['html'] = $html;
+		$result['data']['configTable'] = [];
+
+		respuesta:
+		echo json_encode($result);
+	}
 }
 ?>

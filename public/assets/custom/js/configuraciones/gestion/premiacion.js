@@ -97,15 +97,7 @@ var TipoPremiacion = {
 			});
 		});
 
-        $(document).on("click", ".tabCargaMasiva", function (e) {
-            let hoja = $(".tabCargaMasiva.active").data("nrohoja");
-            
-            if(hoja == 1){
-                $(".msgCargaElementos").removeClass("d-none");
-            }else{
-                $(".msgCargaElementos").addClass("d-none");
-            }
-		});
+
         $(document).on("change", ".my_select2EditarLista", function (e) {
             let control = $(this);
             

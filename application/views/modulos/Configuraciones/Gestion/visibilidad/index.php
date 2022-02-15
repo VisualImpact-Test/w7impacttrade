@@ -49,7 +49,7 @@
                 <button class="btn btn-outline-trade-visual border-0 btn-Consultar" data-url="filtrar" id="btn-consultar" title="Consultar">
                     <i class="fa fa-search"></i>
                 </button>
-                <button class="btn btn-outline-trade-visual border-0 btn-CargaMasiva" title="Carga Masiva"><i class="far fa-folder-plus"></i></button>
+                <button class="btn btn-outline-trade-visual border-0 btn-CargaMasivaListas" title="Carga Masiva"><i class="far fa-folder-plus"></i></button>
                 <button class="btn btn-outline-trade-visual border-0 btn-CambiarEstadoMultiple" data-estado="0" title="Activar"><i class="far fa-toggle-on"></i></button>
                 <button class="btn btn-outline-trade-visual border-0 btn-CambiarEstadoMultiple" data-estado="1" title="Desactivar"><i class="far fa-toggle-off"></i></button>
             </div>

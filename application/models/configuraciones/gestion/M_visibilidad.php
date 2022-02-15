@@ -4,6 +4,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
 class M_visibilidad extends My_Model
 {
 	var $CI;
+	var $aSessTrack = [];
 
 	public function __construct()
 	{
@@ -15,6 +16,8 @@ class M_visibilidad extends My_Model
 			'lista_sos_det' => ['tabla'=>"{$this->sessBDCuenta}.trade.list_sos_det",'id'=>'idListSosDet'],
 			'lista_sod' => ['tabla' => "{$this->sessBDCuenta}.trade.list_sod", 'id' => 'idListSod'],
 			'lista_sod_det' => ['tabla'=>"{$this->sessBDCuenta}.trade.list_sod_det",'id'=>'idListSodDet'],
+			'elemento_sos' => ['tabla'=>"trade.producto_marca",'id'=>'idMarca'],
+			'elemento_sod' => ['tabla'=>"trade.producto_marca",'id'=>'idMarca'],
 		];
 
 		$this->CI =& get_instance();
@@ -93,10 +96,10 @@ class M_visibilidad extends My_Model
             'idTipoPromocion' =>trim($post['tipo']),
         ];
 
-		$insert = $this->db->insert($this->tablas['elemento']['tabla'], $insert);
+		$insert = $this->db->insert($this->tablas['elemento_sos']['tabla'], $insert);
 		$this->insertId = $this->db->insert_id();
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => $this->tablas['elemento']['tabla'], 'id' => $this->insertId ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => $this->tablas['elemento_sos']['tabla'], 'id' => $this->insertId ];
 		return $insert;
     }
     
@@ -111,13 +114,13 @@ class M_visibilidad extends My_Model
         ];
         
 		$where = [
-			$this->tablas['elemento']['id'] => $post['idx']
+			$this->tablas['elemento_sos']['id'] => $post['idx']
 		];
 
 		$this->db->where($where);
-		$update = $this->db->update($this->tablas['elemento']['tabla'], $update);
+		$update = $this->db->update($this->tablas['elemento_sos']['tabla'], $update);
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 7, 'tabla' => $this->tablas['elemento']['tabla'], 'id' => $post['idx'] ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 7, 'tabla' => $this->tablas['elemento_sos']['tabla'], 'id' => $post['idx'] ];
 		return $update;
     }
     
@@ -149,11 +152,11 @@ class M_visibilidad extends My_Model
 
 		$insert = [
 			$this->tablas['lista']['id'] => $idLista,
-			$this->tablas['elemento']['id'] => $idEncuesta,
+			$this->tablas['elemento_sos']['id'] => $idEncuesta,
 		];
 		$where = [
 			$this->tablas['lista']['id'] => $idLista,
-			$this->tablas['elemento']['id'] => $idEncuesta,
+			$this->tablas['elemento_sos']['id'] => $idEncuesta,
 			$this->tablas['marca']['id']=> $idMarca
 
 		];
@@ -200,8 +203,8 @@ class M_visibilidad extends My_Model
 	public function checkNombreElementoRepetido($post)
 	{
 		$where = "nombre = '" . trim($post['nombre']) . "'";
-		if (!empty($post['idx'])) $where .= " AND " . $this->tablas['elemento']['id'] . " != " . $post['idx'];
-		return $this->verificarRepetido($this->tablas['elemento']['tabla'], $where);
+		if (!empty($post['idx'])) $where .= " AND " . $this->tablas['elemento_sos']['id'] . " != " . $post['idx'];
+		return $this->verificarRepetido($this->tablas['elemento_sos']['tabla'], $where);
 	}
 	public function checkNombreTipoPromocionRepetido($post)
 	{
@@ -211,39 +214,71 @@ class M_visibilidad extends My_Model
 	}
 
 	// SECCION LISTA
-	public function getListas($post)
+	public function getListas_sos($post)
 	{
-		$idProyecto = $this->sessIdProyecto;
-		$idCuenta = $this->sessIdCuenta;
+		$filtros = " ";
+		if (!empty($post['id'])) $filtros .= " AND lst.idListSos = " . $post['id'];
+		if (!empty($post['ids'])) $filtros .= " AND lst.idListSos IN (" . $post['ids'].")";
 
-		$filtros = " WHERE 1 = 1";
-		if (!empty($post['id'])) $filtros .= " AND ".$this->tablas['lista']['id']." = " . $post['id'];
 		/*Filtros */
-		if(!empty($idProyecto))$filtros .= " AND p.idProyecto=".$idProyecto;
-		if(!empty($post['sl_canal']))$filtros .= " AND c.idCanal=".$post['sl_canal'];
-		if(!empty($post['sl_cadena']))$filtros .= " AND cn.idCadena=".$post['sl_cadena'];
-		if(!empty($idCuenta))$filtros .= " AND p.idCuenta=".$idCuenta;
+		if(!empty($post['proyecto']))$filtros .= " AND p.idProyecto=".$post['proyecto'];
+		if(!empty($post['grupoCanal']))$filtros .= " AND c.idGrupoCanal=".$post['grupoCanal'];
+		if(!empty($post['canal']))$filtros .= " AND c.idCanal=".$post['canal'];
+
+		if(empty($input['cuenta'])){
+			$filtros.= getPermisos('cuenta');
+		}
+		if(!empty($post['cuenta']))$filtros .= " AND p.idCuenta=".$post['cuenta'];
+
 		/*=====*/
+		$fechas = ''; $whereFechas = '';
+		if(empty($post['ids'])){
+			if(!empty($post['fecIni'])){
+				$fechas = "DECLARE @fecIni DATE = '{$post['fecIni']}', @fecFin DATE = '{$post['fecFin']}';";
+				$whereFechas = "AND General.dbo.fn_fechaVigente(lst.fecIni,lst.fecFin,@fecIni,@fecFin) = 1 ";
+			}
+		}
+		if(!empty($post['all'])){
+			$fechas = '';
+			$whereFechas = '';
+		}
 		$sql = "
+				{$fechas}
 				SELECT 
-				lst.*
-				,p.nombre proyecto
-				,c.nombre canal 
-				,cli.nombreComercial
-				,cli.razonSocial
-                ,cli.codCliente
-                ,cn.nombre cadena
-                ,b.nombre banner
-				FROM ".$this->tablas['lista']['tabla']." lst
+				lst.idListSos
+			  , lst.idCanal
+			  , lst.idCliente
+			  , CONVERT(VARCHAR,lst.fecIni,103) fecIni
+			  , CONVERT(VARCHAR,lst.fecFin,103) fecFin
+			  , lst.idProyecto
+			  , lst.estado
+			  , CONVERT(VARCHAR,lst.fechaCreacion,103) fechaCreacion
+			  , CONVERT(VARCHAR,lst.fechaModificacion,103) fechaModificacion
+			  , p.nombre proyecto
+			  , c.nombre canal 
+			  , ISNULL(cli.nombreComercial,'-') nombreComercial
+			  , ISNULL(cli.razonSocial,'-') razonSocial
+			  , cli.codCliente
+			  , gc.idGrupoCanal
+			  , gc.nombre as grupoCanal
+			  , ma.idMarca
+			  , ma.nombre marca
+				FROM 
+				{$this->sessBDCuenta}.trade.list_sos lst
+				LEFT JOIN {$this->sessBDCuenta}.trade.list_sos_det lstd ON lstd.idListSos=lst.idListSos
+				LEFT JOIN trade.producto_marca ma ON ma.idMarca=lstd.idMarca
 				JOIN trade.proyecto p ON p.idProyecto  = lst.idProyecto
+				JOIN trade.cuenta cu ON cu.idCuenta=p.idCuenta
 				LEFT JOIN trade.canal c ON c.idCanal = lst.idCanal
+				LEFT JOIN trade.grupoCanal gc ON gc.idGrupoCanal=lst.idGrupoCanal
 				LEFT JOIN trade.cliente cli ON cli.idCliente = lst.idCliente
-                LEFT JOIN trade.cadena cn ON cn.idCadena = lst.idCadena
-                LEFT JOIN trade.banner b ON b.idBanner = lst.idBanner
+				WHERE 
+				1 = 1
+				{$whereFechas}
 				{$filtros}
+				ORDER BY lst.fecIni DESC
 			";
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => $this->tablas['lista']['tabla'] ];
 		return $this->db->query($sql);
 	}
 
@@ -254,12 +289,12 @@ class M_visibilidad extends My_Model
 				SELECT 
 				e.*
 				FROM 
-				".$this->tablas['elemento']['tabla']." e
-				JOIN ".$this->tablas['listaDet']['tabla']." lstd ON lstd.".$this->tablas['elemento']['id']." = e.".$this->tablas['elemento']['id']."
+				".$this->tablas['elemento_sos']['tabla']." e
+				JOIN ".$this->tablas['listaDet']['tabla']." lstd ON lstd.".$this->tablas['elemento_sos']['id']." = e.".$this->tablas['elemento_sos']['id']."
 				WHERE lstd.".$this->tablas['lista']['id']." = ".$post['id'].";
 			";
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => $this->tablas['elemento']['tabla'] ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => $this->tablas['elemento_sos']['tabla'] ];
 		return $this->db->query($sql);
 	}
 
@@ -269,15 +304,15 @@ class M_visibilidad extends My_Model
 		foreach ($multiDataRefactorizada as $value) {
 			if (!empty($value['id'])) {
 				$input[] = [
-					$this->model->tablas['listaDet']['id'] => $value['id'],
-					$this->model->tablas['elemento']['id'] =>$value['elemento_lista'],
+					$this->model->tablas['lista_sos_det']['id'] => $value['id'],
+					 $this->model->tablas['elemento_sos']['id'] =>$value['elemento_lista'],
 	
 					
 				];
 			}
 		}
 		if (empty($input)) return true;
-		$update =  $this->actualizarMasivo($this->model->tablas['listaDet']['tabla'], $input, $this->model->tablas['listaDet']['id']);
+		$update =  $this->actualizarMasivo($this->model->tablas['lista_sos_det']['tabla'], $input, $this->model->tablas['lista_sos_det']['id']);
 
 		$this->CI->aSessTrack[] = [ 'idAccion' => 7, 'tabla' => $this->tablas['listaDet']['tabla'] ];
 		return $update;
@@ -293,7 +328,7 @@ class M_visibilidad extends My_Model
 
 		foreach($multiDataRefactorizada as $index => $row){
 			$new_array[] = $row['elemento_lista'];
-			$rs = $this->db->get_where($this->model->tablas['listaDet']['tabla'],array($this->model->tablas['lista']['id']=>$idLista,$this->model->tablas['elemento']['id']=>$row['elemento_lista']))->row_array();
+			$rs = $this->db->get_where($this->model->tablas['lista_sos_det']['tabla'],array($this->model->tablas['lista_sos']['id']=>$idLista,"idMarca"=>$row['elemento_lista']))->row_array();
 			if($rs!=null){
 				if(count($rs) > 0){
 					$repetidos = true;
@@ -317,15 +352,15 @@ class M_visibilidad extends My_Model
 			foreach ($multiDataRefactorizada as $value) {
 				if (empty($value['id'])) {
 					$input[] = [
-						$this->model->tablas['lista']['id'] => $idLista,
-						$this->model->tablas['elemento']['id'] =>$value['elemento_lista'],
+						$this->model->tablas['lista_sos_det']['id'] => $idLista,
+						 $this->model->tablas['elemento_sos']['id'] =>$value['elemento_lista'],
 						
 					];
 				}
 			}
 			if (empty($input)) return true;
-			$insert = $this->db->insert_batch($this->model->tablas['listaDet']['tabla'], $input);
-			$this->CI->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => $this->tablas['listaDet']['tabla'] ];
+			$insert = $this->db->insert_batch($this->model->tablas['lista_sos_det']['tabla'], $input);
+			$this->CI->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => $this->tablas['lista_sos_det']['tabla'] ];
 		
 		}
 
@@ -466,19 +501,18 @@ class M_visibilidad extends My_Model
 	{
 
 		$insert = [
-			'idCanal' => trim($post['idCanal']),
+			'idGrupoCanal' => trim($post['idGrupoCanal']),
 			'FecIni' => trim($post['fechaInicio']),
 			'idProyecto' =>trim($post['idProyecto']),
 		];
 		if(!empty($post['fechaFin'])){$insert['fecFin']=$post['fechaFin'];}
 		if(!empty($post['idCliente'])){$insert['idCliente']=$post['idCliente'];}
-		if(!empty($post['idBanner'])){$insert['idBanner']= trim($post['idBanner']);}
-		if(!empty($post['idCadena'])){$insert['idCadena']= trim($post['idCadena']);}
+		if(!empty($post['idCanal'])){$insert['idCanal']=$post['idCanal'];}
 
-		$insert = $this->db->insert($this->tablas['lista']['tabla'], $insert);
+		$insert = $this->db->insert($this->tablas['lista_sos']['tabla'], $insert);
 		$this->insertId = $this->db->insert_id();
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => $this->tablas['lista']['tabla'], 'id' => $this->insertId ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => $this->tablas['lista_sos']['tabla'], 'id' => $this->insertId ];
 		return $insert;
 	}
 
@@ -499,9 +533,9 @@ class M_visibilidad extends My_Model
 	public function registrar_elementos_HT($input){
 
 		if (empty($input)) return true;
-		$insert = $this->db->insert_batch($this->model->tablas['elemento']['tabla'], $input);
+		$insert = $this->db->insert_batch( $this->model->tablas['elemento_sos']['tabla'], $input);
 
-		$this->CI->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => $this->tablas['elemento']['tabla'] ];
+		$this->CI->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => $this->tablas['elemento_sos']['tabla'] ];
 		return $insert;
 	}
 
@@ -599,6 +633,13 @@ class M_visibilidad extends My_Model
 		$this->CI->aSessTrack[] = [ 'idAccion' => 7, 'tabla' => $this->tablas['tipoPromocion']['tabla'], 'id' => $post['idx'] ];
 		return $update;
     }
+	public function actualizarLista_HT($update)
+	{
+		$update_batch = $this->db->update_batch($this->tablas['lista_sos']['tabla'], $update,'idListSos');
+
+		$this->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => $this->tablas['lista_sos']['tabla'], 'id' => $this->insertId ];
+		return $update_batch;
+	}
     
 
 }

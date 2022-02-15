@@ -5,6 +5,7 @@
                                 <th></th>
                                 <th class="text-center">#</th>
                                 <th class="text-center">OPCIONES</th>
+                                <th class="text-center">COD LISTA</th>
                                 <th class="text-center">GRUPO CANAL</th>
                                 <th class="text-center">CANAL</th>
                                 <th class="text-center">COD <?=$this->sessNomCuentaCorto?></th>
@@ -30,13 +31,14 @@
                                             <button class="btn btn-CambiarEstado btn-outline-secondary border-0" title="Activar/Desactivar"><i class="<?= $iconoBotonEstado ?>"></i></button>
                                         </div>
                                     </td>
+                                    <td><?= !empty($value[$this->model->tablas['lista_sos']['id']]) ? $value[$this->model->tablas['lista_sos']['id']] : '-' ?></td>
                                     <td><?= !empty($value['grupoCanal']) ? $value['grupoCanal'] : '-' ?></td>
                                     <td><?= !empty($value['canal']) ? $value['canal'] : '-' ?></td>
                                     <td><?= !empty($value['codCliente']) ? $value['codCliente'] : '-' ?></td>
                                     <td><?= !empty($value['razonSocial']) ? $value['razonSocial'] : "-" ?></td>
-                                    <td data-order="<?= strtotime($value['fecIni']) ?>"><?= !empty($value['fecIni']) ? date_change_format($value['fecIni'])  : '-' ?></td>
-                                    <td data-order="<?= strtotime($value['fecFin']) ?>"><?= !empty($value['fecFin']) ? date_change_format($value['fecFin'])  : '-' ?></td>
-                                    <td data-order="<?= strtotime($value['fechaModificacion']) ?>"><?= !empty($value['fechaModificacion']) ? date_change_format($value['fechaModificacion']) : '-' ?></td>
+                                    <td data-order="<?= strtotime($value['fecIni']) ?>"><?= !empty($value['fecIni']) ? ($value['fecIni'])  : '-' ?></td>
+                                    <td data-order="<?= strtotime($value['fecFin']) ?>"><?= !empty($value['fecFin']) ? ($value['fecFin'])  : '-' ?></td>
+                                    <td data-order="<?= strtotime($value['fechaModificacion']) ?>"><?= !empty($value['fechaModificacion']) ? ($value['fechaModificacion']) : '-' ?></td>
                                     <td data-order="<?= $mensajeEstado ?>" class="style-icons">
                                         <span class="badge <?= $badge ?>"><?= $mensajeEstado ?></span>
                                     </td>

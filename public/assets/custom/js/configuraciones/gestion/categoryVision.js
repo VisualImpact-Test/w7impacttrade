@@ -1,14 +1,14 @@
-var Visibilidad = {
+var categoryVision = {
 
-    secciones: ['Lista_sos', 'Lista_sod'],
+    secciones: ['Detallado'],
     tabSeleccionado: '',
     customDataTable: function () { },
 
     load: function () {
 
         $(document).ready(function (e) {
-            Visibilidad.eventos();
-            Gestion.urlActivo = 'configuraciones/gestion/Visibilidad/';
+            categoryVision.eventos();
+            Gestion.urlActivo = 'configuraciones/gestion/categoryVision/';
             $(".card-body > ul > li > a[class*='active']").click();
         });
 
@@ -16,38 +16,30 @@ var Visibilidad = {
             e.preventDefault();
 
             var indiceSeccion = $(this).attr('href').split('-')[2];
-            Visibilidad.tabSeleccionado = Visibilidad.secciones[indiceSeccion];
+            categoryVision.tabSeleccionado = categoryVision.secciones[indiceSeccion];
 
 
-            Visibilidad.cambiarSeccionActivo();
+            categoryVision.cambiarSeccionActivo();
             Gestion.idContentActivo = 'tab-content-' + indiceSeccion;
             $('.contentGestion').addClass('d-none');
             $('#' + Gestion.idContentActivo).removeClass('d-none');
             $(".funciones a[class*='btn-seccion-']").addClass('d-none');
-            $('.funciones .btn-seccion-' + Visibilidad.tabSeleccionado).removeClass('d-none');
+            $('.funciones .btn-seccion-' + categoryVision.tabSeleccionado).removeClass('d-none');
             if(typeof Gestion.$dataTable[Gestion.idContentActivo] != 'undefined') Gestion.$dataTable[Gestion.idContentActivo].columns.adjust().draw();
-            Gestion.funcionCustomDT = Visibilidad.customDataTable;
-            Gestion.seccionActivo = Visibilidad.tabSeleccionado
-            Gestion.idFormSeccionActivo = 'frmFiltroVisibilidad'
-            Gestion.getTablaActivo = 'getTabla' + Visibilidad.tabSeleccionado
-            Gestion.getFormNewActivo = 'getFormNew' + Visibilidad.tabSeleccionado
-            Gestion.getFormUpdateActivo = 'getFormUpdate' + Visibilidad.tabSeleccionado
-            Gestion.getFormCargaMasivaActivo = 'getFormCargaMasiva' + Visibilidad.tabSeleccionado
-            Gestion.funcionRegistrarActivo = 'registrar' + Visibilidad.tabSeleccionado
-            Gestion.funcionActualizarActivo = 'actualizar' + Visibilidad.tabSeleccionado
-            Gestion.funcionGuardarCargaMasivaActivo = 'guardarCargaMasiva' + Visibilidad.tabSeleccionado
-            Gestion.funcionActualizarCargaMasivaActivo = 'actualizarCargaMasiva' + Visibilidad.tabSeleccionado
+            Gestion.funcionCustomDT = categoryVision.customDataTable;
+            Gestion.seccionActivo = categoryVision.tabSeleccionado
+            Gestion.idFormSeccionActivo = 'frmFiltrocategoryVision'
 
         });
     },
 
     cambiarSeccionActivo: function () {
-        switch (Visibilidad.tabSeleccionado) {
+        switch (categoryVision.tabSeleccionado) {
             case 'Lista_sos':
-                Visibilidad.customDataTable = Gestion.defaultDT;
+                categoryVision.customDataTable = Gestion.defaultDT;
                 break;
             case 'Lista_sod':
-                Visibilidad.customDataTable = Gestion.defaultDT;
+                categoryVision.customDataTable = Gestion.defaultDT;
                 break;
         }
     },
@@ -98,4 +90,4 @@ var Visibilidad = {
     },
 }
 
-Visibilidad.load();
+categoryVision.load();
