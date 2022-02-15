@@ -15,7 +15,11 @@ class Precios extends MY_Controller
 		$this->aSessTrack[] = ['idAccion' => 4];
 		$idMenu = '42';
 		$config['nav']['menu_active'] = $idMenu;
-		$config['css']['style'] = array();
+		$config['css']['style'] = array(
+			'assets/libs/dataTables-1.10.20/datatables',
+			'assets/libs/handsontable@7.4.2/dist/handsontable.full.min',
+			'assets/libs/handsontable@7.4.2/dist/pikaday/pikaday'
+		);
 		$config['js']['script'] = array(
 			'assets/libs/datatables/responsive.bootstrap4.min',
 			'assets/custom/js/core/datatables-defaults',
@@ -371,6 +375,8 @@ class Precios extends MY_Controller
 	}
 	public function getVariabilidadPrecios()
 	{
+		ini_set('memory_limit', '2048M');
+
 		$result = $this->result;
 		$data = json_decode($this->input->post('data'));
 

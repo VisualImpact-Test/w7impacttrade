@@ -138,12 +138,12 @@ class M_encuesta extends MY_Model
 			{$segmentacion['join']}
 			AND r.fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin,r.fecha) AND ch.flagCartera=1 
 
-			WHERE r.fecha between @fecIni AND @fecFin AND r.demo=0
+			WHERE r.fecha between @fecIni AND @fecFin --AND r.demo=0
 				AND r.estado=1 AND v.estado=1
 				{$filtros}
 				{$orderby}
 		";
-	
+
 		return $this->db->query($sql);
 	}
 
@@ -188,9 +188,6 @@ class M_encuesta extends MY_Model
 		$filtros .= !empty($input['idProyecto']) ? ' AND py.idProyecto = '.$input['idProyecto'] : '';
 		$filtros .= !empty($input['idGrupoCanal']) ? ' AND ca.idGrupoCanal = '.$input['idGrupoCanal'] : '';
 		$filtros .= !empty($input['idCanal']) ? ' AND ca.idCanal = '.$input['idCanal'] : '';
-		
-		
-
 
 		if (!empty($input['idEncuesta'])) $filtros .= " AND ve.idEncuesta IN ( " . $input['idEncuesta']. ')';
 
@@ -200,7 +197,7 @@ class M_encuesta extends MY_Model
 		DECLARE @fecIni DATE='" . $fechas[0] . "',@fecFin DATE='" . $fechas[1] . "';
 			SELECT
 			DISTINCT
-				v.idVisita,ve.idEncuesta,vf.idVisitaFoto,vf.fotoUrl imgRef,
+				v.idVisita,ve.idEncuesta,vf.idVisitaFoto,vf.fotoUrl imgRef,vfd.fotoUrl imgRefSub,
 				ep.idPregunta,
 				ep.idTipoPregunta,
 				isnull(ea.nombre,ved.respuesta) 'respuesta'
@@ -214,6 +211,8 @@ class M_encuesta extends MY_Model
 				, c.codCliente
 				, c.razonSocial
 				, CONVERT(varchar,r.fecha,103) fecha
+				, ve.idVisitaEncuesta
+				, ve.flagFotoMultiple
 			FROM {$this->sessBDCuenta}.trade.data_ruta r
 			JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta=v.idRuta
 			JOIN trade.cliente c ON v.idCliente=c.idCliente
@@ -222,8 +221,9 @@ class M_encuesta extends MY_Model
 			JOIN {$this->sessBDCuenta}.trade.data_visitaEncuestaDet ved ON ve.idVisitaEncuesta=ved.idVisitaEncuesta
 			JOIN {$this->sessBDCuenta}.trade.encuesta e ON e.idEncuesta = ve.idEncuesta
 			JOIN {$this->sessBDCuenta}.trade.encuesta_pregunta ep ON ved.idPregunta=ep.idPregunta
-			left JOIN {$this->sessBDCuenta}.trade.encuesta_alternativa ea ON ved.idAlternativa=ea.idAlternativa
+			LEFT JOIN {$this->sessBDCuenta}.trade.encuesta_alternativa ea ON ved.idAlternativa=ea.idAlternativa
 			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisitaFoto = ve.idVisitaFoto
+			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vfd ON vfd.idVisitaFoto = ved.idVisitaFoto
 			LEFT JOIN trade.canal ca ON ca.idCanal = v.idCanal
 			
 			JOIN ".getClienteHistoricoCuenta()." ch ON ch.idCliente = c.idCliente
@@ -237,12 +237,13 @@ class M_encuesta extends MY_Model
 			LEFT JOIN trade.encargado_usuario sub ON sub.idUsuario=r.idUsuario
 			LEFT JOIN trade.encargado enc ON enc.idEncargado=sub.idEncargado
 
-			WHERE r.estado=1 AND v.estado=1  AND r.demo=0
+			WHERE r.estado=1 AND v.estado=1  --AND r.demo=0
 			
 			AND r.fecha between @fecIni AND @fecFin 
 		$filtros
 		ORDER BY respuesta
 		";
+
 		return $this->db->query($sql);
 	}
 
@@ -311,7 +312,7 @@ class M_encuesta extends MY_Model
 			LEFT JOIN trade.encargado_usuario sub ON sub.idUsuario=r.idUsuario
 			LEFT JOIN trade.encargado enc ON enc.idEncargado=sub.idEncargado
 
-			WHERE r.estado=1 AND v.estado=1  AND r.demo=0
+			WHERE r.estado=1 AND v.estado=1  --AND r.demo=0
 			
 			AND r.fecha between @fecIni AND @fecFin 
 		$filtros
@@ -414,13 +415,97 @@ class M_encuesta extends MY_Model
 			{$segmentacion['join']}
 			AND r.fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin,r.fecha) AND ch.flagCartera=1 
 
-			WHERE r.fecha between @fecIni AND @fecFin AND r.demo=0
+			WHERE r.fecha between @fecIni AND @fecFin --AND r.demo=0
 				AND r.estado=1 AND v.estado=1
 				{$filtros}
 				{$orderby}
 		";
 	
 		return $this->db->query($sql);
+	}
+
+	public function getVisitaEncuesta($params)
+	{
+		$sql = "
+		DECLARE @fechaInicio DATE = '" . $params['fecIni'] . "', @fechaFin DATE = '" . $params['fecFin'] . "'
+		SELECT DISTINCT
+			r.idUsuario 
+			, v.idCliente
+			, ve.idEncuesta
+			, COUNT(ve.idEncuesta) OVER (PARTITION BY r.idUsuario, v.idCliente, ve.idEncuesta) num
+		FROM
+			ImpactTrade_pg.trade.data_ruta r
+			JOIN ImpactTrade_pg.trade.data_visita v ON v.idRuta = r.idRuta
+			JOIN ImpactTrade_pg.trade.data_visitaEncuesta ve ON ve.idVisita = v.idVisita
+			JOIN ImpactTrade_pg.trade.data_visitaEncuestaDet ved ON ved.idVisitaEncuesta=ve.idVisitaEncuesta
+			JOIN ImpactTrade_bd.trade.cliente t ON t.idCliente = v.idCliente
+				AND t.estado = 1
+		WHERE 
+			r.estado = 1
+			AND v.estado = 1
+			AND r.fecha BETWEEN @fechaInicio AND @fechaFin
+		";
+
+		return $this->db->query($sql);
+	}
+
+	public function getVisitaEncuestaDetallado($params)
+	{
+		$filtros = "";
+		if (!empty($params['idEncuesta'])) $filtros .= " AND ve.idEncuesta IN ( " . $params['idEncuesta']. ')';
+
+		$sql = "
+		DECLARE @fechaInicio DATE = '" . $params['fecIni'] . "', @fechaFin DATE = '" . $params['fecFin'] . "'
+		SELECT DISTINCT
+			r.fecha
+			, gca.nombre AS grupoCanal
+			, ca.nombre AS canal
+			, c.idCliente
+			, c.razonSocial
+			, e.nombre AS encuesta
+			, ep.nombre AS pregunta
+			, ea.nombre AS alternativa
+			, ved.respuesta
+		FROM
+			ImpactTrade_pg.trade.data_ruta r
+			JOIN ImpactTrade_pg.trade.data_visita v ON v.idRuta = r.idRuta
+			JOIN ImpactTrade_pg.trade.data_visitaEncuesta ve ON ve.idVisita = v.idVisita
+			JOIN ImpactTrade_pg.trade.data_visitaEncuestaDet ved ON ved.idVisitaEncuesta=ve.idVisitaEncuesta
+			JOIN ImpactTrade_pg.trade.encuesta e ON ve.idEncuesta = e.idEncuesta
+			JOIN ImpactTrade_pg.trade.encuesta_pregunta ep ON ved.idPregunta = ep.idPregunta
+			JOIN ImpactTrade_pg.trade.encuesta_alternativa ea ON ved.idAlternativa = ea.idAlternativa
+			JOIN ImpactTrade_bd.trade.cliente c ON v.idCliente = c.idCliente
+				AND c.estado = 1
+			JOIN ImpactTrade_pg.trade.cliente_historico ch ON c.idCliente = ch.idCliente
+			AND ch.idProyecto = r.idProyecto AND ch.fecFin IS NULL
+			LEFT JOIN ImpactTrade_bd.trade.segmentacionNegocio sn ON ch.idSegNegocio = sn.idSegNegocio
+			LEFT JOIN ImpactTrade_bd.trade.canal ca ON sn.idCanal = ca.idCanal
+			LEFT JOIN ImpactTrade_bd.trade.grupoCanal gca ON ca.idGrupoCanal = gca.idGrupoCanal
+		WHERE 
+			r.estado = 1
+			AND v.estado = 1
+			AND r.fecha BETWEEN @fechaInicio AND @fechaFin
+			{$filtros}
+		ORDER BY fecha, razonSocial, encuesta, pregunta, alternativa
+		";
+
+		return $this->db->query($sql);
+	}
+
+	public function obtenerFotosEncuesta($idVisitaEncuesta){
+		$sql = "
+			SELECT DISTINCT
+				CONVERT(VARCHAR(8),vf.hora) AS hora
+				, vf.fotoUrl AS foto
+				, CONVERT(VARCHAR(8),vfm.hora) AS horaMultiple
+				, vfm.fotoUrl AS fotoMultiple
+			FROM {$this->sessBDCuenta}.trade.data_visitaEncuesta ve
+			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaEncuestaFotos vef ON ve.idVisitaEncuesta = vef.idVisitaEncuesta
+			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisitaFoto=ve.idVisitaFoto
+			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vfm ON vfm.idVisitaFoto=vef.idVisitaFoto
+			WHERE ve.idVisitaEncuesta={$idVisitaEncuesta}
+		";
+		return $this->db->query($sql)->result_array();
 	}
 
 	

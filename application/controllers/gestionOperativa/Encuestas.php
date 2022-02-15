@@ -14,7 +14,8 @@ class Encuestas extends MY_Controller
     {
         $this->aSessTrack[] = ['idAccion' => 4];
 
-        $config['nav']['menu_active'] = '143';
+        $idMenu = '143';
+		$config['nav']['menu_active'] = $idMenu;
         $config['css']['style'] = [
             'assets/custom/css/asistencia'
         ];
@@ -28,7 +29,13 @@ class Encuestas extends MY_Controller
         $config['data']['icon'] = 'fal fa-file-alt';
         $config['data']['title'] = 'Encuestas';
         $config['data']['message'] = 'Aquí encontrará datos de las encuestas.';
-        $config['view'] = 'modulos/gestionOperativa/encuestas/index';
+        $tabs = getTabPermisos(['idMenuOpcion'=>$idMenu])->result_array();
+        if (empty($tabs)) { 
+			$config['view'] =  'oops';
+		}else{
+			$config['data']['tabs'] = $tabs;
+			$config['view'] = 'modulos/gestionOperativa/encuestas/index';
+		}
         $config['data']['tiposPregunta'] = $this->model->getTiposDePregunta()['query']->result_array();
 
         $params = [];

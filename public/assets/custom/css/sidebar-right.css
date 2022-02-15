@@ -141,3 +141,24 @@
 	overflow-x: hidden;
 	padding: .25rem !important;
 }
+
+@media (max-width: 767px) {
+	.customizer .customizer-toggle {
+		position: absolute;
+		top: 100px;
+		width: 44px;
+		height: 40px;
+		left: -23%;
+		text-align: center;
+		line-height: 40px;
+		cursor: pointer;
+	}
+
+	.customizer.d-xl-block{
+		width: 100%;
+	}
+
+	.customizer.d-none{
+		display: block;
+	}
+}

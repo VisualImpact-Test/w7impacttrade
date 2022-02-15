@@ -364,39 +364,37 @@ class M_premiaciones extends MY_Model{
 		return $result;
 	}
 
-	public function obtener_premiacionesvisitaSimple($input=array()){
+	public function obtener_premiacionesvisitaSimple($input = [])
+	{
 		$filtros = "";
 
 		$externo = $this->flag_externo;
 		$proyecto = $this->sessIdProyecto;
-		(!empty($input['idPremiacion'])) ? $filtros .= " AND vp.idPremiacion = ".$input['idPremiacion'] : "";
-		(!empty($input['idGrupoCanal'])) ? $filtros .= " AND gc.idGrupoCanal = ".$input['idGrupoCanal'] : "";
-		(!empty($input['idCanal'])) ? $filtros .= " AND ca.idCanal = ".$input['idCanal'] : "";
+		(!empty($input['idPremiacion'])) ? $filtros .= " AND vp.idPremiacion = " . $input['idPremiacion'] : "";
+		(!empty($input['idGrupoCanal'])) ? $filtros .= " AND gc.idGrupoCanal = " . $input['idGrupoCanal'] : "";
+		(!empty($input['idCanal'])) ? $filtros .= " AND ca.idCanal = " . $input['idCanal'] : "";
 
-		$filtros .= !empty($input['tipoUsuario']) ? " AND uh.idTipoUsuario=".$input['tipoUsuario'] : "";
-		$filtros .= !empty($input['usuario']) ? " AND uh.idUsuario=".$input['usuario'] : "";
+		$filtros .= !empty($input['tipoUsuario']) ? " AND uh.idTipoUsuario=" . $input['tipoUsuario'] : "";
+		$filtros .= !empty($input['usuario']) ? " AND uh.idUsuario=" . $input['usuario'] : "";
 
-		$filtros .= !empty($input['distribuidoraSucursal']) ? ' AND ds.idDistribuidoraSucursal='.$input['distribuidoraSucursal'] : '';
-		$filtros .= !empty($input['distribuidora']) ? ' AND d.idDistribuidora='.$input['distribuidora'] : '';
-		$filtros .= !empty($input['zona']) ? ' AND z.idZona='.$input['zona'] : '';
-		$filtros .= !empty($input['plaza']) ? ' AND pl.idPlaza='.$input['plaza'] : '';
-		$filtros .= !empty($input['cadena']) ? ' AND cad.idCadena='.$input['cadena'] : '';
-		$filtros .= !empty($input['banner']) ? ' AND ba.idBanner='.$input['banner'] : '';
+		$filtros .= !empty($input['distribuidoraSucursal']) ? ' AND ds.idDistribuidoraSucursal=' . $input['distribuidoraSucursal'] : '';
+		$filtros .= !empty($input['distribuidora']) ? ' AND d.idDistribuidora=' . $input['distribuidora'] : '';
+		$filtros .= !empty($input['zona']) ? ' AND z.idZona=' . $input['zona'] : '';
+		$filtros .= !empty($input['plaza']) ? ' AND pl.idPlaza=' . $input['plaza'] : '';
+		$filtros .= !empty($input['cadena']) ? ' AND cad.idCadena=' . $input['cadena'] : '';
+		$filtros .= !empty($input['banner']) ? ' AND ba.idBanner=' . $input['banner'] : '';
 
-
-
-		!empty($externo) ? $filtros.= " AND vp.estado = 1": '';
+		!empty($externo) ? $filtros .= " AND vp.estado = 1" : '';
 
 		$demo = $this->demo;
 		$filtro_demo = '';
-		if(!$demo){
+		if (!$demo) {
 			$filtro_demo = " AND r.demo = 0";
 		}
-		$segmentacion = getSegmentacion(['grupoCanal_filtro'=>$input['idGrupoCanal']]);
+		$segmentacion = getSegmentacion(['grupoCanal_filtro' => $input['idGrupoCanal']]);
 
 		$sql = "
 			DECLARE
-				  @fecIni DATE = '".$input['fecIni']."'
 				, @fecFin DATE = '".$input['fecFin']."';
 			WITH lista_premiaciones AS (
 			SELECT 
@@ -443,7 +441,7 @@ class M_premiaciones extends MY_Model{
 					AND uh.idProyecto=r.idProyecto
 				JOIN trade.cliente c 
 					ON c.idCliente = v.idCliente
-				JOIN ".getClienteHistoricoCuenta()." ch
+				JOIN " . getClienteHistoricoCuenta() . " ch
 					ON ch.idCliente = v.idCliente
 					AND General.dbo.fn_fechavigente(ch.fecIni,ch.fecFin,@fecIni,@fecFin)=1
 					AND ch.idProyecto={$proyecto}
@@ -482,6 +480,7 @@ class M_premiaciones extends MY_Model{
 
 		
 		";
+
 		return $this->query($sql);
 	}
 

@@ -52,14 +52,13 @@ class M_asistencia extends MY_Model{
 					r.fecha
 					, r.idUsuario
 					, v.horaIni
-					, c.latitud
-					, c.longitud
+					, v.latIni AS latitud
+					, v.lonIni AS longitud
 					, row_number() OVER (PARTITION BY r.idUsuario, r.fecha ORDER BY v.horaIni ASC ) row
 					
 				FROM 
 					{$this->sessBDCuenta}.trade.data_ruta r
-					JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta 
-					JOIN trade.cliente c ON c.idCliente = v.idCliente
+					JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta
 				WHERE
 					r.fecha BETWEEN @fecIni AND @fecFin
 					AND r.demo = 0 
@@ -70,13 +69,12 @@ class M_asistencia extends MY_Model{
 				r.fecha
 				, r.idUsuario
 				, v.horaFin
-				, c.latitud
-				, c.longitud
+				, v.latFin AS latitud
+				, v.lonFin AS longitud
 				, row_number() OVER (PARTITION BY r.idUsuario, r.fecha ORDER BY v.horaFin DESC ) row
 			FROM 
 				{$this->sessBDCuenta}.trade.data_ruta r
-				JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta 
-				JOIN trade.cliente c ON c.idCliente = v.idCliente
+				JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta
 			WHERE
 				r.fecha BETWEEN @fecIni AND @fecFin
 				AND r.demo = 0 AND v.horaFin IS NOT NULL
@@ -333,6 +331,240 @@ class M_asistencia extends MY_Model{
 		}
 
 		$this->CI->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_asistencia" ];
+		return $result;
+	}
+
+	public function obtener_usuarios_asistencia_hsm($input = [])
+	{
+		$filtros = "";
+		$filtroTipoUsuario = '';
+		$sessIdTipoUsuario = $this->idTipoUsuario;
+		$sessDemo = $this->demo;
+		$bdcuenta = $this->sessBDCuenta;
+		if (empty($input['cuenta_filtro'])) {
+			$filtros .= getPermisos('cuenta');
+		} else {
+			$filtros .= !empty($input['cuenta_filtro']) ? ' AND cu.idCuenta=' . $input['cuenta_filtro'] : '';
+			$filtros .= !empty($input['proyecto_filtro']) ? ' AND py.idProyecto=' . $input['proyecto_filtro'] : '';
+			// $filtros .= !empty($input['grupo_filtro']) ? ' AND  gc.idGrupoCanal=' . $input['grupo_filtro'] : '';
+			$filtros .= !empty($input['canal_filtro']) ? ' AND ca.idCanal=' . $input['canal_filtro'] : '';
+			$filtros .= !empty($input['tipoUsuario_filtro']) ? ' AND tu.idTipoUsuario=' . $input['tipoUsuario_filtro'] : '';
+			$filtros .= !empty($input['usuario_filtro']) ? ' AND u.idUsuario=' . $input['usuario_filtro'] : '';
+
+			$filtros .= !empty($input['distribuidora_filtro']) ? ' AND d.idDistribuidora=' . $input['distribuidora_filtro'] : '';
+			$filtros .= !empty($input['zona_filtro']) ? ' AND z.idZona=' . $input['zona_filtro'] : '';
+			$filtros .= !empty($input['plaza_filtro']) ? ' AND uhp.idPlaza=' . $input['plaza_filtro'] : '';
+			$filtros .= !empty($input['cadena_filtro']) ? ' AND cd.idCadena=' . $input['cadena_filtro'] : '';
+			$filtros .= !empty($input['banner_filtro']) ? ' AND b.idBanner=' . $input['banner_filtro'] : '';
+		}
+
+		// DATOS DEMO
+		if ($sessIdTipoUsuario != 4) {
+			if (empty($sessDemo)) $filtros .=  " AND u.demo = 0";
+			else $filtros .=  " AND (u.demo = 0 OR u.idUsuario = {$this->idUsuario})";
+		}
+		$distribuidoras_usuario = getPermisosUsuario(['segmentacion' => 1]);
+		!empty($distribuidoras_usuario) ? $filtros .= " AND ds.idDistribuidoraSucursal IN({$distribuidoras_usuario})" : '';
+
+		$filtros .= !in_array($sessIdTipoUsuario, [8, 13, 14, 4]) ? " AND tu.idTIpoUsuario NOT IN (8,13,14)" : "";
+
+		$segmentacion = getSegmentacion(['grupoCanal_filtro' => $input['grupo_filtro']]);
+
+		$sql = "
+		DECLARE @fecha DATE=GETDATE(), @fecIni DATE='" . $input['fecIni'] . "', @fecFin DATE='" . $input['fecFin'] . "';
+		WITH lista_visita_inicio AS (
+		SELECT DISTINCT
+				r.fecha
+				, r.idUsuario
+				, v.horaIni
+				, v.latIni AS latitud
+				, v.lonIni AS longitud
+				, row_number() OVER (PARTITION BY r.idUsuario, r.fecha ORDER BY v.horaIni ASC ) row
+				, v.idCliente
+			FROM 
+				{$this->sessBDCuenta}.trade.data_ruta r
+				JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta
+			WHERE
+				r.fecha BETWEEN @fecIni AND @fecFin
+				AND r.demo = 0 
+				AND v.horaIni IS NOT NULL
+		),lista_visita_final AS (
+			SELECT DISTINCT
+				r.fecha
+				, r.idUsuario
+				, v.horaFin
+				, v.latFin AS latitud
+				, v.lonFin AS longitud
+				, row_number() OVER (PARTITION BY r.idUsuario, r.fecha ORDER BY v.horaFin DESC ) row
+				, v.idCliente
+			FROM 
+				{$this->sessBDCuenta}.trade.data_ruta r
+				JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta
+			WHERE
+				r.fecha BETWEEN @fecIni AND @fecFin
+				AND r.demo = 0 AND v.horaFin IS NOT NULL
+		),lista_horario_programado AS (
+			SELECT 
+				h.horaIni
+				, h.horaFin
+				, rd.idUsuario
+				, v.idCliente
+			FROM 
+				ImpactTrade_pg.trade.programacion_ruta r
+				JOIN ImpactTrade_pg.trade.programacion_rutaDet rd ON r.idProgRuta = rd.idProgRuta
+				JOIN ImpactTrade_pg.trade.programacion_visita v ON r.idProgRuta = v.idProgRuta
+				JOIN ImpactTrade_pg.trade.programacion_visitaDet vd ON v.idProgVisita = vd.idProgVisita
+				JOIN ImpactTrade_pg.trade.horarios h ON vd.idHorario = h.idHorario
+			WHERE
+				h.estado = 1
+				AND (
+					rd.fecIni <= ISNULL( rd.fecFin, @fecFin)
+					AND (
+						rd.fecIni BETWEEN @fecIni AND @fecFin 
+						OR
+						ISNULL( rd.fecFin, @fecFin ) BETWEEN @fecIni AND @fecFin 
+						OR
+						@fecIni BETWEEN rd.fecIni AND ISNULL( rd.fecFin, @fecFin ) 
+						OR
+						@fecFin BETWEEN rd.fecIni AND ISNULL( rd.fecFin, @fecFin )
+					)
+				) 
+		)
+		SELECT DISTINCT
+			u.idUsuario
+			, isnull(u.idEmpleado,u.numDocumento) idEmpleado
+			, u.numDocumento
+			, tu.idTipoUsuario
+			, tu.nombre tipoUsuario
+			, u.apePaterno+' '+u.apeMaterno+', '+u.nombres usuario
+			, CONVERT(varchar(10),t.fecha,103) fecha
+			, CONVERT(VARCHAR(8),t.fecha,112) fecha_id
+			, cu.idCuenta
+			, cu.nombre cuenta
+			, py.idProyecto
+			, py.nombre proyecto
+			, gc.idGrupoCanal
+			, gc.nombre grupoCanal
+			, ca.idCanal
+			, ca.nombre canal
+			, t.feriado
+			, toc.nombre ocurrencia
+			, vd.idEmpleado vacaciones
+			, u.estado
+			, ub.provincia AS ciudad
+			, lh_1.idCliente
+			, c.razonSocial AS cliente
+			, CONVERT(VARCHAR,vi.horaIni, 8) horaIniVisita
+			, ISNULL(vi.latitud,0) latiIniVisita
+			, ISNULL(vi.longitud,0) longIniVisita
+			, CONVERT(VARCHAR,vf.horaFin, 8) horaFinVisita
+			, ISNULL(vf.latitud,0) latiFinVisita
+			, ISNULL(vf.longitud,0) longFinVisita
+			, t.idDia AS idDia
+			, t.dia 
+			, CONVERT(VARCHAR, lh_1.horaIni, 8) AS horarioIng
+			, CONVERT(VARCHAR, lh_1.horaFin, 8) AS horarioSal
+			, eq.numero movil
+			, CONVERT( VARCHAR, e.fecInicioTrabajo, 103 ) AS fecha_ingreso
+
+			, DATEDIFF(minute, lh_1.horaIni, lh_1.horaFin) AS horasProgramadas
+			, DATEDIFF(minute, vi.horaIni, vf.horaFin) AS horasTrabajadas
+
+			{$segmentacion['columnas_bd']}
+		FROM trade.usuario u
+			JOIN trade.usuario_historico uh ON uh.idUsuario = u.idUsuario
+			AND (
+				uh.fecIni <= ISNULL( uh.fecFin, @fecFin)
+				AND (
+					uh.fecIni BETWEEN @fecIni AND @fecFin 
+					OR
+					ISNULL( uh.fecFin, @fecFin ) BETWEEN @fecIni AND @fecFin 
+					OR
+					@fecIni BETWEEN uh.fecIni AND ISNULL( uh.fecFin, @fecFin ) 
+					OR
+					@fecFin BETWEEN uh.fecIni AND ISNULL( uh.fecFin, @fecFin )
+				)
+			)
+			LEFT JOIN trade.proyecto py ON py.idProyecto = uh.idProyecto
+			LEFT JOIN trade.cuenta cu ON cu.idCuenta = py.idCuenta
+
+			LEFT JOIN trade.usuario_tipo tu ON uh.idTipoUsuario = tu.idTipoUsuario
+			LEFT JOIN rrhh.dbo.empleado e ON e.numTipoDocuIdent = u.numDocumento
+
+			LEFT JOIN General.dbo.tiempo t ON t.fecha BETWEEN @fecIni AND @fecFin
+
+			LEFT JOIN lista_horario_programado lh_1 ON lh_1.idUsuario = u.idUsuario
+
+			LEFT JOIN rrhh.asistencia.asistencia at ON e.idEmpleado=at.idEmpleado and at.fechaIngreso=t.fecha
+
+			LEFT JOIN rrhh.dbo.Ocurrencias o ON o.idEmpleado = e.idEmpleado
+				AND t.fecha BETWEEN o.fecInicio AND ISNULL( o.fecTermino, t.fecha)
+			LEFT JOIN rrhh.dbo.TipoOcurrencia toc ON toc.idTipoOcurrencia = o.idTipoOcurrencia
+			LEFT JOIN rrhh.dbo.vacacionesDetalle vd ON  vd.idEmpleado = e.idEmpleado AND vd.estado = 1
+				AND t.fecha BETWEEN vd.fecSalida AND ISNULL(vd.fecRetorno, t.fecha)
+
+			LEFT JOIN lista_visita_inicio vi ON vi.fecha = t.fecha AND u.idUsuario = vi.idUsuario AND lh_1.idCliente = vi.idCliente
+			LEFT JOIN lista_visita_final vf ON vf.fecha = t.fecha AND u.idUsuario = vf.idUsuario AND lh_1.idCliente = vf.idCliente
+
+			LEFT JOIN trade.cliente c ON lh_1.idCliente = c.idCliente
+			LEFT JOIN ImpactTrade_pg.trade.cliente_historico ch ON c.idCliente = ch.idCliente AND ch.fecFin IS NULL AND ch.idProyecto = py.idProyecto
+			LEFT JOIN general.dbo.ubigeo ub ON ub.cod_ubigeo = ch.cod_ubigeo
+			LEFT JOIN ImpactTrade_bd.trade.segmentacionNegocio sn ON ch.idSegNegocio = sn.idSegNegocio
+			LEFT JOIN ImpactTrade_bd.trade.canal ca ON sn.idCanal = ca.idCanal
+			LEFT JOIN ImpactTrade_bd.trade.grupoCanal gc ON ca.idGrupoCanal = gc.idGrupoCanal
+
+			{$segmentacion['join']}
+
+			LEFT JOIN rrhh.Equipos_new.asignacion eq ON eq.idEmpleado = e.idEmpleado AND t.fecha BETWEEN eq.fechaEntrega AND ISNULL(eq.fechaDevolucion, t.fecha)
+				AND eq.idTipoEquipo=1
+		WHERE
+			uh.idAplicacion IN (1, 4, 8)
+			$filtros
+					
+		ORDER BY cuenta, proyecto, grupoCanal, canal, ciudad, usuario, fecha ASC
+		";
+
+		$query = $this->db->query($sql);
+		$result = array();
+		if ($query) {
+			$result = $query->result_array();
+		}
+
+		$this->CI->aSessTrack[] = ['idAccion' => 5, 'tabla' => 'trade.usuario'];
+		return $result;
+	}
+
+	public function getFechas($params = []){
+		$sql = "
+			DECLARE 
+				@fecIni DATE = '".$params['fecIni']."'
+				, @fecFin DATE = '".$params['fecFin']."'
+			SELECT 
+				idTiempo idDia
+				, idMes
+				, mes
+				, CONVERT(VARCHAR(10),fecha,103) fecha
+				, idFeriado
+				, idDia diaSemana
+				, feriado
+				, dia
+				, idDia dia_
+				, CONVERT(VARCHAR(8),fecha,112) fecha_id
+			FROM 
+				general.dbo.tiempo tt
+			WHERE
+				fecha BETWEEN @fecIni AND @fecFin
+			ORDER BY
+				fecha ASC
+			";
+
+		$query = $this->db->query($sql);
+		$result = array();
+		if ($query) {
+			$result = $query->result_array();
+		}
+
+		$this->CI->aSessTrack[] = ['idAccion' => 5, 'tabla' => 'general.dbo.tiempo'];
 		return $result;
 	}
 }

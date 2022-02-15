@@ -32,7 +32,6 @@ var Asistencia = {
 				'idFrm' : Asistencia.frmAsistencia
 				,'url': Asistencia.url + control.data('url')
 				,'contentDetalle': Asistencia.contentDetalle
-				
 			};
 
 			$.when(Fn.loadReporte_new(config)).then( () => {
@@ -49,6 +48,7 @@ var Asistencia = {
 			Asistencia.tabSeleccionado = opcion;
 			$("#tipoFormato").val(opcion);
 			$(".div-para-ocultar").addClass('card');
+			$("#txt-fechas").removeClass('d-none');
 			if (opcion==1) {
 				$('#dv-leyenda').show(500);
 				if ( $(".detalle-primera").length > 0   ) {
@@ -68,6 +68,9 @@ var Asistencia = {
 				if(Asistencia.estadoConsulta == 1){
 					$(".div-para-ocultar").removeClass('card');
 				}
+			} else if (opcion==4) {
+				$("#txt-fechas_simple").removeClass('d-none');
+				$("#txt-fechas").addClass('d-none');
 			}
 		});
 

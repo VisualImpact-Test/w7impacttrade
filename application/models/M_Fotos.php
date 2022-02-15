@@ -68,6 +68,7 @@ class M_Fotos extends MY_Model
 			$filtros .= !empty($input['plaza_filtro']) ? ' AND ds.idPlaza='.$input['plaza_filtro'] : '';
 			$filtros .= !empty($input['cadena_filtro']) ? ' AND cad.idCadena='.$input['cadena_filtro'] : '';
 			$filtros .= !empty($input['banner_filtro']) ? ' AND b.idBanner='.$input['banner_filtro'] : '';
+			$filtros .= !empty($input['tipoModulo']) ? ' AND mg.idModuloGrupo='.$input['tipoModulo'] : '';
 			
 			$visitas_filtro = !empty($visitas)?$visitas:'';
 
@@ -75,7 +76,7 @@ class M_Fotos extends MY_Model
 
 		$sql="
 			DECLARE @fecIni DATE='".$fechas[0]."',@fecFin DATE='".$fechas[1]."';
-			SELECT DISTINCT  
+			SELECT DISTINCT
 				v.idVisita, 
 				ubi01.departamento, 
 				ubi01.provincia, 
@@ -158,12 +159,12 @@ class M_Fotos extends MY_Model
 				{$filtros}
 				{$visitas_filtro}
 			ORDER BY canal, 
-					departamento, 
-					provincia, 
-					distrito, 
-					razonSocial, 
-					fecha, 
-					tipoFoto DESC;
+				departamento, 
+				provincia, 
+				distrito, 
+				razonSocial, 
+				fecha, 
+				tipoFoto DESC;
 		";
 
 		return $this->db->query($sql);
@@ -329,6 +330,7 @@ class M_Fotos extends MY_Model
 			$filtros_cliente .= !empty($input['banner_filtro']) ? ' AND ba.idBanner='.$input['banner_filtro'] : '';
 
 			$filtros_cliente .= !empty($input['departamento_filtro']) ? ' AND ubi01.cod_departamento='.$input['departamento_filtro'] : '';
+			$filtros .= !empty($input['tipoModulo']) ? ' AND mg.idModuloGrupo='.$input['tipoModulo'] : '';
 			$filtros_cliente .= !empty($input['provincia_filtro']) ? ' AND ubi01.cod_provincia='.$input['provincia_filtro'] : '';
 			$filtros_cliente .= !empty($input['distrito_filtro']) ? ' AND ubi01.cod_ubigeo='.$input['distrito_filtro'] : '';
 			
@@ -444,7 +446,7 @@ class M_Fotos extends MY_Model
 				,ISNULL(ch.codCliente,'-') codCliente
 				,ch.razonSocial
 				,ISNULL(ch.direccion,'-') direccion
-				,v.fecha
+				,CONVERT(VARCHAR,v.fecha,103) AS fecha
 				,v.idUsuario
 				,v.usuario
 				,ca.nombre canal
@@ -469,6 +471,39 @@ class M_Fotos extends MY_Model
 			LEFT JOIN trade.proyecto py ON py.idProyecto = v.idProyecto
 			LEFT JOIN trade.cuenta c ON c.idCuenta = py.idCuenta
 			ORDER BY canal,departamento, provincia, distrito, razonSocial, fecha, tipoFoto DESC;
+		";
+
+		$query = $this->db->query($sql);
+		$result = array();
+		if ( $query ) {
+			$result = $query;
+		}
+
+		return $result;
+	}
+
+	public function getPermisosModulos()
+	{
+		$filtros = "";
+
+		$idCuenta = $this->sessIdCuenta;
+		$idProyecto = $this->sessIdProyecto;
+		$idTipoUsuario = $this->idTipoUsuario;
+
+		!empty($idCuenta) ? $filtros .= ' AND a.idCuenta=' . $idCuenta : '';
+		!empty($idProyecto) ? $filtros .= ' AND p.idProyecto=' . $idProyecto : '';
+		!empty($idProyecto) ? $filtros .= ' AND m.idTipoUsuario=' . $idTipoUsuario : '';
+
+		$sql = "
+		SELECT DISTINCT 
+		mo.idModulo
+		, mo.nombre AS value
+		, mo.idModuloGrupo AS id
+		FROM trade.aplicacion_modulo_tipoUsuario m
+		JOIN trade.aplicacion_modulo mo ON mo.idModulo = m.idModulo
+		JOIN trade.aplicacion a ON a.idAplicacion = mo.idAplicacion
+		JOIN trade.proyecto p ON p.idCuenta = a.idCuenta
+		WHERE m.estado = 1 {$filtros}
 		";
 
 		$query = $this->db->query($sql);

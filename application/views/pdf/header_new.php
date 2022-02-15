@@ -42,4 +42,10 @@
         <td class="td-title">DIRECCIÓN</td>';
         <td class="td-content"><?=$direccion?> </td>
     </tr>
+    <tr>
+        <td class="td-title">EJECUTIVO</td>';
+        <td class="td-content"><?=$ejecutivo?> </td>
+        <td class="td-title">SUPERVISOR</td>';
+        <td class="td-content"><?=$supervisor?> </td>
+    </tr>
 </table>

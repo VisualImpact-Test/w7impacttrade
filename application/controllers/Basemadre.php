@@ -12,18 +12,27 @@ class Basemadre extends MY_Controller{
 		$this->aSessTrack[] = [ 'idAccion' => 4 ];
 
 		$config = array();
-		$config['nav']['menu_active'] = '3';
-		$config['css']['style'] = array();
+		$idMenu = '3';
+		$config['nav']['menu_active'] = $idMenu;
+		$config['css']['style'] = array(
+			'assets/libs/dataTables-1.10.20/datatables',
+			'assets/libs/handsontable@7.4.2/dist/handsontable.full.min',
+			'assets/libs/handsontable@7.4.2/dist/pikaday/pikaday'
+		);
 		$config['js']['script'] = array(
 			'assets/libs/datatables/responsive.bootstrap4.min',
 			'assets/custom/js/core/datatables-defaults',
 			'assets/custom/js/basemadre'
 		);
 
+		$tabs = getTabPermisos(['idMenuOpcion'=>$idMenu])->result_array();
+
 		$config['data']['icon'] = 'fa fa-users';
 		$config['data']['title'] = 'Basemadre';
 		$config['data']['message'] = 'Lista de PDV';
-		$config['view'] = 'modulos/basemadre/index';
+		$config['data']['ciudades'] = $this->model->getCiudades();
+		$config['data']['tabs'] = $tabs;
+		$config['view']='modulos/basemadre/index';
 
 		$this->view($config);
 	}
@@ -56,15 +65,22 @@ class Basemadre extends MY_Controller{
 		$input['banner_filtro'] = !empty($data['banner_filtro']) ? $data['banner_filtro'] : '';
 		$input['tipoUsuario_filtro'] = !empty($data['tipoUsuario_filtro']) ? $data['tipoUsuario_filtro'] : '';
 		$input['usuario_filtro'] = !empty($data['usuario_filtro']) ? $data['usuario_filtro'] : '';
+		$input['ciudad_filtro'] = !empty($data['ciudad_filtro']) ? $data['ciudad_filtro'] : '';
 
-		$input['departamento_filtro'] = $data['departamento_filtro'];
-		$input['provincia_filtro'] = $data['provincia_filtro'];
-		$input['distrito_filtro'] = $data['distrito_filtro'];
+		$input['departamento_filtro'] = !empty($data['departamento_filtro']) ? $data['departamento_filtro'] : '';
+		$input['provincia_filtro'] = !empty($data['provincia_filtro']) ? $data['provincia_filtro'] : '';
+		$input['atendidos'] = !empty($data['chk-atendidos']) ? true : false;
+		$input['desatendidos'] = !empty($data['chk-desatendidos']) ? true : false;
+		$input['distrito_filtro'] = !empty($data['distrito_filtro']) ? $data['distrito_filtro'] : '';
 
 		$idUsuario=$this->session->userdata('idUsuario');
 		$idCuenta=$this->session->userdata('idCuenta');
 
-		$rs_resultado = $this->model->obtener_basemadre($input);
+		if($data['tipoFormato'] == 3){
+			$rs_resultado = $this->model->obtener_basemadre_hsm($input);
+		}else{
+			$rs_resultado = $this->model->obtener_basemadre($input);
+		}
 
 		$rs_visita = $this->model->obtener_visita($input);
 
@@ -83,7 +99,7 @@ class Basemadre extends MY_Controller{
 			$array['contRs'] = count($rs_resultado);
 			$contCartera=0; $contFalgCartera=0;
 
-			switch ( $data['tipoFormato']) {
+			switch ( $data['tipoFormato'] ) {
 				case 1:
 					foreach ($rs_resultado as $kr => $row) {
 
@@ -207,7 +223,7 @@ class Basemadre extends MY_Controller{
 
 						$new_data[$kr] = [
 							//Columnas
-							$i++, 
+							$i++,
 							!empty($row['grupoCanal']) ? "<p class='text-left'>{$row['grupoCanal']}</p>" : '-', 
 							!empty($row['canal']) ? "<p class='text-left'>{$row['canal']}</p>" : '-', 
 							!empty($row['subCanal']) ? "<p class='text-left'>{$row['subCanal']}</p>" : '-',
@@ -269,7 +285,65 @@ class Basemadre extends MY_Controller{
 									"visible"=> false, 
 									"targets" => []
 								],
-							],
+							]
+						// 'dom' => '<"ui icon input"f>tip',
+					];
+					break;
+				case 3:
+					$array['rs'] = $rs_resultado;
+					$segmentacion = getSegmentacion(['grupoCanal_filtro' => $input['grupoCanal']]);
+					$array['segmentacion'] = $segmentacion;
+					$result['data']['detalle'] = $this->load->view("modulos/basemadre/hsm/basemadreDetalle", $array, true);
+					$new_data = [];
+					$i = 1;
+					foreach ($array['rs'] as $kr => $row) {
+						$row_visita = isset($visita[$row['idCliente']]) ? $visita[$row['idCliente']] : array();
+						$prog = isset($row_visita['idVisita']) ? 1 : 0;
+						$user = isset($row_visita['nombreUsuario']) ? $row_visita['nombreUsuario'] : '-';
+
+						$new_data[$kr] = [
+							//Columnas
+							$i++,
+							!empty($row['grupoCanal']) ? "<p class='text-left'>{$row['grupoCanal']}</p>" : '-', 
+							!empty($row['canal']) ? "<p class='text-left'>{$row['canal']}</p>" : '-', 
+							!empty($row['subCanal']) ? "<p class='text-left'>{$row['subCanal']}</p>" : '-',
+							!empty($row['clienteTipo']) ? "<p class='text-left'>{$row['clienteTipo']}</p>" : '-',
+						];
+						foreach ($segmentacion['headers'] as $k => $v) { 
+								array_push($new_data[$kr],
+									!empty($row[($v['columna'])]) ? "<p class='text-left'>{$row[($v['columna'])]}</p>" : '-'
+								);
+						} 
+						array_push($new_data[$kr],
+							!empty($row['departamento']) ? "<p class='text-left'>{$row['departamento']}</p>" : '-',
+							!empty($row['provincia']) ? "<p class='text-left'>{$row['provincia']}</p>" : '-',
+							!empty($row['distrito']) ? "<p class='text-left'>{$row['distrito']}</p>" : '-',
+							!empty($row['idCliente']) ? "<p class='text-center'>{$row['idCliente']}</p>" : '-',
+							!empty($row['codCliente']) ? "<p class='text-center'>{$row['codCliente']}</p>" : '-',
+							!empty($row['codPdv']) ? "<p class='text-center'>{$row['codPdv']}</p>" : '-',
+							!empty($row['razonSocial']) ? "<p class='text-left'>{$row['razonSocial']}</p>" : '-',
+							!empty($row['nombreComercial']) ? "<p class='text-left'>{$row['nombreComercial']}</p>" : '-',
+							!empty($row['direccion']) ? "<p class='text-left'>{$row['direccion']}</p>" : '-',
+							!empty($row['ruc']) ? "<p class='text-left'>{$row['ruc']}</p>" : '-',
+							!empty($row['dni']) ? "<p class='text-left'>{$row['dni']}</p>" : '-'
+						);
+
+					}
+					$result['data']['data_table'] = $new_data;
+					$result['data']['configTable'] =  [
+						'data' => $new_data, 
+						'columnDefs' =>
+							[ 0 => 
+								[
+									"targets" => [],
+									"className"=> 'noVis',
+								],
+								1 => 
+									[
+									"visible"=> false, 
+									"targets" => []
+								],
+							]
 						// 'dom' => '<"ui icon input"f>tip',
 					];
 					break;

@@ -10,8 +10,8 @@
 			<div class="card-body p-0">
 				<ul class="nav nav-tabs nav-justified">
 					<? foreach ($tabs as $k => $v) { ?>
-						<li class="nav-item btnReporte" id="tipoReporte" name="tipoReporte" data-value="<?= $v['orden'] ?>">
-							<a data-toggle="tab" href="#<?= $v['contenedor'] ?>" class="<?= ($k == 0) ? 'active' : '' ?> nav-link" data-url="<?= $v['url'] ?>" data-content="<?= $v['contenedor'] ?>" data-tabla="<?= $v['tabla'] ?>"><?= $v['nombre'] ?></a>
+						<li class="nav-item btnReporte" id="tipoReporte" name="tipoReporte" data-value="<?= $v['orden'] ?>" data-tiporeporte="<?= $v['orden'] ?>">
+							<a data-toggle="tab" href="#<?= $v['contenedor'] ?>" data-url="<?= $v['url'] ?>" class="<?= ($k == 0) ? 'active' : '' ?> nav-link" data-contentdetalle="<?= $v['contenedor'] ?>"><?= $v['nombre'] ?></a>
 						</li>
 					<? } ?>
 				</ul>
@@ -26,7 +26,7 @@
 		<i class="fal fa-cog fa-lg fa-spin"></i>
 	</a>
 	<div class="customizer-content p-2 ps-container ps-theme-dark" data-ps-id="aca1f25c-4ed9-a04b-d154-95a5d6494748">
-		<form id="formFiltrosEncuesta">
+		<form id="formFiltrosCobertura">
 			<div class="card-header" style="margin-bottom: 14px;">
 				<h4>CONFIGURACIÓN</h4>
 			</div>
@@ -34,11 +34,8 @@
 				<input type="hidden" id="idTipoFormato" name="tipoFormato" value="1">
 			</div>
 			<div class="customizer-content-button">
-				<button type="button" class="btn btn-outline-trade-visual border-0" data-url="filtrar" id="btn-filtrarEncuesta" title="Filtrar">
+				<button type="button" class="btn btn-outline-trade-visual border-0" data-url="filtrar" id="btn-filtrarCobertura" title="Filtrar">
 					<i class="fa fa-search"></i> <span class="txt_filtro"></span>
-				</button>
-				<button type="button" class="btn btn-outline-trade-visual border-0" data-url="pdf" id="btn-encuesta-pdf" title="PDF">
-					<i class="fa fa-file-pdf"></i> <span class="txt_filtro"></span>
 				</button>
 			</div>
 			<hr>
@@ -46,29 +43,6 @@
 				<h5 class="mt-1 mb-1 text-bold-500"><i class="fal fa-table"></i> Filtros</h5>
 				<div class="form-row">
 					<div class="col-md-12">
-						<!-- <div class="mb-2 mr-sm-2 position-relative form-group">
-							<label>Ver Fotos:</label><br>
-							<div role="group" class="btn-group btn-group-toggle" data-toggle="buttons">
-								<label class="btn btn-outline-trade-visual border-0 active">
-									<input type="radio" name="verFotos" value="false" checked="checked">
-									No
-								</label>
-								<label class="btn btn-outline-trade-visual border-0">
-									<input type="radio" name="verFotos" value="true">
-									Sí
-								</label>
-							</div>
-						</div> -->
-						<div class="mb-2 mr-sm-2 position-relative form-group">
-							<label for="idEncuesta">Encuestas Activas:</label>
-							<div class="col-xs-10">
-								<select class="selectpicker ui my_select2Full" id="idEncuesta" name="idEncuesta" title="Encuestas (Todo)" data-live-search="true">
-									<?php foreach ($encuestasActivas as $row) { ?>
-										<option class="dropdown-item" value="<?= $row['idEncuesta'] ?>"><?= $row['encuesta'] ?></option>
-									<? } ?>
-								</select>
-							</div>
-						</div>
 						<div class="mb-2 mr-sm-2 position-relative form-group">
 							<div class="field">
 								<div class="ui my_calendar">
@@ -96,15 +70,6 @@
 						<div class="mb-2 mr-sm-2 position-relative form-group filtros_asistencia custom_tooltip">
 							<span class="tooltiptext">Sub Canal</span>
 							<?= getFiltros(['tipoCliente' => ['label' => 'Sub Canal', 'name' => 'subcanal_filtro', 'id' => 'subcanal_filtro', 'data' => false, 'select2' => 'ui my_select2Full', 'html' => '']]); ?>
-						</div>
-						<div class="mb-2 mr-sm-2 position-relative form-group custom_tooltip">
-							<span class="tooltiptext">Tipo Pregunta</span>
-							<select id="tipoPregunta" class="ui my_select2Full" name="tipoPregunta">
-								<option value="">-- Tipo Pregunta --</option>
-								<? foreach ($tiposPregunta as $key => $value) { ?>
-									<option value="<?= $value["idTipoPregunta"] ?>"><?= $value["nombre"] ?></option>
-								<? } ?>
-							</select>
 						</div>
 						<div class="filtros_secundarios">
 							<div class="filtros_generados">
@@ -154,6 +119,9 @@
 	<div class="card-body p-0">
 		<div class="tab-content" id="content-auditoria">
 			<div class="tab-pane fade show active" id="idDetalleHorizontal" role="tabpanel">
+				<?= getMensajeGestion('noResultados') ?>
+			</div>
+			<div class="tab-pane fade" id="idDetalleGraficas" role="tabpanel">
 				<?= getMensajeGestion('noResultados') ?>
 			</div>
 		</div>

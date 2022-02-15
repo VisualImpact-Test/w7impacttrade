@@ -2,7 +2,7 @@
 	<a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3 a-href" href="javascript:;" page="home">
 		<div class="logo-src"></div>
 	</a>
-	<button class="btn btn-trade-visual" id="btn-toggle-menu" data-show="false" ><i class="fal fa-window-maximize" ></i></button>
+	<button class="btn btn-trade-visual" id="btn-toggle-menu" data-show="false" ><i class="fas fa-lg fa-bars" ></i></button>
 	<button class="text-dark navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse" data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
 		<span class="navbar-toggler-icon"></span>
 	</button>

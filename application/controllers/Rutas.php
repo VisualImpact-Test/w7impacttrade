@@ -109,6 +109,8 @@ class Rutas extends MY_Controller{
 
 					$array['visitas'] = $rs_visitas;
 					$segmentacion = getSegmentacion(['grupoCanal_filtro' => $input['grupo_filtro']]);
+					$usuariosSegmentacion = permisos_usuarios($segmentacion['tipoSegmentacion'],$input);
+
 					$array['segmentacion'] = $segmentacion;
 
 					$new_data = [];
@@ -147,6 +149,7 @@ class Rutas extends MY_Controller{
 					$arrayTipoUsuarioData=array();
 
 					foreach ($rs_visitas as $kr => $row) {
+						$segmentacionUsuarios = segmentacion_usuarios($usuariosSegmentacion, $row);
 						$arrayTipoUsuarioData[$row['idTipoUsuario']]=$row['idTipoUsuario'];
 						$latiIni = $row['lati_ini'];
 						$longIni = $row['long_ini'];
@@ -185,7 +188,8 @@ class Rutas extends MY_Controller{
 						$new_data[$kr] = [
 							//Columnas
 							$i++, 
-							!empty($row['fecha']) ? "<p class='text-center a'>{$row['fecha']}</p>" : '-', 
+							!empty($row['fecha']) ? "<p class='text-center a'>{$row['fecha']}</p>" : '-',
+							!empty($segmentacionUsuarios) ? "<p class='text-center a'>{$segmentacionUsuarios['supervisor']}</p>" : '-',
 							!empty($row['tipoUsuario']) ? "<p class='text-left'>{$row['tipoUsuario']}</p>" : '-', 
 							!empty($row['cod_empleado']) ? "<p class='text-center'>{$row['cod_empleado']}</p>" : '-', 
 							!empty($row['cod_usuario']) ? "<p class='text-center'>{$row['cod_usuario']}</p>" : '-', 

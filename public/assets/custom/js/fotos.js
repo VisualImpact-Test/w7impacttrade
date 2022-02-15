@@ -128,8 +128,11 @@ var Fotos = {
 									dataHtml+="<div class='col-md-6'><label><span class='font-weight-bold'>CANAL: </span>"+ cliente.canal +"</label></div>";
 									dataHtml+="<div class='col-md-6'><label><span class='font-weight-bold'>TIPO CLIENTE: </span>"+ cliente.cliente_tipo +"</label></div>";
 								dataHtml+="</div>";
-								dataHtml+="<div class='col-md-12 col-descsripcion-foto' style='margin-bottom: 15px;'>";
+								dataHtml+="<div class='col-md-12 col-descsripcion-foto'>";
 									dataHtml+="<div class='col-md-12'><label><span class='font-weight-bold'>DIRECCIÓN: </span>"+ cliente.direccion +"</label><br><label><span class='font-weight-bold'>UBICACIÓN: </span>"+ cliente.departamento + " - " + cliente.provincia + " - " + cliente.distrito +"</label></div>";
+								dataHtml+="</div>";
+								dataHtml+="<div class='col-md-12 col-descsripcion-foto' style='margin-bottom: 15px;'>";
+									dataHtml+="<div class='col-md-12'><label><span class='font-weight-bold'>EJECUTIVO: </span>"+ cliente.ejecutivo +"</label><br><label><span class='font-weight-bold'>SUPERVISOR: </span>"+ cliente.supervisor + "</label></div>";
 								dataHtml+="</div>";
 								///
 								dataHtml+="<div class='row'>";

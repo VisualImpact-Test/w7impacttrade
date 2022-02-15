@@ -55,13 +55,13 @@ if( $.fn.dataTableExt ){
 				
 			},
 			{
-				'extend': 'excel',
+				// 'extend': 'excel',
 				'text': '<i class="fal fa-file-excel"></i> Excel',
-				'exportOptions': {
-						'columns': ':visible :not(.excel-borrar)',
-				},
-				'titleAttr': 'Exportar a excel'
-
+				// 'exportOptions': {
+				// 		'columns': ':visible :not(.excel-borrar)',
+				// },
+				'titleAttr': 'Exportar a excel',
+				'className': 'btn-datatable-excel'
 			},
 			{
 				'extend':'colvis',

@@ -14,8 +14,11 @@ class Encuesta extends MY_Controller
 	{
 		$this->aSessTrack[] = ['idAccion' => 4];
 
-		$config['nav']['menu_active'] = '5';
-		$config['css']['style'] = [];
+		$idMenu = '5';
+		$config['nav']['menu_active'] = $idMenu;
+		$config['css']['style'] = [
+			'assets/custom/css/asistencia'
+		];
 		$config['js']['script'] = [
 			'assets/libs/fileDownload/jquery.fileDownload',
 			'assets/libs/datatables/responsive.bootstrap4.min',
@@ -23,9 +26,13 @@ class Encuesta extends MY_Controller
 			'assets/custom/js/core/anyChartCustom',
 			'assets/custom/js/encuesta'
 		];
+
+		$tabs = getTabPermisos(['idMenuOpcion'=>$idMenu])->result_array();
+
 		$config['data']['icon'] = 'fal fa-file-alt';
 		$config['data']['title'] = 'Encuesta';
 		$config['data']['message'] = 'Aquí encontrará datos de las encuestas.';
+		$config['data']['tabs'] = $tabs;
 		$config['view'] = 'modulos/encuesta/index';
 		$config['data']['tiposPregunta'] = $this->m_encuesta->getTiposDePregunta()->result_array();
 
@@ -67,6 +74,9 @@ class Encuesta extends MY_Controller
 			$array_grafico = array();
 			foreach ($encuesta as $fila) {
 				$dataParaVista['visitaFoto'][$fila['idVisita']][$fila['idEncuesta']] = $fila['imgRef'];
+				$dataParaVista['visitaFotoSub'][$fila['idVisita']][$fila['idEncuesta']] = $fila['imgRefSub'];
+				$dataParaVista['idVisitaEncuesta'][$fila['idVisita']][$fila['idEncuesta']] = $fila['idVisitaEncuesta'];
+				$dataParaVista['flagFotoMultiple'][$fila['idVisita']][$fila['idEncuesta']] = empty($fila['flagFotoMultiple']) ? 0 : 1;
 				$dataParaVista['visitaEncuesta'][$fila['idVisita']][$fila['idPregunta']][] = $fila['respuesta'];
 				if (isset($array_resultados[$fila['idCliente']])) {
 					if (!empty($fila['puntaje'])) $array_resultados[$fila['idCliente']]['puntaje'][$fila['idPregunta']] = floatval($fila['puntaje']);
@@ -1213,6 +1223,104 @@ class Encuesta extends MY_Controller
 		$mpdf->Output("Encuesta.pdf", \Mpdf\Output\Destination::DOWNLOAD);
 
 		
+	}
+
+	public function getTablaEncuestasConsolidado()
+	{
+		$result = $this->result;
+		$result['msg']['title'] = 'Encuestas';
+		$post = json_decode($this->input->post('data'), true);
+
+		if (isset($post['idEncuesta'])) {
+			$encuestas = $post['idEncuesta'];
+			if (is_array($encuestas)) {
+				$post['idEncuesta'] = implode(",", $encuestas);
+			} else {
+				$post['idEncuesta'] = $encuestas;
+			}
+		}
+
+		$params = [];
+		$params['idCuenta'] = empty($post['cuenta_filtro']) ? "" : $post['cuenta_filtro'];
+		$params['idProyecto'] = empty($post['proyecto_filtro']) ? "" : $post['proyecto_filtro'];
+		$params['idGrupoCanal'] = empty($post['grupo_filtro']) ? "" : $post['grupo_filtro'];
+		$params['subcanal'] = empty($post['subcanal_filtro']) ? "" : $post['subcanal_filtro'];
+		$params['idCanal'] = empty($post['canal_filtro']) ? "" : $post['canal_filtro'];
+		$params['idEncuesta'] = empty($post['idEncuesta']) ? "" : $post['idEncuesta'];
+		$params['tipoPregunta'] = empty($post['tipoPregunta']) ? "" : $post['tipoPregunta'];
+		$params['txt-fechas'] = empty($post['txt-fechas']) ? "" : $post['txt-fechas'];
+
+		$params['distribuidora_filtro'] = empty($post['distribuidora_filtro']) ? '' : $post['distribuidora_filtro'];
+		$params['zona_filtro'] = empty($post['zona_filtro']) ? '' : $post['zona_filtro'];
+		$params['plaza_filtro'] = empty($post['plaza_filtro']) ? '' : $post['plaza_filtro'];
+		$params['cadena_filtro'] = empty($post['cadena_filtro']) ? '' : $post['cadena_filtro'];
+		$params['banner_filtro'] = empty($post['banner_filtro']) ? '' : $post['banner_filtro'];
+
+		$dataParaVista = $this->getDataEncuestas($params);
+
+		foreach ($this->m_encuesta->getVisitaEncuesta(['fecIni' => getFechasDRP($params["txt-fechas"])[0], 'fecFin' => getFechasDRP($params["txt-fechas"])[1]])->result_array() as $fila) {
+			$dataParaVista['visita_encuesta'][$fila['idCliente']][$fila['idUsuario']][$fila['idEncuesta']]['num'] = $fila['num'];
+		}
+
+		$result['result'] = 1;
+		if (count($dataParaVista['visitas']) < 1 or empty($dataParaVista['listaEncuesta'])) {
+			$result['data']['html'] = getMensajeGestion('noRegistros');
+		} else {
+			$segmentacion = getSegmentacion(['grupoCanal_filtro' => $params['idGrupoCanal']]);
+			$dataParaVista['segmentacion'] = $segmentacion;
+			$result['data']['html'] = $this->load->view("modulos/Encuesta/HSM/tablaDetalladoEncuestaConsolidado", $dataParaVista, true);
+			$result['data']['configTable'] = [];
+		}
+
+		echo json_encode($result);
+	}
+
+	public function descargarExcel()
+	{
+		ini_set('memory_limit', '1024M');
+		set_time_limit(0);
+
+		$result = $this->result;
+		$result['msg']['title'] = 'Encuestas';
+		$post = json_decode($this->input->post('data'), true);
+
+		if (isset($post['idEncuesta'])) {
+			$encuestas = $post['idEncuesta'];
+			if (is_array($encuestas)) {
+				$post['idEncuesta'] = implode(",", $encuestas);
+			} else {
+				$post['idEncuesta'] = $encuestas;
+			}
+		}
+
+		$post['fecIni'] = getFechasDRP($post["txt-fechas"])[0];
+		$post['fecFin'] = getFechasDRP($post["txt-fechas"])[1];
+
+		$encuestasClientes = $this->m_encuesta->getVisitaEncuestaDetallado($post)->result_array();
+		$result['result'] = 1;
+		$result['data']['tablaExcel'] = $this->load->view("modulos/Encuesta/reporteParaExcel", ['encuestasClientes' => $encuestasClientes], true);
+
+		echo json_encode($result);
+	}
+
+	public function mostrarFotos()
+	{
+		$this->aSessTrack[] = ['idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaFotos"];
+
+		$result = $this->result;
+		$data = json_decode($this->input->post('data'));
+		//Datos Generales
+		$idVisitaEncuesta = $data->{'idVisitaEncuesta'};
+
+		$array = [];
+		$array['moduloFotos'] = $this->m_encuesta->obtenerFotosEncuesta($idVisitaEncuesta);
+
+		//Result
+		$result['result'] = 1;
+		$result['msg']['title'] = 'FOTOS';
+		$result['data'] = $this->load->view("modulos/encuesta/verFotos", $array, true);
+
+		echo json_encode($result);
 	}
 
 }
