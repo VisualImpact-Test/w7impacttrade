@@ -83,7 +83,8 @@ defined('EXIT_USER_INPUT')     OR define('EXIT_USER_INPUT', 7); // invalid user 
 defined('EXIT_DATABASE')       OR define('EXIT_DATABASE', 8); // database error
 defined('EXIT__AUTO_MIN')      OR define('EXIT__AUTO_MIN', 9); // lowest automatically-assigned error code
 defined('EXIT__AUTO_MAX')      OR define('EXIT__AUTO_MAX', 125); // highest automatically-assigned error code
-defined('RUTA_MOVIL_FOTOS')    OR define('RUTA_MOVIL_FOTOS','http://movil.visualimpact.com.pe/fotos/impactTrade_android/');
+// defined('RUTA_MOVIL_FOTOS')    OR define('RUTA_MOVIL_FOTOS','http://movil.visualimpact.com.pe/fotos/impactTrade_android/');
+defined('RUTA_MOVIL_FOTOS')    OR define('RUTA_MOVIL_FOTOS','http://visualimpact.test/movil/fotos/impactTrade_Android/');
 defined('GC_TRADICIONALES')    OR define('GC_TRADICIONALES',['Tradicional','TRADICIONAL','HFS']);
 defined('GC_MODERNOS')         OR define('GC_MODERNOS',['Moderno','MODERNO','HSM']);
 defined('GC_MAYORISTAS')       OR define('GC_MAYORISTAS',['WHLS','whls','mayorista',"Mayorista"]);

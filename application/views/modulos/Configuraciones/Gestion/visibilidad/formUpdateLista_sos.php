@@ -1,5 +1,5 @@
 <form id="formUpdate">
-    <input class="d-none" type="text" name="idlst" value="<?= $data[$this->model->tablas['lista']['id']] ?>">
+    <input class="d-none" type="text" name="idlst" value="<?//= $data[$this->model->tablas['lista']['id']] ?>">
     <div class='form-row'>
                 <div class='col-xs-6 col-sm-6 col-md-6 col-lg-6 mb-2'>
                     <label for='canal'>Canal</label><br>
@@ -40,16 +40,6 @@
         </div>
     </div>
     <div class='form-row'>
-         <div class='col-xs-5 col-sm-5 col-md-5 col-lg-5 mb-2'>
-             <label for='elemento'>Categorias</label><br>
-                        <select id='elemento' name='elemento' class='form-control form-control-sm my_select2'>
-                            <option value=''>-- Seleccionar --</option>
-                            <?php foreach ($categorias as $idCategoria => $categoria) { ?>
-                                <option value='<?= $categoria['idCategoria'] ?>'><?= $categoria['nombre'] ?></option>
-                            <?php } ?>
-                        </select>
-              
-        </div>
         <div class='col-xs-5 col-sm-5 col-md-5 col-lg-5 mb-2'>
             <label for='marca'>Marcas</label><br>
                 <select id='marca' name='marca' class='form-control form-control-sm my_select2'>

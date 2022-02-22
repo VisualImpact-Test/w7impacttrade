@@ -49,7 +49,7 @@
 					if (!empty($elementos[$idMat])) {
 						if (count($elementos[$idMat]) > 0) {
 							$rows = count($elementos[$idMat]);
-							$rows = $rows * 3;
+							$rows = $rows * 2;
 				?>
 							<th class="text-center" rowspan="1" colspan="<?= $rows ?>"><?= $material ?></th>
 				<?

@@ -16,6 +16,7 @@ class M_encuestas extends My_Model
 			'listaDet' => ['tabla'=>"{$this->sessBDCuenta}.trade.list_encuestaDet",'id'=>'idListEncuestaDet'],
 			'pregunta' => ['tabla'=>"{$this->sessBDCuenta}.trade.encuesta_pregunta",'id'=>'idPregunta'],
 			'alternativa'=> ['tabla'=>"{$this->sessBDCuenta}.trade.encuesta_alternativa",'id'=>'idAlternativa'],
+			'alternativaOpcion'=> ['tabla'=>"{$this->sessBDCuenta}.trade.encuesta_alternativa_opcion",'id'=>'idAlternativaOpcion'],
 			'tipoPregunta'=> ['tabla'=>'master.tipoPregunta','id'=>'idTipoPregunta'],
 			
 		];
@@ -137,7 +138,7 @@ class M_encuestas extends My_Model
 		return $update;
 	}
 
-	public function guardarMasivoPreguntas($multiDataRefactorizada, $idEncuesta)
+	public function guardarMasivoPreguntas($multiDataRefactorizada, $idEncuesta, $fotos = [])
 	{
 		$input = [];
 		foreach ($multiDataRefactorizada as $value) {
@@ -148,7 +149,9 @@ class M_encuestas extends My_Model
 					'nombre'=>$value['textoPregunta'],
 					'orden'=>$value['txtOrden'],
 					'estado'=>$value['estadoPregunta'],
-					'obligatorio'=>isset($value['chkObligatorio'])? 'true' : 'false'
+					'foto' => isset($value['chkFoto'])? 'true' : 'false',
+					'obligatorio'=>isset($value['chkObligatorio'])? 'true' : 'false',
+					'flagFotoObligatorio'=>!empty($value['chkFotoObligatorio'])? true : false,
 
 				];
 			}
@@ -169,6 +172,8 @@ class M_encuestas extends My_Model
 					'idListEncuesta' => $idLista,
 					'idEncuesta' =>$value['sl_encuesta'],
 					'obligatorio' =>$value['sl_obligatorio'],
+					'flagFotoObligatorio' =>$value['sl_fotoObligatorio'],
+					'flagFotoMultiple' =>$value['sl_fotoMultiple'],
 				];
 			}
 		}
@@ -250,8 +255,6 @@ class M_encuestas extends My_Model
 				$input[] = [
 					$this->m_encuestas->tablas['listaDet']['id'] => $value['id'],
 					'idEncuesta' =>$value['sl_encuesta'],
-	
-					
 				];
 			}
 		}
@@ -261,10 +264,10 @@ class M_encuestas extends My_Model
 		return $update;
 	}
 
-	public function actualizarMasivoPreguntas($multiDataRefactorizada)
+	public function actualizarMasivoPreguntas($multiDataRefactorizada, $fotos = [])
 	{
 		$input = [];
-		foreach ($multiDataRefactorizada as $value) {
+		foreach ($multiDataRefactorizada as $key => $value) {
 			if (!empty($value['id'])) {
 				$input[] = [
 					$this->m_encuestas->tablas['pregunta']['id'] => $value['id'],
@@ -272,8 +275,20 @@ class M_encuestas extends My_Model
 					'nombre'=>$value['textoPregunta'],
 					'orden'=>$value['txtOrden'],
 					'estado'=>$value['estadoPregunta'],
-					'obligatorio'=>isset($value['chkObligatorio'])? 'true' : 'false'
-					
+					'foto' => isset($value['chkFoto'])? 'true' : 'false',
+					'obligatorio'=>isset($value['chkObligatorio'])? 'true' : 'false',
+					'flagFotoObligatorio'=>!empty($value['chkFotoObligatorio'])? true : false,
+				];
+				$updateArchivos[] = [
+					$this->m_encuestas->tablas['pregunta']['id'] => $value['id'],
+					'fecFin' =>  getFechaActual(),
+					'estado' => false,
+				];
+				$inputArchivos[] = [
+					$this->m_encuestas->tablas['pregunta']['id'] => $value['id'],
+					'fotos' => $fotos[$key],
+					'fecIni' => getFechaActual(),
+					'estado' => true,
 				];
 			}
 		}
@@ -292,7 +307,9 @@ class M_encuestas extends My_Model
 					'idPregunta' => $idPregunta,
 					'nombre'=>$value['textoAlternativa'],
 					'estado'=>$value['estadoAlternativa'],
-					'foto'=>isset($value['chkFoto'])? 'true' : 'false'
+					'foto'=>isset($value['chkFoto'])? 'true' : 'false',
+					'flagFotoObligatorio'=>!empty($value['chkFotoObligatorio'])? true : false
+
 
 				];
 			}
@@ -313,7 +330,8 @@ class M_encuestas extends My_Model
 					$this->m_encuestas->tablas['alternativa']['id'] => $value['id'],
 					'nombre'=>$value['textoAlternativa'],
 					'estado'=>$value['estadoAlternativa'],
-					'foto'=>isset($value['chkFoto'])? 'true' : 'false'
+					'foto'=>isset($value['chkFoto'])? 'true' : 'false',
+					'flagFotoObligatorio'=>!empty($value['chkFotoObligatorio'])? true : false
 					
 				];
 			}
@@ -555,6 +573,8 @@ class M_encuestas extends My_Model
 				e.*
 				,lstd.idListEncuestaDet
 				,lstd.obligatorio
+				,lstd.flagFotoMultiple
+				,lstd.flagFotoObligatorio AS flagFotoObligatorioEncuesta
 				FROM 
 				{$this->sessBDCuenta}.trade.encuesta e
 				JOIN {$this->sessBDCuenta}.trade.list_encuestaDet lstd ON lstd.idEncuesta = e.idEncuesta
@@ -799,6 +819,7 @@ class M_encuestas extends My_Model
 			$filtros .= " AND c.estado = 1";
 		} else {
 			if (!empty($post['id'])) $filtros .= " AND ea.idAlternativa = " . $post['id'];
+			if (!empty($post['idAlternativa'])) $filtros .= " AND ea.idAlternativa = " . $post['idAlternativa'];
 		}
 
 		$sql = "
@@ -808,6 +829,30 @@ class M_encuestas extends My_Model
 				FROM
 				{$this->sessBDCuenta}.trade.encuesta_alternativa ea
 				LEFT JOIN {$this->sessBDCuenta}.trade.encuesta_pregunta ep ON ep.idPregunta=ea.idPregunta
+				{$filtros}
+
+			";
+
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.encuesta_alternativa" ];
+		return $this->db->query($sql);
+	}
+	public function getAlternativasOpciones($post = 'nulo')
+	{
+		$filtros = "WHERE 1 = 1";
+		if ($post == 'nulo') {
+			$filtros .= " AND c.estado = 1";
+		} else {
+			if (!empty($post['idAlternativaOpcion'])) $filtros .= " AND eao.idAlternativaOpcion = " . $post['idAlternativaOpcion'];
+			if (!empty($post['idPregunta'])) $filtros .= " AND ep.idPregunta = " . $post['idPregunta'];
+		}
+
+		$sql = "
+				SELECT 
+				eao.*,
+				ep.idEncuesta
+				FROM
+				{$this->sessBDCuenta}.trade.encuesta_alternativa_opcion eao
+				LEFT JOIN {$this->sessBDCuenta}.trade.encuesta_pregunta ep ON ep.idPregunta=eao.idPregunta
 				{$filtros}
 
 			";
@@ -1048,6 +1093,53 @@ class M_encuestas extends My_Model
 
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.usuario_tipo' ];
 		return $this->db->query($sql);
+	}
+	public function actualizarMasivoAlternativasOpciones($multiDataRefactorizada)
+	{
+		$input = [];
+		foreach ($multiDataRefactorizada as $value) {
+			if (!empty($value['id'])) {
+				$input[] = [
+					$this->m_encuestas->tablas['alternativaOpcion']['id'] => $value['id'],
+					'nombre'=>$value['textoAlternativaOpcion'],
+					'estado'=>$value['estadoAlternativaOpcion'],
+					
+				];
+			}
+		}
+		if (empty($input)) return true;
+		$update =  $this->actualizarMasivo($this->m_encuestas->tablas['alternativaOpcion']['tabla'], $input, $this->m_encuestas->tablas['alternativaOpcion']['id']);
+
+		$this->aSessTrack[] = [ 'idAccion' => 7, 'tabla' => $this->m_encuestas->tablas['alternativaOpcion']['tabla'] ];
+		return $update;
+	}
+	public function guardarMasivoAlternativasOpciones($multiDataRefactorizada, $idPregunta)
+	{
+		$input = [];
+		foreach ($multiDataRefactorizada as $value) {
+			if (empty($value['id'])) {
+				$input[] = [
+					'idPregunta' => $idPregunta,
+					'nombre'=>$value['textoAlternativaOpcion'],
+					'estado'=>$value['estadoAlternativaOpcion'],
+				];
+			}
+		}
+		if (empty($input)) return true;
+		$insert = $this->db->insert_batch($this->m_encuestas->tablas['alternativaOpcion']['tabla'], $input);
+
+		$this->aSessTrack[] = [ 'idAccion' => 11, 'tabla' => $this->m_encuestas->tablas['alternativaOpcion']['tabla'] ];
+		return $insert;
+	}
+	
+	public function registrarPreguntaOpciones($insert)
+	{
+		
+		$insert = $this->db->insert_batch($this->tablas['alternativaOpcion']['tabla'], $insert);
+		$this->insertId = $this->db->insert_id();
+
+		$this->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => $this->tablas['alternativaOpcion']['tabla'], 'id' => $this->insertId ];
+		return $insert;
 	}
 
 }

@@ -4,6 +4,8 @@ $nameTextoAlternativa = 'textoAlternativa';
 $estadoAlternativa = 'estadoAlternativa';
 $select2 = "my_select2EditarAlternativas"; 
 $checkFoto = "chkFoto";
+$checkFotoObligatorio = "chkFotoObligatorio";
+
 ?>
  
 
@@ -37,6 +39,9 @@ $checkFoto = "chkFoto";
                                 <div>FOTO</div>
                             </th>
                             <th class="text-center align-middle">
+                                <div>FOTO <br> OBLIGATORIA</div>
+                            </th>
+                            <th class="text-center align-middle">
                                 <button  class="btn btn-AgregarElemento btn-secondary" title="Agregar Elemento"><strong>AGREGAR FILA</strong> <i class="fa fa-plus"></i></button>
                             </th>
                         </tr>
@@ -60,7 +65,13 @@ $checkFoto = "chkFoto";
                             </td>
                             <td class="text-center" data-name='<?= $checkFoto ?>'>
                                 <div class="form-check form-check-inline" style="margin-right: 0;">
-                                    <input class="form-check-input" type="checkbox" value="true">
+                                    <input class="form-check-input chk-foto" type="checkbox" value="true">
+                                </div>
+                            </td>
+                            <td class="text-center" data-name='<?= $checkFotoObligatorio ?>'>
+                                <div class="form-check form-check-inline ui slider checkbox" >
+                                    <input class="chkFotoObligatoria" type="checkbox" disabled >
+                                    <label></label>
                                 </div>
                             </td>
                             <td class="text-left">
@@ -90,7 +101,13 @@ $checkFoto = "chkFoto";
                                 </td>
                                 <td class="text-center">
                                     <div id='<?= $checkFoto ?>-<?= $num ?>' class="form-check form-check-inline" style="margin-right: 0;">
-                                        <input name='<?= $checkFoto ?>-<?= $num ?>' class="form-check-input" type="checkbox" value="1" disabled <?=$row['foto'] == 1 ? "Checked":'' ?> >
+                                        <input name='<?= $checkFoto ?>-<?= $num ?>' class="form-check-input chk-foto" type="checkbox" value="1" disabled <?=$row['foto'] == 1 ? "Checked":'' ?> >
+                                        <label class="form-check-label"></label>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <div id='<?= $checkFotoObligatorio ?>-<?= $num ?>' class="form-check form-check-inline ui slider checkbox" style="margin-right: 0;">
+                                        <input name='<?= $checkFotoObligatorio ?>-<?= $num ?>' class="form-check-input chkFotoObligatoria " type="checkbox" value="1" disabled <?=!empty($row['flagFotoObligatorio']) ? "Checked":'' ?> >
                                         <label class="form-check-label"></label>
                                     </div>
                                 </td>

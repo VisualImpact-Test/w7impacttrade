@@ -70,7 +70,8 @@ class Sugeridos extends MY_Controller{
 			}
 		}
 
-		$rs_visitas = $this->model->obtener_visitas($input);
+		//$rs_visitas = $this->model->obtener_visitas($input);
+		$rs_visitas = array();
 
 		$html = '';
 		$array['visitas'] = $rs_visitas;

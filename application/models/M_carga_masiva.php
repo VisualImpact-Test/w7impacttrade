@@ -450,6 +450,48 @@ class M_carga_masiva extends CI_Model{
 				impacttrade_pg.trade.cargaPermiso c
 			WHERE 
 				c.estado = 1 
+
+			UNION
+				SELECT 
+				c.idCarga,
+				c.carpeta,
+				c.totalRegistros,
+				c.totalClientes,
+				c.total_procesados,
+				c.estado,
+				c.fechaRegistro,
+				c.finRegistro,
+				c.fecIniLista,
+				c.fecFinLista,
+				c.procesado,
+				c.idCuenta,
+				c.idProyecto,
+				c.auditoria
+			FROM 
+				impacttrade_aje.trade.cargaPermiso c
+			WHERE 
+				c.estado = 1 
+
+			UNION
+				SELECT 
+				c.idCarga,
+				c.carpeta,
+				c.totalRegistros,
+				c.totalClientes,
+				c.total_procesados,
+				c.estado,
+				c.fechaRegistro,
+				c.finRegistro,
+				c.fecIniLista,
+				c.fecFinLista,
+				c.procesado,
+				c.idCuenta,
+				c.idProyecto,
+				c.auditoria
+			FROM 
+				impacttrade_small.trade.cargaPermiso c
+			WHERE 
+				c.estado = 1 
 		";
 		return $this->db->query($sql);
 	}

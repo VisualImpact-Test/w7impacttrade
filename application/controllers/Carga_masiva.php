@@ -802,6 +802,167 @@ class Carga_masiva extends CI_Controller
 		
 		$carpetas = $this->model->carga_permiso_no_procesado()->result_array();
 
+		if(count($carpetas)>0){
+			//marcar en proceso
+			foreach($carpetas as $row){
+				$this->cambiarBaseDatos($row['idCuenta']);
+				$where =array();
+				$where['idCarga']=$row['idCarga'];
+				$params =array();
+				$params['procesado']=1;
+				$this->model->update_carga_permiso($where,$params);
+			}
+
+			//convertir a detalle
+			foreach($carpetas as $row){
+				if( empty($row['totalClientes']) || $row['totalClientes']=='0' ){
+					$this->cambiarBaseDatos($row['idCuenta']);
+					$ruta = 'public/csv/permisos/'.$row['carpeta'];
+					$rutaFiles = 'public/csv/permisos/'.$row['carpeta'].'/archivos/';
+					$directorio_INS = opendir($rutaFiles);
+					$arrayBody=array();
+					$i=0;
+					$j=0;
+
+					$count_elementos=0;
+				
+					while (false !== ($archivo_INS = readdir($directorio_INS))){
+						if ($archivo_INS != '.' && $archivo_INS != '..') {
+							if(is_file($rutaFiles.$archivo_INS)) {
+								$rutaCSV = $rutaFiles.$archivo_INS;
+								$fp = fopen($rutaCSV, "r");
+								while (!feof($fp)){
+									$csvHeader = fgets($fp);
+									break;
+								}
+								fclose($fp);
+		
+								$delimiter = $this->delimiter_exists($csvHeader, ',') ? ',' : ';'; 
+								$handle_body = fopen($rutaCSV, "r");
+								$header_=0;
+		
+								$indice=-2;
+								$total_columna=0;
+		
+								$codigoElemento=array();
+								while (($data = fgetcsv($handle_body, 1000000, $delimiter)) !== FALSE) {
+									$j=0;
+									$arrayBody=array();
+									 $header_++; $indice++;
+									if($header_==1){
+										$total_columna=count($data);
+										$m=0;
+										while($m<$total_columna){
+											if($m!=0 ){
+											$res=$this->model->obtener_codigo_elemento($data[$m])->row_array();
+												if(isset($res['idElementoVis'])){
+													$codigoElemento[$m]=$res['idElementoVis'];
+												}else{
+													$error = array(
+														  'idCarga'		=>$row['idCarga']
+														, 'tipoError'	=>$data[$m]
+													);
+													$this->db->insert("{$this->sessBDCuenta}.trade.cargaPermisoElementoNoProcesados",$error);
+												}
+											}
+											$m++;
+										}
+									}
+									else if($header_!=1){
+										$m=0;
+										$cont =0;
+										while($m<$total_columna){
+											if($m!=0 ){
+												$validar_cliente="SELECT * FROM trade.cliente WHERE idCliente = ".$data[0];
+												$res = $this->db->query($validar_cliente)->row_array();
+												if(count($res)>0){
+													if($data[$m]>0){
+														if(!empty($codigoElemento[$m])){
+															$arrayBody[$j]['idCarga'] = $row['idCarga'];
+															$arrayBody[$j]['idCliente'] = $data[0];
+															$arrayBody[$j]['idElemento']=$codigoElemento[$m];
+															$arrayBody[$j]['cantidad']=$data[$m];
+														}
+														$j++;
+														$cont++;
+													}else if(!empty($data[$m])){
+														if(!is_numeric()){
+															$insert = "insert into {$this->sessBDCuenta}.trade.cargaPermisoClienteNoProcesados(idCarga,idCliente,tipoError,elemento,datoIngresado) VALUES (
+																'".$row['idCarga']."' ,
+																'".$data[0]."' ,
+																'Dato no valido.',
+																'".$codigoElemento[$m]."',
+																'".$data[$m]."'
+																)
+																";
+															$this->db->query($insert);
+															$cont++;
+														}
+													}
+												}else{
+													$select = "SELECT * FROM {$this->sessBDCuenta}.trade.cargaPermisoClienteNoProcesados WHERE idCarga= '".$row['idCarga']."'
+													AND idCliente= '".$data[0]."' ";
+													$validar = $this->db->query($select)->result_array();
+													if(count($validar)==0){
+													$insert = "insert into {$this->sessBDCuenta}.trade.cargaPermisoClienteNoProcesados(idCarga,idCliente,tipoError) VALUES (
+														'".$row['idCarga']."' ,
+														'".$data[0]."' ,
+														'Cliente no registrado en base de datos.' )
+														";
+													$this->db->query($insert);
+													$cont++;
+													}
+												}
+											}
+											$m++;
+											
+										}
+										if($cont==0){
+											$insert = "insert into {$this->sessBDCuenta}.trade.cargaPermisoClienteNoProcesados(idCarga,idCliente,tipoError) VALUES (
+														'".$row['idCarga']."' ,
+														'".$data[0]."' ,
+														'Cliente sin elementos.' )
+														";
+											$this->db->query($insert);
+										}
+										
+										
+									}
+
+									if(count($arrayBody)>0){
+										$insert = $this->db->insert_batch("{$this->sessBDCuenta}.trade.cargaPermisoDet", $arrayBody); 
+	
+										$params =array();
+										$params['idCarga']=$row['idCarga'];
+										$this->model->update_carga_permiso_clientes_count($params);
+									}
+
+									
+								}
+
+								
+								fclose($handle_body);
+							}
+						} 
+						$i++;
+					}
+					
+					closedir($directorio_INS);
+					clearstatcache();
+					//update carga ruta
+					
+					$params =array();
+					$params['idCarga']=$row['idCarga'];
+					$this->model->update_carga_permiso_clientes_count($params);
+				}else{
+					$params =array();
+					$params['idCarga']=$row['idCarga'];
+					$this->model->update_carga_permiso_clientes_count($params);
+				}
+			}
+		}
+
+
 		$data = $this->model->carga_permiso()->result_array();
 	
 		if(count($data)>0){
@@ -1082,9 +1243,7 @@ class Carga_masiva extends CI_Controller
 										$cont =0;
 										$error=false;
 
-										if(  strpos($cliente[0],',')!==false ){
-											$cliente= explode(',',$cliente[0]); 
-										} 
+										
 										///
 										
 										$nombreComercial = (isset($cliente[0]) && !empty($cliente[0])) ? trim($cliente[0]) : NULL;
@@ -2025,14 +2184,16 @@ class Carga_masiva extends CI_Controller
 								$j=0;
 								$arrayBatch = array();
 								while (($cliente = fgetcsv($handle_body, 1000000, $delimiter)) !== FALSE) { 
-									
-									
+										
 									$header_++; $indice++;
 									if($header_!=1){
 										$m=0; 
 										$cont =0;
 										$error=false;
 
+										if(  strpos($cliente[0],',')!==false ){
+											$cliente= explode(',',$cliente[0]); 
+										} 
 										///
 										
 										$idCliente = (isset($cliente[0]) && !empty($cliente[0])) ? trim($cliente[0]) : NULL;

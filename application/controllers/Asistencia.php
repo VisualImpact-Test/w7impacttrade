@@ -33,7 +33,7 @@ class Asistencia extends MY_Controller{
 		$this->view($config);
 	}
 
-	public function filtrar(){
+	public function filtrar2(){
 		$this->aSessTrack[] = [ 'idAccion' => 5 ];
 
 		$result = $this->result;

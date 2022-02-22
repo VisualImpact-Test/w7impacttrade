@@ -255,10 +255,10 @@ class M_asistencia extends MY_Model{
 				, a.fotoUrl foto
 				, a.idTipoAsistencia
 				, tia.nombre tipoAsistencia
-				, a.observacion                  
+				, a.observacion
 				, oc.idOcurrencia
 				, oc.nombre ocurrencia
-			FROM 
+			FROM
 				{$this->sessBDCuenta}.trade.data_asistencia a
 				JOIN General.dbo.tiempo ti ON a.fecha = ti.fecha
 				JOIN master.tipoAsistencia tia ON a.idTipoAsistencia=tia.idTipoAsistencia
@@ -344,8 +344,8 @@ class M_asistencia extends MY_Model{
 		if (empty($input['cuenta_filtro'])) {
 			$filtros .= getPermisos('cuenta');
 		} else {
-			$filtros .= !empty($input['cuenta_filtro']) ? ' AND cu.idCuenta=' . $input['cuenta_filtro'] : '';
-			$filtros .= !empty($input['proyecto_filtro']) ? ' AND py.idProyecto=' . $input['proyecto_filtro'] : '';
+			$filtros .= !empty($input['cuenta_filtro']) ? ' AND cu.idCuenta=' . 13 : '';
+			$filtros .= !empty($input['proyecto_filtro']) ? ' AND py.idProyecto=' . 13 : '';
 			// $filtros .= !empty($input['grupo_filtro']) ? ' AND  gc.idGrupoCanal=' . $input['grupo_filtro'] : '';
 			$filtros .= !empty($input['canal_filtro']) ? ' AND ca.idCanal=' . $input['canal_filtro'] : '';
 			$filtros .= !empty($input['tipoUsuario_filtro']) ? ' AND tu.idTipoUsuario=' . $input['tipoUsuario_filtro'] : '';
@@ -370,7 +370,7 @@ class M_asistencia extends MY_Model{
 
 		$segmentacion = getSegmentacion(['grupoCanal_filtro' => $input['grupo_filtro']]);
 
-		$sql = "
+		echo $sql = "
 		DECLARE @fecha DATE=GETDATE(), @fecIni DATE='" . $input['fecIni'] . "', @fecFin DATE='" . $input['fecFin'] . "';
 		WITH lista_visita_inicio AS (
 		SELECT DISTINCT
@@ -523,7 +523,7 @@ class M_asistencia extends MY_Model{
 					
 		ORDER BY cuenta, proyecto, grupoCanal, canal, ciudad, usuario, fecha ASC
 		";
-
+exit();
 		$query = $this->db->query($sql);
 		$result = array();
 		if ($query) {

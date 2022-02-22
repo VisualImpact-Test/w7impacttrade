@@ -224,17 +224,22 @@ var Fn = {
 								var this_=$(this);
 								var name=this_.attr('name');
 								var patron=this_.attr('patron');
+								var tipo=this_.attr('type');
 
 								if( typeof(patron)=='string' ){
 									var value=this_.val();
 									var type=patron.split(',');
+									var isChecked = true;
+									if(tipo == 'radio' || tipo == 'checkbox'){
+										isChecked = $('input[name='+name+']').is(':checked');
+									}
 
 									$.each(type,function(i,v){
 										if( v=='requerido' || value.length>0 ){
 											if( typeof(Fn.validators[v])=='object' ){
 												var validators=!Fn.validators[v]['expr'].test(value);
 
-												if( validators || value == null ){
+												if( validators || value == null || isChecked == false){
 													this_.parent().addClass('has-error');
 													this_.parent().append('<div class="dv-alert-error mb-1 mr-1 badge badge-danger"><small>' + Fn.validators[v]['msg'] + '</small></div>');
 													return false;

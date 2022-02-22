@@ -1764,6 +1764,7 @@ var Visitas = {
 			}
 		})
 	},
+	
 
 	confirmarGuardarReprogramarRuta: function(){
 		$.when( Fn.validateForm({'id':Visitas.frmGestorReprogramarRutaVisita})).then( function(a){

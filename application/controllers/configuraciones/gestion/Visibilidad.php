@@ -219,6 +219,8 @@ class Visibilidad extends MY_Controller
 		$post = json_decode($this->input->post('data'), true);
 		$result['msg']['title'] = 'LISTA SOS';
 
+		$dataParaVista['lista'] = array();
+		$dataParaVista['lista_elementos'] = array();
 		$dataParaVista['tipos'] = $this->m_productos->getMarcas()->result_array();
 		
 		$result['result'] = 1;

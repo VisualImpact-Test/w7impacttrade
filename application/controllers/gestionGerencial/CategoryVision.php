@@ -70,11 +70,11 @@ class CategoryVision extends MY_Controller{
 			}
 		}
 
-		$rs_visitas = $this->model->obtener_visitas($input);
+		//$rs_visitas = $this->model->obtener_visitas($input);
 
 		$html = '';
-		$array['visitas'] = $rs_visitas;
-
+		//$array['visitas'] = $rs_visitas;
+		$rs_visitas= array();
 		if(!empty($rs_visitas)){
 			$array=array();
 			$array['visitas'] = $rs_visitas;

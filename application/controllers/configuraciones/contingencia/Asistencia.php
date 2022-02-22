@@ -124,6 +124,7 @@ class Asistencia extends MY_Controller{
 
 		if ( !empty($dataAsistencias)) {
 			foreach ($dataAsistencias as $ka => $asistencias) {
+				$usuario = $this->db->get_where("ImpactTrade_bd.trade.usuario",['idUsuario' =>$idUsuario])->row_array();
 				$arrayInsert = array(
 					'idUsuario' => $idUsuario
 					,'fecha' => !empty($asistencias->{'fecha'}) ? $asistencias->{'fecha'} : NULL
@@ -132,7 +133,8 @@ class Asistencia extends MY_Controller{
 					,'idTipoUsuario' => !empty($asistencias->{'tipoUsuario'}) ? $asistencias->{'tipoUsuario'} : NULL
 					,'tipoUsuario' => !empty($asistencias->{'perfil'}) ? $asistencias->{'perfil'} : NULL
 					,'numDocumento' => !empty($asistencias->{'numDocumento'}) ? $asistencias->{'numDocumento'} : NULL
-					,'demo' => 1
+					,'demo' => !empty($usuario['demo']) ? $usuario['demo'] : 0
+					,'idUsuarioContingencia' => $this->idUsuario
 					,'flagContingencia' => 1
 					,'idOcurrencia' => !empty($asistencias->{'ocurrencia'}) ? $asistencias->{'ocurrencia'} : NULL
 					,'idTipoAsistencia' => !empty($asistencias->{'tipoAsistencia'}) ? $asistencias->{'tipoAsistencia'} : NULL
@@ -185,9 +187,11 @@ class Asistencia extends MY_Controller{
 		$result=$this->result;
 		$dataAsistencia = json_decode($this->input->post('data'));
 		
+
 		$total = count($dataAsistencia);
 		$correctas=0; $incorrectas=0; $contentError='';
 		foreach ($dataAsistencia as $kd => $data) {
+			$usuario = $this->db->get_where("ImpactTrade_bd.trade.usuario",['idUsuario' =>$data->{'usuario'}])->row_array();
 			$arrayInsert = array(
 				'idUsuario' => !empty($data->{'usuario'}) ? $data->{'usuario'} : NULL
 				,'fecha' => !empty($data->{'fecha'}) ? $data->{'fecha'} : NULL
@@ -196,7 +200,8 @@ class Asistencia extends MY_Controller{
 				,'idTipoUsuario' => !empty($data->{'tipoUsuario'}) ? $data->{'tipoUsuario'} : NULL
 				,'tipoUsuario' => !empty($data->{'perfil'}) ? $data->{'perfil'} : NULL
 				,'numDocumento' => !empty($data->{'numDocumento'}) ? $data->{'numDocumento'} : NULL
-				,'demo' => 1
+				,'demo' => !empty($usuario['demo']) ? $usuario['demo'] : 0
+				,'idUsuarioContingencia' => $this->idUsuario
 				,'flagContingencia' => 1
 				,'idOcurrencia' => !empty($data->{'ocurrencia'}) ? $data->{'ocurrencia'} : NULL
 				,'idTipoAsistencia' => !empty($data->{'tipoAsistencia'}) ? $data->{'tipoAsistencia'} : NULL

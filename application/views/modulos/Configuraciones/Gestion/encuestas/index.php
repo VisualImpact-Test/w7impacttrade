@@ -41,7 +41,7 @@
                 <button type="button" class="btn btn-outline-trade-visual border-0 btn-New" title="Agregar">
                     <i class="fa fa-plus"></i> <span class="txt_filtro"></span>
                 </button>
-                <button type="button" class="btn btn-outline-trade-visual border-0 btn-CargaMasivaEncuesta" id="btn-CargaMasivaEncuesta" title="Carga Masiva">
+                <button type="button" class="btn btn-outline-trade-visual border-0 btn-CargaMasiva" id="btn-CargaMasivaEncuesta1" title="Carga Masiva">
                     <i class="fa fa-lg fa-border-none"></i> <span class="txt_filtro"></span>
                 </button>
                 <button type="button" class="btn btn-outline-trade-visual border-0 btn-CargaMasivaListas d-none" id="btn-CargaMasivaLista" title="Carga Masiva">

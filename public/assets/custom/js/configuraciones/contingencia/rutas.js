@@ -197,7 +197,7 @@ var ContingenciaRutas = {
 				Fn.showModal({ id:modalId,show:true,title:'Archivo',content:"El tamaño del archivo seleccionado excede al permitido (2MB)",btn:btn });
 				return;
 			}
-			Imagen.show( file_, foto_content, content, this );
+			Imagen.showMultiple( file_, foto_content, content, this );
         });
 
         /***************VISITA PRODUCTOS - PRECIOS******************/
@@ -1107,7 +1107,7 @@ var ContingenciaRutas = {
 		$.when( Fn.validateForm({ 'id':idFrm }) ).then( function(a){
 			var btn=[];
 			var fn=[];
-			if ( !a ) {
+			if ( a === false ) {
 				++modalId;
 				fn[0]='Fn.showModal({ id:'+modalId+',show:false });';
 				btn[0]={title:'Cerrar',fn:fn[0]};
@@ -1177,6 +1177,31 @@ var ContingenciaRutas = {
 			//PREGUNTAS - ALTERNATIVAS
 			dataEncuestasPreguntas=[];
 			arrayEncuestasPreguntas=[];
+
+			$('.fotoPregunta').each(function(ix,val){
+				var input = $(this);
+				var pregunta = input.data('pregunta');
+				var foto = '';
+				foto = $(val).attr('src');
+				if ( typeof foto === 'undefined' || foto.includes('fotos/impactTrade_Android/encuestas') || foto=='') {
+					foto = null;
+				};
+
+				//INSERTAMOS FOTOS
+				if ( foto !== null ) {
+					var sufijo = 'CONTI'+encuesta+'-'+pregunta;
+					var indice = encuesta+'-'+pregunta;
+					arrayFoto = {
+						'idVisita':idVisita
+						,'contenido':foto
+						,'ruta': 'fotos/impactTrade_Android/encuestas/'
+						,'sufijo':sufijo
+						,'columna':'indice'
+						,'indice':indice
+					};
+					dataEncuestaFoto.push(arrayFoto);
+				}
+			});
 
 			$('.inputEncuestaRespuesta-'+encuesta).each(function(ix,val){
 				var input = $(this);
@@ -1250,23 +1275,27 @@ var ContingenciaRutas = {
 
 		});
 
+		
 		$.when( Fn.enviarFotos(dataEncuestaFoto) ).then( function(af){
-			if ( !af ) {
-				ContingenciaRutas.mostrarMensajeFotos();
-			} else {
-				var data = {'visita':idVisita,'dataEncuestas':dataEncuestas,'dataEncuestaFoto':af};
-				var jsonString = { 'data': JSON.stringify(data) };
-				var config = { 'url':ContingenciaRutas.url+'guardarEncuestas', 'data': jsonString };
+			var data = {'visita':idVisita,'dataEncuestas':dataEncuestas,'dataEncuestaFoto':af};
+	
+			console.log(data);
+		// 	if ( !af ) {
+		// 		ContingenciaRutas.mostrarMensajeFotos();
+		// 	} else {
+		// 		var data = {'visita':idVisita,'dataEncuestas':dataEncuestas,'dataEncuestaFoto':af};
+		// 		var jsonString = { 'data': JSON.stringify(data) };
+		// 		var config = { 'url':ContingenciaRutas.url+'guardarEncuestas', 'data': jsonString };
 
-				$.when( Fn.ajax(config) ).then( function(a){
-					++modalId;
-					var fn='Fn.showModal({ id:'+modalId+',show:false });';
-					var btn=new Array();
-						btn[0]={title:'Cerrar',fn:fn};
-					var message = a.data.html;
-					Fn.showModal({ id:modalId,title:a.msg.title,content:message,btn:btn,show:true});
-				});
-			}
+		// 		$.when( Fn.ajax(config) ).then( function(a){
+		// 			++modalId;
+		// 			var fn='Fn.showModal({ id:'+modalId+',show:false });';
+		// 			var btn=new Array();
+		// 				btn[0]={title:'Cerrar',fn:fn};
+		// 			var message = a.data.html;
+		// 			Fn.showModal({ id:modalId,title:a.msg.title,content:message,btn:btn,show:true});
+		// 		});
+		// 	}
 		});
 	},
 

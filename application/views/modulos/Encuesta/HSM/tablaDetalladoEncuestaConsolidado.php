@@ -54,9 +54,9 @@
                     ?>
                         <?
                         $val = (isset($visita_encuesta[$visita['idCliente']][$visita['idUsuario']][$keyEncuesta]['num'])) ? $visita_encuesta[$visita['idCliente']][$visita['idUsuario']][$keyEncuesta]['num'] : 0;
-                        $check = '<span class="color-F"><i class="fa fa-circle"></i></span>';
+                        $check = '<span class="color-F"><i class="fa fa-circle"></i></span><p style="display:none;">NO</p>';
                         if ($val > 0) {
-                            $check = '<span class="color-C"><i class="fa fa-circle"></i></span>';
+                            $check = '<span class="color-C"><i class="fa fa-circle"></i></span><p style="display:none;">SI</p>';
                         }
                         ?>
                         <td class="text-center"><?= $check; ?></td>

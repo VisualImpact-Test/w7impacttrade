@@ -54,8 +54,7 @@ class M_contingenciaRutas extends My_Model{
 		$sessIdTipoUsuario = $this->idTipoUsuario;
 		$sessDemo = $this->demo;
 		$filtros = '';
-		// $input['idProyecto'] = $this->sessIdProyecto;
-		$input['idProyecto'] = 3;
+		$input['idProyecto'] = $this->sessIdProyecto;
 		$filtros .= !empty($input['idCuenta']) ? " AND r.idCuenta=".$input['idCuenta'] : "";
 		$filtros .= !empty($input['idProyecto']) ? " AND r.idProyecto=".$input['idProyecto'] : "";
 		$filtros .= !empty($input['idCanal']) ? " AND v.idCanal=".$input['idCanal'] : "";
@@ -116,7 +115,7 @@ class M_contingenciaRutas extends My_Model{
 						END 
 					   WHEN (v.estadoIncidencia = 1 ) THEN 2 --INCIDENCIA
 					   WHEN (v.horaIni IS NULL AND v.horaFin IS NULL AND ISNULL(v.numFotos,0) = 0  AND estadoIncidencia IS NULL ) THEN 
-					   		CASE WHEN r.fecha <= GETDATE() THEN 4 -- NO EFECTIVA
+					   		CASE WHEN r.fecha <= @hoy THEN 4 -- NO EFECTIVA
 							ELSE 0 -- No Visitado 
 							END
 					   ELSE	1 --No Efectiva
@@ -405,18 +404,24 @@ class M_contingenciaRutas extends My_Model{
 				, le.idCanal, le.idProyecto
 				, led.idListEncuestaDet
 				, led.idEncuesta
+				, led.obligatorio AS obligatorioEncuesta
+				, led.flagFotoMultiple
+				, led.flagFotoObligatorio AS flagFotoObligatorioEncuesta
 				, e.nombre AS encuesta
 				, e.foto AS fotoEncuesta
 				, ep.idPregunta
 				, ep.idTipoPregunta, tp.nombre AS tipoPregunta
 				, ep.orden
 				, ep.nombre AS pregunta
-				, ep.obligatorio
+				, ep.obligatorio AS obligatorioPregunta
+				, ep.flagFotoObligatorio AS flagFotoObligatorioPregunta
 				, ep.idAlternativaPadre
 				, ep.foto AS fotoPregunta
 				, ea.idAlternativa
 				, ea.nombre AS alternativa
 				, ea.foto AS fotoAlternativa
+				, ea.flagFotoObligatorio AS flagFotoObligatorioAlternativa
+				, ep.foto AS flagFotoPregunta
 			FROM {$this->sessBDCuenta}.trade.list_encuesta le
 			JOIN {$this->sessBDCuenta}.trade.list_encuestaDet led ON led.idListEncuesta=le.idListEncuesta
 			LEFT JOIN {$this->sessBDCuenta}.trade.encuesta e ON e.idEncuesta=led.idEncuesta
@@ -444,11 +449,16 @@ class M_contingenciaRutas extends My_Model{
 			, ed.idAlternativa, ed.respuesta
 			, ed.idVisitaFoto AS idVisitaFotoRespuesta, vfa.fotoUrl AS fotoRespuesta
 			, ed.idVisitaFoto AS idVisitaFotoAlternativa, vfa.fotoUrl AS fotoAlternativa
+			, vedf.idVisitaFoto AS idVisitaFotoPregunta, vfp.fotoUrl AS fotoPregunta
+			, ea.foto AS flagFotoPregunta
 		FROM {$this->sessBDCuenta}.trade.data_visitaEncuesta e
 		LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaEncuestaDet ed ON ed.idVisitaEncuesta=e.idVisitaEncuesta
 		LEFT JOIN {$this->sessBDCuenta}.trade.encuesta_pregunta ea On ea.idPregunta= ed.idPregunta
 		LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisitaFoto=e.idVisitaFoto
 		LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vfa ON vfa.idVisitaFoto=ed.idVisitaFoto
+		
+		LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaEncuestaDetFoto vedf ON vedf.idVisitaEncuesta=ed.idVisitaEncuesta AND vedf.idPregunta=ed.idPregunta
+		LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vfp ON vfp.idVisitaFoto=vedf.idVisitaFoto
 		WHERE 1=1 AND e.idVisita=@idVisita AND ed.estado=1
 		ORDER BY e.idEncuesta, ed.idPregunta, ed.idAlternativa ASC";
 
@@ -483,6 +493,40 @@ class M_contingenciaRutas extends My_Model{
 		$table = "{$this->sessBDCuenta}.trade.data_visitaEncuestaDet";
 		$this->db->trans_begin();
 
+			$insert = $this->db->insert($table, $input);
+			$id = $this->db->insert_id();
+
+			$aSessTrack = [ 'idAccion' => 6, 'tabla' => $table, 'id' => $id ];
+
+		if ( $this->db->trans_status()===FALSE ) {
+			$this->db->trans_rollback();
+		} else {
+			$this->db->trans_commit();
+			$this->aSessTrack[] = $aSessTrack;
+		}
+
+		/****GUARDAR AUDITORIA****/
+		if ( $insert ){
+			$arrayAuditoria = array(
+				'idUsuario' => $this->idUsuario
+				,'accion' => 'INSERTAR'
+				,'tabla' => $table
+				,'sql' => $this->db->last_query()
+			);
+			guardarAuditoria($arrayAuditoria);
+		}
+		/****FIN GUARDAR AUDITORIA****/
+
+		return $insert;
+	}
+
+	public function insertar_visita_encuesta_detalle_pregunta($input=array()){
+		$aSessTrack = [];
+
+		$table = "{$this->sessBDCuenta}.trade.data_visitaEncuestaDetFoto";
+		$this->db->trans_begin();
+
+			$delete = $this->db->delete($table, ['idVisitaEncuesta' => $input['idVisitaEncuesta'], 'idPregunta' => $input['idPregunta']]);
 			$insert = $this->db->insert($table, $input);
 			$id = $this->db->insert_id();
 

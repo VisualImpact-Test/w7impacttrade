@@ -52,7 +52,8 @@ class ControlFoto extends MY_Controller{
         $data_result = array();
 
         $arreglo = json_encode($_POST['arreglo']) ;
-
+        putenv('TMPDIR=/foo/bar');
+        $dir = sys_get_temp_dir();
         // $url = "http://movil.visualimpact.com.pe/api_impactTrade_android.php/c_control_v25/guardarFotoMultiple_v2/";
         $url = "http://visualimpact.test/movil/api_impactTrade_android.php/c_control_v25/guardarFotoMultiple_v2/";
 
