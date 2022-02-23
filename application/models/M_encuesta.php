@@ -45,8 +45,8 @@ class M_encuesta extends MY_Model
 		$fechas = getFechasDRP($input["txt-fechas"]);
 
 		$filtros = '';
-		$filtros .= !empty($input['idCuenta']) ? ' AND py.idCuenta = '.$input['idCuenta'] : '';
-		$filtros .= !empty($input['idProyecto']) ? ' AND py.idProyecto = '.$input['idProyecto'] : '';
+		$filtros .= !empty($input['idCuenta']) ? ' AND py.idCuenta = '.$this->sessIdCuenta : '';
+		$filtros .= !empty($input['idProyecto']) ? ' AND py.idProyecto = '.$this->sessIdProyecto : '';
 		$filtros .= !empty($input['idGrupoCanal']) ? ' AND ca.idGrupoCanal = '.$input['idGrupoCanal'] : '';
 		$filtros .= !empty($input['idCanal']) ? ' AND ca.idCanal = '.$input['idCanal'] : '';
 		$filtros .= !empty($input['subcanal']) ? ' AND ct.idClienteTipo='.$input['subcanal'] : '';
@@ -109,7 +109,6 @@ class M_encuesta extends MY_Model
 				, ct.nombre subCanal
 				--, e.idEncuesta
 				--, e.nombre encuesta
-				{$segmentacion['columnas_bd']}
 			FROM {$this->sessBDCuenta}.trade.data_ruta r
 			JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta=v.idRuta
 			JOIN {$this->sessBDCuenta}.trade.data_visitaEncuesta ve ON v.idVisita=ve.idVisita
@@ -135,13 +134,12 @@ class M_encuesta extends MY_Model
 			LEFT JOIN trade.cliente_tipo ct
 				ON ct.idClienteTipo = sn.idClienteTipo
 			LEFT JOIN trade.subCanal sc ON sn.idSubCanal = sc.idSubCanal
-			{$segmentacion['join']}
 			AND r.fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin,r.fecha) AND ch.flagCartera=1 
 
 			WHERE r.fecha between @fecIni AND @fecFin --AND r.demo=0
 				AND r.estado=1 AND v.estado=1
 				{$filtros}
-				{$orderby}
+				--{$orderby}
 		";
 
 		return $this->db->query($sql);
@@ -184,8 +182,8 @@ class M_encuesta extends MY_Model
 		$fechas = getFechasDRP($input["txt-fechas"]);
 
 		$filtros = '';
-		$filtros .= !empty($input['idCuenta']) ? ' AND py.idCuenta = '.$input['idCuenta'] : '';
-		$filtros .= !empty($input['idProyecto']) ? ' AND py.idProyecto = '.$input['idProyecto'] : '';
+		$filtros .= !empty($input['idCuenta']) ? ' AND py.idCuenta = '.$this->sessIdCuenta : '';
+		$filtros .= !empty($input['idProyecto']) ? ' AND py.idProyecto = '.$this->sessIdProyecto : '';
 		$filtros .= !empty($input['idGrupoCanal']) ? ' AND ca.idGrupoCanal = '.$input['idGrupoCanal'] : '';
 		$filtros .= !empty($input['idCanal']) ? ' AND ca.idCanal = '.$input['idCanal'] : '';
 
@@ -253,8 +251,8 @@ class M_encuesta extends MY_Model
 		$fechas = getFechasDRP($input["txt-fechas"]);
 
 		$filtros = '';
-		$filtros .= !empty($input['idCuenta']) ? ' AND py.idCuenta = '.$input['idCuenta'] : '';
-		$filtros .= !empty($input['idProyecto']) ? ' AND py.idProyecto = '.$input['idProyecto'] : '';
+		$filtros .= !empty($input['idCuenta']) ? ' AND py.idCuenta = '.$this->sessIdCuenta : '';
+		$filtros .= !empty($input['idProyecto']) ? ' AND py.idProyecto = '.$this->sessIdCuenta : '';
 		$filtros .= !empty($input['idGrupoCanal']) ? ' AND ca.idGrupoCanal = '.$input['idGrupoCanal'] : '';
 		$filtros .= !empty($input['idCanal']) ? ' AND ca.idCanal = '.$input['idCanal'] : '';
 		

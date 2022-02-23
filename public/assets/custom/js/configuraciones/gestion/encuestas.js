@@ -35,12 +35,12 @@ var Encuestas = {
             Encuestas.tabSeleccionado = Encuestas.secciones[indiceSeccion];
 
             if(Encuestas.secciones[indiceSeccion] == 'Encuesta'){
-                $('#btn-CargaMasivaEncuesta').removeClass('d-none');
+                $('#btn-CargaMasivaEncuesta1').removeClass('d-none');
                 $('#btn-CargaMasivaLista').addClass('d-none');
                 $('#configuracion-filtro').addClass('d-none');
             }else if(Encuestas.secciones[indiceSeccion] == 'Lista'){
                 $('#btn-CargaMasivaLista').removeClass('d-none');
-                $('#btn-CargaMasivaEncuesta').addClass('d-none');
+                $('#btn-CargaMasivaEncuesta1').addClass('d-none');
                 $('#configuracion-filtro').removeClass('d-none');
             }
 
@@ -183,7 +183,7 @@ var Encuestas = {
 				var btn = [];
 				btn[0] = { title: 'Cerrar', fn: fn };
 				btn[1] = { title: 'Actualizar', fn: fn1 };
-				Fn.showModal({ id: modalId, class: a.data.class, show: true, title: "Editar Preguntas", frm: a.data.html, btn: btn,large:true });
+				Fn.showModal({ id: modalId, class: a.data.class, show: true, title: "Editar Preguntas", frm: a.data.html, btn: btn,width:a.data.width });
 			});
 		});
         $(document).on("click", ".table .trHijo .btn-EditarAlternativas", function (e) {
@@ -219,6 +219,37 @@ var Encuestas = {
 			});
 	
         });
+        $(document).on("click", ".table .trHijo .btn-EditarAlternativasOpciones", function (e) {
+			e.preventDefault();
+			var tr = $(this).closest('tr');
+			var table = $(this).closest('table');
+			var lastTh = $(table).find('thead tr:first th:last');
+
+			var idSeleccionado = $(tr).find("input[name|='id']").val();
+	
+            var data = { 'id': idSeleccionado };
+
+			var jsonString = { 'data': JSON.stringify(data) };
+
+			var config = { 'url': Gestion.urlActivo + 'getTablaAlternativaOpciones', 'data': jsonString };
+
+			$.when(Fn.ajax(config)).then(function (a) {
+
+				if (a.result === 2) return false;
+
+				++modalId;
+				Gestion.idModalPrincipal = modalId;
+				var fn = 'Fn.showModal({ id:' + modalId + ',show:false });Encuestas.resetActivo();';
+				var fn1 = 'Fn.showConfirm({ fn:"Encuestas.actualizar_alternativas_opciones()",content:"¿Esta seguro de actualizar los datos?" });';
+
+				var btn = [];
+				btn[0] = { title: 'Cerrar', fn: fn };
+				btn[1] = { title: 'Actualizar', fn: fn1 };
+				Fn.showModal({ id: modalId, class: a.data.class, show: true, title: "Editar Opciones de Alternativas", frm: a.data.html, btn: btn,large:true });
+			});
+	
+        });
+
         $(document).on("click", ".table .trHijo .btn-EditarPreguntasHijo", function (e) {
 			e.preventDefault();
 			var tr = $(this).closest('tr');
@@ -255,6 +286,12 @@ var Encuestas = {
         $(document).on("click", ".btn-clickToAgregar", function (e) {
             $('.btn-AgregarElemento').click();
         });        
+        $(document).on("click", ".btn-cargarImagenPreg", function (e) {
+
+            let control = $(this);
+            control.closest('tr').find(".inputFilePreg").click();
+
+        });        
         
         $(document).on("change", ".canal_cliente", function (e) {
            var data = {'idCanal': $('#canal_form').val(),'idCuenta':$('#cuenta').val(),'idProyecto':$('#proyecto').val()};
@@ -266,6 +303,25 @@ var Encuestas = {
                 
                 if (a.result == 1) $('.cliente_sl_form').html("<select id='cliente_form' name='cliente_form' + class='form-control form-control-sm my_select2'>"+a.data.html+"</select>");
             });
+        });
+
+        $(document).on("change", ".fl-control", function(file_) {
+			var content = $(this).attr("data-content");
+			var file = file_.target.files[0];
+			var foto_content = $(this).attr("data-foto-content");
+            let tr = $(this).closest('tr');
+
+            tr.find(".btn-verImagenPreg").removeAttr("disabled");
+			if(file.size>=2*1024*1024) {
+				++modalId;
+				var btn=[];
+				var fn='Fn.showModal({ id:'+modalId+',show:false });';
+
+				btn[0]={title:'Continuar',fn:fn};
+				Fn.showModal({ id:modalId,show:true,title:'Archivo',content:"El tamaño del archivo seleccionado excede al permitido (2MB)",btn:btn });
+				return;
+			}
+			Imagen.show( file_, foto_content, content, this );
         });
 		
 		
@@ -374,6 +430,50 @@ var Encuestas = {
 				HTCustom.llenarHTObjectsFeatures(a.data.ht);
 			});
 		});
+        $(document).on("change", ".chk-foto", function (e) {
+            let control = $(this);
+            let tr = $(this).closest('tr');
+            if(control.prop("checked")){
+                control.closest('tr').find(".chkFotoObligatoria").removeAttr("disabled");
+            }
+            if(!control.prop("checked")){
+                control.closest('tr').find(".chkFotoObligatoria").attr("disabled","disabled");
+            }
+           
+		});
+        $(document).on("change", "table .trHijo .chk-ActualizarElemento", function (e) {
+			e.preventDefault();
+			var valorCheck = $(this).prop('checked');
+			var tr = $(this).closest('tr');
+			var inputs = $(tr).find(':input');
+			var chkActualizarElemento = $(tr).find('.chk-ActualizarElemento');
+            
+            tr.find(".chk-foto").change();
+            
+			$.each(inputs, function (i, v) {
+				$(this).attr('disabled', !valorCheck);
+			});
+
+            
+			valorCheck ? $(tr).removeClass('table-secondary') : $(tr).addClass('table-secondary');
+            
+			$(chkActualizarElemento).attr('disabled', false);
+            
+            
+            // console.log(tr.find(".fotoMiniatura").attr("src"));
+            if(tr.find(".fotoMiniatura").attr("src") == "") $(".btn-verImagenPreg").attr("disabled","disabled"); 
+            else  tr.find(".btn-verImagenPreg").removeAttr("disabled");
+           
+		});
+        $(document).on("click", ".btn-verImagenPreg", function (e) {
+			e.preventDefault();
+
+			var control = $(this);
+			var tr = $(this).closest('tr');
+			
+            tr.find(".fotoMiniatura").click();
+           
+		});
 		
 		$('#canal_form').change();
 
@@ -385,26 +485,67 @@ var Encuestas = {
     
 
     actualizar_preguntas: function () {
-		var data = Fn.formSerializeObject('formEditarPreguntas');
-		var jsonString = { 'data': JSON.stringify(data) };
-		var config = { 'url': Gestion.urlActivo + "actualizarPreguntas", 'data': jsonString };
-        Encuestas.idEncuesta =$('#idEncuesta').val();
 
-		$.when(Fn.ajax(config)).then(function (a) {
+        var dataFotosFotos = [];
+        $('.trHijo').each( function(ix,val){
+            var tr = $(this);
+            var visitaModuloFoto = "";
+            let fila = tr.data("fila");
 
-	
-            if (a.result === 2) return false;
-            if (typeof a.data.validaciones !== null) $.mostrarValidaciones('formEditarPreguntas', a.data.validaciones);
+			var foto='';
 
-            ++modalId;
-            var fn = 'Fn.showModal({ id:' + modalId + ',show:false });';
+            foto = tr.find('#img-fotoprincipal-'+fila).attr('src');
+            if ( typeof foto === 'undefined' || foto.includes('fotos/impactTrade_Android/moduloFotos') || foto=='') {
+				foto = null;
+			};
 
-            if (a.result == 1) fn += 'Fn.showModal({ id:' + Gestion.idModalPrincipal + ',show:false });Encuestas.refrescar_pregunta()';
+            if ( foto !== null ) {
+				var sufijo = 'PREG'+visitaModuloFoto;
+				arrayFoto = {
+					'idVisita':'0000'
+					,'contenido':foto
+					,'ruta': 'fotos/impactTrade_Android/encuestaFotosRefencia/'
+					,'sufijo':sufijo
+					,'columna':'fila'
+                    ,'fila': fila
+				};
+				dataFotosFotos.push(arrayFoto);
+			}
+        });
 
-            var btn = [];
-            btn[0] = { title: 'Cerrar', fn: fn };
-            Fn.showModal({ id: modalId, show: true, title: a.msg.title, btn: btn, content: a.msg.content });
-		});
+
+        $.when( Fn.enviarFotos(dataFotosFotos) ).then( function(af){
+            if ( !af ) {
+                ++modalId;
+                var fn='Fn.showModal({ id:'+modalId+',show:false });';
+                var btn=new Array();
+                    btn[0]={title:'Cerrar',fn:fn};
+                var message = Fn.message({ 'type': 2, 'message': 'Se encontró inconvenientes al momento de proceder con el almacenamiento de las fotos' });
+                Fn.showModal({ id:modalId,title:'Alerta',content:message,btn:btn,show:true});
+                return false;
+            }
+            var data = Fn.formSerializeObject('formEditarPreguntas');
+                data.dataFotosFotos = af;
+            var jsonString = { 'data': JSON.stringify(data) };
+            var config = { 'url': Gestion.urlActivo + "actualizarPreguntas", 'data': jsonString };
+            Encuestas.idEncuesta =$('#idEncuesta').val();
+
+            $.when(Fn.ajax(config)).then(function (a) {
+
+        
+                if (a.result === 2) return false;
+                if (typeof a.data.validaciones !== null) $.mostrarValidaciones('formEditarPreguntas', a.data.validaciones);
+
+                ++modalId;
+                var fn = 'Fn.showModal({ id:' + modalId + ',show:false });';
+
+                if (a.result == 1) fn += 'Fn.showModal({ id:' + Gestion.idModalPrincipal + ',show:false });Encuestas.refrescar_pregunta()';
+
+                var btn = [];
+                btn[0] = { title: 'Cerrar', fn: fn };
+                Fn.showModal({ id: modalId, show: true, title: a.msg.title, btn: btn, content: a.msg.content });
+            });
+    }   );
     },
 
     actualizar_alternativas: function () {
@@ -418,6 +559,28 @@ var Encuestas = {
 	
             if (a.result === 2) return false;
             if (typeof a.data.validaciones !== null) $.mostrarValidaciones('formEditarAlternativas', a.data.validaciones);
+
+            ++modalId;
+            var fn = 'Fn.showModal({ id:' + modalId + ',show:false });';
+
+            if (a.result == 1) fn += 'Fn.showModal({ id:' + Gestion.idModalPrincipal + ',show:false });';
+
+            var btn = [];
+            btn[0] = { title: 'Cerrar', fn: fn };
+            Fn.showModal({ id: modalId, show: true, title: a.msg.title, btn: btn, content: a.msg.content });
+		});
+    },
+    actualizar_alternativas_opciones: function () {
+		var data = Fn.formSerializeObject('formEditarAlternativasOpciones');
+		var jsonString = { 'data': JSON.stringify(data) };
+		var config = { 'url': Gestion.urlActivo + "actualizarAlternativasOpciones", 'data': jsonString };
+        Encuestas.idEncuesta =$('#idPregunta').val();
+
+		$.when(Fn.ajax(config)).then(function (a) {
+
+	
+            if (a.result === 2) return false;
+            if (typeof a.data.validaciones !== null) $.mostrarValidaciones('formEditarAlternativasOpciones', a.data.validaciones);
 
             ++modalId;
             var fn = 'Fn.showModal({ id:' + modalId + ',show:false });';

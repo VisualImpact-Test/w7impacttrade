@@ -134,7 +134,7 @@ class M_materialpop extends MY_Model{
             JOIN trade.canal ca ON ca.idCanal=v.idCanal
             JOIN {$this->sessBDCuenta}.trade.data_visitaMaterialesPop dvv ON dvv.idVisita=v.idVisita
             JOIN {$this->sessBDCuenta}.trade.data_visitaMaterialesPopDet dvd ON dvd.idVisitaMaterialPop=dvv.idVisitaMaterialPop
-            LEFT JOIN trade.tipo_material tm ON tm.idTipoMaterial = dvd.idTipoMaterial
+            LEFT JOIN {$this->sessBDCuenta}.trade.tipo_material tm ON tm.idTipoMaterial = dvd.idTipoMaterial
             JOIN trade.producto_marca m ON m.idMarca = dvd.idMarca
             LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisitaFoto=dvd.idVisitaFoto
             LEFT JOIN trade.aplicacion_modulo am ON am.idModulo = vf.idModulo

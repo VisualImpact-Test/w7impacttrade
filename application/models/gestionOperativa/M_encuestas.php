@@ -63,8 +63,8 @@ class M_encuestas extends MY_Model
 	public function getCantidadFotosPorEncuesta($params = [])
 	{
 		$filtros = "";
-		$filtros .= !empty($params['idCuenta']) ? ' AND r.idCuenta = ' . $params['idCuenta'] : '';
-		$filtros .= !empty($params['idProyecto']) ? ' AND r.idProyecto = ' . $params['idProyecto'] : '';
+		$filtros .= !empty($params['idCuenta']) ? ' AND r.idCuenta = 3' : '';
+		$filtros .= !empty($params['idProyecto']) ? ' AND r.idProyecto = 3' : '';
 
 		$filtros .= !empty($params['idGrupoCanal']) ? ' AND ca.idGrupoCanal = ' . $params['idGrupoCanal'] : '';
 		$filtros .= !empty($params['idCanal']) ? ' AND ca.idCanal = ' . $params['idCanal'] : '';
@@ -193,8 +193,8 @@ class M_encuestas extends MY_Model
 	public function getTotalFotosPorEncuesta($params = [])
 	{
 		$filtros = "";
-		$filtros .= !empty($params['idCuenta']) ? ' AND r.idCuenta = ' . $params['idCuenta'] : '';
-		$filtros .= !empty($params['idProyecto']) ? ' AND r.idProyecto = ' . $params['idProyecto'] : '';
+		$filtros .= !empty($params['idCuenta']) ? ' AND r.idCuenta = 3' : '';
+		$filtros .= !empty($params['idProyecto']) ? ' AND r.idProyecto = 3' : '';
 		$filtros .= !empty($params['idEncuesta']) ? ' AND ve.idEncuesta = ' . $params['idEncuesta'] : '';
 
 		// $filtros .= !empty($params['idGrupoCanal']) ? ' AND ca.idGrupoCanal = ' . $params['idGrupoCanal'] : '';

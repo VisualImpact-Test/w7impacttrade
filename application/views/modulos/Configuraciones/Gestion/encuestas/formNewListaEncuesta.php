@@ -84,6 +84,12 @@ $select2 = "my_select2AgregarLista";
                                 <div class="wr-10">OBLIGATORIO</div>
                             </th>
                             <th class="text-center align-middle">
+                                <div class="wr-10">FOTO OBLIGATORIO</div>
+                            </th>
+                            <th class="text-center align-middle">
+                                <div class="wr-10">FOTO MULTIPLE</div>
+                            </th>
+                            <th class="text-center align-middle">
                                 <button class="btn btn-AgregarElemento btn-secondary" title="Agregar Elemento"><strong>AGREGAR FILA</strong> <i class="fa fa-plus"></i></button>
                             </th>
                         </tr>
@@ -101,6 +107,18 @@ $select2 = "my_select2AgregarLista";
                                 </select>
                             </td>
                             <td class="text-center" data-name='sl_obligatorio'>
+                                <select class='form-control form-control-sm'>
+                                    <option value='0'>NO</option>
+                                    <option value='1'>SÍ</option>
+                                </select>
+                            </td>
+                            <td class="text-center" data-name='sl_fotoObligatorio'>
+                                <select class='form-control form-control-sm'>
+                                    <option value='0'>NO</option>
+                                    <option value='1'>SÍ</option>
+                                </select>
+                            </td>
+                            <td class="text-center" data-name='sl_fotoMultiple'>
                                 <select class='form-control form-control-sm'>
                                     <option value='0'>NO</option>
                                     <option value='1'>SÍ</option>

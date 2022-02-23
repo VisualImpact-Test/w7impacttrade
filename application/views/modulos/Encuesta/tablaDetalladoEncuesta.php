@@ -27,16 +27,17 @@
                 <th rowspan="2" class="text-center">INCIDENCIA</th>
                 <th rowspan="2" class="text-center">ENCUESTADO</th>
                 <? foreach ($listaEncuesta as $keyEncuesta => $encuesta) { ?>
-                    <th rowspan="1" class="text-center" colspan="<?= count($listaPregunta[$keyEncuesta]) + $encuesta["foto"] ?>"><?= $encuesta["nombre"] ?></th>
+                    <th rowspan="1" class="text-center" colspan="<?= ((count($listaPregunta[$keyEncuesta]) + $encuesta["foto"])*2) ?>"><?= $encuesta["nombre"] ?></th>
                 <? } ?>
             </tr>
             <tr>
                 <? foreach ($listaEncuesta as $keyEncuesta => $encuesta) {
                     foreach ($listaPregunta[$keyEncuesta] as $keyPregunta => $pregunta) { ?>
                         <th rowspan="1" class="text-center"><?= $pregunta["nombre"] ?></th>
+                        <th rowspan="1" class="text-center" colspan="1">FOTOS</th>
                     <? }
                     if ($encuesta["foto"] == 1) { ?>
-                        <th rowspan="1" class="text-center">Foto</th>
+                        <th rowspan="1" class="text-center">FOTO ENCUESTA</th>
                 <? }
                 } ?>
             </tr>
@@ -79,13 +80,15 @@
                         <?
                         foreach ($listaPregunta[$keyEncuesta] as $keyPregunta => $pregunta) {
                             $respuesta = (isset($visitaEncuesta[$visita['idVisita']][$keyPregunta])) ? implode(", ", $visitaEncuesta[$visita['idVisita']][$keyPregunta]) : '-';
-                            if (isset($visitaFotoSub[$visita['idVisita']][$keyEncuesta])) {
+                            if ($respuesta == 'EXCELENTE') {
                                 $fotoSub = '<a href="javascript:;" class="lk-show-foto a-fa" data-foto="' . $visitaFotoSub[$visita['idVisita']][$keyEncuesta] . '" data-modulo="encuestas" data-comentario="" ><i class="fa fa-camera" ></i></a>';
+                                $fotoSub = '<a href="javascript:;" class="lk-show-foto a-fa" data-foto="55249074_ENCUESTAS.jpg" data-modulo="encuestas" data-comentario="" ><i class="fa fa-camera" ></i></a>';
                             } else {
-                                $fotoSub = "";
+                                $fotoSub = "-";
                             }
                         ?>
-                            <td><?= $respuesta ." ". $fotoSub?></td>
+                            <td><?= $respuesta ?></td>
+                            <td class="text-center"><?=$fotoSub?></td>
                         <?
                         }
                         ?>
@@ -97,7 +100,7 @@
                                 $foto = "-";
                             }
                         ?>
-                            <td rowspan="1"><?= $foto ?></td>
+                            <td rowspan="1" class="text-center"><?= $foto ?></td>
                         <?
                         }
                         ?>

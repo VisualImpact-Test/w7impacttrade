@@ -644,16 +644,22 @@ class Rutas extends MY_Controller{
 				$array['listaEncuestas'][$row['idEncuesta']]['idEncuesta'] = $row['idEncuesta'];
 				$array['listaEncuestas'][$row['idEncuesta']]['encuesta'] = $row['encuesta'];
 				$array['listaEncuestas'][$row['idEncuesta']]['fotoEncuesta'] = $row['fotoEncuesta'];
+				$array['listaEncuestas'][$row['idEncuesta']]['obligatorioEncuesta'] = $row['obligatorioEncuesta'];
+				$array['listaEncuestas'][$row['idEncuesta']]['flagFotoMultiple'] = $row['flagFotoMultiple'];
+				$array['listaEncuestas'][$row['idEncuesta']]['flagFotoObligatorioEncuesta'] = $row['flagFotoObligatorioEncuesta'];
 				$array['listaEncuestas'][$row['idEncuesta']]['listaPreguntas'][$row['idPregunta']]['idPregunta'] = $row['idPregunta'];
 				$array['listaEncuestas'][$row['idEncuesta']]['listaPreguntas'][$row['idPregunta']]['pregunta'] = $row['pregunta'];
 				$array['listaEncuestas'][$row['idEncuesta']]['listaPreguntas'][$row['idPregunta']]['idTipoPregunta'] = $row['idTipoPregunta'];
 				$array['listaEncuestas'][$row['idEncuesta']]['listaPreguntas'][$row['idPregunta']]['tipoPregunta'] = $row['tipoPregunta'];
-				$array['listaEncuestas'][$row['idEncuesta']]['listaPreguntas'][$row['idPregunta']]['obligatorio'] = $row['obligatorio'];
+				$array['listaEncuestas'][$row['idEncuesta']]['listaPreguntas'][$row['idPregunta']]['obligatorioPregunta'] = $row['obligatorioPregunta'];
+				$array['listaEncuestas'][$row['idEncuesta']]['listaPreguntas'][$row['idPregunta']]['flagFotoObligatorioPregunta'] = $row['flagFotoObligatorioPregunta'];
 				$array['listaEncuestas'][$row['idEncuesta']]['listaPreguntas'][$row['idPregunta']]['fotoPregunta'] = $row['fotoPregunta'];
+				$array['listaEncuestas'][$row['idEncuesta']]['listaPreguntas'][$row['idPregunta']]['flagFotoPregunta'] = $row['flagFotoPregunta'];
 				$array['listaEncuestas'][$row['idEncuesta']]['listaPreguntas'][$row['idPregunta']]['idAlternativaPadre'] = $row['idAlternativaPadre'];
 				$array['listaEncuestas'][$row['idEncuesta']]['listaPreguntas'][$row['idPregunta']]['listaAlternativas'][$row['idAlternativa']]['idAlternativa'] = $row['idAlternativa'];
 				$array['listaEncuestas'][$row['idEncuesta']]['listaPreguntas'][$row['idPregunta']]['listaAlternativas'][$row['idAlternativa']]['alternativa'] = $row['alternativa'];
 				$array['listaEncuestas'][$row['idEncuesta']]['listaPreguntas'][$row['idPregunta']]['listaAlternativas'][$row['idAlternativa']]['fotoAlternativa'] = $row['fotoAlternativa'];
+				$array['listaEncuestas'][$row['idEncuesta']]['listaPreguntas'][$row['idPregunta']]['listaAlternativas'][$row['idAlternativa']]['flagFotoObligatorioAlternativa'] = $row['flagFotoObligatorioAlternativa'];
 			}
 
 			$rs_detalleVisita = $this->model->obtener_data_visita_encuesta($input);
@@ -665,9 +671,11 @@ class Rutas extends MY_Controller{
 				$array['visita'][$row['idEncuesta']]['fotoEncuesta'] = $row['fotoEncuesta'];
 				$array['visita'][$row['idEncuesta']]['numDet'] = $row['numDet'];
 				$array['visita'][$row['idEncuesta']]['tipoPreguntas'][$row['idTipoPregunta']]['idTipoPregunta'] = $row['idTipoPregunta'];
+
+				$array['visita'][$row['idEncuesta']]['tipoPreguntas'][$row['idTipoPregunta']]['preguntas'][$row['idPregunta']]['idVisitaFotoPregunta'] = $row['idVisitaFotoPregunta'];
+				$array['visita'][$row['idEncuesta']]['tipoPreguntas'][$row['idTipoPregunta']]['preguntas'][$row['idPregunta']]['fotoPregunta'] = $row['fotoPregunta'];
+
 				$array['visita'][$row['idEncuesta']]['tipoPreguntas'][$row['idTipoPregunta']]['preguntas'][$row['idPregunta']]['idPregunta'] = $row['idPregunta'];
-				//$array['visita'][$row['idEncuesta']]['tipoPreguntas'][$row['idTipoPregunta']]['preguntas'][$row['idPregunta']]['idVisitaFotoAlternativa'] = $row['idVisitaFotoAlternativa'];
-				//$array['visita'][$row['idEncuesta']]['tipoPreguntas'][$row['idTipoPregunta']]['preguntas'][$row['idPregunta']]['fotoAlternativa'] = $row['fotoAlternativa'];
 				$array['visita'][$row['idEncuesta']]['tipoPreguntas'][$row['idTipoPregunta']]['preguntas'][$row['idPregunta']]['respuestas']['idVisitaEncuestaDet'] = $row['idVisitaEncuestaDet'];
 				$array['visita'][$row['idEncuesta']]['tipoPreguntas'][$row['idTipoPregunta']]['preguntas'][$row['idPregunta']]['respuestas']['respuesta'] = $row['respuesta'];
 				$array['visita'][$row['idEncuesta']]['tipoPreguntas'][$row['idTipoPregunta']]['preguntas'][$row['idPregunta']]['respuestas']['idVisitaFotoAlternativa'] = $row['idVisitaFotoAlternativa'];
@@ -1628,6 +1636,31 @@ class Rutas extends MY_Controller{
 								);
 
 								$insertarVisitaEncuestaDetalle = $this->model->insertar_visita_encuesta_detalle($arrayInsertEncuestaDetalle);
+
+								//VERIFICACIÓN DE FOTOS PREGUNTA
+								if ( isset($dataEncuestaFoto[$idEncuesta.'-'.$idPregunta]) ) {
+									//
+									$arrayInsertVisitaFotoPregunta = array(
+										'idVisita' => $idVisita
+										,'fotoUrl' => $dataEncuestaFoto[$idEncuesta.'-'.$idPregunta]
+										,'hora' => date('H:i:s')
+										,'idModulo' => 1
+									);
+
+									$insertarVisitaFotoPregunta = $this->model->insert_visita_foto($arrayInsertVisitaFotoPregunta);
+									if ($insertarVisitaFotoPregunta) { $idVisitaFotoPregunta =  $this->db->insert_id();	} 
+									else { $idVisitaFotoPregunta = NULL; $rowInsertFotoError++; }
+								}
+
+								//INSERTAMOS EL DETALLE PREGUNTA
+								$arrayInsertEncuestaDetallePregunta = array(
+									'idVisitaEncuesta' => $insertId
+									,'idPregunta' => $idPregunta
+									,'idVisitaFoto' => $idVisitaFotoPregunta
+								);
+
+								$insertarVisitaEncuestaDetallePregunta = $this->model->insertar_visita_encuesta_detalle_pregunta($arrayInsertEncuestaDetallePregunta);
+
 								$rowInsert++;
 							}
 						}
@@ -1672,6 +1705,30 @@ class Rutas extends MY_Controller{
 								if ($insertarVisitaFoto) { $idVisitaFoto =  $this->db->insert_id();	} 
 								else { $idVisitaFoto = NULL; $rowInsertFotoError++; }
 							}
+
+							//VERIFICACIÓN DE FOTOS PREGUNTA
+							if ( isset($dataEncuestaFoto[$idEncuesta.'-'.$idPregunta]) ) {
+								//
+								$arrayInsertVisitaFotoPregunta = array(
+									'idVisita' => $idVisita
+									,'fotoUrl' => $dataEncuestaFoto[$idEncuesta.'-'.$idPregunta]
+									,'hora' => date('H:i:s')
+									,'idModulo' => 1
+								);
+
+								$insertarVisitaFotoPregunta = $this->model->insert_visita_foto($arrayInsertVisitaFotoPregunta);
+								if ($insertarVisitaFotoPregunta) { $idVisitaFotoPregunta =  $this->db->insert_id();	} 
+								else { $idVisitaFotoPregunta = NULL; $rowInsertFotoError++; }
+							}
+
+							//INSERTAMOS EL DETALLE PREGUNTA
+							$arrayInsertEncuestaDetallePregunta = array(
+								'idVisitaEncuesta' => $idVisitaEncuesta
+								,'idPregunta' => $idPregunta
+								,'idVisitaFoto' => $idVisitaFotoPregunta
+							);
+
+							$insertarVisitaEncuestaDetallePregunta = $this->model->insertar_visita_encuesta_detalle_pregunta($arrayInsertEncuestaDetallePregunta);
 
 							//TIPO DE PREGUNTA
 							if ( $idTipoPregunta==3) {

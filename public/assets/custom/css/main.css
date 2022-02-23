@@ -1058,3 +1058,7 @@ table.dataTable tbody td.select-checkbox:before{
   width: 50px;
   border-radius: 10px;
 }
+
+.has-error input, .has-error select, .has-error span span span.select2-selection{
+  border-color: #eb211d;
+}

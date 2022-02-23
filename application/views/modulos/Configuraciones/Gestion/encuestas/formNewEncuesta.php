@@ -4,13 +4,12 @@
             <label for='nombre'>Nombre</label><br>
             <input id='nombre' name='nombre' type='text' class='form-control form-control-sm' placeholder='Nombre'>
         </div>
-      
+
     </div>
     <div class='form-row'>
         <div class='col-xs-6 col-sm-6 col-md-6 col-lg-6 mb-2'>
             <label for='foto'>Foto</label><br>
             <select id='foto' name='foto' class='form-control form-control-sm my_select2'>
-                <option value=''>-- Seleccionar --</option>
                 <option value='1'> SÍ </option>
                 <option value='2'> NO </option>
             </select>
@@ -24,6 +23,7 @@
         dropdownParent: $("div.modal-content"),
         width: '100%'
     });
+
     // // Todo esto para los dos primeros selects juntos
     // $('#fecIni').daterangepicker(singleDatePickerModal);
     // $('#fecFin').daterangepicker($.extend({

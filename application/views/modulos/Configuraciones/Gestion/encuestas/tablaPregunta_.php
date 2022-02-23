@@ -6,6 +6,9 @@ $nameTextoOrden = 'txtOrden';
 $estadoPregunta = 'estadoPregunta';
 $select2 = "my_select2EditarPreguntas"; 
 $nameCheckObligatorio = "chkObligatorio";
+$nameCheckFoto = "chkFoto";
+$nameCheckFotoObligatorio = "chkFotoObligatorio";
+$nameInputFile = "fotoPreg";
 ?>
  
 
@@ -23,7 +26,7 @@ $nameCheckObligatorio = "chkObligatorio";
     </div>
     <hr class="solid mb-2 mt-0">
 
-    <div class="form-row mb-3">
+    <div class="form-row mb-3 overflow-auto">
         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
             <div class="table-wrapper-scroll-y my-custom-scrollbar">
                 <table class='table table-sm table-bordered text-nowrap'>
@@ -37,7 +40,7 @@ $nameCheckObligatorio = "chkObligatorio";
                                 <div class="wr-10">OPCIONES</div>
                             </th>
                             <th class="text-center align-middle">
-                                <div class="wr-10">TIPO PREGUNTA</div>
+                                <div class="wr-10">TIPO <br>   PREGUNTA</div>
                             </th>
                             <th class="text-center align-middle">
                                 <div class="wr-20">PREGUNTAS</div>
@@ -51,10 +54,13 @@ $nameCheckObligatorio = "chkObligatorio";
                             <th class="text-center align-middle">
                                 <div class="wr-6">OBLIGATORIO</div>
                             </th>
-                            <!-- 
                             <th class="text-center align-middle">
-                                <div>RADIO</div>
-                            </th> -->
+                                <div class="wr-6">FOTO</div>
+                            </th>
+                            
+                            <th class="text-center align-middle">
+                                <div>FOTO <br> OBLIGATORIA</div>
+                            </th>
     
                         </tr>
                     </thead>
@@ -93,6 +99,19 @@ $nameCheckObligatorio = "chkObligatorio";
                                 <div class="form-check form-check-inline" style="margin-right: 0;">
                                     <input class="form-check-input" type="checkbox" value="true">
                                 </div>
+                               
+                            </td>
+                            <td class="text-center" data-name='<?= $nameCheckFoto ?>' >
+                                <div class="form-check form-check-inline" style="margin-right: 0;">
+                                    <input class="form-check-input chk-foto"  type="checkbox" value="true" >
+                                    <label class="form-check-label"></label>
+                                </div>
+                            </td>
+                            <td class="text-center" data-name='<?= $nameCheckFotoObligatorio ?>'>
+                                <div data-name='<?= $nameCheckFotoObligatorio ?>' class="form-check form-check-inline ui slider checkbox ">
+                                    <input type="checkbox" class="chkFotoObligatoria" disabled>
+                                    <label></label>
+                                </div>
                             </td>
   
                         </tr>
@@ -105,8 +124,21 @@ $nameCheckObligatorio = "chkObligatorio";
                                 </td>
                                 <td class="text-left" >
                                     <button style="left: 45%;" class="border-0 btn btn-BorrarElemento btn-outline-secondary" title="Eliminar Elemento" disabled><i class="fa fa-trash"></i></button>
-                                    <?if($row['idTipoPregunta'] == 2 ||  $row['idTipoPregunta'] == 3 ):?>
-                                        <button class="border-0 btn btn-EditarAlternativas btn-outline-secondary" title="Editar Alternativas" disabled><i class="fa fa-list"></i></button>
+                                    <div class="d-none">
+                                        <a href="javascript:;" class="lk-foto-1" data-content="img-fotoprincipal-<?=$num?>">
+                                            <img class="fotoMiniatura imgNormal foto" name="img-fotoprincipal-<?=$num?>" id="img-fotoprincipal-<?=$num?>" src="" alt="" style="width: 40px;display: none;">
+                                        </a>
+                                    </div>
+                                    <button style="left: 45%;" type="button" class="border-0 btn btn-verImagenPreg btn-outline-secondary" title="Ver imagen" disabled><i class="fal fa-image-polaroid fa-lg"></i></button>
+                                    <button style="left: 45%;" type="button" class="border-0 btn btn-cargarImagenPreg btn-outline-secondary" title="Cargar imagen" disabled><i class="fa fa-camera"></i></button>
+                                    <input disabled="disabled" type="text" readonly="readonly" id="txt-fotoprincipal-<?= $num ?>" name="fotoprincipal-<?= $num ?>" class="hide">
+                                    <input class="d-none inputFilePreg fl-control" data-content= "txt-fotoprincipal-<?= $num ?>" data-foto-content="img-fotoprincipal-<?=$num?>" accept="image/jpeg, image/png" id="<?= $nameInputFile ?>-<?= $num ?>" name="<?= $nameInputFile ?>-<?= $num ?>" type="file"/>
+
+                                    <?if($row['idTipoPregunta'] == 2 ||  $row['idTipoPregunta'] == 3 || $row['idTipoPregunta'] == 4  ):?>
+                                        <button type="button" class="border-0 btn btn-EditarAlternativas btn-outline-secondary" title="Editar Alternativas" disabled><i class="fa fa-list"></i></button>
+                                    <?endif?>
+                                    <?if($row['idTipoPregunta'] == 4  ):?>
+                                        <button type="button" class="border-0 btn btn-EditarAlternativasOpciones btn-outline-secondary" title="Editar Opciones" disabled><i class="fas fa-ellipsis-h"></i></button>
                                     <?endif?>
                                 </td>
                                 <td class="text-center">
@@ -141,7 +173,18 @@ $nameCheckObligatorio = "chkObligatorio";
                                         <label class="form-check-label"></label>
                                     </div>
                                 </td>
-
+                                <td class="text-center">
+                                    <div id='<?= $nameCheckFoto ?>-<?= $num ?>' class="form-check form-check-inline " style="margin-right: 0;">
+                                        <input name='<?= $nameCheckFoto ?>-<?= $num ?>' class="form-check-input chk-foto" type="checkbox" value="1" disabled <?=$row['foto'] == 1 ? "Checked":'' ?> >
+                                        <label class="form-check-label"></label>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                 <div id='<?= $nameCheckFotoObligatorio ?>-<?= $num ?>' class="form-check form-check-inline ui slider checkbox">
+                                        <input class="chkFotoObligatoria" type="checkbox" name='<?= $nameCheckFotoObligatorio ?>-<?= $num ?>' disabled <?=$row['flagFotoObligatorio'] == 1 ? "Checked":'' ?>>
+                                        <label></label>
+                                    </div>
+                                </td>
 
                             </tr>
                         <?php $num++;
