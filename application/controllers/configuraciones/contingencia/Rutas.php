@@ -57,11 +57,16 @@ class Rutas extends MY_Controller{
 		$config['nav']['menu_active'] = '64';
 		$config['css']['style'] = array(
 			'assets/libs/dataTables-1.10.20/datatables',
+			'assets/libs/photoswipe/photoswipe',
+			'assets/libs/photoswipe/default-skin',
 			'assets/custom/css/configuraciones/contingencia/estilos'
 		);
 		$config['js']['script'] = array(
 			'assets/libs/datatables/datatables',
 			'assets/libs/datatables/responsive.bootstrap4.min',
+			'assets/libs/photoswipe/photoswipe.min',
+			'assets/libs/photoswipe/photoswipe-ui-default.min',
+			'assets/libs/photoswipe/jqPhotoSwipe',
 			'assets/custom/js/core/datatables-defaults',
 			'assets/custom/js/configuraciones/contingencia/rutas'
 		);
@@ -1565,6 +1570,39 @@ class Rutas extends MY_Controller{
 
 				$numDet = count($listaPreguntas);
 				$idVisitaFoto = NULL;
+
+				if(is_array($dataEncuestaFoto)){
+					foreach($dataEncuestaFoto AS $key => $row){
+						if(strpos('_', $key) !== false){
+							$dataEncuestaFoto[explode('_', $key)[0]][explode('_', $key)[1]] = $row;
+						}
+					}
+
+					if ( isset($dataEncuestaFoto[$idEncuesta]) ) {
+						foreach($dataEncuestaFoto[$idEncuesta] AS $key => $fotoUrl){
+							$arrayInsertVisitaFoto = array(
+								'idVisita' => $idVisita
+								,'fotoUrl' => $fotoUrl
+								,'hora' => date('H:i:s')
+								,'idModulo' => 1
+							);
+		
+							$insertarVisitaFoto = $this->model->insert_visita_foto($arrayInsertVisitaFoto);
+							if ($insertarVisitaFoto) { $idVisitaFoto =  $this->db->insert_id();	} 
+							else { $idVisitaFoto = NULL; $rowInsertFotoError++; }
+
+							$arrayInsertEncuesta = array(
+								'idVisita' => $idVisita
+								,'idEncuesta' => $idEncuesta
+								,'hora' => date('H:i:s')
+								,'numDet' => $numDet
+							);
+							if ( !empty($idVisitaFoto)) $arrayInsertEncuesta['idVisitaFoto'] = $idVisitaFoto;
+		
+							$insertarVisitaEncuesta = $this->model->insertar_visita_encuesta($arrayInsertEncuesta);
+						}
+					}
+				}
 
 				//VERIFICACIÓN DE FOTOS
 				if ( isset($dataEncuestaFoto[$idEncuesta]) ) {

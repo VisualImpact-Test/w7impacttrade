@@ -5,6 +5,7 @@ var ContingenciaRutas = {
 	idTableDetalle : 'tb-contingenciaRutasDetalle',
 	url : 'configuraciones/contingencia/rutas/',
 	idModal: 0,
+	fotosMultiples: [],
 
 	dataListaTipoPromociones : [],
 	dataListaEncartesCategorias : [],
@@ -21,6 +22,9 @@ var ContingenciaRutas = {
 			$('#btn-filtrarContingenciaRutas').click();
 
 			$('.flt_grupoCanal').change();
+
+			
+
 		});
 
 		$(document).on('dblclick', '.card-body > ul > li > a', function (e) {
@@ -197,8 +201,59 @@ var ContingenciaRutas = {
 				Fn.showModal({ id:modalId,show:true,title:'Archivo',content:"El tamaño del archivo seleccionado excede al permitido (2MB)",btn:btn });
 				return;
 			}
-			Imagen.showMultiple( file_, foto_content, content, this );
+			Imagen.show( file_, foto_content, content, this );
         });
+
+		$(document).on("change", ".fl-controlMulti", function(file_) {
+
+			var content = $(this).attr("data-content");
+			var file = file_.target.files[0];
+			var foto_content = $(this).attr("data-foto-content");
+			var idencuesta = $(this).data('idencuesta');
+
+			ContingenciaRutas.fotosMultiples[idencuesta] = Imagen.showMultiple( file_, foto_content, content, this );
+			$(this).parents('.divContentImg').find('.btnAbrirFotoMultiple').removeClass('disabled');
+
+			
+
+			if(file.size>=2*1024*1024) {
+				++modalId;
+				var btn=[];
+				var fn='Fn.showModal({ id:'+modalId+',show:false });';
+
+				btn[0]={title:'Continuar',fn:fn};
+				Fn.showModal({ id:modalId,show:true,title:'Archivo',content:"El tamaño del archivo seleccionado excede al permitido (2MB)",btn:btn });
+				return;
+			}
+        });
+
+		$(document).on('click', '.btnAbrirFotoMultiple', function(e){
+			var html = '';
+
+			var idencuesta = $(this).data('idencuesta');
+			var fotos = ContingenciaRutas.fotosMultiples[idencuesta];
+
+			html += `<p>`;
+			$.each( fotos, function(index, value){
+				
+				// html += '<img src="'+value+'" style="width:260px;margin:15px;"></img>';
+				html += `<a class="fancybox" href="${value}" data-fancybox-group="gallery1" title="" alt=""><img src="${value}" border="0" class="thumb"></a>`;
+			});
+			
+			html += `</p>`;
+				
+			$(".imagesEnc").html(html);
+			ContingenciaRutas.fotosLib();
+			$(".fancybox").first().click();
+			// ++modalId;
+			// var btn=[];
+			// var fn='Fn.showModal({ id:'+modalId+',show:false });';
+
+			// btn[0]={title:'Cerrar',fn:fn};
+			// Fn.showModal({ id:modalId, show:true, title:'Archivo',content:html, btn:btn });
+
+
+		});
 
         /***************VISITA PRODUCTOS - PRECIOS******************/
         $(document).on('click','a[data-toggle="tab"]', function(e){
@@ -1154,24 +1209,29 @@ var ContingenciaRutas = {
 			var foto = '';
 
 			if (fotoEncuesta==1) {
-				foto = $('#img-fotoprincipal-'+encuesta).attr('src');
-				if ( typeof foto === 'undefined' || foto.includes('fotos/impactTrade_Android/encuestas') || foto=='') {
-					foto = null;
-				};
+				// foto = $('#img-fotoprincipal-'+encuesta).attr('src');
 
-				//INSERTAMOS FOTOS
-				if ( foto !== null ) {
-					var sufijo = 'CONTI'+encuesta;
-					arrayFoto = {
-						'idVisita':idVisita
-						,'contenido':foto
-						,'ruta': 'fotos/impactTrade_Android/encuestas/'
-						,'sufijo':sufijo
-						,'columna':'encuesta'
-						,'encuesta':encuesta
+				var fotos = ContingenciaRutas.fotosMultiples[encuesta];
+
+				$.each(fotos, function(index, foto){
+					if ( typeof foto === 'undefined' || foto.includes('fotos/impactTrade_Android/encuestas') || foto=='') {
+						foto = null;
 					};
-					dataEncuestaFoto.push(arrayFoto);
-				}
+	
+					//INSERTAMOS FOTOS
+					if ( foto !== null ) {
+						var sufijo = 'CONTI'+encuesta;
+						arrayFoto = {
+							'idVisita':idVisita
+							,'contenido':foto
+							,'ruta': 'fotos/impactTrade_Android/encuestas/'
+							,'sufijo':sufijo
+							,'columna':'encuesta'
+							,'encuesta':encuesta+'_'+index
+						};
+						dataEncuestaFoto.push(arrayFoto);
+					}
+				});
 			}
 
 			//PREGUNTAS - ALTERNATIVAS
@@ -2947,6 +3007,23 @@ var ContingenciaRutas = {
 					Fn.showModal({ id:modalId,title:a.msg.title,content:a.data.html,btn:btn,show:true});
 				});
 			});
+	},
+
+	fotosLib: () => {
+		$(".fancybox").jqPhotoSwipe({
+			galleryOpen: function (gallery) {
+				//with `gallery` object you can access all methods and properties described here http://photoswipe.com/documentation/api.html
+				//console.log(gallery);
+				//console.log(gallery.currItem);
+				//console.log(gallery.getCurrentIndex());
+				//gallery.zoomTo(1, {x:gallery.viewportSize.x/2,y:gallery.viewportSize.y/2}, 500);
+				gallery.toggleDesktopZoom();
+			}
+		});
+		//This option forces plugin to create a single gallery and ignores `data-fancybox-group` attribute.
+		$(".forcedgallery > a").jqPhotoSwipe({
+			forceSingleGallery: true
+		});
 	}
 	
 }

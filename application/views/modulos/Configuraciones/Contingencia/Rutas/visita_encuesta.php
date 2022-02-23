@@ -46,14 +46,14 @@
 												</a>
 											</div>
 											<div>
-												<span class="btn border-0 btn-outline-secondary btn-file btnAbrirFoto disabled" title="Abrir imagen subida"><i class="fal fa-image-polaroid fa-lg" aria-hidden="true"></i></span>
+												<span class="btn border-0 btn-outline-secondary disabled btnAbrirFotoMultiple" title="Abrir imagen subida" data-idencuesta="<?= $kle ?>"><i class="fal fa-image-polaroid fa-lg" aria-hidden="true"></i></span>
 											</div>
 											<div>
 												<div class="content-input-file">
 													<input type="text" readonly="readonly" id="txt-fotoprincipal-<?= $kle ?>" name="fotoprincipal-<?= $kle ?>" class="hide">
 													<input type="text" readonly="readonly" id="txt-fotoprincipal-<?= $kle ?>_show" class="text-file hide" placeholder="Solo .jpg">
 													<span class="btn border-0 btn-outline-secondary btn-file btnFoto" data-file="fl-fotoprincipal-<?= $kle ?>" title="Subir imagen JPG"><i class="fa fa-file-upload fa-lg" aria-hidden="true"></i></span>
-													<input <?= $obligatorioFotoEncuesta; ?> multiple type="file" id="fl-fotoprincipal-<?= $kle ?>" class="fl-control hide" name="filefotoprincipal-<?= $kle ?>" data-content="txt-fotoprincipal-<?= $kle ?>" accept="image/jpeg" data-previa="true" data-foto-content="img-fotoprincipal-<?= $kle ?>">
+													<input <?= $obligatorioFotoEncuesta; ?> multiple type="file" id="fl-fotoprincipal-<?= $kle ?>" class="fl-controlMulti hide" name="filefotoprincipal-<?= $kle ?>" data-content="txt-fotoprincipal-<?= $kle ?>" accept="image/jpeg" data-previa="true" data-foto-content="img-fotoprincipal-<?= $kle ?>" data-idencuesta="<?= $kle ?>">
 												</div>
 											</div>
 										</div>
@@ -207,3 +207,4 @@
 		</form>
 	</div>
 </div>
+

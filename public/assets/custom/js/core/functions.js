@@ -1437,6 +1437,15 @@ var Fn = {
 			valuesSoFar[value] = true;
 		}
 		return false;
-	}
+	},
+	opengallery: function (j, seg, config) {
+		var items = config['items'];
+		var options = config['options'];
+		var pswpElement = config['pswpElement'];
+		
+        //options.index = parseInt(j); Abrir numero de foto
+        gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items[seg], options);
+        gallery.init();
+    }
 
 }
