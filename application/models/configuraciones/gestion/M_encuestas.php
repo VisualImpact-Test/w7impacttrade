@@ -58,10 +58,12 @@ class M_encuestas extends My_Model
 				SELECT 
 				ep.*
 				,tp.nombre tipo
+				,epf.foto 
 				FROM
 				{$this->sessBDCuenta}.trade.encuesta_pregunta ep
-				JOIN master.tipoPregunta tp
-				ON tp.idTipoPregunta = ep.idTipoPregunta
+				JOIN master.tipoPregunta tp ON tp.idTipoPregunta = ep.idTipoPregunta
+				LEFT JOIN {$this->sessBDCuenta}.trade.encuesta_pregunta_foto epf ON epf.idPregunta = ep.idPregunta
+					AND epf.estado = 1
 				{$filtros}
 
 				order by ep.orden asc
@@ -279,21 +281,29 @@ class M_encuestas extends My_Model
 					'obligatorio'=>isset($value['chkObligatorio'])? 'true' : 'false',
 					'flagFotoObligatorio'=>!empty($value['chkFotoObligatorio'])? true : false,
 				];
-				$updateArchivos[] = [
-					$this->m_encuestas->tablas['pregunta']['id'] => $value['id'],
-					'fecFin' =>  getFechaActual(),
-					'estado' => false,
-				];
-				$inputArchivos[] = [
-					$this->m_encuestas->tablas['pregunta']['id'] => $value['id'],
-					'fotos' => $fotos[$key],
-					'fecIni' => getFechaActual(),
-					'estado' => true,
-				];
+				if(!empty($fotos[$key])){
+
+					$updateArchivos[] = [
+						$this->m_encuestas->tablas['pregunta']['id'] => $value['id'],
+						'fecFin' =>  getFechaActual(),
+						'estado' => false,
+					];
+
+					$inputArchivos[] = [
+						$this->m_encuestas->tablas['pregunta']['id'] => $value['id'],
+						'foto' => $fotos[$key],
+						'fecIni' => getFechaActual(),
+						'estado' => true,
+					];
+				}
 			}
 		}
 		if (empty($input)) return true;
 		$update =  $this->actualizarMasivo($this->m_encuestas->tablas['pregunta']['tabla'], $input, $this->m_encuestas->tablas['pregunta']['id']);
+
+		//Imagenes de la pregunta
+		$updateArchivos =  $this->actualizarMasivo("{$this->sessBDCuenta}.trade.encuesta_pregunta_foto", $updateArchivos, $this->m_encuestas->tablas['pregunta']['id']);
+		$insertArchivos = $this->db->insert_batch("{$this->sessBDCuenta}.trade.encuesta_pregunta_foto", $inputArchivos);
 		$this->aSessTrack[] = [ 'idAccion' => 7, 'tabla' => $this->m_encuestas->tablas['pregunta']['tabla'] ];
 		return $update;
 	}

@@ -40,7 +40,7 @@
 										</div>
 										<? $fotoImg = (isset($visita[$kle]['idVisitaFoto']) && !empty($visita[$kle]['idVisitaFoto'])) ? $this->fotos_url . 'encuestas/' . $visita[$kle]['fotoEncuesta'] : ''; ?>
 										<div id="foto-<?= $kle; ?>" style="display:inline-flex;" class="divContentImg">
-											<div>
+											<div class="divFotoEncuesta">
 												<a href="javascript:;" class="lk-foto-1" data-content="img-fotoprincipal-<?= $kle ?>">
 													<img class="imgNormal fotoEncuesta fotoMiniatura" name="img-fotoprincipal-<?= $kle ?>" id="img-fotoprincipal-<?= $kle ?>" src="<?= $fotoImg ?>" alt="" data-encuesta="<?= $kle; ?>" data-visitaEncuesta="<?= $idVisitaEncuesta; ?>" style="width: 40px;display: none;">
 												</a>
