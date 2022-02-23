@@ -1628,7 +1628,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		$foto = !empty($input['foto']) ? $input['foto'] : '';
 		$icono = !empty($input['icono']) ? $input['icono'] : 'fa fa-camera';  
 
-		return ' <a href="javascript:;" style="margin-right:3px;font-size: 15px;" class="lk-show-foto" data-modulo="'.$modulo.'" data-foto="' . $foto . '" ><i class="'.$icono.'" ></i></a> ';
+		return ' <a href="javascript:;"  class="lk-show-foto" data-modulo="'.$modulo.'" data-foto="' . $foto . '" ><i class="'.$icono.'" ></i></a> ';
 	}
 
 	function getDistanciaMaps($input = [])

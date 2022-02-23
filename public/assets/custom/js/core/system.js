@@ -2122,23 +2122,18 @@ var Imagen = {
 
 	showMultiple: function ( e, content, input, flControl ) {
 		var files = e.target.files || e.dataTransfer.files;
-        file = files[0];
 		var content = $("#"+ content);
-		var archivos = '';
-		var reader = new FileReader();
-
-		reader.onload = function (e) {
-			archivos += e.target.result+'|'
-		};
-		archivos.slice(0,-1);
 
 		$.each(files, function(index, file){
+			var reader = new FileReader();
+			reader.onload = function (e) {
+				content.parents('.divFotoEncuesta').html();
+				content.attr("src",e.target.result)
+				$("#"+input).val( content.attr("src") );
+				$("#"+input+'_show').val( $(flControl).val() );
+			};
 			reader.readAsDataURL(file);
 		});
-		
-		content.attr("srcMultiple", archivos)
-		$("#"+input).val( content.attr("srcsrcMultiple") );
-		$("#"+input+'_show').val( $(flControl).val() );
 	}
 	
 }

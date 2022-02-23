@@ -312,6 +312,9 @@ var Encuestas = {
             let tr = $(this).closest('tr');
 
             tr.find(".btn-verImagenPreg").removeAttr("disabled");
+            tr.find(".lk-show-foto").addClass("d-none")
+            tr.find(".btn-verImagenPreg").removeClass("d-none")
+
 			if(file.size>=2*1024*1024) {
 				++modalId;
 				var btn=[];
@@ -461,8 +464,14 @@ var Encuestas = {
             
             
             // console.log(tr.find(".fotoMiniatura").attr("src"));
-            if(tr.find(".fotoMiniatura").attr("src") == "") $(".btn-verImagenPreg").attr("disabled","disabled"); 
-            else  tr.find(".btn-verImagenPreg").removeAttr("disabled");
+            if(tr.find(".fotoMiniatura").attr("src") == "") {
+                $(".btn-verImagenPreg").attr("disabled","disabled")
+
+            }
+            else {
+            
+                tr.find(".btn-verImagenPreg").removeAttr("disabled")
+            };
            
 		});
         $(document).on("click", ".btn-verImagenPreg", function (e) {
