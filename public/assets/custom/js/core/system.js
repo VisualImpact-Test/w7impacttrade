@@ -2123,17 +2123,17 @@ var Imagen = {
 	showMultiple: function ( e, content, input, flControl ) {
 		var files = e.target.files || e.dataTransfer.files;
 		var content = $("#"+ content);
+		var archivos = [];
 
 		$.each(files, function(index, file){
 			var reader = new FileReader();
 			reader.onload = function (e) {
-				content.parents('.divFotoEncuesta').html();
-				content.attr("src",e.target.result)
-				$("#"+input).val( content.attr("src") );
-				$("#"+input+'_show').val( $(flControl).val() );
+				archivos.push(e.target.result)
 			};
 			reader.readAsDataURL(file);
 		});
+
+		return archivos;
 	}
 	
 }

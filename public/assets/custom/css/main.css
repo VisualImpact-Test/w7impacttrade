@@ -1,7 +1,7 @@
 :root {
 	--color-vi: #e2001a;
 	--color-vi-hover: #ca0000;
-	--color-vi-focus: rgb(255 0 0 / 25%);
+	--color-vi-focus: rgba(255, 0, 0, 0.25);
 
 	--color-vi-2: #545152;
 }

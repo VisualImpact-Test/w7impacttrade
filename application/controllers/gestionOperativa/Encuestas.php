@@ -15,7 +15,7 @@ class Encuestas extends MY_Controller
         $this->aSessTrack[] = ['idAccion' => 4];
 
         $idMenu = '143';
-		$config['nav']['menu_active'] = $idMenu;
+        $config['nav']['menu_active'] = $idMenu;
         $config['css']['style'] = [
             'assets/custom/css/asistencia'
         ];
@@ -29,13 +29,13 @@ class Encuestas extends MY_Controller
         $config['data']['icon'] = 'fal fa-file-alt';
         $config['data']['title'] = 'Encuestas';
         $config['data']['message'] = 'Aquí encontrará datos de las encuestas.';
-        $tabs = getTabPermisos(['idMenuOpcion'=>$idMenu])->result_array();
-        if (empty($tabs)) { 
-			$config['view'] =  'oops';
-		}else{
-			$config['data']['tabs'] = $tabs;
-			$config['view'] = 'modulos/gestionOperativa/encuestas/index';
-		}
+        $tabs = getTabPermisos(['idMenuOpcion' => $idMenu])->result_array();
+        if (empty($tabs)) {
+            $config['view'] =  'oops';
+        } else {
+            $config['data']['tabs'] = $tabs;
+            $config['view'] = 'modulos/gestionOperativa/encuestas/index';
+        }
         $config['data']['tiposPregunta'] = $this->model->getTiposDePregunta()['query']->result_array();
 
         $params = [];
@@ -84,16 +84,22 @@ class Encuestas extends MY_Controller
         $data = $this->model->getCantidadFotosPorEncuesta($params);
         $dataFotos = $this->model->getTotalFotosPorEncuesta($params);
 
-        $maximoDeColumas = 0;
+        $maximoDeColumasEncuesta = 0;
+        $maximoDeColumasPregunta = 0;
+        $maximoDeColumasAlternativa = 0;
         foreach ($dataFotos['query']->result_array() as $key => $value) {
-            $dataParaVista['fotosEncuesta'][$value['idVisitaEncuesta']][$value['idVisitaFoto']] = $value['fotoUrl'];
+            $dataParaVista['fotosEncuesta'][$value['idVisitaEncuesta']][$value['tipo']][$value['idVisitaFoto']] = $value['fotoUrl'];
         }
         if (!empty($dataParaVista['fotosEncuesta'])) {
             foreach ($dataParaVista['fotosEncuesta'] as $key => $value) {
-                $maximoDeColumas = max(count($value), $maximoDeColumas);
+                $maximoDeColumasEncuesta = max(count($value['ENCUESTA']), $maximoDeColumasEncuesta);
+                $maximoDeColumasPregunta = max(count($value['PREGUNTA']), $maximoDeColumasPregunta);
+                $maximoDeColumasAlternativa = max(count($value['ALTERNATIVA']), $maximoDeColumasAlternativa);
             }
         }
-        $dataParaVista['maximoDeColumas'] = $maximoDeColumas;
+        $dataParaVista['maximoDeColumasEncuesta'] = $maximoDeColumasEncuesta;
+        $dataParaVista['maximoDeColumasPregunta'] = $maximoDeColumasPregunta;
+        $dataParaVista['maximoDeColumasAlternativa'] = $maximoDeColumasAlternativa;
 
         $dataParaVista['visitas'] = $data['query']->result_array();
 

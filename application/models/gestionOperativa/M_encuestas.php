@@ -63,8 +63,8 @@ class M_encuestas extends MY_Model
 	public function getCantidadFotosPorEncuesta($params = [])
 	{
 		$filtros = "";
-		$filtros .= !empty($params['idCuenta']) ? ' AND r.idCuenta = 3' : '';
-		$filtros .= !empty($params['idProyecto']) ? ' AND r.idProyecto = 3' : '';
+		$filtros .= !empty($params['idCuenta']) ? ' AND r.idCuenta = ' . $this->sessIdCuenta : '';
+		$filtros .= !empty($params['idProyecto']) ? ' AND r.idProyecto = ' . $this->sessIdProyecto : '';
 
 		$filtros .= !empty($params['idGrupoCanal']) ? ' AND ca.idGrupoCanal = ' . $params['idGrupoCanal'] : '';
 		$filtros .= !empty($params['idCanal']) ? ' AND ca.idCanal = ' . $params['idCanal'] : '';
@@ -193,8 +193,8 @@ class M_encuestas extends MY_Model
 	public function getTotalFotosPorEncuesta($params = [])
 	{
 		$filtros = "";
-		$filtros .= !empty($params['idCuenta']) ? ' AND r.idCuenta = 3' : '';
-		$filtros .= !empty($params['idProyecto']) ? ' AND r.idProyecto = 3' : '';
+		$filtros .= !empty($params['idCuenta']) ? ' AND r.idCuenta = ' . $this->sessIdCuenta : '';
+		$filtros .= !empty($params['idProyecto']) ? ' AND r.idProyecto = ' . $this->sessIdProyecto : '';
 		$filtros .= !empty($params['idEncuesta']) ? ' AND ve.idEncuesta = ' . $params['idEncuesta'] : '';
 
 		// $filtros .= !empty($params['idGrupoCanal']) ? ' AND ca.idGrupoCanal = ' . $params['idGrupoCanal'] : '';
@@ -206,6 +206,7 @@ class M_encuestas extends MY_Model
 				, vf.idVisitaFoto
 				, vf.fotoUrl
 				, vf.hora
+				, 'ENCUESTA' AS tipo
 			FROM {$this->sessBDCuenta}.trade.data_ruta r
 			JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta
 			JOIN {$this->sessBDCuenta}.trade.data_visitaEncuesta ve ON v.idVisita = ve.idVisita
@@ -220,6 +221,7 @@ class M_encuestas extends MY_Model
 				, vf.idVisitaFoto
 				, vf.fotoUrl
 				, vf.hora
+				, 'ALTERNATIVA' AS tipo
 			FROM {$this->sessBDCuenta}.trade.data_ruta r
 			JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta
 			JOIN {$this->sessBDCuenta}.trade.data_visitaEncuesta ve ON v.idVisita = ve.idVisita
@@ -234,10 +236,26 @@ class M_encuestas extends MY_Model
 				, vf.idVisitaFoto
 				, vf.fotoUrl
 				, vf.hora
+				, 'ENCUESTA' AS tipo
 			FROM {$this->sessBDCuenta}.trade.data_ruta r
 			JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta
 			JOIN {$this->sessBDCuenta}.trade.data_visitaEncuesta ve ON v.idVisita = ve.idVisita
 			JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON ve.idVisitaFoto = vf.idVisitaFoto
+			WHERE r.estado = 1 AND v.estado = 1
+				AND r.fecha between @fecIni AND @fecFin
+				{$filtros}
+			UNION
+			SELECT
+				ve.idVisitaEncuesta
+				, vf.idVisitaFoto
+				, vf.fotoUrl
+				, vf.hora
+				, 'PREGUNTA' AS tipo
+			FROM {$this->sessBDCuenta}.trade.data_ruta r
+			JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta
+			JOIN {$this->sessBDCuenta}.trade.data_visitaEncuesta ve ON v.idVisita = ve.idVisita
+			JOIN {$this->sessBDCuenta}.trade.data_visitaEncuestaDetFoto vedf ON ve.idVisitaEncuesta = vedf.idVisitaEncuesta
+			JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vedf.idVisitaFoto = vf.idVisitaFoto
 			WHERE r.estado = 1 AND v.estado = 1
 				AND r.fecha between @fecIni AND @fecFin
 				{$filtros}

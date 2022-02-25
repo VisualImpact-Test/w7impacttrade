@@ -1,6 +1,5 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
-
 class Home extends MY_Controller {
 	
 	public function __construct(){
@@ -8,7 +7,10 @@ class Home extends MY_Controller {
 		$this->load->model('M_Home', 'model');
 		$this->load->model('M_muro', 'm_muro');
 		$this->load->model('M_control', 'm_control');
+
+	
 	}
+
 	
 	public function index()
 	{
