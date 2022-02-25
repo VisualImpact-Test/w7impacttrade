@@ -69,15 +69,32 @@ class Encuesta extends MY_Controller
 				$dataParaVista['listaEncuesta'][$fila['idEncuesta']]['nombre'] = $fila['encuesta'];
 				$dataParaVista['listaEncuesta'][$fila['idEncuesta']]['foto'] = $fila['foto'];
 				$dataParaVista['listaPregunta'][$fila['idEncuesta']][$fila['idPregunta']]['nombre'] = $fila['pregunta'];
+				$dataParaVista['listaPregunta'][$fila['idEncuesta']][$fila['idPregunta']]['idPregunta'] = $fila['idPregunta'];
+				$dataParaVista['listaPregunta'][$fila['idEncuesta']][$fila['idPregunta']]['idTipoPregunta'] = $fila['idTipoPregunta'];
+				$dataParaVista['listaPregunta'][$fila['idEncuesta']][$fila['idPregunta']]['imagen'] = $fila['imagenPreg'];
+				
+				if(!empty($fila['idAlternativaOpcion'])){
+					$dataParaVista['listaOpciones'][$fila['idEncuesta']][$fila['idPregunta']][$fila['idAlternativaOpcion']]['idAlternativaOpcion'] = $fila['idAlternativaOpcion'];
+					$dataParaVista['listaOpciones'][$fila['idEncuesta']][$fila['idPregunta']][$fila['idAlternativaOpcion']]['nombre'] = $fila['opcion'];
+
+					$dataParaVista['listaOpciones'][$fila['idEncuesta']]['opciones'][$fila['idAlternativaOpcion']] = 1;
+				}
 			}
 
 			$array_grafico = array();
 			foreach ($encuesta as $fila) {
 				$dataParaVista['visitaFoto'][$fila['idVisita']][$fila['idEncuesta']] = $fila['imgRef'];
-				$dataParaVista['visitaFotoSub'][$fila['idVisita']][$fila['idEncuesta']] = $fila['imgRefSub'];
+				$dataParaVista['visitaFotoPreg'][$fila['idVisita']][$fila['idEncuesta']][$fila['idPregunta']] = $fila['imgPreg'];
+
+				if(!empty($fila['imgRefSub'])){
+				}
+				// $dataParaVista['visitaFotoSub'][$fila['idVisita']][$fila['idEncuesta']][$fila['idPregunta']][$fila['idAlternativa']] = !empty($fila['imgRefSub']) ? 1 : 0;
+				// $dataParaVista['visitaFotoSub'][$fila['idVisita']][$fila['idEncuesta']] = !empty($fila['imgRefSub']) ? 1 : 0;;
 				$dataParaVista['idVisitaEncuesta'][$fila['idVisita']][$fila['idEncuesta']] = $fila['idVisitaEncuesta'];
 				$dataParaVista['flagFotoMultiple'][$fila['idVisita']][$fila['idEncuesta']] = empty($fila['flagFotoMultiple']) ? 0 : 1;
 				$dataParaVista['visitaEncuesta'][$fila['idVisita']][$fila['idPregunta']][] = $fila['respuesta'];
+				$dataParaVista['visitaFotoSub'][$fila['idVisita']][$fila['idPregunta']][] = !empty($fila['imgRefSub']) ? 1 : 0;
+				$dataParaVista['visitaEncuesta'][$fila['idVisita']]['opciones'][$fila['idPregunta']][$fila['idAlternativaOpcion']][] = $fila['respuesta'];
 				if (isset($array_resultados[$fila['idCliente']])) {
 					if (!empty($fila['puntaje'])) $array_resultados[$fila['idCliente']]['puntaje'][$fila['idPregunta']] = floatval($fila['puntaje']);
 				}
@@ -1319,6 +1336,47 @@ class Encuesta extends MY_Controller
 		$result['result'] = 1;
 		$result['msg']['title'] = 'FOTOS';
 		$result['data'] = $this->load->view("modulos/encuesta/verFotos", $array, true);
+
+		echo json_encode($result);
+	}
+
+	public function mostrarFotosAlternativas()
+	{
+		$this->aSessTrack[] = ['idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaFotos"];
+
+		$result = $this->result;
+		$data = json_decode($this->input->post('data'));
+		//Datos Generales
+		$idVisitaEncuesta = $data->{'idVisitaEncuesta'};
+		$idPregunta = $data->{'idPregunta'};
+
+		$array = [];
+		$array['moduloFotos'] = $this->m_encuesta->obtenerFotosEncuestaAlternativa($idVisitaEncuesta, $idPregunta);
+
+		//Result
+		$result['result'] = 1;
+		$result['msg']['title'] = 'FOTOS';
+		$result['data'] = $this->load->view("modulos/encuesta/verFotosAlternativa", $array, true);
+
+		echo json_encode($result);
+	}
+	public function mostrarFotosPreguntas()
+	{
+		$this->aSessTrack[] = ['idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaFotos"];
+
+		$result = $this->result;
+		$data = json_decode($this->input->post('data'));
+		//Datos Generales
+		$idVisitaEncuesta = $data->{'idVisitaEncuesta'};
+		$idPregunta = $data->{'idPregunta'};
+
+		$array = [];
+		$array['moduloFotos'] = $this->m_encuesta->obtenerFotosEncuestaPregunta($idVisitaEncuesta, $idPregunta);
+
+		//Result
+		$result['result'] = 1;
+		$result['msg']['title'] = 'FOTOS';
+		$result['data'] = $this->load->view("modulos/encuesta/verFotosAlternativa", $array, true);
 
 		echo json_encode($result);
 	}

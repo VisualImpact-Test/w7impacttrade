@@ -23,7 +23,6 @@ var ContingenciaRutas = {
 
 			$('.flt_grupoCanal').change();
 
-			
 
 		});
 
@@ -159,6 +158,10 @@ var ContingenciaRutas = {
 				html += a.data.html;
 
 				Fn.showModal({ id:modalId,show:true,title:title,frm:html,btn:btn, width:widthModal});
+				if(modulo == "encuesta") 
+				{ 
+					$(".tdPregRadio:checked").closest(".td-preg-valorativa").click();
+				}
 			});
 		});
 
@@ -214,8 +217,6 @@ var ContingenciaRutas = {
 			ContingenciaRutas.fotosMultiples[idencuesta] = Imagen.showMultiple( file_, foto_content, content, this );
 			$(this).parents('.divContentImg').find('.btnAbrirFotoMultiple').removeClass('disabled');
 
-			
-
 			if(file.size>=2*1024*1024) {
 				++modalId;
 				var btn=[];
@@ -231,7 +232,24 @@ var ContingenciaRutas = {
 			var html = '';
 
 			var idencuesta = $(this).data('idencuesta');
+			var idVisitaEncuesta = $(this).data('idvisitaencuesta');
 			var fotos = ContingenciaRutas.fotosMultiples[idencuesta];
+			if(typeof(fotos) == 'undefined')
+			{
+				fotos = [];
+			}
+
+			if(idVisitaEncuesta !== ''){
+				var data = { idVisitaEncuesta: idVisitaEncuesta };
+				var jsonString = { 'data': JSON.stringify(data) };
+				var configAjax = { 'url': ContingenciaRutas.url + 'mostrarFotosEncuesta', 'data': jsonString };
+
+				$.when(Fn.ajax(configAjax)).then(function (a) {
+					if(fotos.length = 0){
+						fotos = a.data.fotos
+					}
+				});
+			}
 
 			html += `<p>`;
 			$.each( fotos, function(index, value){
@@ -251,8 +269,6 @@ var ContingenciaRutas = {
 
 			// btn[0]={title:'Cerrar',fn:fn};
 			// Fn.showModal({ id:modalId, show:true, title:'Archivo',content:html, btn:btn });
-
-
 		});
 
         /***************VISITA PRODUCTOS - PRECIOS******************/
@@ -497,11 +513,31 @@ var ContingenciaRutas = {
         	$('#contNumberEncartes').val(cont);
         });
 
-        $(document).on('click','.btn-deleteRowEncartes', function(e){
-        	e.preventDefault();
-        	var control = $(this);
-        	control.parents('tr').remove();
-        });
+		$(document).on('click','.btn-deleteRowEncartes', function(e){
+			e.preventDefault();
+			var control = $(this);
+			control.parents('tr').remove();
+		});
+		$(document).on('change','.chkAlternativaPreg', function(e){
+			let control = $(this);
+			let div = control.closest(".custom-control");
+			div.transition('pulse');
+			// if(control.is(":checked")) 
+			// {
+			// 	div.find("span").removeClass("disabled");
+			// 	control.attr("patron","requerido");
+			// 	if(div.find(".fileAlternativaPreg").data("foto-obligatorio")) div.find(".fileAlternativaPreg").attr("patron","false");
+			// }
+			// else  
+			// {
+			// 	div.find("span").addClass("disabled")
+			// 	div.find(".fileAlternativaPreg").attr("patron","false");
+				
+			// }
+			
+			// debugger
+
+		});
         /****************************/
 
         /*************VISITA FOTOS***************/
@@ -1051,6 +1087,22 @@ var ContingenciaRutas = {
 		});
 
 		/****************************/
+
+		$(document).on('click','.td-preg-valorativa', function(){
+ 
+			let control = $(this);
+			let tr = $(this).closest("tr");
+			let td = $(this).closest("td");
+			
+			tr.find(".chkpregval").remove();
+			tr.find(".tdPregRadio").prop("checked",false);
+
+			td.find(".tdPregRadio").prop("checked",true);
+			control.append(`<i class="chkpregval large green checkmark icon"></i> `);
+
+			tr.find(".chkpregval").transition('jiggle');
+
+		});
 	},
 
 	actualizarHorarios: function(horarios){
@@ -1220,7 +1272,7 @@ var ContingenciaRutas = {
 	
 					//INSERTAMOS FOTOS
 					if ( foto !== null ) {
-						var sufijo = 'CONTI'+encuesta;
+						var sufijo = 'CONTI'+encuesta+'_'+index;
 						arrayFoto = {
 							'idVisita':idVisita
 							,'contenido':foto
@@ -1269,16 +1321,24 @@ var ContingenciaRutas = {
 				var tipoPregunta = input.data('tipopregunta');
 				var alternativaFoto = input.data('alternativafoto');
 				var visitaFoto = input.data('visitafoto');
+				var opcion = '';
+				var opcionAlternativa = input.data('alternativa');
 				var respuesta = '';
 				var alternativa = '';
 				var indexFoto = '';
-				var foto='';
+				var foto='';	
 
 				if (tipoPregunta==1) {
 					respuesta = input.val();
 					indexFoto = '01';
-				} else if(tipoPregunta==2 || tipoPregunta==3){
+				} else if (tipoPregunta==2 || tipoPregunta==3){
 					if ( input.is(':checked') ) {
+						alternativa = input.val();
+						indexFoto = alternativa
+					}
+				} else if (tipoPregunta==4){
+					if ( input.is(':checked') ) {
+						opcion = input.data('opcion');
 						alternativa = input.val();
 						indexFoto = alternativa
 					}
@@ -1316,6 +1376,7 @@ var ContingenciaRutas = {
 						,'alternativa' : alternativa
 						,'indexFoto': indexFoto
 						,'visitaFoto': visitaFoto
+						,'opcion' : opcion
 					};
 					dataEncuestasPreguntas.push(arrayEncuestasPreguntas);
 					cont++;
@@ -1337,25 +1398,26 @@ var ContingenciaRutas = {
 
 		
 		$.when( Fn.enviarFotos(dataEncuestaFoto) ).then( function(af){
-			var data = {'visita':idVisita,'dataEncuestas':dataEncuestas,'dataEncuestaFoto':af};
+			// var data = {'visita':idVisita,'dataEncuestas':dataEncuestas,'dataEncuestaFoto':af};
+			console.log(dataEncuestaFoto);
 	
-			console.log(data);
-		// 	if ( !af ) {
-		// 		ContingenciaRutas.mostrarMensajeFotos();
-		// 	} else {
-		// 		var data = {'visita':idVisita,'dataEncuestas':dataEncuestas,'dataEncuestaFoto':af};
-		// 		var jsonString = { 'data': JSON.stringify(data) };
-		// 		var config = { 'url':ContingenciaRutas.url+'guardarEncuestas', 'data': jsonString };
+			if ( !af ) {
+				ContingenciaRutas.mostrarMensajeFotos();
+			} else {
+				var data = {'visita':idVisita,'dataEncuestas':dataEncuestas,'dataEncuestaFoto':af};
+				console.log(data);
+				var jsonString = { 'data': JSON.stringify(data) };
+				var config = { 'url':ContingenciaRutas.url+'guardarEncuestas', 'data': jsonString };
 
-		// 		$.when( Fn.ajax(config) ).then( function(a){
-		// 			++modalId;
-		// 			var fn='Fn.showModal({ id:'+modalId+',show:false });';
-		// 			var btn=new Array();
-		// 				btn[0]={title:'Cerrar',fn:fn};
-		// 			var message = a.data.html;
-		// 			Fn.showModal({ id:modalId,title:a.msg.title,content:message,btn:btn,show:true});
-		// 		});
-		// 	}
+				$.when( Fn.ajax(config) ).then( function(a){
+					++modalId;
+					var fn='Fn.showModal({ id:'+modalId+',show:false });';
+					var btn=new Array();
+						btn[0]={title:'Cerrar',fn:fn};
+					var message = a.data.html;
+					Fn.showModal({ id:modalId,title:a.msg.title,content:message,btn:btn,show:true});
+				});
+			}
 		});
 	},
 

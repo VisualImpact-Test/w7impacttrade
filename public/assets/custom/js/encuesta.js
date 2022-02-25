@@ -159,6 +159,37 @@ var Encuesta = {
 			});
 		});
 
+		$(document).on("click", ".lk-alternativa-foto", function () {
+			var control = $(this);
+
+			var data = { idVisitaEncuesta: control.data('idvisitaencuesta'), idPregunta: control.data('idpregunta') };
+			var jsonString = { 'data': JSON.stringify(data) };
+			var configAjax = { 'url': Encuesta.url + 'mostrarFotosAlternativas', 'data': jsonString };
+
+			$.when(Fn.ajax(configAjax)).then(function (a) {
+				++modalId;
+				var fn = 'Fn.showModal({ id:' + modalId + ',show:false });';
+				var btn = [];
+				btn[0] = { title: 'Cerrar', fn: fn };
+				Fn.showModal({ id: modalId, show: true, title: a.msg.title, frm: a.data, btn: btn });
+			});
+		});
+		$(document).on("click", ".lk-pregunta-foto", function () {
+			var control = $(this);
+
+			var data = { idVisitaEncuesta: control.data('idvisitaencuesta'), idPregunta: control.data('idpregunta') };
+			var jsonString = { 'data': JSON.stringify(data) };
+			var configAjax = { 'url': Encuesta.url + 'mostrarFotosPreguntas', 'data': jsonString };
+
+			$.when(Fn.ajax(configAjax)).then(function (a) {
+				++modalId;
+				var fn = 'Fn.showModal({ id:' + modalId + ',show:false });';
+				var btn = [];
+				btn[0] = { title: 'Cerrar', fn: fn };
+				Fn.showModal({ id: modalId, show: true, title: a.msg.title, frm: a.data, btn: btn });
+			});
+		});
+
 	},
 }
 Encuesta.load();

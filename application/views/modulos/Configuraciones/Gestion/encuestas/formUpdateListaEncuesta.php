@@ -172,7 +172,7 @@ $select2 = "my_select2EditarLista";
                                     <input value="<?= !empty($row['flagFotoObligatorioEncuesta'])? "SÍ": "NO" ?>" type="text" class="form-control form-control-sm" placeholder="textotest" disabled readonly="readonly">
                                 </td>
                                 <td class="text-center">
-                                    <input value="<?= !empty($row['flagMultiplesFotos'])? "SÍ": "NO" ?>" type="text" class="form-control form-control-sm" placeholder="textotest" disabled readonly="readonly">
+                                    <input value="<?= !empty($row['flagFotoMultiple'])? "SÍ": "NO" ?>" type="text" class="form-control form-control-sm" placeholder="textotest" disabled readonly="readonly">
                                 </td>
                                 <td class="text-left">
                                     <button style="left: 45%;" class="border-0 btn btn-BorrarElemento btn-outline-secondary" title="Eliminar Elemento" disabled><i class="fa fa-trash"></i></button>

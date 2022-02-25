@@ -58,7 +58,7 @@ class M_encuestas extends My_Model
 				SELECT 
 				ep.*
 				,tp.nombre tipo
-				,epf.foto 
+				,epf.foto AS imagenReferencia
 				FROM
 				{$this->sessBDCuenta}.trade.encuesta_pregunta ep
 				JOIN master.tipoPregunta tp ON tp.idTipoPregunta = ep.idTipoPregunta
@@ -269,6 +269,7 @@ class M_encuestas extends My_Model
 	public function actualizarMasivoPreguntas($multiDataRefactorizada, $fotos = [])
 	{
 		$input = [];
+	
 		foreach ($multiDataRefactorizada as $key => $value) {
 			if (!empty($value['id'])) {
 				$input[] = [
@@ -302,8 +303,8 @@ class M_encuestas extends My_Model
 		$update =  $this->actualizarMasivo($this->m_encuestas->tablas['pregunta']['tabla'], $input, $this->m_encuestas->tablas['pregunta']['id']);
 
 		//Imagenes de la pregunta
-		$updateArchivos =  $this->actualizarMasivo("{$this->sessBDCuenta}.trade.encuesta_pregunta_foto", $updateArchivos, $this->m_encuestas->tablas['pregunta']['id']);
-		$insertArchivos = $this->db->insert_batch("{$this->sessBDCuenta}.trade.encuesta_pregunta_foto", $inputArchivos);
+		if(!empty($updateArchivos)) $updateArchivos =  $this->actualizarMasivo("{$this->sessBDCuenta}.trade.encuesta_pregunta_foto", $updateArchivos, $this->m_encuestas->tablas['pregunta']['id']);
+		if(!empty($inputArchivos)) $insertArchivos = $this->db->insert_batch("{$this->sessBDCuenta}.trade.encuesta_pregunta_foto", $inputArchivos);
 		$this->aSessTrack[] = [ 'idAccion' => 7, 'tabla' => $this->m_encuestas->tablas['pregunta']['tabla'] ];
 		return $update;
 	}

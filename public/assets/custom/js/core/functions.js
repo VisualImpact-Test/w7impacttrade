@@ -110,8 +110,17 @@ var Fn = {
 		}
 		else{
 			// $('#modal-page-' + config.id).modal('hide');
-			$('#modal-page-' + config.id).next('.modal-backdrop').remove();
-			$('#modal-page-' + config.id).remove();
+			$.when($('#modal-page-' + config.id).transition('drop')).then(function(){
+
+				setTimeout(
+					function() 
+					{
+						$('#modal-page-' + config.id).next('.modal-backdrop').remove();
+						$('#modal-page-' + config.id).remove();
+					}, 250);
+				
+			});
+			;
 			// $('.modal-backdrop.fade.in.modal-stack:last').remove();
 			// $('.modal-backdrop.fade.show.modal-stack:last').remove();
 			// if ($('.modal:visible').length == 0){

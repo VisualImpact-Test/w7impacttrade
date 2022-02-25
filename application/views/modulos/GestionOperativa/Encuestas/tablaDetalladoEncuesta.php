@@ -2,51 +2,73 @@
     <table id="tablaDetalladoEncuesta" class="table table-striped table-bordered nowrap w-100" style="font-size:12px;">
         <thead>
             <tr>
-                <th rowspan="2">#</th>
+                <th rowspan="3">#</th>
                 <th rowspan="1" colspan="<?= 10 + count($segmentacion['headers']) ?>">VISITA</th>
                 <th rowspan="1" colspan="2">OPCIONES</th>
                 <!-- <th rowspan="2">SELECCIONAR<br>FOTOS</th> -->
-                <th rowspan="1" colspan="<?= $maximoDeColumas + 1 ?>">FOTOS DE LA ENCUESTA</th>
+                <th rowspan="1" colspan="<?= $maximoDeColumasEncuesta + $maximoDeColumasPregunta + $maximoDeColumasAlternativa + 1 ?>">FOTOS DE LA ENCUESTA</th>
             </tr>
             <tr>
                 <!-- VISITA -->
-                <th class="text-center">FECHA</th>
-                <th class="text-center hideCol">GRUPO CANAL</th>
-                <th class="text-center hideCol">CANAL</th>
+                <th rowspan="2" class="text-center">FECHA</th>
+                <th rowspan="2" class="text-center hideCol">GRUPO CANAL</th>
+                <th rowspan="2" class="text-center hideCol">CANAL</th>
                 <?
                 if (!empty($segmentacion['headers'])) {
                     foreach ($segmentacion['headers'] as $k => $v) {
                 ?>
-                        <th class="text-center"><?= strtoupper($v['header']) ?></th>
+                        <th rowspan="2" class="text-center"><?= strtoupper($v['header']) ?></th>
                 <?
                     }
                 }
                 ?>
-                <th class="text-center">COD VISUAL</th>
-                <th class="text-center hideCol">COD <?= $this->sessNomCuentaCorto ?></th>
-                <th class="text-center hideCol">COD PDV</th>
-                <th class="text-center">PDV</th>
-                <th class="text-center hideCol">COD <br />USUARIO</th>
-                <th class="text-center hideCol">PERFIL USUARIO</th>
-                <th class="text-center">NOMBRE USUARIO</th>
+                <th rowspan="2" class="text-center">COD VISUAL</th>
+                <th rowspan="2" class="text-center hideCol">COD <?= $this->sessNomCuentaCorto ?></th>
+                <th rowspan="2" class="text-center hideCol">COD PDV</th>
+                <th rowspan="2" class="text-center">PDV</th>
+                <th rowspan="2" class="text-center hideCol">COD <br />USUARIO</th>
+                <th rowspan="2" class="text-center hideCol">PERFIL USUARIO</th>
+                <th rowspan="2" class="text-center">NOMBRE USUARIO</th>
                 <!-- OPCION -->
-                <th class="text-center">SELECCIONAR TIENDA<br><input type="checkbox" id="chkb-habilitarTodos" name="chkb-habilitarTodos" class="habilitarTodos"></th>
-                <th class="text-center">CANTIDAD DE<br>FOTOS POR HOJA</th>
-                <th class="text-center">MARCAR<br>TODO</th>
+                <th rowspan="2" class="text-center">SELECCIONAR TIENDA<br><input type="checkbox" id="chkb-habilitarTodos" name="chkb-habilitarTodos" class="habilitarTodos"></th>
+                <th rowspan="2" class="text-center">CANTIDAD DE<br>FOTOS POR HOJA</th>
+                <th rowspan="2" class="text-center">MARCAR<br>TODO</th>
                 <!-- FOTOS DE LA ENCUESTA -->
-                <?
-                if ($maximoDeColumas != 0) {
-                    for ($i = 1; $i <= $maximoDeColumas; $i++) {
+                <? if (!empty($maximoDeColumasEncuesta)) { ?>
+                    <th class="text-center" colspan="<?= $maximoDeColumasEncuesta ?>">ENCUESTA</th>
+                <? } ?>
+                <? if (!empty($maximoDeColumasPregunta)) { ?>
+                    <th class="text-center" colspan="<?= $maximoDeColumasPregunta ?>">PREGUNTA</th>
+                <? } ?>
+                <? if (!empty($maximoDeColumasAlternativa)) { ?>
+                    <th class="text-center" colspan="<?= $maximoDeColumasAlternativa ?>">ALTERNATIVA</th>
+                <? } ?>
+            </tr>
+            <tr>
+                <? if (!empty($maximoDeColumasEncuesta)) {
+                    for ($i = 1; $i < ($maximoDeColumasEncuesta+1); $i++) {
                 ?>
-                        <th>FOTO <?= $i ?></th>
+                        <th class="text-center">FOTO <?=$i?></th>
                     <?
                     }
-                } else {
                     ?>
-                    <th>FOTO 1</th>
-                <?
-                }
+                <? } ?>
+                <? if (!empty($maximoDeColumasPregunta)) {
+                    for ($i = 1; $i < ($maximoDeColumasPregunta+1); $i++) {
                 ?>
+                        <th class="text-center">FOTO <?=$i?></th>
+                    <?
+                    }
+                    ?>
+                <? } ?>
+                <? if (!empty($maximoDeColumasAlternativa)) {
+                    for ($i = 1; $i < ($maximoDeColumasAlternativa+1); $i++) {
+                ?>
+                        <th class="text-center">FOTO <?=$i?></th>
+                    <?
+                    }
+                    ?>
+                <? } ?>
             </tr>
         </thead>
         <tbody>
@@ -95,8 +117,8 @@
                     <?
                     if (!empty($fotosEncuesta)) {
                         $cantidadFotos = 0;
-                        if (!empty($fotosEncuesta[$visita['idVisitaEncuesta']])) {
-                            foreach ($fotosEncuesta[$visita['idVisitaEncuesta']] as $key => $value) {
+                        if (!empty($fotosEncuesta[$visita['idVisitaEncuesta']]['ENCUESTA'])) {
+                            foreach ($fotosEncuesta[$visita['idVisitaEncuesta']]['ENCUESTA'] as $key => $value) {
                     ?>
                                 <td>
                                     <div class="divFotos disabled">
@@ -108,10 +130,72 @@
                                 </td>
                             <?
                             }
-                            $cantidadFotos = count($fotosEncuesta[$visita['idVisitaEncuesta']]);
+                            $cantidadFotos = count($fotosEncuesta[$visita['idVisitaEncuesta']]['ENCUESTA']);
                         }
-                        if ($cantidadFotos < $maximoDeColumas) {
-                            for ($i = 0; $i < ($maximoDeColumas - $cantidadFotos); $i++) {
+                        if ($cantidadFotos < $maximoDeColumasEncuesta) {
+                            for ($i = 0; $i < ($maximoDeColumasEncuesta - $cantidadFotos); $i++) {
+                            ?>
+                                <td class="text-center">-</td>
+                        <?
+                            }
+                        }
+                    } else {
+                        ?>
+                        <td>-</td>
+                    <?
+                    }
+                    ?>
+                    <?
+                    if (!empty($fotosEncuesta)) {
+                        $cantidadFotos = 0;
+                        if (!empty($fotosEncuesta[$visita['idVisitaEncuesta']]['PREGUNTA'])) {
+                            foreach ($fotosEncuesta[$visita['idVisitaEncuesta']]['PREGUNTA'] as $key => $value) {
+                    ?>
+                                <td>
+                                    <div class="divFotos disabled">
+                                        <input class="check_<?= $visita['idVisitaEncuesta'] ?> chckMargin" type="checkbox" name="chck-foto-<?= $visita['idVisitaEncuesta'] ?>" data-nombreFoto="<?= $value ?>">
+                                        <a href="javascript:;" class="lk-foto-1" data-title="Foto Encuesta" data-content="<?= $key ?>">
+                                            <img id="<?= $key ?>" src="<?= site_url() ?>controlFoto/obtener_carpeta_foto/encuestas/<?= $value ?>" class="imgFotoMin">
+                                        </a><br>
+                                    </div>
+                                </td>
+                            <?
+                            }
+                            $cantidadFotos = count($fotosEncuesta[$visita['idVisitaEncuesta']]['PREGUNTA']);
+                        }
+                        if ($cantidadFotos < $maximoDeColumasPregunta) {
+                            for ($i = 0; $i < ($maximoDeColumasPregunta - $cantidadFotos); $i++) {
+                            ?>
+                                <td class="text-center">-</td>
+                        <?
+                            }
+                        }
+                    } else {
+                        ?>
+                        <td>-</td>
+                    <?
+                    }
+                    ?>
+                    <?
+                    if (!empty($fotosEncuesta)) {
+                        $cantidadFotos = 0;
+                        if (!empty($fotosEncuesta[$visita['idVisitaEncuesta']]['ALTERNATIVA'])) {
+                            foreach ($fotosEncuesta[$visita['idVisitaEncuesta']]['ALTERNATIVA'] as $key => $value) {
+                    ?>
+                                <td>
+                                    <div class="divFotos disabled">
+                                        <input class="check_<?= $visita['idVisitaEncuesta'] ?> chckMargin" type="checkbox" name="chck-foto-<?= $visita['idVisitaEncuesta'] ?>" data-nombreFoto="<?= $value ?>">
+                                        <a href="javascript:;" class="lk-foto-1" data-title="Foto Encuesta" data-content="<?= $key ?>">
+                                            <img id="<?= $key ?>" src="<?= site_url() ?>controlFoto/obtener_carpeta_foto/encuestas/<?= $value ?>" class="imgFotoMin">
+                                        </a><br>
+                                    </div>
+                                </td>
+                            <?
+                            }
+                            $cantidadFotos = count($fotosEncuesta[$visita['idVisitaEncuesta']]['ALTERNATIVA']);
+                        }
+                        if ($cantidadFotos < $maximoDeColumasAlternativa) {
+                            for ($i = 0; $i < ($maximoDeColumasAlternativa - $cantidadFotos); $i++) {
                             ?>
                                 <td class="text-center">-</td>
                         <?

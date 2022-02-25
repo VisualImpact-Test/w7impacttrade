@@ -5,12 +5,12 @@
 	$vacios = 0;
 
 	foreach ($moduloFotos as $kf => $row) {
-		if(empty($row['foto']) && empty($row['fotoMultiple'])){
+		if(empty($row['foto'])){
 			$vacios++;
 		}else{
 			$hora = '';
 			$claseActiva = (($kf-$vacios) == 0) ? 'active' : '';
-			$foto = ($row['flagFotoMultiple'] == 1) ? $row['fotoMultiple'] : $row['foto'];
+			$foto = $row['foto'];
 
 			$cabecera .= '<li data-target="#carouselExampleIndicators" data-slide-to="' . $kf . '" class="' . $claseActiva . '"></li>';
 	

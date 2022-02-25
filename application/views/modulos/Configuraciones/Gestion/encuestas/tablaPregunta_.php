@@ -129,9 +129,9 @@ $nameInputFile = "fotoPreg";
                                             <img class="fotoMiniatura imgNormal foto" name="img-fotoprincipal-<?=$num?>" id="img-fotoprincipal-<?=$num?>" src="" alt="" style="width: 40px;display: none;">
                                         </a>
                                     </div>
-                                    <button  type="button" class="<?= !empty($row['foto']) ? "d-none" : ''?> border-0 btn btn-verImagenPreg btn-outline-secondary" title="Ver imagen" disabled><i class="fal fa-image-polaroid fa-lg"></i></button>
-                                    <?if(!empty($row['foto'])){?>
-                                        <?=  rutafotoModulo(['foto'=>$row['foto'],'modulo'=>'encuestaFotosRefencia','icono'=>'fal fa-image-polaroid fa-lg btn-outline-primary btn border-0']);  ?>
+                                    <button  type="button" class="<?= !empty($row['imagenReferencia']) ? "d-none" : ''?> border-0 btn btn-verImagenPreg btn-outline-secondary" title="Ver imagen" disabled><i class="fal fa-image-polaroid fa-lg"></i></button>
+                                    <?if(!empty($row['imagenReferencia'])){?>
+                                        <?=  rutafotoModulo(['foto'=>$row['imagenReferencia'],'modulo'=>'encuestaFotosRefencia','icono'=>'fal fa-image-polaroid fa-lg btn-outline-primary btn border-0']);  ?>
                                     <?}?>
                                     <button style="left: 45%;" type="button" class="border-0 btn btn-cargarImagenPreg btn-outline-secondary" title="Cargar imagen" disabled><i class="fa fa-camera"></i></button>
                                     <input disabled="disabled" type="text" readonly="readonly" id="txt-fotoprincipal-<?= $num ?>" name="fotoprincipal-<?= $num ?>" class="hide">

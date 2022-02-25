@@ -157,15 +157,23 @@ class M_encuesta extends MY_Model
 		$sql = "
 			DECLARE @fecIni DATE='" . $fechas[0] . "',@fecFin DATE='" . $fechas[1] . "';
 			SELECT DISTINCT
-					e.idEncuesta,e.nombre 'encuesta',e.foto,
-					ep.idPregunta,ep.nombre 'pregunta',ep.idTipoPregunta,ep.orden,
-					ea.idAlternativa,ea.nombre 'alternativa'
+					e.idEncuesta,UPPER(e.nombre) 'encuesta',e.foto,
+					ep.idPregunta,UPPER(ep.nombre) 'pregunta',ep.idTipoPregunta,ep.orden,
+					ea.idAlternativa,UPPER(ea.nombre) 'alternativa',
+					eao.idAlternativaOpcion,
+					UPPER(eao.nombre) opcion,
+					epf.foto imagenPreg
 				FROM {$this->sessBDCuenta}.trade.list_encuesta le
 				JOIN {$this->sessBDCuenta}.trade.list_encuestaDet led ON le.idListEncuesta=led.idListEncuesta
 				LEFT JOIN {$this->sessBDCuenta}.trade.encuesta e ON led.idEncuesta=e.idEncuesta
+					AND e.estado = 1
 				JOIN {$this->sessBDCuenta}.trade.encuesta_pregunta ep ON e.idEncuesta=ep.idEncuesta
+					AND ep.estado = 1
 				LEFT JOIN {$this->sessBDCuenta}.trade.encuesta_alternativa ea ON ep.idPregunta=ea.idPregunta
+					AND ea.estado = 1 
 				LEFT JOIN trade.canal ca ON ca.idCanal = le.idCanal
+				LEFT JOIN {$this->sessBDCuenta}.trade.encuesta_alternativa_opcion eao ON ep.idPregunta=eao.idPregunta AND eao.estado = 1
+				LEFT JOIN {$this->sessBDCuenta}.trade.encuesta_pregunta_foto epf ON ep.idPregunta=epf.idPregunta AND epf.estado = 1
 				WHERE 
 					le.fecIni<=isnull(le.fecFin,@fecFin)
 					AND ( @fecIni between le.fecIni AND isnull(le.fecFin,@fecFin) or @fecFin between le.fecIni AND isnull(le.fecFin,@fecFin)
@@ -195,8 +203,11 @@ class M_encuesta extends MY_Model
 		DECLARE @fecIni DATE='" . $fechas[0] . "',@fecFin DATE='" . $fechas[1] . "';
 			SELECT
 			DISTINCT
-				v.idVisita,ve.idEncuesta,vf.idVisitaFoto,vf.fotoUrl imgRef,vfd.fotoUrl imgRefSub,
-				ep.idPregunta,
+				v.idVisita,ve.idEncuesta
+				,vf.idVisitaFoto
+				,vf.fotoUrl imgRef
+				,vfd.fotoUrl imgRefSub
+				,ep.idPregunta,
 				ep.idTipoPregunta,
 				isnull(ea.nombre,ved.respuesta) 'respuesta'
 				, v.idCliente
@@ -211,17 +222,22 @@ class M_encuesta extends MY_Model
 				, CONVERT(varchar,r.fecha,103) fecha
 				, ve.idVisitaEncuesta
 				, ve.flagFotoMultiple
+				, ved.idAlternativaOpcion
+				, vfd2.fotoUrl imgPreg
 			FROM {$this->sessBDCuenta}.trade.data_ruta r
 			JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta=v.idRuta
 			JOIN trade.cliente c ON v.idCliente=c.idCliente
 			LEFT JOIN General.dbo.ubigeo ubi01 ON c.cod_ubigeo=ubi01.cod_ubigeo
 			JOIN {$this->sessBDCuenta}.trade.data_visitaEncuesta ve ON v.idVisita=ve.idVisita
 			JOIN {$this->sessBDCuenta}.trade.data_visitaEncuestaDet ved ON ve.idVisitaEncuesta=ved.idVisitaEncuesta
+				AND ved.estado = 1
+			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaEncuestaDetFoto vedf ON vedf.idVisitaEncuesta = ve.idVisitaEncuesta
 			JOIN {$this->sessBDCuenta}.trade.encuesta e ON e.idEncuesta = ve.idEncuesta
 			JOIN {$this->sessBDCuenta}.trade.encuesta_pregunta ep ON ved.idPregunta=ep.idPregunta
 			LEFT JOIN {$this->sessBDCuenta}.trade.encuesta_alternativa ea ON ved.idAlternativa=ea.idAlternativa
 			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisitaFoto = ve.idVisitaFoto
 			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vfd ON vfd.idVisitaFoto = ved.idVisitaFoto
+			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vfd2 ON vfd2.idVisitaFoto = vedf.idVisitaFoto
 			LEFT JOIN trade.canal ca ON ca.idCanal = v.idCanal
 			
 			JOIN ".getClienteHistoricoCuenta()." ch ON ch.idCliente = c.idCliente
@@ -497,14 +513,39 @@ class M_encuesta extends MY_Model
 				, vf.fotoUrl AS foto
 				, CONVERT(VARCHAR(8),vfm.hora) AS horaMultiple
 				, vfm.fotoUrl AS fotoMultiple
+				, ISNULL(ve.flagFotoMultiple, 0) AS flagFotoMultiple
 			FROM {$this->sessBDCuenta}.trade.data_visitaEncuesta ve
 			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaEncuestaFotos vef ON ve.idVisitaEncuesta = vef.idVisitaEncuesta
 			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisitaFoto=ve.idVisitaFoto
 			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vfm ON vfm.idVisitaFoto=vef.idVisitaFoto
 			WHERE ve.idVisitaEncuesta={$idVisitaEncuesta}
 		";
+
 		return $this->db->query($sql)->result_array();
 	}
 
-	
+	public function obtenerFotosEncuestaAlternativa($idVisitaEncuesta,$idPregunta){
+		$sql = "
+			SELECT DISTINCT
+				CONVERT(VARCHAR(8),vf.hora) AS hora
+				, vf.fotoUrl AS foto
+			FROM {$this->sessBDCuenta}.trade.data_visitaEncuestaDet ved
+			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON ved.idVisitaFoto=vf.idVisitaFoto
+			WHERE ved.idVisitaEncuesta={$idVisitaEncuesta} AND ved.idPregunta ={$idPregunta}
+		";
+
+		return $this->db->query($sql)->result_array();
+	}
+	public function obtenerFotosEncuestaPregunta($idVisitaEncuesta,$idPregunta){
+		$sql = "
+			SELECT DISTINCT
+				CONVERT(VARCHAR(8),vf.hora) AS hora
+				, vf.fotoUrl AS foto
+			FROM {$this->sessBDCuenta}.trade.data_visitaEncuestaDetFoto ved
+			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON ved.idVisitaFoto=vf.idVisitaFoto
+			WHERE ved.idVisitaEncuesta={$idVisitaEncuesta} AND ved.idPregunta ={$idPregunta}
+		";
+
+		return $this->db->query($sql)->result_array();
+	}
 }

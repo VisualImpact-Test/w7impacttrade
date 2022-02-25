@@ -422,12 +422,18 @@ class M_contingenciaRutas extends My_Model{
 				, ea.foto AS fotoAlternativa
 				, ea.flagFotoObligatorio AS flagFotoObligatorioAlternativa
 				, ep.foto AS flagFotoPregunta
+				, epf.foto AS imagenPregunta
+				, eao.idAlternativaOpcion
+				, eao.nombre opcion
+
 			FROM {$this->sessBDCuenta}.trade.list_encuesta le
 			JOIN {$this->sessBDCuenta}.trade.list_encuestaDet led ON led.idListEncuesta=le.idListEncuesta
 			LEFT JOIN {$this->sessBDCuenta}.trade.encuesta e ON e.idEncuesta=led.idEncuesta
 			LEFT JOIN {$this->sessBDCuenta}.trade.encuesta_pregunta ep ON ep.idEncuesta=e.idEncuesta
 			LEFT JOIN master.tipoPregunta tp ON tp.idTipoPregunta=ep.idTipoPregunta
 			LEFT JOIN {$this->sessBDCuenta}.trade.encuesta_alternativa ea ON ea.idPregunta=ep.idPregunta
+			LEFT JOIN {$this->sessBDCuenta}.trade.encuesta_alternativa_opcion eao ON eao.idPregunta=ep.idPregunta
+			LEFT JOIN {$this->sessBDCuenta}.trade.encuesta_pregunta_foto epf ON ep.idPregunta=epf.idPregunta AND epf.estado = 1
 			WHERE e.estado=1 AND ep.estado=1 
 			AND le.idListEncuesta=@idList
 		";
@@ -451,6 +457,7 @@ class M_contingenciaRutas extends My_Model{
 			, ed.idVisitaFoto AS idVisitaFotoAlternativa, vfa.fotoUrl AS fotoAlternativa
 			, vedf.idVisitaFoto AS idVisitaFotoPregunta, vfp.fotoUrl AS fotoPregunta
 			, ea.foto AS flagFotoPregunta
+			, ed.idAlternativaOpcion
 		FROM {$this->sessBDCuenta}.trade.data_visitaEncuesta e
 		LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaEncuestaDet ed ON ed.idVisitaEncuesta=e.idVisitaEncuesta
 		LEFT JOIN {$this->sessBDCuenta}.trade.encuesta_pregunta ea On ea.idPregunta= ed.idPregunta
@@ -473,6 +480,30 @@ class M_contingenciaRutas extends My_Model{
 		$this->db->trans_begin();
 
 			$insert = $this->db->insert($table, $input);
+			$id = $this->db->insert_id();
+
+			$aSessTrack = [ 'idAccion' => 6, 'tabla' => $table, 'id' => $id ];
+
+		if ( $this->db->trans_status()===FALSE ) {
+			$this->db->trans_rollback();
+		} else {
+			$this->db->trans_commit();
+			$this->aSessTrack[] = $aSessTrack;
+		}
+
+		return $insert;
+	}
+
+	public function insertar_visita_encuesta_multiple($input=array()){
+		$aSessTrack = [];
+
+		$table = "{$this->sessBDCuenta}.trade.data_visitaEncuestaFotos";
+		$this->db->trans_begin();
+
+			if(!empty($input[0]['idVisitaEncuesta'])){
+				$delete = $this->db->delete($table, ['idVisitaEncuesta' => $input[0]['idVisitaEncuesta']]);
+			}
+			$insert = $this->db->insert_batch($table, $input);
 			$id = $this->db->insert_id();
 
 			$aSessTrack = [ 'idAccion' => 6, 'tabla' => $table, 'id' => $id ];
@@ -712,7 +743,7 @@ class M_contingenciaRutas extends My_Model{
 		SELECT DISTINCT idVisitaEncuestaDet
 		FROM {$this->sessBDCuenta}.trade.data_visitaEncuestaDet ved
 		LEFT JOIN {$this->sessBDCuenta}.trade.encuesta_pregunta ep ON ep.idPregunta=ved.idPregunta
-		WHERE ep.idTipoPregunta=3 AND ved.idVisitaEncuesta=@idVisitaEncuesta)";
+		WHERE (ep.idTipoPregunta=3 OR ep.idTipoPregunta=4) AND ved.idVisitaEncuesta=@idVisitaEncuesta)";
 
 		$this->aSessTrack[] = [ 'idAccion' => 7, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaEncuestaDet", 'id' => arrayToString([ 'idVisitaEncuesta' => $idVisitaEncuesta ]) ];
 		return $this->db->query($sql);
@@ -4231,6 +4262,24 @@ class M_contingenciaRutas extends My_Model{
 		";
 
 		return $this->db->query($sql);
+	}
+
+	public function obtenerFotosEncuesta($idVisitaEncuesta){
+		$sql = "
+			SELECT DISTINCT
+				CONVERT(VARCHAR(8),vf.hora) AS hora
+				, vf.fotoUrl AS foto
+				, CONVERT(VARCHAR(8),vfm.hora) AS horaMultiple
+				, vfm.fotoUrl AS fotoMultiple
+				, ISNULL(ve.flagFotoMultiple, 0) AS flagFotoMultiple
+			FROM {$this->sessBDCuenta}.trade.data_visitaEncuesta ve
+			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaEncuestaFotos vef ON ve.idVisitaEncuesta = vef.idVisitaEncuesta
+			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisitaFoto=ve.idVisitaFoto
+			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vfm ON vfm.idVisitaFoto=vef.idVisitaFoto
+			WHERE ve.idVisitaEncuesta={$idVisitaEncuesta}
+		";
+
+		return $this->db->query($sql)->result_array();
 	}
 
 }
