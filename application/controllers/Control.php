@@ -247,6 +247,13 @@ class Control extends MY_Controller{
         //Cargamos Vista
 		$this->load->view("modulos/control/foto", $data);
     }
+	public function mostrarImagen(){
+		//Datos Generales
+		$data['foto']=$this->input->post('foto');
+		$data['modulo']=$this->input->post('modulo');
+        //Cargamos Vista
+		$this->load->view("modulos/control/imagen", $data);
+    }
 	public function json_usuarios(){
 		$result = $this->result;
 		$get = $this->input->get();

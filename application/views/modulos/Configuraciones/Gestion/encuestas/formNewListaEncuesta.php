@@ -69,7 +69,7 @@ $select2 = "my_select2AgregarLista";
 
 
     <div class="form-row mb-3">
-        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="overflow-x:auto">
             <div class="table-wrapper-scroll-y my-custom-scrollbar">
                 <table class='table table-sm table-bordered text-nowrap'>
                     <thead class='thead-light'>

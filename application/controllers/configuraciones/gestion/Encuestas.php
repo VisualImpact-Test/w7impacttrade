@@ -244,7 +244,7 @@ class Encuestas extends MY_Controller
 		}
 
 		$titulo = '';
-		$width = '80%';
+		$width = '90%';
 		$result['msg']['title'] = $titulo;
 		$result['data']['width'] = $width;
 		$result['data']['class'] = $class;
@@ -464,7 +464,7 @@ class Encuestas extends MY_Controller
 		$dataParaVista['class'] = $class;
 
 		$result['result'] = 1;
-		$result['data']['width'] = '45%';
+		$result['data']['width'] = '80%';
 		$result['data']['class'] = $class;
 		$result['data']['html'] = $this->load->view("modulos/configuraciones/gestion/encuestas/formNewListaEncuesta", $dataParaVista, true);
 
@@ -519,7 +519,7 @@ class Encuestas extends MY_Controller
 		$dataParaVista['class'] = $class;
 
 		$result['result'] = 1;
-		$result['data']['width'] = '45%';
+		$result['data']['width'] = '80%';
 		$result['data']['class'] = $class;
 		$result['data']['html'] = $this->load->view("modulos/configuraciones/gestion/encuestas/formUpdateListaEncuesta", $dataParaVista, true);
 

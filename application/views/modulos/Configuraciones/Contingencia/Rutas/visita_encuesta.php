@@ -97,7 +97,7 @@
 											<? if (!empty($preguntas['imagenPregunta'])) : ?>
 												<div class="col-md-2 align-self-center">
 													<div style="text-align: center;">
-														<img id="foto" src="<?= base_url() ?>controlFoto/obtener_carpeta_foto/encuestaFotosRefencia/<?= $preguntas['imagenPregunta']; ?>" class="img-responsive center-block img-thumbnail" style="height:150px;width:auto;" />
+														<img id="foto" src="<?= base_url() ?>controlFoto/obtener_carpeta_imagen/impactTrade_Android/<?= $preguntas['imagenPregunta']; ?>" class="img-responsive center-block img-thumbnail" style="height:150px;width:auto;" />
 													</div>
 												</div>
 											<? endif ?>
@@ -119,7 +119,7 @@
 											<? if (!empty($preguntas['imagenPregunta'])) : ?>
 												<div class="col-md-2 align-self-center">
 													<div style="text-align: center;">
-														<img id="foto" src="<?= base_url() ?>controlFoto/obtener_carpeta_foto/encuestaFotosRefencia/<?= $preguntas['imagenPregunta']; ?>" class="img-responsive center-block img-thumbnail" style="height:150px;width:auto;" />
+														<img id="foto" src="<?= base_url() ?>controlFoto/obtener_carpeta_imagen/impactTrade_Android/<?= $preguntas['imagenPregunta']; ?>" class="img-responsive center-block img-thumbnail" style="height:150px;width:auto;" />
 													</div>
 												</div>
 											<? endif ?>
@@ -161,14 +161,14 @@
 											</div>
 										</div>
 									<? } elseif ($preguntas['idTipoPregunta'] == 3) {
-										$img = base_url() . "controlFoto/obtener_carpeta_foto/encuestaFotosRefencia/{$preguntas['imagenPregunta']}";
+										$img = base_url() . "controlFoto/obtener_carpeta_imagen/impactTrade_Android/{$preguntas['imagenPregunta']}";
 										empty($preguntas['imagenPregunta']) ? $img = "../public/assets/images/sin_imagen.jpg" : '';
 									?>
 										<div class="row " style="margin-top: 15px;margin-bottom: 15px;">
 											<? if (!empty($preguntas['imagenPregunta'])) : ?>
 												<div class="col-md-2 align-self-center">
 													<div style="text-align: center;">
-														<img id="foto" src="<?= base_url() ?>controlFoto/obtener_carpeta_foto/encuestaFotosRefencia/<?= $preguntas['imagenPregunta']; ?>" class="img-responsive center-block img-thumbnail" style="height:150px;width:auto;" />
+														<img id="foto" src="<?= base_url() ?>controlFoto/obtener_carpeta_imagen/impactTrade_Android/<?= $preguntas['imagenPregunta']; ?>" class="img-responsive center-block img-thumbnail" style="height:150px;width:auto;" />
 													</div>
 												</div>
 											<? endif ?>
@@ -215,7 +215,7 @@
 											<? if (!empty($preguntas['imagenPregunta'])) : ?>
 												<div class="col-md-2 align-self-center">
 													<div style="text-align: center;">
-														<img id="foto" src="<?= base_url() ?>controlFoto/obtener_carpeta_foto/encuestaFotosRefencia/<?= $preguntas['imagenPregunta']; ?>" class="img-responsive center-block img-thumbnail" style="height:150px;width:auto;" />
+														<img id="foto" src="<?= base_url() ?>controlFoto/obtener_carpeta_imagen/impactTrade_Android/<?= $preguntas['imagenPregunta']; ?>" class="img-responsive center-block img-thumbnail" style="height:150px;width:auto;" />
 													</div>
 												</div>
 											<? endif ?>

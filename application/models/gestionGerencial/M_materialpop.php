@@ -72,7 +72,7 @@ class M_materialpop extends MY_Model{
 		LEFT JOIN trade.usuario us ON us.idUsuario=ec.idUsuario
 		LEFT JOIN trade.usuario_tipo ut ON r.idTipoUsuario = ut.idTipoUsuario
 		JOIN {$cliente_historico} ch ON v.idCliente = ch.idCliente
-			AND General.dbo.fn_fechaVigente(ch.fecIni,ch.fecFin,GETDATE(),GETDATE())=1 AND ch.idProyecto = {$input['proyecto_filtro']}
+			AND General.dbo.fn_fechaVigente(ch.fecIni,ch.fecFin,r.fecha,r.fecha)=1 AND ch.idProyecto = {$input['proyecto_filtro']}
 		LEFT JOIN trade.cliente c ON v.idCliente = c.idCliente
 		LEFT JOIN trade.segmentacionNegocio sn ON sn.idSegNegocio = ch.idSegNegocio
 		LEFT JOIN trade.cliente_tipo ct
@@ -135,7 +135,7 @@ class M_materialpop extends MY_Model{
             JOIN {$this->sessBDCuenta}.trade.data_visitaMaterialesPop dvv ON dvv.idVisita=v.idVisita
             JOIN {$this->sessBDCuenta}.trade.data_visitaMaterialesPopDet dvd ON dvd.idVisitaMaterialPop=dvv.idVisitaMaterialPop
             LEFT JOIN {$this->sessBDCuenta}.trade.tipo_material tm ON tm.idTipoMaterial = dvd.idTipoMaterial
-            JOIN trade.producto_marca m ON m.idMarca = dvd.idMarca
+            LEFT JOIN trade.producto_marca m ON m.idMarca = dvd.idMarca
             LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisitaFoto=dvd.idVisitaFoto
             LEFT JOIN trade.aplicacion_modulo am ON am.idModulo = vf.idModulo
 			LEFT JOIN trade.aplicacion_modulo_grupo amg ON amg.idModuloGrupo = am.idModuloGrupo

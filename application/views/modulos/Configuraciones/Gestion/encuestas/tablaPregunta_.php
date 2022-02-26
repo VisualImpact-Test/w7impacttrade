@@ -42,8 +42,8 @@ $nameInputFile = "fotoPreg";
                             <th class="text-center align-middle">
                                 <div class="wr-10">TIPO <br>   PREGUNTA</div>
                             </th>
-                            <th class="text-center align-middle">
-                                <div class="wr-20">PREGUNTAS</div>
+                            <th class="text-center align-middle" style="width: 300px !important;">
+                                <div class="wr-60">PREGUNTAS</div>
                             </th>
                             <th class="text-center align-middle">
                                 <div class="wr-5">ORDEN</div>
@@ -118,7 +118,7 @@ $nameInputFile = "fotoPreg";
 
                         <?php
                         foreach ($data as $key => $row) { ?>
-                            <tr class='trHijo table-secondary' data-fila="<?=$num?>">
+                            <tr class='trHijo table-secondary' data-codpregunta = "<?=$row['idPregunta']?>" data-fila="<?=$num?>">
                                 <td class="text-center">
                                     <input name='id-<?= $num ?>' class="chk-ActualizarElemento" type="checkbox" value='<?= $row['idPregunta'] ?>'>
                                 </td>
@@ -131,7 +131,7 @@ $nameInputFile = "fotoPreg";
                                     </div>
                                     <button  type="button" class="<?= !empty($row['imagenReferencia']) ? "d-none" : ''?> border-0 btn btn-verImagenPreg btn-outline-secondary" title="Ver imagen" disabled><i class="fal fa-image-polaroid fa-lg"></i></button>
                                     <?if(!empty($row['imagenReferencia'])){?>
-                                        <?=  rutafotoModulo(['foto'=>$row['imagenReferencia'],'modulo'=>'encuestaFotosRefencia','icono'=>'fal fa-image-polaroid fa-lg btn-outline-primary btn border-0']);  ?>
+                                        <?=  rutaImagen(['foto'=>$row['imagenReferencia'],'modulo'=>'impactTrade_Android','icono'=>'fal fa-image-polaroid fa-lg btn-outline-primary btn border-0']);  ?>
                                     <?}?>
                                     <button style="left: 45%;" type="button" class="border-0 btn btn-cargarImagenPreg btn-outline-secondary" title="Cargar imagen" disabled><i class="fa fa-camera"></i></button>
                                     <input disabled="disabled" type="text" readonly="readonly" id="txt-fotoprincipal-<?= $num ?>" name="fotoprincipal-<?= $num ?>" class="hide">

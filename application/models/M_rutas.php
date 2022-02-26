@@ -84,9 +84,9 @@ class M_rutas extends MY_Model{
 				LEFT JOIN trade.grupoCanal gc ON ca.idGrupoCanal = gc.idGrupoCanal AND gc.idGrupoCanal = {$input['grupo_filtro']}
 			)
 			, list_usuarios_activos as(
-				SELECT u.idUsuario, u.numDocumento, u.apePaterno, u.apeMaterno, u.nombres FROM trade.usuario u
+				SELECT u.idUsuario, u.numDocumento, u.apePaterno, u.apeMaterno, u.nombres, uh.idTipoUsuario FROM trade.usuario u
 				JOIN trade.usuario_historico uh ON uh.idUsuario = u.idUsuario 
-				WHERE General.dbo.fn_fechaVigente (uh.fecIni,uh.fecFin,@hoy,@hoy) = 1 AND uh.idProyecto = {$sessIdProyecto}
+				WHERE General.dbo.fn_fechaVigente (uh.fecIni,uh.fecFin,@hoy,@hoy) = 1 AND uh.idAplicacion != 2 AND uh.idProyecto = {$sessIdProyecto}
 			)
 			, list_visitas as(
 			SELECT 
@@ -192,7 +192,7 @@ class M_rutas extends MY_Model{
 			FROM {$this->sessBDCuenta}.trade.data_ruta r
 			JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta 
 			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaIncidencia vi ON vi.idVisita = v.idVisita
-			LEFT JOIN list_usuarios_activos lua ON r.idUsuario = lua.idUsuario
+			LEFT JOIN list_usuarios_activos lua ON r.idUsuario = lua.idUsuario AND r.idTipoUsuario = lua.idTipoUsuario
 
 			JOIN trade.cliente c ON c.idCliente = v.idCliente
 			LEFT JOIN ".getClienteHistoricoCuenta()." ch ON ch.idCliente = c.idCliente 

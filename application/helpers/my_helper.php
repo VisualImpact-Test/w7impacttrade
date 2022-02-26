@@ -1630,6 +1630,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 		return ' <a href="javascript:;"  class="lk-show-foto" data-modulo="'.$modulo.'" data-foto="' . $foto . '" ><i class="'.$icono.'" ></i></a> ';
 	}
+	function rutaImagen($input = [])
+	{
+		$modulo = !empty($input['modulo']) ? $input['modulo'] : 'fotos';  
+		$foto = !empty($input['foto']) ? $input['foto'] : '';
+		$icono = !empty($input['icono']) ? $input['icono'] : 'fa fa-camera';  
+
+		return ' <a href="javascript:;"  class="lk-show-foto-imagen" data-modulo="'.$modulo.'" data-foto="' . $foto . '" ><i class="'.$icono.'" ></i></a> ';
+	}
 
 	function getDistanciaMaps($input = [])
 	{
