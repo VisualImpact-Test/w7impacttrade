@@ -83,14 +83,20 @@ defined('EXIT_USER_INPUT')     OR define('EXIT_USER_INPUT', 7); // invalid user 
 defined('EXIT_DATABASE')       OR define('EXIT_DATABASE', 8); // database error
 defined('EXIT__AUTO_MIN')      OR define('EXIT__AUTO_MIN', 9); // lowest automatically-assigned error code
 defined('EXIT__AUTO_MAX')      OR define('EXIT__AUTO_MAX', 125); // highest automatically-assigned error code
-// defined('RUTA_MOVIL_FOTOS')    OR define('RUTA_MOVIL_FOTOS','http://movil.visualimpact.com.pe/fotos/impactTrade_android/');
-defined('RUTA_MOVIL_FOTOS')    OR define('RUTA_MOVIL_FOTOS','http://visualimpact.test/movil/fotos/impactTrade_Android/');
+defined('RUTA_MOVIL_FOTOS')    OR define('RUTA_MOVIL_FOTOS','http://movil.visualimpact.com.pe/fotos/impactTrade_android/');
+defined('RUTA_MOVIL_IMAGENES') OR define('RUTA_MOVIL_IMAGENES','http://movil.visualimpact.com.pe/archivos/');
 defined('GC_TRADICIONALES')    OR define('GC_TRADICIONALES',['Tradicional','TRADICIONAL','HFS']);
 defined('GC_MODERNOS')         OR define('GC_MODERNOS',['Moderno','MODERNO','HSM']);
 defined('GC_MAYORISTAS')       OR define('GC_MAYORISTAS',['WHLS','whls','mayorista',"Mayorista"]);
 defined('ID_TIPOUSUARIO_TI')   OR define('ID_TIPOUSUARIO_TI',4);
-// defined('FOTOS_CONTROLADOR')   OR define('FOTOS_CONTROLADOR',base_url()+ 'ControlFoto/');
-// defined('RUTA_BAT')            OR define('RUTA_BAT','C:\apache24\PHP\php7\php.exe -f "C:\apache24\htdocs\impactTrade\index.php" ');
-defined('RUTA_BAT')            OR define('RUTA_BAT','C:\wamp64\bin\php\php7.1.33\php-win.exe -f "C:\wamp64\www\w7impacttrade\index.php" ');
+defined('RUTA_BAT')            OR define('RUTA_BAT','C:\apache24\PHP\php7\php.exe -f "C:\apache24\htdocs\impactTrade\index.php" ');
 defined('PROYECTO_MODERNO_PG') OR define('PROYECTO_MODERNO_PG',17);
 defined('PROYECTO_PROMOTORIA_AJE') OR define('PROYECTO_PROMOTORIA_AJE',19);
+
+// defined('RUTA_MOVIL_IMAGENES') OR define('RUTA_MOVIL_IMAGENES','http://movil.movilphp56.loc/fotos/');
+
+
+// defined('RUTA_MOVIL_FOTOS')    OR define('RUTA_MOVIL_FOTOS','http://visualimpact.test/movil/fotos/impactTrade_Android/');
+// defined('RUTA_MOVIL_IMAGENES')    OR define('RUTA_MOVIL_IMAGENES','http://visualimpact.test/movil/fotos/');
+// defined('FOTOS_CONTROLADOR')   OR define('FOTOS_CONTROLADOR',base_url()+ 'ControlFoto/');
+// defined('RUTA_BAT')            OR define('RUTA_BAT','C:\wamp64\bin\php\php7.1.33\php-win.exe -f "C:\wamp64\www\w7impacttrade\index.php" ');

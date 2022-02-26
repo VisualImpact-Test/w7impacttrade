@@ -790,6 +790,27 @@ var View={
 				Fn.showModal({ id: modalId, show: true, title: "FOTOS", content: dataBody, btn: btn });
 			});
 		});
+		$('body').on('click', '.lk-show-foto-imagen', function () {
+			var foto = $(this).attr('data-foto');
+			var modulo = $(this).attr('data-modulo');
+			var comentario = $(this).attr('data-comentario');
+
+			let dataBody;
+
+			Fn.showLoading(true);
+
+			$.when($.post(site_url + "control/mostrarImagen", { foto: foto, modulo: modulo, comentario: comentario }, function (data) {
+				dataBody = data;
+			})).then ( () => {
+				++modalId;
+				var fn = 'Fn.showModal({ id:' + modalId + ',show:false });';
+				var btn = [];
+				btn[0] = { title: 'Cerrar', fn: fn };
+
+				Fn.showLoading(false);
+				Fn.showModal({ id: modalId, show: true, title: "FOTOS", content: dataBody, btn: btn });
+			});
+		});
 
 		$('body').on('click', '.lk-show-gps', function () {
 			var lati_1 = $(this).attr('data-lati-1');

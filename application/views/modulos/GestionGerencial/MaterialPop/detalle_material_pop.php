@@ -51,7 +51,7 @@
 							$rows = count($elementos[$idMat]);
 							$rows = $rows * 2;
 				?>
-							<th class="text-center" rowspan="1" colspan="<?= $rows ?>"><?= $material ?></th>
+							<th class="text-center" rowspan="1" colspan="<?= $rows ?>"><?= !empty($material) ? $material: "OTROS" ?></th>
 				<?
 						}
 					}

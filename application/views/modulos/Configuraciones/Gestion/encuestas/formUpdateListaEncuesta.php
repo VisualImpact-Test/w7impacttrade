@@ -97,7 +97,7 @@ $select2 = "my_select2EditarLista";
 
     <div class="form-row mb-3">
         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-            <div class="table-wrapper-scroll-y my-custom-scrollbar">
+            <div class="table-wrapper-scroll-y my-custom-scrollbar" style="overflow: auto;">
                 <table class='table table-sm table-bordered text-nowrap'>
                     <thead class='thead-light'>
                         <tr>

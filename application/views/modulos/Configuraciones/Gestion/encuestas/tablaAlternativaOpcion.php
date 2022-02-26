@@ -47,7 +47,7 @@ $checkFoto = "chkFoto";
                             </td>
                             <td class="text-center" data-name='<?= $estadoAlternativa ?>'>
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input uncheckableRadio" type="radio" value="true">
+                                    <input class="form-check-input uncheckableRadio" type="radio" value="true" checked>
                                     <label class="form-check-label">Activar</label>
                                 </div>
                                 <div class="form-check form-check-inline">

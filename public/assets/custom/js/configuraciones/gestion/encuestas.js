@@ -312,7 +312,7 @@ var Encuestas = {
             let tr = $(this).closest('tr');
 
             tr.find(".btn-verImagenPreg").removeAttr("disabled");
-            tr.find(".lk-show-foto").addClass("d-none")
+            tr.find(".lk-show-foto-imagen").addClass("d-none")
             tr.find(".btn-verImagenPreg").removeClass("d-none")
 
 			if(file.size>=2*1024*1024) {
@@ -500,6 +500,7 @@ var Encuestas = {
             var tr = $(this);
             var visitaModuloFoto = "";
             let fila = tr.data("fila");
+            let idPreg = tr.data("codpregunta");
 
 			var foto='';
 
@@ -511,9 +512,9 @@ var Encuestas = {
             if ( foto !== null ) {
 				var sufijo = 'PREG'+visitaModuloFoto;
 				arrayFoto = {
-					'idVisita':'0000'
+					'idVisita': Fn.generarCorrelativo(idPreg,6)
 					,'contenido':foto
-					,'ruta': 'fotos/impactTrade_Android/encuestaFotosRefencia/'
+					,'ruta': 'archivos/impactTrade_Android/'
 					,'sufijo':sufijo
 					,'columna':'fila'
                     ,'fila': fila

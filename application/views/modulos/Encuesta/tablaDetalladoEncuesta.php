@@ -48,7 +48,7 @@
                         
                             <!-- IMAGEN DE LA PREGUNTA-->
                         
-                            <?= !empty(($pregunta["imagen"])) ?  rutafotoModulo(['foto'=>$pregunta['imagen'],'modulo'=>'encuestaFotosRefencia','icono'=>'fal fa-image-polaroid fa-lg btn-outline-primary btn border-0'])  : '' ?>  
+                            <?= !empty(($pregunta["imagen"])) ?  rutaImagen(['foto'=>$pregunta['imagen'],'modulo'=>'impactTrade_Android','icono'=>'fal fa-image-polaroid fa-lg btn-outline-primary btn border-0'])  : '' ?>  
 
                         </th>
                         <th rowspan="2" class="text-center">FOTO(S) <br> PREGUNTA</th>

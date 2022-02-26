@@ -117,7 +117,7 @@ var Fn = {
 					{
 						$('#modal-page-' + config.id).next('.modal-backdrop').remove();
 						$('#modal-page-' + config.id).remove();
-					}, 250);
+					}, 0);
 				
 			});
 			;

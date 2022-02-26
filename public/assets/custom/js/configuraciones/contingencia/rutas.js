@@ -144,12 +144,13 @@ var ContingenciaRutas = {
 				var btn = [];
 				var html = '<div class="text-center"><h2><strong>'+cliente+'</strong></h2><hr style="margin-bottom:0px;"></div>';
 
-				fn[0] = 'Fn.showModal({ id:'+modalId+',show:false });';
+				fn[0] = 'Fn.showModal({ id:'+modalId+',show:false });limpiarFotosEncuesta();';
 
 				if (a.data.htmlButtons == 1) {
 					btn[0] = { title: 'Cerrar', fn: fn[0] };
 				} else if (a.data.htmlButtons == 2) {
 					btn[1] = { title: 'Guardar', fn: a.data.htmlGuardar };
+					fn[0] = 'Fn.showModal({ id:'+modalId+',show:false });ContingenciaRutas.limpiarFotosEncuesta();';
 					btn[0] = { title: 'Cerrar', fn: fn[0] };
 				} else {
 					btn[0] = { title: 'Cerrar', fn: fn[0] };
@@ -238,37 +239,38 @@ var ContingenciaRutas = {
 			{
 				fotos = [];
 			}
-
-			if(idVisitaEncuesta !== ''){
+			
+			if(idVisitaEncuesta !== '' && fotos.length == 0){
 				var data = { idVisitaEncuesta: idVisitaEncuesta };
 				var jsonString = { 'data': JSON.stringify(data) };
 				var configAjax = { 'url': ContingenciaRutas.url + 'mostrarFotosEncuesta', 'data': jsonString };
 
 				$.when(Fn.ajax(configAjax)).then(function (a) {
-					if(fotos.length = 0){
-						fotos = a.data.fotos
-					}
+					html += `<p>`;
+		
+					$.each( a.data.fotos, function(index, value){
+						html += `<a class="fancybox" href="${value}" data-fancybox-group="gallery1" title="" alt=""><img src="${value}" border="0" class="thumb"></a>`;
+					});
+					
+					html += `</p>`;
+
+					$(".imagesEnc").html(html);
+					ContingenciaRutas.fotosLib();
+					$(".fancybox").first().click();
 				});
-			}
-
-			html += `<p>`;
-			$.each( fotos, function(index, value){
-				
-				// html += '<img src="'+value+'" style="width:260px;margin:15px;"></img>';
-				html += `<a class="fancybox" href="${value}" data-fancybox-group="gallery1" title="" alt=""><img src="${value}" border="0" class="thumb"></a>`;
-			});
+			}else{
+				html += `<p>`;
 			
-			html += `</p>`;
+				$.each( fotos, function(index, value){
+					html += `<a class="fancybox" href="${value}" data-fancybox-group="gallery1" title="" alt=""><img src="${value}" border="0" class="thumb"></a>`;
+				});
 				
-			$(".imagesEnc").html(html);
-			ContingenciaRutas.fotosLib();
-			$(".fancybox").first().click();
-			// ++modalId;
-			// var btn=[];
-			// var fn='Fn.showModal({ id:'+modalId+',show:false });';
+				html += `</p>`;
 
-			// btn[0]={title:'Cerrar',fn:fn};
-			// Fn.showModal({ id:modalId, show:true, title:'Archivo',content:html, btn:btn });
+				$(".imagesEnc").html(html);
+				ContingenciaRutas.fotosLib();
+				$(".fancybox").first().click();
+			}
 		});
 
         /***************VISITA PRODUCTOS - PRECIOS******************/
@@ -3086,6 +3088,10 @@ var ContingenciaRutas = {
 		$(".forcedgallery > a").jqPhotoSwipe({
 			forceSingleGallery: true
 		});
+	},
+
+	limpiarFotosEncuesta: () => {
+		ContingenciaRutas.fotosMultiples = [];
 	}
 	
 }
