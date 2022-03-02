@@ -103,9 +103,53 @@ var EvidenciaFotografica = {
 			});
 		});
 
+		$(document).on('click','#btn-evidenciafoto-pdf', function(e) {
+			var data = {};
+			var jsonString = { 'data': JSON.stringify(data) };
+			var configAjax = { 'url': EvidenciaFotografica.url + 'getFormEvidenciaFotoPdf', 'data': jsonString };
+
+			$.when( Fn.ajax(configAjax) ).then( function(a){
+				++modalId;
+
+				var fn='Fn.showModal({ id:'+modalId+',show:false });';
+
+				if(a.result == 0 ) var fn1='Fn.showModal({ id:'+modalId+',show:false });';
+				if(a.result == 1 ) var fn1='EvidenciaFotografica.verificar_frm_evidenciafoto_pdf();';
+				var btn=new Array();
+					btn[0]={title:'Cerrar',fn:fn};
+					btn[1]={title:'Generar',fn:fn1};
+				Fn.showModal({ id:modalId,show:true,title:a.msg.title,content:a.data.html,btn:btn,width: a.data.width});
+			});
+		});
+
 
 	
-	}
+	},
+	verificar_frm_evidenciafoto_pdf: function(){
+
+		let cantidadDeClientes = $('#clientes').val().length;
+		let topeDeClientes = $('#topClientes').val();
+		if(cantidadDeClientes <= topeDeClientes){
+			EvidenciaFotografica.generar_pdf_evidenciafoto();
+		}else{
+			modalId++
+			var fn='Fn.showModal({ id:'+modalId+',show:false });';
+			var title = 'Alerta';
+			var content = Fn.message({'type':2,'message':`Solo puede seleccionar un máximo de ${topeDeClientes} clientes`});
+			var btn=new Array();
+				btn[0]={title:'Aceptar',fn:fn};
+			Fn.showModal({ id:modalId,show:true,title:title,content:content,btn:btn});
+
+		}
+	},
+	generar_pdf_evidenciafoto: function(){
+		var data=Fn.formSerializeObject( EvidenciaFotografica.frmRutas );
+			data.frmPdf = Fn.formSerializeObject('formPdfEvidenciaFoto');
+		var jsonString={ 'data':JSON.stringify( data ) };
+		var url = site_url+EvidenciaFotografica.url+'evidenciaFotografica_pdf';
+		
+		Fn.download(url,jsonString);
+	},
 }
 
 EvidenciaFotografica.load();

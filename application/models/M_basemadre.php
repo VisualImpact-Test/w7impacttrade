@@ -142,7 +142,8 @@ class M_basemadre extends MY_Model{
 			, c.direccion, c.ruc, c.dni
 			, c.nombreComercial, ch.idFrecuencia , fe.nombre as frecuencia
 			, ub.departamento, ub.provincia, ub.distrito, LTRIM(RTRIM(ub.cod_departamento)) AS cod_departamento
-			, gc.idGrupoCanal, gc.nombre grupoCanal
+			, gc.idGrupoCanal
+			, ISNULL(pgc.nombre,gc.nombre) grupoCanal
 			, ca.idCanal, ca.nombre canal
 			, ctp.idClienteTipo
 			, ctp.nombre subCanal
@@ -178,6 +179,7 @@ class M_basemadre extends MY_Model{
 			LEFT JOIN General.dbo.ubigeo ub WITH (NOLOCK) ON ub.cod_ubigeo = c.cod_ubigeo
 			LEFT JOIN master.anychartmaps_ubigeo map WITH (NOLOCK) ON map.cod_departamento = ub.cod_departamento 
 			LEFT JOIN trade.frecuencia fe WITH (NOLOCK) ON fe.idFrecuencia=ch.idFrecuencia
+			LEFT JOIN trade.proyectoGrupoCanal pgc ON pgc.idGrupoCanal = gc.idGrupoCanal AND pgc.idProyecto = ch.idProyecto
 			{$segmentacion['join']}
 		WHERE
 			c.estado = 1 

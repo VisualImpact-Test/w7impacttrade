@@ -85,7 +85,7 @@
 								<th class="text-center noVis <?=$color?>" rowspan="1">CANTIDAD</th>
 								<!-- <th class="text-center noVis <?=$color?>" rowspan="1">LATITUD</th> -->
 								<!-- <th class="text-center noVis <?=$color?>" rowspan="1">LONGITUD</th> -->
-								<th class="text-center noVis <?=$color?>" rowspan="1">FOTO</th>
+								<th class="text-center noVis excel-borrar <?=$color?>" rowspan="1">FOTO</th>
 				<?
 							}
 						}

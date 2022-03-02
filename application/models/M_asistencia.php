@@ -33,6 +33,24 @@ class M_asistencia extends MY_Model{
 		$filtros .= !empty($input['cadena_filtro']) ? ' AND cd.idCadena='.$input['cadena_filtro'] : '';
 		$filtros .= !empty($input['banner_filtro']) ? ' AND b.idBanner='.$input['banner_filtro'] : '';
 		$filtros .= !empty($input['zonausuario']) ? ' AND uhz.idZona='.$input['zonausuario'] : '';
+		
+	
+		$h_zonas = $this->db->query("SELECT idZona FROM ImpactTrade_bd.trade.usuario_historicoZona WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
+		$zonas = !empty($h_zonas) ? implode(',', array_map('array_shift', $h_zonas)): '';
+		$h_plazas = $this->db->query("SELECT idPlaza FROM ImpactTrade_bd.trade.usuario_historicoPlaza WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
+		$plazas = !empty($h_zonas) ? implode(',', array_map('array_shift', $h_plazas)): '';
+		$h_canales = $this->db->query("SELECT idCanal FROM ImpactTrade_bd.trade.usuario_historicoCanal WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
+		$canales = !empty($h_canales) ? implode(',', array_map('array_shift', $h_canales)): '';
+		$h_sucursales = $this->db->query("SELECT idDistribuidoraSucursal FROM ImpactTrade_bd.trade.usuario_historicoDistribuidoraSucursal WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
+		$sucursales = !empty($h_sucursales) ? implode(',', array_map('array_shift', $h_sucursales)): '';
+        $h_banners = $this->db->query("SELECT idBanner FROM ImpactTrade_bd.trade.usuario_historicoBanner WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
+		$banners = !empty($h_banners) ? implode(',', array_map('array_shift', $h_banners)): '';
+        
+        !empty($canales) ? $filtros .= " AND uhd.idCanal IN({$canales})" : '' ;
+        !empty($zonas) ? $filtros .= " AND uhz.idZona IN({$zonas})" : '' ;
+        !empty($plazas) ? $filtros .= " AND uhp.idPlaza IN({$plazas})" : '' ;
+        !empty($sucursales) ? $filtros .= " AND uhdd.idDistribuidoraSucursal IN({$sucursales})" : '' ;
+		!empty($banners) ? $filtros .= " AND uhb.idBanner IN({$banners})" : '' ;
 		}
 
 		// DATOS DEMO
@@ -226,6 +244,7 @@ class M_asistencia extends MY_Model{
 			LEFT JOIN trade.banner b ON b.idBanner = uhb.idBanner AND b.estado = 1
 		WHERE
 			uh.idAplicacion IN (1, 4, 8)
+			AND u.demo = 0
 			$filtros
 			
 		ORDER BY cuenta, proyecto, grupoCanal, canal, departamento, provincia, distrito, usuario, fecha ASC";

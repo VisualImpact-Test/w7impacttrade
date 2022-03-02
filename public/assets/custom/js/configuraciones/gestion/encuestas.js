@@ -6,6 +6,7 @@ var Encuestas = {
     grupoCanal:null,
     idCuenta:0,
     grupoCanal_canales:null,
+    ordernOpcion:0,
 
     customDataTable: function () { },
 
@@ -285,7 +286,84 @@ var Encuestas = {
 		});
         $(document).on("click", ".btn-clickToAgregar", function (e) {
             $('.btn-AgregarElemento').click();
-        });        
+        });
+        $(document).on("click", "table thead th .btn-AgregarElementoOpcion", function (e) {
+			e.preventDefault();
+            Encuestas.ordenOpcion += 1;
+			var tabla = $(this).closest('table');
+			var tbody = $(tabla).find('tbody');
+			var lastFila = $(tabla).find('tbody tr.trHijo:last').data('fila');
+			var nextFila = (typeof lastFila !== 'undefined') ? lastFila + 1: 1; 
+			var trPadre = $(tabla).find('tbody .trPadre').clone(true);
+			var select2Clase = $(trPadre).data('select2');
+			var modalClase = $(trPadre).data('classmodal');
+			$(trPadre).addClass('trHijo');
+			$(trPadre).removeClass('trPadre');
+			$(trPadre).removeClass('d-none');
+			$(trPadre).data('fila', nextFila);
+
+			$(trPadre).find('select').removeAttr('disabled');
+			var tdsInputs = $(trPadre).find('td[data-name]');
+			$.each(tdsInputs, function (i, v) { 
+				var tdName = $(this).data('name');
+				var inputText = $(this).find('input[type="text"]');
+				var select = $(this).find('select');
+				var checkBox = $(this).find('input[type="checkbox"]');
+				var radio = $(this).find('input[type="radio"]');
+				if(inputText.length !== 0) {
+					$(inputText[0]).attr('name', tdName + '-' + nextFila);
+					$(inputText[0]).attr('id', tdName + '-' + nextFila);
+					if(tdName = "txtOrden" && inputText[0].id == `txtOrden-${nextFila}`) {
+                        $(inputText[0]).val(Encuestas.ordenOpcion);
+                    }
+				}
+
+				if(select.length !== 0) {
+					$(select[0]).attr('name', tdName + '-' + nextFila);
+					$(select[0]).attr('id', tdName + '-' + nextFila);
+					$(select[0]).addClass(select2Clase);
+				}
+
+				if(checkBox.length !== 0) {
+					$.each(checkBox, function (i, v) { 
+						$(this).attr('name', tdName + '-' + nextFila);
+					});
+					// $(checkBox[0].parent()).attr('id', tdName + '-' + nextFila);
+					$(checkBox[0]).parent().attr('id', tdName + '-' + nextFila);
+				}
+
+				if(radio.length !== 0) {
+					$.each(radio, function (i, v) { 
+						$(this).attr('name', tdName + '-' + nextFila);
+					});
+					// $(radio[0].parent()).attr('id', tdName + '-' + nextFila);
+					$(radio[0]).parent().attr('id', tdName + '-' + nextFila);
+
+				}
+			});
+
+            $(tbody).append(trPadre);
+
+			$('.' + select2Clase).select2({
+				dropdownParent: $("div.modal-content-" + modalClase),
+				width: '100%'
+			});   
+        });  
+        $(document).on("click", "table .trHijo .btn-BorrarElementoOpcion", function (e) {
+			e.preventDefault();
+            if(Encuestas.ordenOpcion >= 0) {
+                console.log(Encuestas.ordenOpcion -= 1);
+            }
+			var tr = $(this).closest('tr');
+			var table = $(this).closest('table');
+			var lastTh = $(table).find('thead tr:first th:last');
+			var idEliminado = $(tr).find("input[name|='id']").val();
+			if (typeof idEliminado !== 'undefined') {
+				inputHtml = "<input class='d-none' type='text' name='elementosEliminados' value='" + idEliminado + "'>";
+				lastTh.append(inputHtml);
+			}
+			tr.remove();
+		});
         $(document).on("click", ".btn-cargarImagenPreg", function (e) {
 
             let control = $(this);

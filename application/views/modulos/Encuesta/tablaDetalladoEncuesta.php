@@ -153,11 +153,13 @@
                         ?>
                         <?
                         if ($encuesta["foto"] == 1) {
-                            if (isset($visitaFoto[$visita['idVisita']][$keyEncuesta]) || isset($flagFotoMultiple[$visita['idVisita']][$keyEncuesta])) {
+                            if (!empty($visitaFoto[$visita['idVisita']][$keyEncuesta]) || !empty($flagFotoMultiple[$visita['idVisita']][$keyEncuesta])) {
                                 $foto = '<a href="javascript:;" class="lk-encuesta-foto a-fa text-center" data-foto="' . $visitaFoto[$visita['idVisita']][$keyEncuesta] . '" data-modulo="encuestas" data-comentario="" data-idvisitaencuesta="' . $idVisitaEncuesta[$visita['idVisita']][$keyEncuesta] . '"><i class="fa fa-camera" ></i></a>';
                             } else {
                                 $foto = "-";
                             }
+                        }else{
+                            $foto = "-";
                         }
                         ?>
                     <td rowspan="1" class="text-center"><?= $foto ?></td>

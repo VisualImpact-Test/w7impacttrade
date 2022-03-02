@@ -127,7 +127,7 @@ var Home={
 				var fn = 'Fn.showModal({ id:' + modalId + ',show:false });';
 				var btn = new Array();
 				btn[0] = { title: 'Aceptar', fn: fn };
-				Fn.showModal({ id: modalId, show: true, title: 'USUARIOS CON FALTA', content: a.data.html, btn: btn, width: '30%' });
+				Fn.showModal({ id: modalId, show: true, title: 'USUARIOS CON FALTA', content: a.data.html, btn: btn, width: '40%' });
 			});
 
 			return ad.resolve(true);
@@ -224,7 +224,8 @@ var Home={
 		let ad = $.Deferred();
 		let data = { 
 			fecha: $('.fechaHome').val(),
-			zona: $('#zona').val()
+			zona: $('#zona').val(),
+			grupoCanal: $('#grupo_filtro').val(),
 		};
 		let jsonString = { 'data': JSON.stringify(data) };
 		let config = { 'url': Home.url + 'get_asistencia', 'data': jsonString };

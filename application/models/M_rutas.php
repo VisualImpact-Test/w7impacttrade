@@ -79,9 +79,13 @@ class M_rutas extends MY_Model{
 				SELECT a.hora, a.idUsuario, a.fecha FROM {$this->sessBDCuenta}.trade.data_asistencia a WHERE a.idTipoAsistencia = 1
 			)
 			, list_canal AS (
-				SELECT ca.idCanal, gc.nombre, gc.idGrupoCanal 
+				SELECT 
+				ca.idCanal
+				, ISNULL(pgc.nombre,gc.nombre) nombre
+				, gc.idGrupoCanal 
 				FROM trade.canal ca
 				LEFT JOIN trade.grupoCanal gc ON ca.idGrupoCanal = gc.idGrupoCanal AND gc.idGrupoCanal = {$input['grupo_filtro']}
+				LEFT JOIN trade.proyectoGrupoCanal pgc ON pgc.idGrupoCanal = gc.idGrupoCanal AND pgc.idProyecto = {$sessIdProyecto}
 			)
 			, list_usuarios_activos as(
 				SELECT u.idUsuario, u.numDocumento, u.apePaterno, u.apeMaterno, u.nombres, uh.idTipoUsuario FROM trade.usuario u

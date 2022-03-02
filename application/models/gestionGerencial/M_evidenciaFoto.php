@@ -179,5 +179,201 @@ class M_evidenciaFoto extends MY_Model{
 
 		return $result;
 	}
+	public function obtener_evidenciaFotografica($params = [])
+	{
+		$filtros = "";
+		if(empty($params['proyecto_filtro'])){
+			$filtros.= getPermisos('cuenta');
+		}else{
+			$filtros .= !empty($params['idCuenta']) ? ' AND r.idCuenta='.$params['idCuenta'] : '';
+			$filtros .= !empty($params['proyecto_filtro']) ? ' AND r.idProyecto='.$params['proyecto_filtro'] : '';
+			$filtros .= !empty($params['grupoCanal_filtro']) ? ' AND ca.idGrupoCanal='.$params['grupoCanal_filtro'] : '';
+			$filtros .= !empty($params['canal_filtro']) ? ' AND ca.idCanal='.$params['canal_filtro'] : '';
+
+
+			$filtros .= !empty($params['distribuidora_filtro']) ? ' AND d.idDistribuidora='.$params['distribuidora_filtro'] : '';
+			$filtros .= !empty($params['zona_filtro']) ? ' AND z.idZona='.$params['zona_filtro'] : '';
+			$filtros .= !empty($params['plaza_filtro']) ? ' AND pl.idPlaza='.$params['plaza_filtro'] : '';
+			$filtros .= !empty($params['cadena_filtro']) ? ' AND cad.idCadena='.$params['cadena_filtro'] : '';
+			$filtros .= !empty($params['banner_filtro']) ? ' AND ba.idBanner='.$params['banner_filtro'] : '';
+			
+			$filtros .= !empty($params['clientes']) ? " AND v.idCliente IN({$params['clientes']})" : '';
+			
+
+		}
+
+		$cliente_historico = getClienteHistoricoCuenta();
+		$segmentacion = getSegmentacion($params);
+		
+		$demo = $this->demo;
+		$filtro_demo = '';
+		if(!$demo){
+			$filtro_demo = " AND r.demo = 0";
+		}
+
+		$idProyecto = $this->sessIdProyecto;
+		$columnas = '';
+		if(in_array($segmentacion['grupoCanal'], GC_MODERNOS))
+        {
+            $columnas = '
+            , ch.idCadena
+            , ch.idBanner
+            , ch.banner
+            , ch.cadena
+            ';
+        }
+        if(in_array($segmentacion['grupoCanal'], GC_MAYORISTAS))
+        {
+            $columnas = '
+            , ch.plaza 
+            , ch.idPlaza
+            , ch.zona
+            , ch.idDistribuidoraSucursal
+            ';
+        }
+        if(in_array($segmentacion['grupoCanal'], GC_TRADICIONALES))
+        {
+            $columnas = '
+            , ch.distribuidora
+            , ch.ciudadDistribuidoraSuc
+            , ch.codUbigeoDisitrito
+            , ch.idDistribuidoraSucursal
+            , ch.zona
+            ';
+        }
+
+		$sql = "
+			DECLARE @fecIni date='".$params['fecIni']."',@fecFin date='".$params['fecFin']."';
+			WITH list_visitasEvidenciaFoto AS (
+				SELECT 
+					r.idRuta
+					, v.idVisita
+					, r.fecha
+					, r.idProyecto
+					, ca.idGrupoCanal
+					, ca.idCanal
+					, v.idCliente
+					, dvd.idTipoFoto
+					, dvd.comentario comentario
+					, tf.nombre tipoFoto
+					, r.nombreUsuario usuario
+					, dvd.idVisitaEvidenciaFotograficaDet
+					, vft.idTipoFotoEvidencia
+					, tpfv.nombre tipoFotoEvidencia
+					, vf.fotoUrl 'foto'
+					, mg.carpetaFoto
+					, vf.idVisitaFoto
+				FROM {$this->sessBDCuenta}.trade.data_ruta r
+				JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
+				JOIN {$this->sessBDCuenta}.trade.data_visitaEvidenciaFotografica dvv ON dvv.idVisita=v.idVisita
+				JOIN {$this->sessBDCuenta}.trade.data_visitaEvidenciaFotograficaDet dvd ON dvd.idVisitaEvidenciaFotografica=dvv.idVisitaEvidenciaFotografica
+				LEFT JOIN trade.foto_tipo tf ON tf.idTipoFoto = dvd.idTipoFoto
+				LEFT JOIN trade.canal ca ON ca.idCanal=v.idCanal
+				LEFT JOIN trade.grupoCanal gca ON ca.idGrupoCanal=gca.idGrupoCanal
+				LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaEvidenciaFotograficaDetFoto vft ON vft.idVisitaEvidenciaFotograficaDet = dvd.idVisitaEvidenciaFotograficaDet
+				LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisitaFoto=vft.idVisitaFoto
+				LEFT JOIN trade.tipo_foto_evidencia tpfv ON tpfv.idTipoFotoEvidencia = vft.idTipoFotoEvidencia
+				LEFT JOIN trade.aplicacion_modulo m ON m.idModulo = vf.idModulo
+				LEFT JOIN trade.aplicacion_modulo_grupo mg ON mg.idModuloGrupo = m.idModuloGrupo
+				WHERE r.estado = 1 AND v.estado = 1 AND r.demo = 0
+				AND r.fecha BETWEEN @fecIni AND @fecFin
+				AND r.idProyecto={$idProyecto}
+				{$filtros}
+				{$filtro_demo} 
+			), lista_clientes AS (
+			SELECT
+				ch.idCliente
+				, ch.idClienteHist
+				, ch.idSegClienteModerno
+				, ch.idSegClienteTradicional
+				, cli.codCliente
+				, cli.nombreComercial
+				, cli.razonSocial
+				, cli.direccion
+				
+				{$segmentacion['columnas_bd']}
+			FROM trade.cliente cli
+			JOIN {$cliente_historico} ch ON cli.idCliente = ch.idCliente
+			{$segmentacion['join']}
+			WHERE ch.idProyecto = {$idProyecto} 
+			AND General.dbo.fn_fechaVigente(ch.fecIni, ch.fecFin, @fecIni, @fecFin) = 1
+			)
+			SELECT
+				v.fecha
+				, ISNULL(pgc.nombre,gca.nombre) AS grupoCanal
+				, ca.nombre AS canal
+				, ch.codCliente
+				, ch.nombreComercial
+				, ch.idCliente
+				, ch.razonSocial
+				, ch.direccion
+				, UPPER(v.tipoFoto) tipoFoto
+				, UPPER(v.comentario) comentario
+				, v.idTipoFotoEvidencia
+				, v.idTipoFoto
+				, v.tipoFotoEvidencia
+				, v.usuario
+				, v.idVisita
+				, v.foto 
+				, v.carpetaFoto
+				, v.idVisitaFoto
+				{$columnas}
+			FROM list_visitasEvidenciaFoto v
+			LEFT JOIN lista_clientes ch ON v.idCliente = ch.idCliente
+			LEFT JOIN trade.canal ca ON ca.idCanal=v.idCanal
+			LEFT JOIN trade.grupoCanal gca ON ca.idGrupoCanal=gca.idGrupoCanal
+			LEFT JOIN trade.proyectoGrupoCanal pgc ON pgc.idGrupoCanal = gca.idGrupoCanal
+				AND pgc.idProyecto = {$this->sessIdProyecto}
+
+		";
+
+		$query = $this->db->query($sql);
+		$result = array();
+		if ( $query ) {
+			$result = $query->result_array();
+		}
+
+		return $result;
+	}
+
+	public function getTopClientes($params)
+	{
+		$filtros = "";
+		$idProyecto = $this->sessIdProyecto;
+		if(empty($params['proyecto_filtro'])){
+			$filtros.= getPermisos('cuenta');
+		}else{
+			$filtros .= !empty($params['idCuenta']) ? ' AND r.idCuenta='.$params['idCuenta'] : '';
+			$filtros .= !empty($params['proyecto_filtro']) ? ' AND r.idProyecto='.$params['proyecto_filtro'] : '';
+			$filtros .= !empty($params['grupoCanal_filtro']) ? ' AND ca.idGrupoCanal='.$params['grupoCanal_filtro'] : '';
+			$filtros .= !empty($params['canal_filtro']) ? ' AND ca.idCanal='.$params['canal_filtro'] : '';
+
+
+			$filtros .= !empty($params['distribuidora_filtro']) ? ' AND d.idDistribuidora='.$params['distribuidora_filtro'] : '';
+			$filtros .= !empty($params['zona_filtro']) ? ' AND z.idZona='.$params['zona_filtro'] : '';
+			$filtros .= !empty($params['plaza_filtro']) ? ' AND pl.idPlaza='.$params['plaza_filtro'] : '';
+			$filtros .= !empty($params['cadena_filtro']) ? ' AND cad.idCadena='.$params['cadena_filtro'] : '';
+			$filtros .= !empty($params['banner_filtro']) ? ' AND ba.idBanner='.$params['banner_filtro'] : '';
+			
+			$filtros .= !empty($params['clientes']) ? " AND v.idCliente IN({$params['clientes']})" : '';
+			
+		}
+
+		$sql = "
+		DECLARE @fecIni date='".$params['fecIni']."',@fecFin date='".$params['fecFin']."';
+		SELECT TOP {$params['topClientes']}
+		v.idCliente
+		FROM {$this->sessBDCuenta}.trade.data_ruta r
+		JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
+		LEFT JOIN trade.canal ca ON ca.idCanal=v.idCanal
+		LEFT JOIN trade.grupoCanal gca ON ca.idGrupoCanal=gca.idGrupoCanal
+		WHERE r.estado = 1 AND v.estado = 1 AND r.demo = 0
+		AND r.fecha BETWEEN @fecIni AND @fecFin
+		AND r.idProyecto={$idProyecto}
+		{$filtros}
+		";
+
+		return $this->db->query($sql);
+	}
 }
 ?> 
