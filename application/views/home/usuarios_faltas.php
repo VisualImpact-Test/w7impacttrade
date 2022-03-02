@@ -2,6 +2,10 @@
 	<table id="tablaEfectividadGtm" class="mb-0 table table-sm text-nowrap compact" style="width:100%;border-style:none;">
 		<thead style="background-color:darkgray;color:white;">
 			<tr>
+				<th colspan="3" class="text-left">TOTAL: <?=count($usuariosFalta)?></th>
+			</tr>
+			<tr>
+				<th class="text-center">COD USUARIO</th>
 				<th class="text-center" style="width:60%">NOMBRES</th>
 				<th class="text-center" style="width:15%">DNI</th>
 			</tr>
@@ -9,6 +13,7 @@
 		<tbody>
 			<?foreach($usuariosFalta AS $key => $row){?>
 				<tr>
+					<td class="text-center"><?=$row['idUsuario']?></td>
 					<td class="text-left"><?=$row['nombres'].' '.$row['apePaterno'].' '.$row['apeMaterno']?></td>
 					<td class="text-center"><?=$row['numDocumento']?></td>
 				</tr>

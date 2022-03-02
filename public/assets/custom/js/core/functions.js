@@ -109,28 +109,19 @@ var Fn = {
 			$("#lk-modal").click();			
 		}
 		else{
-			// $('#modal-page-' + config.id).modal('hide');
-			$.when($('#modal-page-' + config.id).transition('drop')).then(function(){
-
-				setTimeout(
-					function() 
-					{
-						$('#modal-page-' + config.id).next('.modal-backdrop').remove();
-						$('#modal-page-' + config.id).remove();
-					}, 0);
+				// $('#modal-page-' + config.id).modal('hide');
+				$('#modal-page-' + config.id).next('.modal-backdrop').remove();
+				$('#modal-page-' + config.id).remove();
+				// $('.modal-backdrop.fade.in.modal-stack:last').remove();
+				// $('.modal-backdrop.fade.show.modal-stack:last').remove();
+				// if ($('.modal:visible').length == 0){
+					// $("body").removeClass('modal-open');
+					// $("body").css("padding-right", "");
+				// }
 				
-			});
-			;
-			// $('.modal-backdrop.fade.in.modal-stack:last').remove();
-			// $('.modal-backdrop.fade.show.modal-stack:last').remove();
-			// if ($('.modal:visible').length == 0){
-				// $("body").removeClass('modal-open');
-				// $("body").css("padding-right", "");
-			// }
-			
-			$("#lk-modal").attr("data-target", "");
-
-			Fn.modalVisible();
+				$("#lk-modal").attr("data-target", "");
+	
+				Fn.modalVisible();
 		}
 
 		$(".navbar").removeAttr("style");
@@ -1422,12 +1413,37 @@ var Fn = {
 	},
 
 	exportarExcelDataTable: function(idWrapper){
-		let tablas = $('#'+idWrapper+'_wrapper').find('.table');
-		let header = $(tablas[0]).find('thead')[0].innerHTML;
-		let body = $(tablas[1]).find('tbody')[0].innerHTML;
-		let table = '<table>'+header+body+'</table>';
+		// let tablas = $('#'+idWrapper+'_wrapper').find('.table');
+		// let header = $(tablas[0]).find('thead')[0].innerHTML;
+		// let body = $(tablas[1]).find('tbody')[0].innerHTML;
+		// let table = '<table>'+header+body+'</table>';
+		
+		// Fn.exportarTablaAExcelXLSX_Directo(table, Fn.camelCaseToTitleCase(idWrapper), 'HOJA');
 
-		Fn.exportarTablaAExcelXLSX_Directo(table, Fn.camelCaseToTitleCase(idWrapper), 'HOJA');
+		let tabla = $(`#${idWrapper}`).DataTable();
+		let header = tabla.table().header(":visible ").innerHTML;
+		let data = tabla.columns(":visible ").data();
+		// :visible :not(.excel-borrar)
+		let cantFilas = data[0].length;
+		let cantColumnas = data.length;
+		let html = '';
+			html += `<table>`;
+				html += header;
+				html += `<tbody>`;
+				//debugger;
+				for (let filas = 0; filas < cantFilas; filas++) {
+					html += `<tr>`;
+					for (let columna = 0; columna < cantColumnas ; columna++) {
+						html += `<td>`;
+							html +=	data[columna][filas];
+						html += `</td>`;
+					}
+					html += `</tr>`;
+				}
+
+				html += `</tbody>`;
+			html += `</table>`;
+		Fn.exportarTablaAExcelXLSX_Directo(html, Fn.camelCaseToTitleCase(idWrapper), 'HOJA');
 	},
 
 	camelCaseToTitleCase: function(text){

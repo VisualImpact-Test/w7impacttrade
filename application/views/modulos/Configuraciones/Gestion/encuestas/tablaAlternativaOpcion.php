@@ -4,6 +4,7 @@ $nameTextoAlternativa = 'textoAlternativaOpcion';
 $estadoAlternativa = 'estadoAlternativaOpcion';
 $select2 = "my_select2EditarAlternativasOpciones"; 
 $checkFoto = "chkFoto";
+$nameTextoOrden = 'txtOrden';
 ?>
  
 
@@ -31,10 +32,13 @@ $checkFoto = "chkFoto";
                                 <div class="wr-20">OPCIONES</div>
                             </th>
                             <th class="text-center align-middle">
+                                <div class="wr-5">ORDEN</div>
+                            </th>
+                            <th class="text-center align-middle">
                                 <div>ESTADO</div>
                             </th>
                             <th class="text-center align-middle">
-                                <button  class="btn btn-AgregarElemento btn-secondary" title="Agregar Elemento"><strong>AGREGAR FILA</strong> <i class="fa fa-plus"></i></button>
+                                <button  class="btn btn-AgregarElementoOpcion btn-secondary" title="Agregar Elemento"><strong>AGREGAR FILA</strong> <i class="fa fa-plus"></i></button>
                             </th>
                         </tr>
                     </thead>
@@ -44,6 +48,9 @@ $checkFoto = "chkFoto";
 
                             <td class="text-center" data-name='<?= $nameTextoAlternativa ?>'>
                                 <input type="text" class="form-control form-control-sm" placeholder="Opción">
+                            </td>
+                            <td class="text-center" data-name='<?= $nameTextoOrden ?>'>
+                                <input type="text" class="form-control form-control-sm txtOrden" placeholder="Orden" >
                             </td>
                             <td class="text-center" data-name='<?= $estadoAlternativa ?>'>
                                 <div class="form-check form-check-inline">
@@ -56,7 +63,7 @@ $checkFoto = "chkFoto";
                                 </div>
                             </td>
                             <td class="text-left">
-                                <button style="left: 45%;" class="border-0 btn btn-BorrarElemento btn-outline-secondary" title="Eliminar Elemento"><i class="fa fa-trash"></i></button>
+                                <button style="left: 45%;" class="border-0 btn btn-BorrarElementoOpcion btn-outline-secondary" title="Eliminar Elemento"><i class="fa fa-trash"></i></button>
                             </td> 
                         </tr>
 
@@ -64,10 +71,13 @@ $checkFoto = "chkFoto";
                         foreach ($data as $key => $row) { ?>
                             <tr class='trHijo table-secondary' data-fila="<?=$num?>">
                                 <td class="text-center">
-                                    <input name='id-<?= $num ?>' class="chk-ActualizarElemento" type="checkbox" value='<?= $row['idAlternativa'] ?>'>
+                                    <input name='id-<?= $num ?>' class="chk-ActualizarElemento" type="checkbox" value='<?= $row['idAlternativaOpcion'] ?>'>
                                 </td>
                                 <td class="text-center">
                                     <input value="<?=$row['nombre']?>" name='<?= $nameTextoAlternativa ?>-<?= $num ?>' id='<?= $nameTextoAlternativa ?>-<?= $num ?>' type="text" class="form-control form-control-sm" placeholder="textotest" disabled>
+                                </td>
+                                <td class="text-center">
+                                    <input value="<?=$row['orden']?>" name='<?= $nameTextoOrden ?>-<?= $num ?>' id='<?= $nameTextoOrden ?>-<?= $num ?>' type="text" class="txtOrden form-control form-control-sm" placeholder="orden" disabled>
                                 </td>
                                 <td class="text-center">
                                     <div id='<?= $estadoAlternativa ?>-<?= $num ?>' class="form-check form-check-inline">
@@ -80,7 +90,7 @@ $checkFoto = "chkFoto";
                                     </div>
                                 </td>
                                 <td class="text-left" >
-                                    <button style="left: 45%;" class="border-0 btn btn-BorrarElemento btn-outline-secondary" title="Eliminar Elemento" disabled><i class="fa fa-trash"></i></button>
+                                    <button style="left: 45%;" class="border-0 btn btn-BorrarElementoOpcion btn-outline-secondary" title="Eliminar Elemento" disabled><i class="fa fa-trash"></i></button>
                                 </td>
 
                             </tr>
@@ -98,4 +108,5 @@ $checkFoto = "chkFoto";
         dropdownParent: $("div.modal-content-<?= $class ?>"),
         width: '100%'
     });
+    Encuestas.ordenOpcion = <?= !empty($row['orden']) ? $row['orden'] : 0 ?>
 </script>

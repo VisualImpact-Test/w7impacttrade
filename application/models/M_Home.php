@@ -332,6 +332,27 @@ class M_Home extends MY_Model{
         if(!empty($params['grupoCanal'])){$filtros.= " AND gc.idGrupoCanal = {$params['grupoCanal']} ";}
         if(!empty($params['canal'])){$filtros.= " AND ca.idCanal = {$params['canal']} ";}
 
+        $h_zonas = $this->db->query("SELECT idZona FROM ImpactTrade_bd.trade.usuario_historicoZona WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
+		$zonas = !empty($h_zonas) ? implode(',', array_map('array_shift', $h_zonas)): '';
+		$h_plazas = $this->db->query("SELECT idPlaza FROM ImpactTrade_bd.trade.usuario_historicoPlaza WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
+		$plazas = !empty($h_zonas) ? implode(',', array_map('array_shift', $h_plazas)): '';
+		$h_canales = $this->db->query("SELECT idCanal FROM ImpactTrade_bd.trade.usuario_historicoCanal WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
+		$canales = !empty($h_canales) ? implode(',', array_map('array_shift', $h_canales)): '';
+		$h_sucursales = $this->db->query("SELECT idDistribuidoraSucursal FROM ImpactTrade_bd.trade.usuario_historicoDistribuidoraSucursal WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
+		$sucursales = !empty($h_sucursales) ? implode(',', array_map('array_shift', $h_sucursales)): '';
+        $h_banners = $this->db->query("SELECT idBanner FROM ImpactTrade_bd.trade.usuario_historicoBanner WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
+		$banners = !empty($h_banners) ? implode(',', array_map('array_shift', $h_banners)): '';
+        
+        !empty($canales) ? $filtros .= " AND uhd.idCanal IN({$canales})" : '' ;
+        !empty($zonas) ? $filtros .= " AND uhz.idZona IN({$zonas})" : '' ;
+        !empty($plazas) ? $filtros .= " AND uhp.idPlaza IN({$plazas})" : '' ;
+        !empty($sucursales) ? $filtros .= " AND uhdd.idDistribuidoraSucursal IN({$sucursales})" : '' ;
+		!empty($banners) ? $filtros .= " AND uhb.idBanner IN({$banners})" : '' ;
+
+        // $h_zonas = $this->db->query("SELECT idZona FROM ImpactTrade_bd.trade.usuario_historicoZona WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
+		// $zonas = !empty($h_zonas) ? implode(',', array_map('array_shift', $h_zonas)): '';
+        // !empty($zonas) ? $filtros .= " AND uhz.idZona IN({$zonas})" : '' ;
+
         $sql = "
 			DECLARE @fecha DATE=GETDATE(), @fecIni DATE='{$params['fecha']}', @fecFin DATE='{$params['fecha']}';
 			WITH lista_visita_inicio AS (
@@ -470,7 +491,8 @@ class M_Home extends MY_Model{
 			LEFT JOIN trade.cuenta cu WITH(NOLOCK) ON cu.idCuenta = py.idCuenta
 
 			LEFT JOIN trade.usuario_tipo tu WITH(NOLOCK) ON uh.idTipoUsuario = tu.idTipoUsuario
-			LEFT JOIN rrhh.dbo.empleado e WITH(NOLOCK) ON e.idEmpleado = u.idEmpleado AND e.flag IN ('activo')
+			LEFT JOIN rrhh.dbo.empleado e WITH(NOLOCK) ON e.idEmpleado = u.idEmpleado 
+                --AND e.flag IN ('activo')
 			LEFT JOIN rrhh.dbo.CargoTrabajo ct WITH(NOLOCK) ON ct.idCargoTrabajo = e.idCargoTrabajo
 
 			LEFT JOIN General.dbo.tiempo t WITH(NOLOCK) ON t.fecha BETWEEN @fecIni AND @fecFin
@@ -488,10 +510,15 @@ class M_Home extends MY_Model{
 				AND t.fecha BETWEEN vd.fecSalida AND ISNULL(vd.fecRetorno, t.fecha)
 			LEFT JOIN lista_visita_inicio vi ON vi.fecha = t.fecha AND u.idUsuario = vi.idUsuario AND vi.row = 1
 			LEFT JOIN lista_visita_final vf ON vf.fecha = t.fecha AND u.idUsuario = vf.idUsuario AND vf.row = 1
+
+            LEFT JOIN trade.usuario_historicoDistribuidoraSucursal uhdd ON uhdd.idUsuarioHist = uh.idUsuarioHist AND uhdd.estado = 1
+			LEFT JOIN trade.distribuidoraSucursal ds ON ds.idDistribuidoraSucursal = uhdd.idDistribuidoraSucursal AND ds.estado = 1
+			LEFT JOIN trade.usuario_historicoPlaza uhp ON uhp.idUsuarioHist = uh.idUsuarioHist AND uhp.estado = 1
+			LEFT JOIN trade.usuario_historicoBanner uhb ON uhb.idUsuarioHist = uh.idUsuarioHist AND uhb.estado = 1
 		WHERE
 			uh.idAplicacion IN (1, 4, 8)
 			{$filtros} AND u.demo = 0
-            --AND tu.idTipoUsuario = 1
+            AND tu.idTipoUsuario IN (1)
 			
 		ORDER BY cuenta, proyecto, grupoCanal, canal, fecha ASC
         ";
@@ -550,6 +577,24 @@ class M_Home extends MY_Model{
         if(!empty($params['grupoCanal'])){$filtros.= " AND gc.idGrupoCanal = {$params['grupoCanal']} ";}
         if(!empty($params['canal'])){$filtros.= " AND ca.idCanal = {$params['canal']} ";}
         
+        $h_zonas = $this->db->query("SELECT idZona FROM ImpactTrade_bd.trade.usuario_historicoZona WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
+		$zonas = !empty($h_zonas) ? implode(',', array_map('array_shift', $h_zonas)): '';
+		$h_plazas = $this->db->query("SELECT idPlaza FROM ImpactTrade_bd.trade.usuario_historicoPlaza WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
+		$plazas = !empty($h_zonas) ? implode(',', array_map('array_shift', $h_plazas)): '';
+		$h_canales = $this->db->query("SELECT idCanal FROM ImpactTrade_bd.trade.usuario_historicoCanal WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
+		$canales = !empty($h_canales) ? implode(',', array_map('array_shift', $h_canales)): '';
+		$h_sucursales = $this->db->query("SELECT idDistribuidoraSucursal FROM ImpactTrade_bd.trade.usuario_historicoDistribuidoraSucursal WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
+		$sucursales = !empty($h_sucursales) ? implode(',', array_map('array_shift', $h_sucursales)): '';
+        $h_banners = $this->db->query("SELECT idBanner FROM ImpactTrade_bd.trade.usuario_historicoBanner WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
+		$banners = !empty($h_banners) ? implode(',', array_map('array_shift', $h_banners)): '';
+        
+        !empty($canales) ? $filtros .= " AND ca.idCanal IN({$canales})" : '' ;
+        !empty($zonas) ? $filtros .= " AND uhz.idZona IN({$zonas})" : '' ;
+        !empty($plazas) ? $filtros .= " AND uhpl.idPlaza IN({$plazas})" : '' ;
+        !empty($sucursales) ? $filtros .= " AND uhds.idDistribuidoraSucursal IN({$sucursales})" : '' ;
+		!empty($banners) ? $filtros .= " AND uhb.idBanner IN({$banners})" : '' ;
+
+
         $tiposUsuario = "1,18";
 		if($this->sessIdProyecto == 19) $tiposUsuario = 15;
         $sql = "
@@ -565,6 +610,9 @@ class M_Home extends MY_Model{
         LEFT JOIN trade.grupoCanal gc ON gc.idGrupoCanal = ca.idGrupoCanal
         LEFT JOIN trade.proyecto py ON py.idProyecto = uh.idProyecto
         LEFT JOIN trade.cuenta cu ON cu.idCuenta = py.idCuenta
+        LEFT JOIN trade.usuario_historicoBanner uhb ON uhb.idUsuarioHist = uh.idUsuarioHist
+        LEFT JOIN trade.usuario_historicoDistribuidoraSucursal uhds ON uhds.idUsuarioHist = uh.idUsuarioHist
+        LEFT JOIN trade.usuario_historicoPlaza uhpl ON uhpl.idUsuarioHist = uh.idUsuarioHist
         WHERE 
         uh.idTipoUsuario IN({$tiposUsuario})
         AND u.demo = 0 AND u.estado = 1 AND uh.idAplicacion IN (1, 4, 8)
@@ -620,7 +668,7 @@ class M_Home extends MY_Model{
             $filtros .= " AND uhz.idZona = {$params['zona']} ";
         }
 
-        if(!empty($params['grupoCanal'])){$filtros.= " AND gc.idGrupoCanal = {$params['grupoCanal']} ";}
+        if(!empty($params['grupoCanal'])){$filtros.= " AND gc.idGrupoCanal IN ({$params['grupoCanal']}) ";}
         if(!empty($params['canal'])){$filtros.= " AND c.idCanal IN ({$params['canal']}) ";}
 
         $tiposUsuario = "1,18";
@@ -732,7 +780,7 @@ class M_Home extends MY_Model{
 		return $result;
 	}
 
-    public function get_usuariosFaltas($params = []){
+public function get_usuariosFaltas($params = []){
         $filtros ='';
 
         if (!empty($params['idProyecto'])) {

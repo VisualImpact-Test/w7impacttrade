@@ -278,7 +278,7 @@ class Home extends MY_Controller {
 		}
 
 		$html='
-		<div class="text-center"><h1 class="d-inline mt-0" style="color: #28A745;font-size: 3rem;">'.$porcentajeCompletos.' % Correcto</h1></div>
+		<div class="text-center"><h1 class="d-inline mt-0 " style="color: #28A745;font-size: 3rem;">'.$porcentajeCompletos.' % Correcto</h1></div>
 		<hr>
 		<div class="text-center" style="margin-bottom: 15px;"><h1 class="d-inline mt-0 verFaltas" style="color: #DC3545;font-size: 3rem;cursor: pointer;">'.$porcentajeFaltas.' % Faltas</h1></div>
 		<table class="table table-hover" style="font-size:19px;">
@@ -333,7 +333,7 @@ class Home extends MY_Controller {
 		$post['idCuenta'] = $this->sessIdCuenta;
 		$post['idProyecto'] = $this->sessIdProyecto;
 	
-		$gruposCanal = $this->m_control->get_grupoCanal();
+		$gruposCanal = $this->m_control->get_grupoCanal(['idGrupoCanal' => $post['grupoCanal']]);	
 		$canales = $this->m_control->get_canal(['idCanal' => $post['canal']]);
 		$post['canal'] = implode(',', array_map('array_shift', $canales));
 		$data_efectividadPorGtm = [];
@@ -355,30 +355,78 @@ class Home extends MY_Controller {
 			$result['data']['dataEfectividad'] = $dataEfectividad;			
 		}else{
 			$new_data = [];
+			$usuarios_data = [];
 			$i = 0;
 			foreach ($gruposCanal as $gc) {
 				$post['grupoCanal'] = $gc['id'];
 				$data_efectividadPorGtm = $this->model->get_efectividadPorGtm($post);
 
 				foreach ($data_efectividadPorGtm as $key => $value) {
+					$idUsuario = $value['idUsuario'];
 
-					$efectividad = [
-						'efectivos' =>0,
-						'ippProgramados' =>0,
-						'productosProgramados' =>0,
-						'fotosProgramados' =>0,
-						'visitados' =>0,
-						'comprab2b' =>0,
+					if(empty($efectividad[$idUsuario])){
+						$efectividad[$idUsuario] = [
+							'programados' => 0,
+							'efectivos' =>0,
+							'ippProgramados' =>0,
+							'productosProgramados' =>0,
+							'fotosProgramados' =>0,
+							'visitados' =>0,
+							'comprab2b' =>0,
 
+							'ippEfectuados' => 0,
+							'productosEfectuados' => 0,
+							'fotosEfectuados' => 0,
+						];
+					}
+					$efectividad[$idUsuario]['programados'] += !empty($value['programados']) ? $value['programados'] : '0';
+					$efectividad[$idUsuario]['efectivos'] += !empty($value['efectivos']) ? $value['efectivos'] : '0';
+					$efectividad[$idUsuario]['ippProgramados'] += !empty($value['ippProgramados']) ? $value['ippProgramados'] : '0';
+					$efectividad[$idUsuario]['productosProgramados'] += !empty($value['productosProgramados']) ? $value['productosProgramados'] : '0';
+					$efectividad[$idUsuario]['fotosProgramados'] += !empty($value['fotosProgramados']) ? $value['fotosProgramados'] : '0';
+					$efectividad[$idUsuario]['ippEfectuados'] += !empty($value['ippEfectuados']) ? $value['ippEfectuados'] : '0';
+					$efectividad[$idUsuario]['productosEfectuados'] += !empty($value['productosEfectuados']) ? $value['productosEfectuados'] : '0';
+					$efectividad[$idUsuario]['fotosEfectuados'] += !empty($value['fotosEfectuados']) ? $value['fotosEfectuados'] : '0';
+
+					$efectividad[$idUsuario]['visitados'] += !empty($value['visitados']) ? $value['visitados'] : '0';
+					$efectividad[$idUsuario]['comprab2b'] += !empty($value['comprab2b']) ? $value['comprab2b'] : '0';
+
+					// $efectividad[$idUsuario]['efectivos'] += !empty($value['efectivos']) ? get_porcentaje($value['programados'], $value['efectivos'], 0) : '0';
+					// $efectividad[$idUsuario]['ippProgramados'] += !empty($value['ippProgramados']) ? get_porcentaje($value['ippProgramados'], $value['ippEfectuados'], 0) : '0';
+					// $efectividad[$idUsuario]['productosProgramados'] += !empty($value['productosProgramados']) ? get_porcentaje($value['productosProgramados'], $value['productosEfectuados'], 0) : '0';
+					// $efectividad[$idUsuario]['fotosProgramados'] += !empty($value['fotosProgramados']) ? get_porcentaje($value['fotosProgramados'], $value['fotosEfectuados'], 0) : '0';
+					// $efectividad[$idUsuario]['visitados'] += !empty($value['visitados']) ? get_porcentaje($value['programados'], $value['visitados'], 0) : '0';
+					// $efectividad[$idUsuario]['comprab2b'] += !empty($value['comprab2b']) ? get_porcentaje($value['programados'], $value['comprab2b'], 0) : '0';
+
+					$usuarios_data[$value['idUsuario']] = [
+						'idUsuario' => $value['idUsuario'],
+						'usuario'  => verificarEmpty($value['usuario'], 3),
+						'programados'  => $efectividad[$idUsuario]['programados'],
+						'efectivos' => $efectividad[$idUsuario]['efectivos'],
+						'ippProgramados' => $efectividad[$idUsuario]['ippProgramados'],	
+						'productosProgramados' => $efectividad[$idUsuario]['productosProgramados'],	
+						'fotosProgramados' => $efectividad[$idUsuario]['fotosProgramados'],	
+						'ippEfectuados' => $efectividad[$idUsuario]['ippEfectuados'],	
+						'productosEfectuados' => $efectividad[$idUsuario]['productosEfectuados'],	
+						'fotosEfectuados' => $efectividad[$idUsuario]['fotosEfectuados'],	
+						'visitados' => $efectividad[$idUsuario]['visitados'],	
+						'comprab2b' => $efectividad[$idUsuario]['comprab2b'],	
 					];
 
-					$efectividad['efectivos'] += !empty($value['efectivos']) ? get_porcentaje($value['programados'], $value['efectivos'], 0) : '0';
-					$efectividad['ippProgramados'] += !empty($value['ippProgramados']) ? get_porcentaje($value['ippProgramados'], $value['ippEfectuados'], 0) : '0';
-					$efectividad['productosProgramados'] += !empty($value['productosProgramados']) ? get_porcentaje($value['productosProgramados'], $value['productosEfectuados'], 0) : '0';
-					$efectividad['fotosProgramados'] += !empty($value['fotosProgramados']) ? get_porcentaje($value['fotosProgramados'], $value['fotosEfectuados'], 0) : '0';
+					
 
-					$efectividad['visitados'] += !empty($value['visitados']) ? get_porcentaje($value['programados'], $value['visitados'], 0) : '0';
-					$efectividad['comprab2b'] += !empty($value['comprab2b']) ? get_porcentaje($value['programados'], $value['comprab2b'], 0) : '0';
+				}
+			}
+			$i = 0;
+			foreach ($usuarios_data as $k => $value) {
+
+				$prc_efectivos = get_porcentaje($value['programados'], $value['efectivos'], 0);
+				$prc_ippProgramadoss = get_porcentaje($value['ippProgramados'], $value['ippEfectuados'], 0);
+				$prc_productosProgramados = get_porcentaje($value['productosProgramados'], $value['productosEfectuados'], 0);
+				$prc_fotosProgramados = get_porcentaje($value['fotosProgramados'], $value['fotosEfectuados'], 0);
+
+				$prc_visitados_porc = get_porcentaje($value['programados'], $value['visitados'], 0);
+				$prc_combrab2b_porc = get_porcentaje($value['programados'], $value['comprab2b'], 0);
 
 					$new_data[$i] = [
 						//Columnas
@@ -389,26 +437,25 @@ class Home extends MY_Controller {
 					if($post['idProyecto'] == PROYECTO_PROMOTORIA_AJE){
 						array_push($new_data[$i],
 							$value['visitados'],
-							$efectividad['visitados'].'%',
+							$prc_visitados_porc.'%',
 							$value['comprab2b'],
-							$efectividad['comprab2b'].'%'
+							$prc_combrab2b_porc.'%'
 						);
 					}
 
 					if($post['idProyecto'] != PROYECTO_PROMOTORIA_AJE){
 						array_push($new_data[$i],
 							$value['efectivos'],
-							$efectividad['efectivos'].'%',
-							$efectividad['ippProgramados'].'%',
-							$efectividad['productosProgramados'].'%',
-							$efectividad['fotosProgramados'].'%'
+							$prc_efectivos.'%',
+							$prc_ippProgramadoss.'%',
+							$prc_productosProgramados.'%',
+							$prc_fotosProgramados.'%'
 						);
 					}
 
 					$i++;
-
-				}
 			}
+
 			$dataParaVista['configTable'] =  [
 				'data' => $new_data,
 				'columnDefs' =>

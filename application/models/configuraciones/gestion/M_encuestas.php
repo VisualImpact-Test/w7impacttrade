@@ -865,6 +865,7 @@ class M_encuestas extends My_Model
 				{$this->sessBDCuenta}.trade.encuesta_alternativa_opcion eao
 				LEFT JOIN {$this->sessBDCuenta}.trade.encuesta_pregunta ep ON ep.idPregunta=eao.idPregunta
 				{$filtros}
+				ORDER BY eao.orden asc
 
 			";
 
@@ -1114,6 +1115,7 @@ class M_encuestas extends My_Model
 					$this->m_encuestas->tablas['alternativaOpcion']['id'] => $value['id'],
 					'nombre'=>$value['textoAlternativaOpcion'],
 					'estado'=>$value['estadoAlternativaOpcion'],
+					'orden'=>$value['txtOrden'],
 					
 				];
 			}
@@ -1133,6 +1135,8 @@ class M_encuestas extends My_Model
 					'idPregunta' => $idPregunta,
 					'nombre'=>$value['textoAlternativaOpcion'],
 					'estado'=>$value['estadoAlternativaOpcion'],
+					'orden'=>$value['txtOrden'],
+
 				];
 			}
 		}

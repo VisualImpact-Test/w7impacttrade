@@ -1228,6 +1228,7 @@ class Encuestas extends MY_Controller
 								'idPregunta' => $idPregunta,
 								'nombre' => trim($op),
 								'estado' => true,
+								'orden' => ($k+1)
 							] ;
 						
 						}
@@ -1568,6 +1569,7 @@ class Encuestas extends MY_Controller
 		$elementosAValidar = [
 			'textoAlternativaOpcion' => ['requerido'],
 			'estadoAlternativaOpcion' => ['minimoUnCheck'],
+			'txtOrden' => ['numerico'],
 		];
 		$validacionesMulti = verificarValidacionesBasicasMulti($elementosAValidar, $multiDataRefactorizada);
 

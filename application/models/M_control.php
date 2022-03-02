@@ -9,7 +9,6 @@ class M_control extends MY_Model{
 
 	public function get_cuenta($input = array()){
 		$column = "";
-
 		!empty($input['idCuenta']) ? $column = ",'{$input['idCuenta']}' as idSelect ":'';
 
 		$filtro = "";
@@ -90,6 +89,10 @@ class M_control extends MY_Model{
 
 	public function get_zona($input = array()){
 		$idProyecto = $this->sessIdProyecto;
+		
+		$h_zonas = $this->db->query("SELECT idZona FROM ImpactTrade_bd.trade.usuario_historicoZona WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
+		$zonas = !empty($h_zonas) ? implode(',', array_map('array_shift', $h_zonas)): '';
+		
 		$filtro = "";
 			$filtro .= getPermisos('zona', $idProyecto);
 
@@ -101,6 +104,8 @@ class M_control extends MY_Model{
 				$filtro .= " AND z.idProyecto = {$idProyecto}";
 			}
 
+			!empty($zonas) ? $filtro .= " AND z.idZona IN({$zonas})" : '' ;
+
 
 
 		$sql = "SELECT DISTINCT z.idZona AS id, z.nombre FROM trade.zona z WHERE estado = 1{$filtro} ORDER BY z.nombre";
@@ -111,12 +116,19 @@ class M_control extends MY_Model{
 	public function get_plaza($input = array()){
 		$idProyecto = $this->sessIdProyecto;
 
+		$h_plazas = $this->db->query("SELECT idPlaza FROM ImpactTrade_bd.trade.usuario_historicoPlaza WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
+		$plazas = !empty($h_zonas) ? implode(',', array_map('array_shift', $h_plazas)): '';
+
 		$filtro = "";
 			$filtro .= getPermisos('plaza', $idProyecto);
 
 			if( !empty($input['idPlaza']) ){
 				$filtro .= " AND pl.idPlaza = {$input['idPlaza']}";
-			}
+			}	
+
+			!empty($plazas) ? $filtro .= " AND pl.idPlaza IN({$plazas})" : '' ;
+			
+
 			$cliente_historico = getClienteHistoricoCuenta();
 		$sql = "
 		SELECT DISTINCT
@@ -132,21 +144,28 @@ class M_control extends MY_Model{
 	public function get_grupoCanal($input = array()){
 		$idProyecto = $this->sessIdProyecto;
 
+		$h_canales = $this->db->query("SELECT idCanal FROM ImpactTrade_bd.trade.usuario_historicoCanal WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
+		$canales = !empty($h_canales) ? implode(',', array_map('array_shift', $h_canales)): '';
+
 		$filtro = "";
 			$filtro .= getPermisos('grupoCanal', $idProyecto);
 
 			if( !empty($idProyecto) ) $filtro .= " AND pgc.idProyecto = ".$idProyecto;
 			if( !empty($input['idGrupoCanal']) ) $filtro .= " AND gca.idGrupoCanal = ".$input['idGrupoCanal'];
 
+			!empty($canales) ? $filtro .= " AND ca.idCanal IN({$canales})" : '' ;
+
 		$sql = "
-			SELECT
+			SELECT DISTINCT 
 				gca.idGrupoCanal AS id,
 				ISNULL(pgc.nombre,gca.nombre) nombre
 			FROM trade.grupoCanal gca
-			JOIN trade.proyectoGrupoCanal pgc ON  gca.idGrupoCanal = pgc.idGrupoCanal 
+			JOIN trade.proyectoGrupoCanal pgc ON  gca.idGrupoCanal = pgc.idGrupoCanal
+			LEFT JOIN trade.canal ca ON ca.idGrupoCanal = gca.idGrupoCanal
+			LEFT JOIN trade.cuenta_canal cc ON cc.idCanal = ca.idCanal
 				AND pgc.estado = 1
 			WHERE gca.estado = 1{$filtro}
-			ORDER BY gca.nombre
+			ORDER BY nombre,id
 		";
 
 		return $this->db->query($sql)->result_array();
@@ -156,6 +175,9 @@ class M_control extends MY_Model{
 		$idProyecto = $this->sessIdProyecto;
 		$idCuenta = $this->sessIdCuenta;
 
+		$h_canales = $this->db->query("SELECT idCanal FROM ImpactTrade_bd.trade.usuario_historicoCanal WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
+		$canales = !empty($h_canales) ? implode(',', array_map('array_shift', $h_canales)): '';
+
 		$filtro = "";
 			$filtro .= getPermisos('canal', $idProyecto);
 
@@ -163,6 +185,9 @@ class M_control extends MY_Model{
 			if( !empty($input['idGrupoCanal']) ) $filtro .= " AND ca.idGrupoCanal = ".$input['idGrupoCanal'];
 			if( !empty($input['idCanal']) ) $filtro .= " AND ca.idCanal = ".$input['idCanal'];
 			if( !empty($idCuenta) ) $filtro .= " AND cc.idCuenta = ".$idCuenta;
+
+			!empty($canales) ? $filtro .= " AND ca.idCanal IN({$canales})" : '' ;
+
 
 		$sql = "
 			SELECT DISTINCT 
@@ -207,12 +232,17 @@ class M_control extends MY_Model{
 	public function get_distribuidora($input = array()){
 		$idProyecto = $this->sessIdProyecto;
 
+		$h_sucursales = $this->db->query("SELECT idDistribuidoraSucursal FROM ImpactTrade_bd.trade.usuario_historicoDistribuidoraSucursal WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
+		$sucursales = !empty($h_sucursales) ? implode(',', array_map('array_shift', $h_sucursales)): '';
+
 		$filtro = "";
 			$filtro .= getPermisos('distribuidora', $idProyecto);
 
 			if( !empty($input['idDistribuidora']) ){
 				$filtro .= " AND d.idDistribuidora = {$input['idDistribuidora']}";
 			}
+
+			!empty($sucursales) ? $filtro .= " AND ds.idDistribuidoraSucursal IN({$sucursales})" : '' ;
 
 			$cliente_historico = getClienteHistoricoCuenta();
 
@@ -231,6 +261,9 @@ class M_control extends MY_Model{
 	public function get_distribuidoraSucursal($input = array()){
 		$idProyecto = $this->sessIdProyecto;
 
+		$h_sucursales = $this->db->query("SELECT idDistribuidoraSucursal FROM ImpactTrade_bd.trade.usuario_historicoDistribuidoraSucursal WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
+		$sucursales = !empty($h_sucursales) ? implode(',', array_map('array_shift', $h_sucursales)): '';
+
 		$filtro = "";
 			$filtro .= getPermisos('distribuidoraSucursal', $idProyecto);
 
@@ -240,6 +273,9 @@ class M_control extends MY_Model{
 			if( !empty($input['idDistribuidoraSucursal']) ){
 				$filtro .= " AND ds.idDistribuidoraSucursal = {$input['idDistribuidoraSucursal']}";
 			}
+
+			!empty($sucursales) ? $filtro .= " AND ds.idDistribuidoraSucursal IN({$sucursales})" : '' ;
+
 
 		$sql = "
 			SELECT DISTINCT
@@ -256,12 +292,16 @@ class M_control extends MY_Model{
 	public function get_cadena($input = array()){
 		$idProyecto = $this->sessIdProyecto;
 
+		$h_banners = $this->db->query("SELECT idBanner FROM ImpactTrade_bd.trade.usuario_historicoBanner WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
+		$banners = !empty($h_banners) ? implode(',', array_map('array_shift', $h_banners)): '';
+
 		$filtro = "";
 		$filtro .= getPermisos('cadena', $idProyecto);
 
 		if( !empty($input['idCadena']) ){
 			$filtro .= " AND cd.idCadena = {$input['idCadena']}";
 		}
+		!empty($banners) ? $filtro .= " AND b.idBanner IN({$banners})" : '' ;
 
 		$cliente_historico = getClienteHistoricoCuenta();			
 		$sql = "SELECT DISTINCT
@@ -279,6 +319,9 @@ class M_control extends MY_Model{
 	public function get_banner($input = array()){
 		$idProyecto = $this->sessIdProyecto;
 
+		$h_banners = $this->db->query("SELECT idBanner FROM ImpactTrade_bd.trade.usuario_historicoBanner WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
+		$banners = !empty($h_banners) ? implode(',', array_map('array_shift', $h_banners)): '';
+
 		$filtro = "";
 			$filtro .= getPermisos('banner', $idProyecto);
 
@@ -288,6 +331,9 @@ class M_control extends MY_Model{
 			if( !empty($input['idBanner']) ){
 				$filtro .= " AND bn.idBanner = {$input['idBanner']}";
 			}
+
+			!empty($banners) ? $filtro .= " AND bn.idBanner IN({$banners})" : '' ;
+
 
 		$sql = "SELECT bn.idBanner AS id, bn.nombre FROM trade.banner bn WHERE bn.estado = 1{$filtro} ORDER BY bn.nombre";
 		return $this->db->query($sql)->result_array();
