@@ -38,7 +38,7 @@ class M_asistencia extends MY_Model{
 		$h_zonas = $this->db->query("SELECT idZona FROM ImpactTrade_bd.trade.usuario_historicoZona WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
 		$zonas = !empty($h_zonas) ? implode(',', array_map('array_shift', $h_zonas)): '';
 		$h_plazas = $this->db->query("SELECT idPlaza FROM ImpactTrade_bd.trade.usuario_historicoPlaza WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
-		$plazas = !empty($h_zonas) ? implode(',', array_map('array_shift', $h_plazas)): '';
+		$plazas = !empty($h_plazas) ? implode(',', array_map('array_shift', $h_plazas)): '';
 		$h_canales = $this->db->query("SELECT idCanal FROM ImpactTrade_bd.trade.usuario_historicoCanal WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
 		$canales = !empty($h_canales) ? implode(',', array_map('array_shift', $h_canales)): '';
 		$h_sucursales = $this->db->query("SELECT idDistribuidoraSucursal FROM ImpactTrade_bd.trade.usuario_historicoDistribuidoraSucursal WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
