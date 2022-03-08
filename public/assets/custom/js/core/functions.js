@@ -187,11 +187,15 @@ var Fn = {
 	},
 
 	download: function (url,data){
-		Fn.showLoading(true)
+		Fn.showLoading(true);
 		$.fileDownload(url,{
 			httpMethod: "POST",
 			data: data,
-			successCallback:function(url){ Fn.showLoading( false ); },
+			successCallback:function(url){
+				setTimeout(function(){
+					Fn.showLoading( false );
+				}, 500);
+			},
 			failCallback:function(responseHtml,url){
 			$.when( Fn.showLoading(false) ).then(function(){
 				var id=++modalId;

@@ -13,9 +13,12 @@ class M_asistencia extends MY_Model{
 
 	public function obtener_usuarios_asistencia($input=array()){
 		$filtros = "";$filtroTipoUsuario = '';
+		$u_filtrosCanal='';$u_filtrosZonas='';$u_filtrosSucursal='';$u_filtrosPlaza='';$u_filtrosBanner='';
 		$sessIdTipoUsuario = $this->idTipoUsuario;
 		$sessDemo = $this->demo;
 		$bdcuenta = $this->sessBDCuenta;
+		$idCuenta = $this->sessIdCuenta;
+		$idProyecto = $this->sessIdProyecto;
 		if(empty($input['cuenta_filtro'])){
 			$filtros.= getPermisos('cuenta');
 		}else{
@@ -35,22 +38,33 @@ class M_asistencia extends MY_Model{
 		$filtros .= !empty($input['zonausuario']) ? ' AND uhz.idZona='.$input['zonausuario'] : '';
 		
 	
-		$h_zonas = $this->db->query("SELECT idZona FROM ImpactTrade_bd.trade.usuario_historicoZona WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
-		$zonas = !empty($h_zonas) ? implode(',', array_map('array_shift', $h_zonas)): '';
-		$h_plazas = $this->db->query("SELECT idPlaza FROM ImpactTrade_bd.trade.usuario_historicoPlaza WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
-		$plazas = !empty($h_plazas) ? implode(',', array_map('array_shift', $h_plazas)): '';
-		$h_canales = $this->db->query("SELECT idCanal FROM ImpactTrade_bd.trade.usuario_historicoCanal WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
-		$canales = !empty($h_canales) ? implode(',', array_map('array_shift', $h_canales)): '';
-		$h_sucursales = $this->db->query("SELECT idDistribuidoraSucursal FROM ImpactTrade_bd.trade.usuario_historicoDistribuidoraSucursal WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
-		$sucursales = !empty($h_sucursales) ? implode(',', array_map('array_shift', $h_sucursales)): '';
-        $h_banners = $this->db->query("SELECT idBanner FROM ImpactTrade_bd.trade.usuario_historicoBanner WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
-		$banners = !empty($h_banners) ? implode(',', array_map('array_shift', $h_banners)): '';
-        
-        !empty($canales) ? $filtros .= " AND uhd.idCanal IN({$canales})" : '' ;
-        !empty($zonas) ? $filtros .= " AND uhz.idZona IN({$zonas})" : '' ;
-        !empty($plazas) ? $filtros .= " AND uhp.idPlaza IN({$plazas})" : '' ;
-        !empty($sucursales) ? $filtros .= " AND uhdd.idDistribuidoraSucursal IN({$sucursales})" : '' ;
-		!empty($banners) ? $filtros .= " AND uhb.idBanner IN({$banners})" : '' ;
+		
+			if($idCuenta == COD_CUENTA_AJE)
+			{
+
+				$h_zonas = $this->db->query("SELECT idZona FROM ImpactTrade_bd.trade.usuario_historicoZona WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
+				$zonas = !empty($h_zonas) ? implode(',', array_map('array_shift', $h_zonas)): '';
+				$h_plazas = $this->db->query("SELECT idPlaza FROM ImpactTrade_bd.trade.usuario_historicoPlaza WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
+				$plazas = !empty($h_plazas) ? implode(',', array_map('array_shift', $h_plazas)): '';
+				$h_canales = $this->db->query("SELECT idCanal FROM ImpactTrade_bd.trade.usuario_historicoCanal WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
+				$canales = !empty($h_canales) ? implode(',', array_map('array_shift', $h_canales)): '';
+				$h_sucursales = $this->db->query("SELECT idDistribuidoraSucursal FROM ImpactTrade_bd.trade.usuario_historicoDistribuidoraSucursal WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
+				$sucursales = !empty($h_sucursales) ? implode(',', array_map('array_shift', $h_sucursales)): '';
+				$h_banners = $this->db->query("SELECT idBanner FROM ImpactTrade_bd.trade.usuario_historicoBanner WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
+				$banners = !empty($h_banners) ? implode(',', array_map('array_shift', $h_banners)): '';
+
+				// !empty($canales) ? $u_filtrosCanal .= " AND uhc.idCanal IN({$canales})" : '' ;
+				// !empty($zonas) ? $u_filtrosZonas .= " AND uhz.idZona IN({$zonas})" : '' ;
+				// !empty($plazas) ? $u_filtrosPlaza .= " AND uhpl.idPlaza IN({$plazas})" : '' ;
+				// !empty($sucursales) ? $u_filtrosSucursal .= " AND uhd.idDistribuidoraSucursal IN({$sucursales})" : '' ;
+				// !empty($banners) ? $u_filtrosBanner .= " AND uhb.idBanner IN({$banners})" : '' ;
+				!empty($canales) ? $filtros .= " AND uhd.idCanal IN({$canales})" : '' ;
+				!empty($zonas) ? $filtros .= " AND uhz.idZona IN({$zonas})" : '' ;
+				!empty($plazas) ? $filtros .= " AND uhp.idPlaza IN({$plazas})" : '' ;
+				!empty($sucursales) ? $filtros .= " AND uhdd.idDistribuidoraSucursal IN({$sucursales})" : '' ;
+				!empty($banners) ? $filtros .= " AND uhb.idBanner IN({$banners})" : '' ;
+
+			}
 		}
 
 		// DATOS DEMO
@@ -147,7 +161,7 @@ class M_asistencia extends MY_Model{
 					)
 				) 
 				AND dh.idEmpleado IS NOT NULL
-		)	
+		)
 		SELECT DISTINCT
 			u.idUsuario
 			, isnull(u.idEmpleado,u.numDocumento) idEmpleado

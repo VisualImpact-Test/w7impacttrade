@@ -37,7 +37,7 @@ class Fotos extends MY_Controller
 
 	protected function getFotos($post,$visitas = null)
 	{
-		ini_set('memory_limit', '1024M');
+		ini_set('memory_limit', '4096M');
 		set_time_limit(0);
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaFotos" ];
 		$fotosClientes = $this->m_foto->getFotosNew($post,$visitas)->result_array();
@@ -67,7 +67,7 @@ class Fotos extends MY_Controller
 			$fotosClientesRefactorizado[$row['idCliente']]['proyecto'] = $row['proyecto'];
 
 			foreach($segmentacion['arreglo_columnas'] AS $sk => $sr){
-				$fotosClientesRefactorizado[$row['idCliente']][$sr] = $row[$sr];
+				$fotosClientesRefactorizado[$row['idCliente']][$sr] = empty($row[$sr]) ? '-' : $row[$sr];
 			}
 
 			$fotosClientesRefactorizado[$row['idCliente']]['ejecutivo'] = $segmentacionUsuarios['ejecutivo'];

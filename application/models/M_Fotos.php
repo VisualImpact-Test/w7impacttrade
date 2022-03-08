@@ -378,7 +378,7 @@ class M_Fotos extends MY_Model
 
 		$sql = "
 			DECLARE @fecIni DATE='".$fechas[0]."',@fecFin DATE='".$fechas[1]."';
-			WITH list_visitasFotos AS (
+			WITH list_visitas AS (
 				SELECT
 					r.idRuta
 					, r.fecha
@@ -386,32 +386,46 @@ class M_Fotos extends MY_Model
 					, ca.idGrupoCanal
 					, ca.idCanal
 					, v.idCliente
-					, vf.idVisitaFoto
-					,ISNULL(tf.nombre,m.nombre) tipoFoto
-					,vf.fotoUrl imgRef
-					,CONVERT(VARCHAR(8), vf.hora) horaFoto
-					,CONVERT(VARCHAR(8), v.horaIni) horaVisita
-					,v.idVisita
-					,r.idUsuario
-					,r.nombreUsuario usuario
-					,r.tipoUsuario
-					,mg.carpetaFoto
-					,m.nombre modulo
+					, v.idVisita
+					, r.idUsuario
+					, r.nombreUsuario usuario
+					, r.tipoUsuario
+					, CONVERT(VARCHAR(8), v.horaIni) horaVisita
 				FROM {$this->sessBDCuenta}.trade.data_ruta r
 				JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
-				JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisita = v.idVisita
-				JOIN trade.aplicacion_modulo m 	ON m.idModulo = vf.idModulo
-				JOIN trade.aplicacion_modulo_grupo mg ON mg.idModuloGrupo = m.idModuloGrupo
-				   LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaModuloFotos mf ON mf.idVisitaFoto = vf.idVisitaFoto
 				LEFT JOIN trade.canal ca ON ca.idCanal=v.idCanal
 				LEFT JOIN trade.grupoCanal gca ON ca.idGrupoCanal=gca.idGrupoCanal
-				LEFT JOIN trade.foto_tipo tf ON tf.idTipoFoto = mf.idTipoFoto
-				WHERE r.estado = 1 AND v.estado = 1 AND r.demo = 0
+				WHERE r.estado = 1 AND v.estado = 1
 				AND r.fecha BETWEEN @fecIni AND @fecFin
-				AND r.idProyecto={$idProyecto}
 				{$filtros}
 				{$filtro_demo} 
 				{$visitas_filtro}
+			),list_visitasFotos AS (
+				SELECT
+					lv.idRuta
+					, lv.fecha
+					, lv.idProyecto
+					, lv.idGrupoCanal
+					, lv.idCanal
+					, lv.idCliente
+					, vf.idVisitaFoto
+					, ISNULL(tf.nombre,m.nombre) tipoFoto
+					, vf.fotoUrl imgRef
+					, CONVERT(VARCHAR(8), vf.hora) horaFoto
+					, lv.horaVisita
+					, lv.idVisita
+					, lv.idUsuario
+					, lv.usuario
+					, lv.tipoUsuario
+					, mg.carpetaFoto
+					, m.nombre modulo
+				FROM  list_visitas lv
+				JOIN ImpactTrade_pg.trade.data_visitaFotos vf ON vf.idVisita = lv.idVisita
+				LEFT JOIN trade.aplicacion_modulo m ON m.idModulo = vf.idModulo
+				LEFT JOIN trade.aplicacion_modulo_grupo mg ON mg.idModuloGrupo = m.idModuloGrupo
+				   LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaModuloFotos mf ON mf.idVisitaFoto = vf.idVisitaFoto
+				LEFT JOIN trade.foto_tipo tf ON tf.idTipoFoto = mf.idTipoFoto
+				WHERE vf.idVisitaFoto IS NOT NULL
 			), lista_clientes AS (
 			SELECT
 				ch.idCliente

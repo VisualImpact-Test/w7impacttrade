@@ -43,7 +43,7 @@ class MY_Controller extends CI_Controller{
 
 	public function __construct(){
 		parent::__construct();
-		$this->version = '8.8.0';
+		$this->version = '8.8.1';
 		$_SESSION['idCuenta'] = $this->session->userdata('idCuenta');
 		$this->sessId = $this->session->userdata('sessionId');
 		$this->namespace = $this->router->fetch_class();

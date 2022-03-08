@@ -136,8 +136,7 @@ $config['subclass_prefix'] = 'MY_';
 | Note: This will NOT disable or override the CodeIgniter-specific
 |	autoloading (application/config/autoload.php)
 */
-$config['composer_autoload'] = FALSE;
-
+$config['composer_autoload'] = TRUE;
 /*
 |--------------------------------------------------------------------------
 | Allowed URL Characters
@@ -334,6 +333,16 @@ $config['encryption_key'] = '';
 | 'sess_driver'
 |
 |	The storage driver to use: files, database, redis, memcached
+*/
+
+$config['socket_type'] = 'tcp'; //`tcp` or `unix`
+$config['socket'] = '/var/run/redis.sock'; // in case of `unix` socket type
+$config['host'] = '127.0.0.1';
+$config['password'] = NULL;
+$config['port'] = 6379;
+$config['timeout'] = 0;
+
+/*
 |
 | 'sess_cookie_name'
 |

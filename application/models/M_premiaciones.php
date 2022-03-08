@@ -395,6 +395,7 @@ class M_premiaciones extends MY_Model{
 
 		$sql = "
 			DECLARE
+				@fecIni DATE = '".$input['fecIni']."'
 				, @fecFin DATE = '".$input['fecFin']."';
 			WITH lista_premiaciones AS (
 			SELECT 
@@ -477,8 +478,6 @@ class M_premiaciones extends MY_Model{
 		FROM
 		lista_premiaciones_fotos 
 		WHERE fotos <= 1
-
-		
 		";
 
 		return $this->query($sql);

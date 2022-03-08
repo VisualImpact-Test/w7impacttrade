@@ -8,16 +8,23 @@ class Home extends MY_Controller {
 		$this->load->model('M_muro', 'm_muro');
 		$this->load->model('M_control', 'm_control');
 
-	
 	}
 
 	
 	public function index()
-	{
+	{	
+		// require APPPATH . 'vendor/autoload.php';
+		// $redis = new Predis\Client();
+		// echo $redis->ping();
+
+		// $this->load->driver('cache');
+		// $this->cache->redis->save('foo', 'bar', 10);
+		
 		$estado = '';
 			$query = $this->m_muro->estado([ 'idUsuario' => $this->idUsuario ]);
 			if( !empty($query) ) $estado = $query[0]['estado'];
 
+		
 		$usuario=array();
         $usuario['idUsuario']=$this->session->userdata('idUsuario');
         $usuario['usuario']=$this->session->userdata('apeNom');
@@ -73,9 +80,6 @@ class Home extends MY_Controller {
 		$config['data']['idCuenta'] = $post['idCuenta'] = $this->sessIdCuenta;
 		$config['data']['idProyecto'] = $post['idProyecto'] = $this->sessIdProyecto;
 		$post['fecha'] = date('Y-m-d');
-
-		$config['data']['cantidadGtm']= $this->model->get_cantidadGtm($post)['cantidadGtm'];
-
 
 
 		$this->view($config);
@@ -317,9 +321,20 @@ class Home extends MY_Controller {
 		$post['idCuenta'] = $this->sessIdCuenta;
 		$post['idProyecto'] = $this->sessIdProyecto;
 
-		$data_cantidadGtm = $this->model->get_cantidadGtm($post);
+		$gruposCanal = $this->m_control->get_grupoCanal(['idGrupoCanal' => $post['grupoCanal']]);	
+		$data_cantidadGtm = [];
 
-		$result['data']['cantidadGtm'] = [$data_cantidadGtm['cantidadGtm']];
+		foreach ($gruposCanal as $gc) {
+			$post['grupoCanal'] = $gc['id'];
+			$gtms = $this->model->get_cantidadGtm($post);
+
+			foreach ($gtms as $k => $v) {
+				$data_cantidadGtm[$v['idUsuario']] = 1;
+			}
+			
+		}
+
+		$result['data']['cantidadGtm'] = [count($data_cantidadGtm)];
 		$result['data']['tipoUsuario'] = ($this->sessIdProyecto == 19) ? "PROMOTORES": "GTM";
 
 		echo json_encode($result);

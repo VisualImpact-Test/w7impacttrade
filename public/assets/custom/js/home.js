@@ -29,7 +29,7 @@ var Home={
 			});
 		});
 		$(document).on('change', '.sl_filtros', function(){
-
+			console.log('click');
 			$('.vista-efectividad').addClass('centrarContenidoDiv');
 			$('.vista-cobertura').addClass('centrarContenidoDiv');
 			$('.vista-cobertura').html('<i class="fas fa-spinner-third fa-spin icon-load"></i>');
@@ -39,27 +39,22 @@ var Home={
 			$('.vista-asistencia').html('<i class="fas fa-spinner-third fa-spin icon-load"></i>');
 
 			$.when(
-				Home.mostrar_cartera()
+				Home.mostrar_cartera(),
+				Home.mostrar_efectividad()
 			).then(function(){
-				Home.mostrar_efectividad();
 				
+				if($("#txtcuenta").val() == 2){
+					Home.generarGraficosEfectividadGtm();
+					Home.generarGraficosAsistencia();
+					Home.generarGraficosGtm();
+				}
 			});
 			
-			    Home.generarGraficosEfectividadGtm();
-				Home.generarGraficosAsistencia();
-				Home.generarGraficosGtm();
-
-			
-
-			if($("#txtcuenta").val() == 2){
-				//Home.mostrar_efectividad();
-			}
 		});
 
 		$(document).on('change', '.efectividad_usuario', function(){
 
 			Home.generarGraficosEfectividadGtm();
-			
 
 		});
 
@@ -74,9 +69,15 @@ var Home={
 					Home.mostrar_efectividad(),
 				).then(function(){
 					if($("#txtcuenta").val() == 2){
+						
 						Home.generarGraficosAsistencia(),
-						Home.generarGraficosEfectividadGtm()
 						Home.generarGraficosGtm();
+						
+						$.when(
+						Home.generarGraficosEfectividadGtm()).then(function(){
+
+							$('.vista-efectividadGtm').removeClass('centrarContenidoDiv');
+						})
 					}
 				})
 			).then(function(){
@@ -98,12 +99,21 @@ var Home={
 				$.when(
 					Home.mostrar_cartera(),
 					Home.mostrar_efectividad(),
+				).then(function(){
 					Home.generarGraficosEfectividadGtm(),
 					Home.generarGraficosAsistencia()
-				).then(function(){
 					Home.generarGraficosGtm();
 				});
 			});
+
+			setInterval(() => {
+				if($('.tooltipload').length > 0 || $('.icon-load').length > 0 ){
+					$('select, .txt-fecha').addClass('disabled')
+				}else{
+					$('select, .txt-fecha').removeClass('disabled')
+
+				}
+			}, 500);
 		});
 
 		$(document).on('click', 'input[name=tipoEfectividadGtm]', function(e){
@@ -226,6 +236,15 @@ var Home={
 			fecha: $('.fechaHome').val(),
 			zona: $('#zona').val(),
 			grupoCanal: $('#grupo_filtro').val(),
+			canal: $('#canal_filtro').val(),
+			
+			distribuidora_filtro: $("#distribuidora_filtro").val(),
+			distribuidoraSucursal_filtro: $("#distribuidoraSucursal_filtro").val(),
+
+			plaza_filtro: $("#plaza_filtro").val(),
+
+			cadena_filtro: $("#cadena_filtro").val(),
+			banner_filtro: $("#banner_filtro").val(),
 		};
 		let jsonString = { 'data': JSON.stringify(data) };
 		let config = { 'url': Home.url + 'get_asistencia', 'data': jsonString };
@@ -262,6 +281,16 @@ var Home={
 		let data = { 
 			fecha: $('.fechaHome').val(),
 			zona: $('#zona').val(),
+			grupoCanal: $('#grupo_filtro').val(),
+			canal: $('#canal_filtro').val(),
+			
+			distribuidora_filtro: $("#distribuidora_filtro").val(),
+			distribuidoraSucursal_filtro: $("#distribuidoraSucursal_filtro").val(),
+
+			plaza_filtro: $("#plaza_filtro").val(),
+
+			cadena_filtro: $("#cadena_filtro").val(),
+			banner_filtro: $("#banner_filtro").val(),
 		};
 		let jsonString = { 'data': JSON.stringify(data) };
 		let config = { 'url': Home.url + 'get_cantidadGtm', 'data': jsonString };
@@ -290,6 +319,15 @@ var Home={
 			fecha: $('.fechaHome').val(),
 			grupoCanal: $('#grupo_filtro').val(),
 			canal: $('#canal_filtro').val(),
+
+			distribuidora_filtro: $("#distribuidora_filtro").val(),
+			distribuidoraSucursal_filtro: $("#distribuidoraSucursal_filtro").val(),
+
+			plaza_filtro: $("#plaza_filtro").val(),
+
+			cadena_filtro: $("#cadena_filtro").val(),
+			banner_filtro: $("#banner_filtro").val(),
+
 			tipo: tipo,
 			zona:$('#zona').val()
 		};
@@ -301,12 +339,13 @@ var Home={
 		let colorLabel = [];
 
 		$.when(Fn.ajaxNoLoad(config)).then(function (a) {
-			$('.vista-efectividadGtm').html('');
-			$('#tablaEfectividadGtm').html('');
+			// $('.vista-efectividadGtm').html('');
+			// $('#tablaEfectividadGtm').html('');
+			// $('.vista-efectividadGtm').html(a.data.html);
+			// $('.vista-efectividadGtm').removeClass('centrarContenidoDiv');
 			if(a.data.tipo == 0){
 				$('.vista-efectividadGtm').html(a.data.html);
 				$('#tablaEfectividadGtm').DataTable(a.data.config);
-				$('.vista-efectividadGtm').removeClass('centrarContenidoDiv');
 			}else{
 				dataGtm = a.data.dataGtm;
 				dataEfectividad = a.data.dataEfectividad;

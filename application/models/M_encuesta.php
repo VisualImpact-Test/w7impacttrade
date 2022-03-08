@@ -141,7 +141,7 @@ class M_encuesta extends MY_Model
 				{$filtros}
 				--{$orderby}
 		";
-
+		$this->db->cache_on();
 		return $this->db->query($sql);
 	}
 
@@ -150,38 +150,45 @@ class M_encuesta extends MY_Model
 		$fechas = getFechasDRP($input["txt-fechas"]);
 		$idProyecto = $this->sessIdProyecto ;
 		$filtros = '';
-		if (!empty($input['idEncuesta'])) $filtros .= " AND e.idEncuesta IN ( " . $input['idEncuesta']. ')';
-		$filtros .= !empty($input['tipoPregunta']) ? ' AND ep.idTipoPregunta = '.$input['tipoPregunta'] : '';
+		$filtrosPregunta = '';
+		if (!empty($input['idEncuesta'])) $filtrosPregunta .= " AND e.idEncuesta IN ( " . $input['idEncuesta']. ')';
+		$filtrosPregunta .= !empty($input['tipoPregunta']) ? ' AND ep.idTipoPregunta = '.$input['tipoPregunta'] : '';
 		$filtros .= !empty($idProyecto) ? ' AND le.idProyecto = '.$idProyecto : '';
 
 		$sql = "
 			DECLARE @fecIni DATE='" . $fechas[0] . "',@fecFin DATE='" . $fechas[1] . "';
-			SELECT DISTINCT
-					e.idEncuesta,UPPER(e.nombre) 'encuesta',e.foto,
-					ep.idPregunta,UPPER(ep.nombre) 'pregunta',ep.idTipoPregunta,ep.orden,
-					ea.idAlternativa,UPPER(ea.nombre) 'alternativa',
-					eao.idAlternativaOpcion,
-					UPPER(eao.nombre) opcion,
-					epf.foto imagenPreg
-				FROM {$this->sessBDCuenta}.trade.list_encuesta le
-				JOIN {$this->sessBDCuenta}.trade.list_encuestaDet led ON le.idListEncuesta=led.idListEncuesta
-				LEFT JOIN {$this->sessBDCuenta}.trade.encuesta e ON led.idEncuesta=e.idEncuesta
-					AND e.estado = 1
-				JOIN {$this->sessBDCuenta}.trade.encuesta_pregunta ep ON e.idEncuesta=ep.idEncuesta
-					AND ep.estado = 1
-				LEFT JOIN {$this->sessBDCuenta}.trade.encuesta_alternativa ea ON ep.idPregunta=ea.idPregunta
-					AND ea.estado = 1 
-				LEFT JOIN trade.canal ca ON ca.idCanal = le.idCanal
+			WITH lista_encuestas AS (
+				SELECT DISTINCT
+					idEncuesta
+				FROM 
+					{$this->sessBDCuenta}.trade.list_encuesta le
+					JOIN {$this->sessBDCuenta}.trade.list_encuestaDet led ON le.idListEncuesta=led.idListEncuesta
+				WHERE 
+					General.dbo.fn_fechaVigente(le.fecIni,le.fecFin,@fecIni,@fecFin) = 1 
+					{$filtros}
+			)
+			SELECT
+				e.idEncuesta,UPPER(e.nombre) 'encuesta',e.foto,
+				ep.idPregunta,UPPER(ep.nombre) 'pregunta',ep.idTipoPregunta,ep.orden,
+				ea.idAlternativa,UPPER(ea.nombre) 'alternativa',
+				eao.idAlternativaOpcion,
+				UPPER(eao.nombre) opcion,
+				epf.foto imagenPreg
+			FROM 
+				lista_encuestas l
+				LEFT JOIN {$this->sessBDCuenta}.trade.encuesta e ON l.idEncuesta=e.idEncuesta AND e.estado = 1
+				JOIN {$this->sessBDCuenta}.trade.encuesta_pregunta ep ON e.idEncuesta=ep.idEncuesta AND ep.estado = 1
+				LEFT JOIN {$this->sessBDCuenta}.trade.encuesta_alternativa ea ON ep.idPregunta=ea.idPregunta AND ea.estado = 1 
 				LEFT JOIN {$this->sessBDCuenta}.trade.encuesta_alternativa_opcion eao ON ep.idPregunta=eao.idPregunta AND eao.estado = 1
 				LEFT JOIN {$this->sessBDCuenta}.trade.encuesta_pregunta_foto epf ON ep.idPregunta=epf.idPregunta AND epf.estado = 1
 				WHERE 
-					le.fecIni<=isnull(le.fecFin,@fecFin)
-					AND ( @fecIni between le.fecIni AND isnull(le.fecFin,@fecFin) or @fecFin between le.fecIni AND isnull(le.fecFin,@fecFin)
-					or le.fecIni between @fecIni AND @fecFin or isnull(le.fecFin,@fecFin) between @fecIni AND @fecFin )
-				$filtros
+					1 = 1
+				$filtrosPregunta
 			ORDER BY e.idEncuesta,ep.orden
 		";
-		return $this->db->query($sql);
+		$rs =  $this->db->query($sql);
+		
+		return $rs;
 	}
 
 	public function query_visitaEncuestaDet($input)
@@ -258,7 +265,9 @@ class M_encuesta extends MY_Model
 		ORDER BY respuesta
 		";
 
-		return $this->db->query($sql);
+		$rs =  $this->db->query($sql)->result_array();
+		
+		return $rs;
 	}
 
 	public function query_visitaEncuestaDetPdf($input)
@@ -333,7 +342,9 @@ class M_encuesta extends MY_Model
 		";
 
 		
-		return $this->db->query($sql);
+		$rs =  $this->db->query($sql);
+		
+		return $rs;
 	}
 
 
