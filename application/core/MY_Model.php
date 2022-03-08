@@ -44,5 +44,8 @@ class MY_Model extends CI_Model{
 		}
 
 	}
+	public function limpiar_cache_asistencia(){
+		$this->db->cache_delete('home', 'get_asistencia');
+	}
 
 }

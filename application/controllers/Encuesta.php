@@ -8,6 +8,7 @@ class Encuesta extends MY_Controller
 	{
 		parent::__construct();
 		$this->load->model('M_encuesta', 'm_encuesta');
+
 	}
 
 	public function index()
@@ -47,14 +48,15 @@ class Encuesta extends MY_Controller
 
 	protected function getDataEncuestas($post)
 	{
+		
 		ini_set('memory_limit', '2048M');
 		
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaEncuesta" ];
 		$dataParaVista['visitas'] = $visitas = $this->m_encuesta->query_visitaEncuesta($post)->result_array();
-
+		
 		if (count($visitas) > 0) {
 			$lista = $this->m_encuesta->list_encuesta($post)->result_array();
-			$encuesta = $this->m_encuesta->query_visitaEncuestaDet($post)->result_array();
+			$encuesta = $this->m_encuesta->query_visitaEncuestaDet($post);
 			$array_resultados = array();
 			foreach ($visitas as $row) {
 				$array_resultados[$row['idCliente']]['departamento'] = $row['ciudad'];
@@ -159,7 +161,132 @@ class Encuesta extends MY_Controller
 			$segmentacion = getSegmentacion([ 'grupoCanal_filtro' => $params['idGrupoCanal'] ]);
 			$dataParaVista['segmentacion'] = $segmentacion;
 			$result['data']['html'] = $this->load->view("modulos/Encuesta/tablaDetalladoEncuesta", $dataParaVista, true);
-			$result['data']['configTable'] = [];
+			
+			$contador = 0;
+			$new_data = [];
+
+         $listaEncuesta = $dataParaVista['listaEncuesta'];
+         $listaPregunta = $dataParaVista['listaPregunta'];
+         $listaOpciones = !empty($dataParaVista['listaOpciones']) ? $dataParaVista['listaOpciones'] : [] ;
+         $visitaFoto = $dataParaVista['visitaFoto'];
+         $visitaFotoPreg = $dataParaVista['visitaFotoPreg'];
+         $idVisitaEncuesta = $dataParaVista['idVisitaEncuesta'];
+         $flagFotoMultiple = $dataParaVista['flagFotoMultiple'];
+         $visitaEncuesta = $dataParaVista['visitaEncuesta'];
+         $visitaFotoSub = $dataParaVista['visitaFotoSub'];
+
+			foreach ($dataParaVista['visitas'] as $i => $visita) {
+
+            $contador++;
+
+				$new_data[$i] = [
+					$contador,
+					"<input name='check[]' id='check' class='check' type='checkbox' value='{$visita['idVisita']}' />",
+					verificarEmpty($visita["fecha"], 3),
+					verificarEmpty($visita["grupoCanal"], 3),
+					verificarEmpty($visita["canal"], 3),
+					verificarEmpty($visita["subCanal"], 3)
+				];
+
+				foreach ($segmentacion['headers'] as $k => $v) { 
+					array_push($new_data[$i],
+						!empty($visita[($v['columna'])]) ? "<p class='text-left'>{$visita[($v['columna'])]}</p>" : '-'
+					);
+			  	}
+				
+				  array_push($new_data[$i],
+				  !empty($visita['idCliente']) ? "<p class='text-center'>{$visita['idCliente']}</p>" : '-', 
+				  !empty($visita['codCliente']) ? "<p class='text-center'>{$visita['codCliente']}</p>" : '-', 
+				  !empty($visita['codDist']) ? "<p class='text-center'>{$visita['codDist']}</p>" : '-', 
+				  verificarEmpty($visita["razonSocial"], 3),
+				  verificarEmpty($visita["tipoCliente"], 3),
+				  verificarEmpty($visita["ciudad"], 3),
+				  verificarEmpty($visita["provincia"], 3),
+				  verificarEmpty($visita["distrito"], 3),
+				  !empty($visita['idUsuario']) ? "<p class='text-center'>{$visita['idUsuario']}</p>" : '-', 
+				  verificarEmpty($visita["tipoUsuario"], 3),
+				  verificarEmpty($visita["usuario"], 3),
+				  verificarEmpty($visita['incidencia'], 3),
+				  !empty($visita['encuestado']) ? 'SÍ' : '-' 
+				  );
+
+				  foreach ($dataParaVista['listaEncuesta'] as $keyEncuesta => $encuesta) {
+					  foreach ($dataParaVista['listaPregunta'][$keyEncuesta] as $keyPregunta => $pregunta) {
+						  $respuesta = (isset($visitaEncuesta[$visita['idVisita']][$keyPregunta])) ? implode(", ", array_unique($visitaEncuesta[$visita['idVisita']][$keyPregunta])) : '-';
+
+						  $tieneFotoAlternativa = false;
+						  if(!empty($visitaFotoSub[$visita['idVisita']][$keyPregunta])){
+							  foreach($visitaFotoSub[$visita['idVisita']][$keyPregunta] AS $k => $v){
+								  if(!empty($v)){
+									  $tieneFotoAlternativa = true;
+								  }
+							  }
+						  }
+
+                        if ($tieneFotoAlternativa == true) {
+                           $fotoSub = '<a href="javascript:;" class="lk-alternativa-foto a-fa" data-foto="" data-modulo="encuestas" data-comentario="" data-idvisitaencuesta="' . $idVisitaEncuesta[$visita['idVisita']][$keyEncuesta] . '" data-idpregunta="' . $keyPregunta . '"><i class="fa fa-camera" ></i></a>';
+                        } else {
+                           $fotoSub = "-";
+                        }
+
+                        if (!empty($visitaFotoPreg[$visita['idVisita']][$keyEncuesta][$keyPregunta])) {
+                           $fotoPreg = '<a href="javascript:;" class="lk-pregunta-foto a-fa"  data-modulo="encuestas" data-comentario="" data-idvisitaencuesta="' . $idVisitaEncuesta[$visita['idVisita']][$keyEncuesta] . '" data-idpregunta="' . $keyPregunta . '"><i class="fa fa-camera" ></i></a>';
+                        } else {
+                           $fotoPreg = "-";
+                        }
+
+
+                        array_push($new_data[$i],
+                           $respuesta,
+                           "<p class='text-center'>{$fotoSub}</p>"
+                        );
+
+                        if($pregunta['idTipoPregunta'] != 4 ){
+                           array_push($new_data[$i],
+                           "<p class='text-center'>{$fotoPreg}</p>"
+                           );
+                        }
+
+                        if(empty($listaOpciones[$keyEncuesta][$keyPregunta])) continue;
+
+                        foreach($listaOpciones[$keyEncuesta][$keyPregunta] as $keyOpcion => $opcion){
+                           if( empty($opcion['nombre'])) continue;
+
+                           $alternativasOpcion = !empty($visitaEncuesta[$visita['idVisita']]['opciones'][$keyPregunta][$opcion['idAlternativaOpcion']]) ? implode(", ", array_unique($visitaEncuesta[$visita['idVisita']]['opciones'][$keyPregunta][$opcion['idAlternativaOpcion']])): '';
+                           array_push($new_data[$i],
+                              "<p class='text-center'>{$alternativasOpcion}</p>"
+                           );
+                           if($pregunta['idTipoPregunta'] == 4 ){
+                              array_push($new_data[$i],
+                              "<p class='text-center'>{$fotoPreg}</p>"
+                              );
+                           }
+                        
+                        }
+
+                  }
+
+                  if ($encuesta["foto"] == 1) {
+                     if (!empty($visitaFoto[$visita['idVisita']][$keyEncuesta]) || !empty($flagFotoMultiple[$visita['idVisita']][$keyEncuesta])) {
+                         $foto = '<a href="javascript:;" class="lk-encuesta-foto a-fa text-center" data-foto="' . $visitaFoto[$visita['idVisita']][$keyEncuesta] . '" data-modulo="encuestas" data-comentario="" data-idvisitaencuesta="' . $idVisitaEncuesta[$visita['idVisita']][$keyEncuesta] . '"><i class="fa fa-camera" ></i></a>';
+                     } else {
+                         $foto = "-";
+                     }
+                  }else{
+                        $foto = "-";
+                  }
+
+                  array_push($new_data[$i],
+                        "<p class='text-center'>{$foto}</p>"
+                  );
+				  }
+				  
+				  
+			}	
+
+			$result['data']['configTable'] =  [
+            'data' => $new_data, 
+         ];
 		}
 
 		echo json_encode($result);

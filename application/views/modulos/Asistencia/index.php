@@ -70,7 +70,7 @@
 
 						<div class="mb-2 mr-sm-2  position-relative form-group filtros_asistencia custom_tooltip">
 							<span class="tooltiptext">Grupo Canal</span>
-							<?= getFiltros(['grupoCanal' => ['label' => false, 'name' => 'grupo_filtro', 'id' => 'grupo_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]) ?>
+							<?= getFiltros(['grupoCanal' => ['label' => 'Grupo Canal', 'name' => 'grupo_filtro', 'id' => 'grupo_filtro', 'data' => true, 'select2' => 'ui my_select2Full', 'html' => '']]) ?>
 						</div>
 						<div class="mb-2 mr-sm-2  position-relative form-group filtros_asistencia custom_tooltip">
 							<span class="tooltiptext">Canal</span>

@@ -89,6 +89,7 @@ defined('GC_MAYORISTAS')       OR define('GC_MAYORISTAS',['WHLS','whls','mayoris
 defined('ID_TIPOUSUARIO_TI')   OR define('ID_TIPOUSUARIO_TI',4);
 defined('PROYECTO_MODERNO_PG') OR define('PROYECTO_MODERNO_PG',17);
 defined('PROYECTO_PROMOTORIA_AJE') OR define('PROYECTO_PROMOTORIA_AJE',19);
+defined('COD_CUENTA_AJE')          OR define('COD_CUENTA_AJE',2);
 
 // defined('RUTA_MOVIL_FOTOS')    OR define('RUTA_MOVIL_FOTOS','http://movil.visualimpact.com.pe/fotos/impactTrade_android/');
 // defined('RUTA_MOVIL_IMAGENES') OR define('RUTA_MOVIL_IMAGENES','http://movil.visualimpact.com.pe/archivos/');
@@ -100,4 +101,4 @@ defined('RUTA_MOVIL_FOTOS')    OR define('RUTA_MOVIL_FOTOS','http://visualimpact
 defined('RUTA_MOVIL_IMAGENES')    OR define('RUTA_MOVIL_IMAGENES','http://visualimpact.test/movil/fotos/');
 // defined('FOTOS_CONTROLADOR')   OR define('FOTOS_CONTROLADOR',base_url()+ 'ControlFoto/');
 defined('RUTA_BAT')            OR define('RUTA_BAT','C:\wamp64\bin\php\php7.1.33\php-win.exe -f "C:\wamp64\www\w7impacttrade\index.php" ');
-// defined('RUTA_MOVIL_IMAGENES') OR define('RUTA_MOVIL_IMAGENES','http://movil.movilphp56.loc/fotos/');
+defined('RUTA_MOVIL_IMAGENES') OR define('RUTA_MOVIL_IMAGENES','http://movil.movilphp56.loc/fotos/');

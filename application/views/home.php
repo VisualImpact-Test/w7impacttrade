@@ -116,7 +116,7 @@ if (empty($idCuenta) || $idCuenta != 2) {
 	<? //if( $col_3 ){
 	?>
 	<? if (false) { ?>
-		<div class="col-lg-<?= $col_3 ?> col-md-12  <?= ($cantidadGtm == 0) ? 'd-none' : 'd-flex' ?>">
+		<div class="col-lg-<?= $col_3 ?> col-md-12  <?= (0 == 0) ? 'd-none' : 'd-flex' ?>">
 			<div class="card-muro card mb-3 col-md-12 px-0">
 				<div class="card-header  bg-trade-visual-grad-left-gray text-white" style="width: 100%;">
 					<h5 class="card-title">
@@ -133,7 +133,7 @@ if (empty($idCuenta) || $idCuenta != 2) {
 			</div>
 		</div>
 	<? } ?>
-	<div class="col-lg-8 col-md-8  <?= ($cantidadGtm == 0 || empty($idCuenta) || $idCuenta != 2) ? 'd-none' : 'd-flex' ?> ">
+	<div class="col-lg-8 col-md-8  <?= (empty($idCuenta) || $idCuenta != 2) ? 'd-none' : 'd-flex' ?> ">
 		<div class="main-card mb-3 card main-pdv col-md-12 px-0">
 			<div class="card-header bg-trade-visual-grad-left text-white" style="width: 100%;">
 				<div class="col-md-9">
@@ -155,12 +155,12 @@ if (empty($idCuenta) || $idCuenta != 2) {
 			
 			</div>
 			
-			<div class="card-body centrarContenidoDiv vista-efectividadGtm" style="width: 100%;">
+			<div class="card-body  vista-efectividadGtm text-center" style="width: 100%;">
 				<i class="fas fa-spinner-third fa-spin icon-load"></i>
 			</div>
 		</div>
 	</div>
-	<div class="col-lg-4 col-md-4 <?= ($cantidadGtm == 0 || empty($idCuenta) || $idCuenta != 2) ? 'd-none' : 'd-flex' ?>">
+	<div class="col-lg-4 col-md-4 <?= (empty($idCuenta) || $idCuenta != 2) ? 'd-none' : 'd-flex' ?>">
 		<div class="main-card mb-3 card main-asistencia col-md-12 px-0">
 			<div class="card-header bg-trade-visual-grad-left text-white" style="width: 100%;">
 				<h5 class="card-title">

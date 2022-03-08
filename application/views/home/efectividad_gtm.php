@@ -1,4 +1,4 @@
-<div class="card-datatable p-0">
+<div class="card-datatable p-0 w-100">
 	<table id="tablaEfectividadGtm" class="mb-0 table table-sm text-nowrap compact" style="width:100%;border-style:none;">
 		<thead style="background-color:darkgray;color:white;">
 			<tr>

@@ -244,6 +244,8 @@ class M_scorecard extends MY_Model{
 					AND (r.demo = 0 OR r.demo IS NULL)
 					AND v.estado = 1
 					AND r.estado = 1
+					AND r.idUsuario = 623
+					
 					{$subfiltros}
 					
 			)a
@@ -253,7 +255,9 @@ class M_scorecard extends MY_Model{
 		";
 
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visita" ];
-		return $this->db->query($sql)->result_array();
+
+		$rs =  $this->db->query($sql)->result_array();
+		return $rs;
 	}
 
 	public function obtener_visitas_seg($input = array() ){

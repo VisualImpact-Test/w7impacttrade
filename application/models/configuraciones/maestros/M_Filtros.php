@@ -364,11 +364,14 @@ class M_Filtros extends My_Model
 
 	public function getDistribuidoraSucursal($post = 'nulo')
 	{
+		$idCuenta = $this->sessIdCuenta;
+
 		$filtros = "WHERE 1 = 1";
 		if ($post == 'nulo') {
 			$filtros .= " AND p.estado = 1";
 		} else {
 			if (!empty($post['id'])) $filtros .= " AND ".$this->tablas['distribuidora']['id']." = " . $post['id'];
+			if (!empty($idCuenta)) $filtros .= " AND ds.idCuenta = {$idCuenta}";
 		}
 
 		$sql = "
@@ -392,7 +395,7 @@ class M_Filtros extends My_Model
 
 	public function checkDistribuidoraSucursalRepetido($post)
 	{
-		$where = "nombre = '" . trim($post['nombre']) . "'";
+		$where = "nombre = '" . trim($post['nombre']) . "' AND idCuenta = {$this->sessIdCuenta}";
 		if (!empty($post['idDistribuidoraSucursal'])) $where .= " AND idDistribuidoraSucursal != " . $post['idDistribuidoraSucursal'];
 		if (!empty($post['idDistribuidora'])) $where .= " AND idDistribuidora = " . trim($post['idDistribuidora']);
 		if (!empty($post['cod_ubigeo'])) $where .= " AND cod_ubigeo = " . trim($post['cod_ubigeo']);
@@ -405,7 +408,8 @@ class M_Filtros extends My_Model
 			'nombre' => trim($post['nombre']),
 			'cod_ubigeo' => trim($post['cod_ubigeo']),
 			'idDistribuidora' => trim($post['distribuidora']),
-			'correoDistribuidoraSucursal' => trim($post['correo'])
+			'correoDistribuidoraSucursal' => trim($post['correo']),
+			'idCuenta' => $this->sessIdCuenta
 		];
 
 		$insert = $this->db->insert('trade.distribuidoraSucursal', $insert);
@@ -450,13 +454,16 @@ class M_Filtros extends My_Model
 
 	public function getDistribuidoras($post = 'nulo')
 	{
+		$idCuenta = $this->sessIdCuenta;
 		$filtros = "WHERE 1 = 1";
 		if ($post == 'nulo') {
 			$filtros .= " AND estado = 1";
 		} else {
 			if (!empty($post['id'])) $filtros .= " AND idDistribuidora = " . $post['id'];
 		}
-
+		
+		if (!empty($idCuenta)) $filtros .= " AND idCuenta = {$idCuenta}";
+		
 		$sql = "
 				SELECT
 				idDistribuidora AS cod_distribuidora,
@@ -475,7 +482,8 @@ class M_Filtros extends My_Model
 	{
 		$insert = [
 			'nombre' => trim($post['nombre']),
-			'correoDistribuidora' => trim($post['correoDistribuidora'])
+			'correoDistribuidora' => trim($post['correoDistribuidora']),
+			'idCuenta' => $this->sessIdCuenta
 		];
 
 		$insert = $this->db->insert('trade.distribuidora', $insert);
@@ -501,14 +509,16 @@ class M_Filtros extends My_Model
 	}
 
 	public function checkDistribuidoraRepetido($post)
-	{
-		$where = "nombre = '" . trim($post['nombre']). "'";
+	{	
+		 
+		$where = "nombre = '" . trim($post['nombre']). "' AND idCuenta = {$this->sessIdCuenta}";
 		if (!empty($post['idDistribuidora'])) $where .= " AND idDistribuidora != " . $post['idDistribuidora'];
 		return $this->verificarRepetido('trade.distribuidora', $where);
 	}
 
 	public function getPlazas($post = 'nulo')
 	{
+		$idCuenta = $this->sessIdCuenta;
 		$filtros = "WHERE 1 = 1";
 		if ($post == 'nulo') {
 			$filtros .= " AND estado = 1";
@@ -516,6 +526,7 @@ class M_Filtros extends My_Model
 			if (!empty($post['id'])) $filtros .= " AND idPlaza = " . $post['id'];
 		}
 
+		if (!empty($idCuenta)) $filtros .= " AND idCuenta = {$idCuenta}";
 		$sql = "
 				SELECT *
 				FROM trade.plaza
@@ -533,7 +544,8 @@ class M_Filtros extends My_Model
 			'cod_ubigeo' => trim($post['cod_ubigeo']),
 			'direccion' => trim($post['direccion']),
 			'nombreMayorista' => trim($post['nombreMayorista']),
-			'flagMayorista' => empty($post['nombreMayorista']) ? 0 : 1
+			'flagMayorista' => empty($post['nombreMayorista']) ? 0 : 1,
+			'idCuenta' => $this->sessIdCuenta
 		];
 
 		$insert = $this->db->insert('trade.plaza', $insert);
@@ -563,7 +575,7 @@ class M_Filtros extends My_Model
 
 	public function checkPlazaRepetido($post)
 	{
-		$where = "nombre = '" . trim($post['nombre']). "'";
+		$where = "nombre = '" . trim($post['nombre']). "' AND idCuenta = {$this->sessIdCuenta}";
 		if (!empty($post['idPlaza'])) $where .= " AND idPlaza != " . $post['idPlaza'];
 		return $this->verificarRepetido('trade.plaza', $where);
 	}

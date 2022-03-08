@@ -352,9 +352,13 @@ class Control extends MY_Controller{
 		execInBackground( RUTA_BAT.'carga_masiva procesar_archivos_clientes',$_POST);
 	}
 
-	public function prueba(){
-		echo "Hola mundo";
+	public function clear_cache(){
+		$rs =  $this->db->cache_delete_all();
+		echo $rs;
+		return true;
+	
 	}
+
 	
 }
 ?>

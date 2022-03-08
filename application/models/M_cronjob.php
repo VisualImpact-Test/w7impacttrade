@@ -62,7 +62,7 @@ class M_cronjob extends CI_Model{
         trade.usuario u
         JOIN trade.usuario_historico uh ON uh.idUsuario = u.idUsuario 
             AND General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,@fecha,@fecha) = 1
-            AND uh.idTipoUsuario IN(2,6,10,11,14,17,13)
+            AND uh.idTipoUsuario IN(2,6,10,11)
             AND uh.estado = 1
             AND u.estado = 1
         JOIN rrhh.dbo.empleado e ON e.numTipoDocuIdent = u.numDocumento
@@ -365,5 +365,104 @@ class M_cronjob extends CI_Model{
 
 		return $result;
 	}
+
+	public function sustento_fotos_tradicional($iniFecha, $finFecha, $desde = null, $hasta = null)
+	{
+		$sql = "
+			with cte as (
+			select distinct
+				v.idCliente
+				, v.codCliente
+				, replace(v.razonSocial,',',' ') empresa
+				, (select ub.departamento from general.dbo.ubigeo ub where ub.cod_ubigeo =  v.cod_ubigeo) cuidad
+				, r.fecha
+				, v.horaIni
+				, v.latIni
+				, v.lonFin
+				, m.nombre modulo
+				, m.idModulo
+				, 'http://movil.visualimpact.com.pe/Fotos/impactTrade_Android/'+mf.carpetaFoto +'/' + vf.fotoUrl foto
+				, ROW_NUMBER() OVER (PARTITION BY v.idCliente ORDER BY v.idCliente) AS RowNum
+			from ImpactTrade_pg.trade.data_ruta r
+			join ImpactTrade_pg.trade.data_visita v on v.idRuta = r.idRuta
+			join ImpactTrade_pg.trade.data_visitaFotos vf on vf.idVisita = v.idVisita
+			join ImpactTrade_bd.trade.aplicacion_modulo m on m.idModulo = vf.idModulo
+			join impacttrade_bd.trade.aplicacion_modulo_grupo mg on mg.idModuloGrupo = m.idModuloGrupo
+			join impactTrade_bd.trade.aplicacion_modulo_grupo mf on mf.idModuloGrupo = mg.idModuloGrupo
+			where 
+				r.demo = 0 and 
+				r.idProyecto = 3 and 
+				r.estado = 1 and 
+				v.estado = 1 and 
+				r.idTipoUsuario = 1 and 
+				(v.estadoIncidencia is null or v.estadoIncidencia = '') and 
+				r.fecha between '{$iniFecha}' and '{$finFecha}')
+			select TOP 10000 * from cte where RowNum between {$desde} and {$hasta}
+		";
+
+		$query = $this->db->query($sql);
+
+
+		return $query->result_array();
+
+	}
+
+	public function sustento_fotos_moderno($iniFecha, $finFecha)
+	{
+		$sql = "
+			DECLARE 
+				@fecIni DATE ='{$iniFecha}',@fecFin DATE = '{$finFecha}'
+			SELECT
+				v.idVisita
+				,v.idTienda
+				, t.codigoTienda
+				, t.razonSocial
+				, ub.departamento
+				,r.fecha
+				, v.horaIni
+				, v.horaFin
+				, latIni latitud
+				, lonIni longitud
+				, vf.idVisitaFoto
+				, 'https://www.visualimpact.com.pe/intranet/pg.php/c_get_img/img_autoservicio_spoc/'+ft.nombre modulo
+			FROM 
+				pg.autoservicio.spoc_visitaFoto vf
+				JOIN pg.autoservicio.spoc_visita v
+					ON v.idVisita = vf.idVisita
+				JOIN pg.autoservicio.spoc_ruta r
+					ON r.idRuta=v.idRuta
+					AND r.fecha BETWEEN @fecIni AND @fecFin 
+				JOIN pg.autoservicio.tienda t
+					ON t.idTienda=v.idTienda
+				JOIN General.dbo.ubigeo ub
+					ON ub.cod_ubigeo=t.cod_ubigeo
+				JOIN pg.autoservicio.spoc_fotoTipo ft
+					ON ft.idFotoTipo=vf.idFotoTipo
+		";
+
+		$query = $this->db->query($sql);
+
+		if ($query->num_rows() > 0) {
+			return $query->result_array();
+		}
+
+		return 0;
+	}
+	
+	public function correos_sustento()
+	{
+		$sql = "
+			SELECT * FROM ImpactTrade_bd.trade.correo_sustento WHERE estado=1
+		";
+
+		$query = $this->db->query($sql);
+
+		if ($query->num_rows() > 0) {
+			return $query->result_array();
+		}
+
+		return 0;
+	}
+	
 }
 ?>

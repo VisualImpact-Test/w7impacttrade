@@ -75,8 +75,8 @@ class M_tracking extends MY_Model{
 				, ISNULL(v.lonIni,0) long_ini
 				, ISNULL(v.latFin,0) lati_fin
 				, ISNULL(v.lonFin,0) long_fin
-				, ISNULL(c.latitud,0) latitud
-				, ISNULL(c.longitud,0) longitud
+				, ISNULL(ch.latitud,0) latitud
+				, ISNULL(ch.longitud,0) longitud
 				, ISNULL(vi.idIncidencia,0) idTipoIncidencia
 				, CASE WHEN (v.horaIni IS NOT NULL AND v.horaFin IS NOT NULL AND vi.nombreIncidencia IS NULL ) OR (v.estadoIncidencia=0) THEN 1 ELSE 0 END as PDV_EFECTIVO
 				, CASE WHEN (v.horaIni IS NULL AND v.horaFin IS NULL AND vi.nombreIncidencia IS NOT NULL) OR (v.estadoIncidencia=1) THEN 1 ELSE 0 END as PDV_NO_VISITADO
