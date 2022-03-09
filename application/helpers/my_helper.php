@@ -1628,6 +1628,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		$foto = !empty($input['foto']) ? $input['foto'] : '';
 		$icono = !empty($input['icono']) ? $input['icono'] : 'fa fa-camera';  
 
+		if(empty($foto)) return '-';
 		return ' <a href="javascript:;"  class="lk-show-foto" data-modulo="'.$modulo.'" data-foto="' . $foto . '" ><i class="'.$icono.'" ></i></a> ';
 	}
 	function rutaImagen($input = [])

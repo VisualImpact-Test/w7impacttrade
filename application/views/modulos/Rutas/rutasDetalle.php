@@ -40,7 +40,7 @@
 				<th rowspan="2" class="text-center">HORA INCIDENCIA</th>
 				<th rowspan="2" class="text-center">INCIDENCIA</th>
 				<th rowspan="2" class="text-center colCondicion">CONDICIÓN</th>
-				<th colspan="19" class="text-center">MÓDULOS</th>
+				<th colspan="20" class="text-center">MÓDULOS</th>
 			</tr>
 			<tr class="text-black">
 				<th class="text-center thEncuesta <?= !empty($disabledTH['Encuestas'])?$disabledTH['Encuestas']."   " : '' ?>   <?= (!in_array( 1,$arrayColumnasVisibles,true ))? "hideCol excel-borrar noVis": "" ?>">ENCUESTA</th>
@@ -62,6 +62,7 @@
 				<th class="text-center thEvidenciaFotografica <?= !empty($disabledTH['EvidenciaFotografica'])?  $disabledTH['EvidenciaFotografica']."  " : '' ?>  <?= (!in_array( 26,$arrayColumnasVisibles,true ))? "hideCol excel-borrar noVis": "" ?> ">EVIDENCIA FOTOGRAFICA</th> 
 				<th class="text-center thOrdenAuditoria <?= !empty($disabledTH['OrdenAuditoria'])?  $disabledTH['OrdenAuditoria']."  " : '' ?>  <?= (!in_array( 15,$arrayColumnasVisibles,true ))? "hideCol excel-borrar noVis": "" ?> ">ORDEN AUDITORIA</th> 
 				<th class="text-center thModulacion <?= !empty($disabledTH['Modulacion'])?  $disabledTH['Modulacion']."  " : '' ?>  <?= (!in_array( 16,$arrayColumnasVisibles,true ))? "hideCol excel-borrar noVis": "" ?> ">MODULACION</th> 
+				<th class="text-center thMaterialPop <?= !empty($disabledTH['MaterialPop'])?  $disabledTH['MaterialPop']."  " : '' ?>  <?= (!in_array( 27,$arrayColumnasVisibles,true ))? "hideCol excel-borrar noVis": "" ?> ">MATERIAL POP</th> 
 
 			</tr>
 		</thead>
@@ -75,6 +76,5 @@
 	$(document).ready(function() {
 		var c = 0;
 	});
-
 
 </script>

@@ -24,12 +24,18 @@ class ControlFoto extends MY_Controller{
 
         // $carpeta = 'checklist';
         // $foto = '188767207420200930172746_102_CHECKLIST.jpg';
+        $params = explode("_",$foto);
+        foreach ($params as $v) {
+            if($v == "WASABI"){
+                define('RUTA_MOVIL_FOTOS','https://s3.us-west-1.wasabisys.com/visualimpact.app/fotos/impactTrade_android/');
+            }
+            if($v != "WASABI"){
+                define('RUTA_MOVIL_FOTOS','http://movil.visualimpact.com.pe/fotos/impactTrade_android/');
+            }
+        }
 
-        // echo($ruta);
-        // exit();
         readfile(RUTA_MOVIL_FOTOS.$carpeta.'/'.$foto.'');
-        // readfile(obtener_url_sistema().'/fotos/impactTrade_android/'.$carpeta.'/'.$foto.'');
-        // readfile('http://movil.visualimpact.com.pe/fotos/impactTrade_android/checklist/188767207420200930172746_102_CHECKLIST.jpg');
+        
     }
 	public function obtener_carpeta_imagen($carpeta,$foto){
         header('Content-Type: image/jpg');
