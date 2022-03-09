@@ -58,7 +58,7 @@ class M_checkproductos extends MY_Model{
 			, v.idPlaza
 
 			, ct.nombre  subCanal
-			, gca.nombre grupoCanal
+			, ISNULL(pgc.nombre,gca.nombre) grupoCanal
 			{$segmentacion['columnas_bd']}
 		FROM {$this->sessBDCuenta}.trade.data_ruta r
 		JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
@@ -66,6 +66,7 @@ class M_checkproductos extends MY_Model{
 		JOIN trade.cuenta cu ON cu.idCuenta=r.idCuenta
 		JOIN trade.canal ca ON ca.idCanal=v.idCanal
 		JOIN trade.grupoCanal gca ON ca.idGrupoCanal=gca.idGrupoCanal
+		LEFT JOIN trade.proyectoGrupoCanal pgc ON pgc.idGrupoCanal = gca.idGrupoCanal AND pgc.idProyecto = {$this->sessIdProyecto}
 		LEFT JOIN General.dbo.ubigeo ubi ON ubi.cod_ubigeo=v.cod_ubigeo
 
 		LEFT JOIN trade.encargado ec ON ec.idEncargado=r.idEncargado
@@ -290,7 +291,7 @@ class M_checkproductos extends MY_Model{
 			DECLARE @fecIni date='".$params['fecIni']."',@fecFin date='".$params['fecFin']."';
 			SELECT
 				cu.nombre AS cuenta
-				, gca.nombre AS grupoCanal
+				, ISNULL(pgc.nombre,gca.nombre) AS grupoCanal
 				, ca.nombre AS canal
 				, v.codCliente
 				, v.nombreComercial
@@ -318,6 +319,8 @@ class M_checkproductos extends MY_Model{
 			JOIN trade.cuenta cu ON cu.idCuenta=r.idCuenta
 			LEFT JOIN trade.canal ca ON ca.idCanal=v.idCanal
 			LEFT JOIN trade.grupoCanal gca ON ca.idGrupoCanal=gca.idGrupoCanal
+			LEFT JOIN trade.proyectoGrupoCanal pgc ON pgc.idGrupoCanal = gca.idGrupoCanal AND pgc.idProyecto = {$this->sessIdProyecto}
+
 			JOIN {$this->sessBDCuenta}.trade.data_visitaProductos dvv ON dvv.idVisita=v.idVisita
 			JOIN {$this->sessBDCuenta}.trade.data_visitaProductosDet dvd ON dvd.idVisitaProductos=dvv.idVisitaProductos
 			LEFT JOIN trade.motivo mo ON dvd.idMotivo=mo.idMotivo
@@ -395,7 +398,7 @@ class M_checkproductos extends MY_Model{
 			SELECT
 				cu.nombre AS cuenta
 				, r.fecha
-				, gca.nombre AS grupoCanal
+				, ISNULL(pgc.nombre,gca.nombre) AS grupoCanal
 				, ca.nombre AS canal
 				, subca.nombre subCanal
 				, v.idCliente
@@ -428,6 +431,8 @@ class M_checkproductos extends MY_Model{
 			JOIN trade.cuenta cu ON cu.idCuenta=r.idCuenta
 			LEFT JOIN trade.canal ca ON ca.idCanal=v.idCanal
 			LEFT JOIN trade.grupoCanal gca ON ca.idGrupoCanal=gca.idGrupoCanal
+			LEFT JOIN trade.proyectoGrupoCanal pgc ON pgc.idGrupoCanal = gca.idGrupoCanal AND pgc.idProyecto = {$this->sessIdProyecto}
+
 			JOIN {$this->sessBDCuenta}.trade.data_visitaProductos dvv ON dvv.idVisita=v.idVisita
 			JOIN {$this->sessBDCuenta}.trade.data_visitaProductosDet dvd ON dvd.idVisitaProductos=dvv.idVisitaProductos
 			JOIN trade.producto ele ON ele.idProducto=dvd.idProducto AND ele.flagCompetencia = 0

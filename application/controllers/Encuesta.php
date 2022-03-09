@@ -253,16 +253,18 @@ class Encuesta extends MY_Controller
                            if( empty($opcion['nombre'])) continue;
 
                            $alternativasOpcion = !empty($visitaEncuesta[$visita['idVisita']]['opciones'][$keyPregunta][$opcion['idAlternativaOpcion']]) ? implode(", ", array_unique($visitaEncuesta[$visita['idVisita']]['opciones'][$keyPregunta][$opcion['idAlternativaOpcion']])): '';
-                           array_push($new_data[$i],
+                           
+						   array_push($new_data[$i],
                               "<p class='text-center'>{$alternativasOpcion}</p>"
                            );
-                           if($pregunta['idTipoPregunta'] == 4 ){
-                              array_push($new_data[$i],
-                              "<p class='text-center'>{$fotoPreg}</p>"
-                              );
-                           }
-                        
+						   
                         }
+						
+						if($pregunta['idTipoPregunta'] == 4 ){
+						   array_push($new_data[$i],
+						   "<p class='text-center'>{$fotoPreg}</p>"
+						   );
+						}
 
                   }
 
@@ -280,7 +282,6 @@ class Encuesta extends MY_Controller
                         "<p class='text-center'>{$foto}</p>"
                   );
 				  }
-				  
 				  
 			}	
 

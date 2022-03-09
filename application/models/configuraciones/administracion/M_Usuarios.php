@@ -595,6 +595,7 @@ class M_usuarios extends My_Model
 
 	public function getZonasDeHistorico($post)
 	{
+		$filtros = '';
 		$idHistorico = $post['idUsuarioHistorico'];
 
 		$sql = "
@@ -617,8 +618,9 @@ class M_usuarios extends My_Model
 				*
 			FROM trade.zona zn
 			WHERE 1 = 1
-				 AND zn.idCuenta = $idCuenta
-				AND zn.idProyecto = $idProyecto 
+				AND zn.idCuenta = $idCuenta
+				AND zn.idProyecto = $idProyecto
+				AND zn.estado = 1 
 			ORDER BY zn.nombre
 		";
 

@@ -103,17 +103,31 @@ class M_Home extends MY_Model{
             {
                 $filtros .= !empty($params['distribuidora_filtro']) ? ' AND d.idDistribuidora='.$params['distribuidora_filtro'] : '';
                 $filtros .= !empty($params['distribuidoraSucursal_filtro']) ? ' AND ds.idDistribuidoraSucursal='.$params['distribuidoraSucursal_filtro'] : '';
+
+                $h_sucursales = $this->db->query("SELECT idDistribuidoraSucursal FROM ImpactTrade_bd.trade.usuario_historicoDistribuidoraSucursal WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
+		        $sucursales = !empty($h_sucursales) ? implode(',', array_map('array_shift', $h_sucursales)): '';
+                !empty($sucursales) ? $filtros .= " AND uhdd.idDistribuidoraSucursal IN({$sucursales})" : '' ;
             }
 
             if($segmentacion['tipoSegmentacion'] == "mayorista") 
             {
                 $filtros .= !empty($params['plaza_filtro']) ? ' AND sct.idPlaza='.$params['plaza_filtro'] : '';
+
+                //Permisos
+                $h_plazas = $this->db->query("SELECT idPlaza FROM ImpactTrade_bd.trade.usuario_historicoPlaza WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
+                $plazas = !empty($h_plazas) ? implode(',', array_map('array_shift', $h_plazas)): '';
+                !empty($plazas) ? $filtros .= " AND uhp.idPlaza IN({$plazas})" : '' ;
             }
 
             if($segmentacion['tipoSegmentacion'] == "moderno") 
             {
                 $filtros .= !empty($params['cadena_filtro']) ? ' AND cad.idCadena='.$params['cadena_filtro'] : '';
                 $filtros .= !empty($params['banner_filtro']) ? ' AND ba.idBanner='.$params['banner_filtro'] : '';
+
+                //Permisos
+                $h_banners = $this->db->query("SELECT idBanner FROM ImpactTrade_bd.trade.usuario_historicoBanner WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
+                $banners = !empty($h_banners) ? implode(',', array_map('array_shift', $h_banners)): '';
+                !empty($banners) ? $filtros .= " AND uhb.idBanner IN({$banners})" : '' ;
             }
         }else{
             $segmentacion['columnas_bd'] = '';
@@ -124,6 +138,15 @@ class M_Home extends MY_Model{
 
         if(!empty($params['grupoCanal'])){$filtros.= " AND gc.idGrupoCanal = {$params['grupoCanal']} ";}
         if(!empty($params['canal'])){$filtros.= " AND c.idCanal = {$params['canal']} ";}
+
+        $h_zonas = $this->db->query("SELECT idZona FROM ImpactTrade_bd.trade.usuario_historicoZona WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
+		$zonas = !empty($h_zonas) ? implode(',', array_map('array_shift', $h_zonas)): '';
+
+		$h_canales = $this->db->query("SELECT idCanal FROM ImpactTrade_bd.trade.usuario_historicoCanal WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
+		$canales = !empty($h_canales) ? implode(',', array_map('array_shift', $h_canales)): '';
+		
+        !empty($canales) ? $filtros .= " AND uhca.idCanal IN({$canales})" : '' ;
+        !empty($zonas) ? $filtros .= " AND uhz.idZona IN({$zonas})" : '' ;
 
         $sessIdTipoUsuario = $this->idTipoUsuario;
 		$sessDemo = $this->demo;
@@ -167,6 +190,12 @@ class M_Home extends MY_Model{
         JOIN trade.grupoCanal gc WITH(NOLOCK) ON gc.idGrupoCanal = c.idGrupoCanal
         LEFT JOIN trade.usuario_historico uh ON uh.idUsuario=r.idUsuario AND @hoy BETWEEN uh.fecIni AND ISNULL(uh.fecFin,@hoy)
         LEFT JOIN trade.usuario_historicoZona uhz ON uhz.idUsuarioHist=uh.idUsuarioHist
+
+        LEFT JOIN trade.usuario_historicoCanal uhca ON uhca.idUsuarioHist = uh.idUsuarioHist AND uhca.estado = 1
+        LEFT JOIN trade.usuario_historicoDistribuidoraSucursal uhdd ON uhdd.idUsuarioHist = uh.idUsuarioHist AND uhdd.estado = 1
+        LEFT JOIN trade.usuario_historicoPlaza uhp ON uhp.idUsuarioHist = uh.idUsuarioHist AND uhp.estado = 1
+        LEFT JOIN trade.usuario_historicoBanner uhb ON uhb.idUsuarioHist = uh.idUsuarioHist AND uhb.estado = 1
+
         {$segmentacion['join']} 
     WHERE 
         r.fecha BETWEEN @inicio_mes AND @hoy
@@ -218,17 +247,31 @@ class M_Home extends MY_Model{
             {
                 $filtros .= !empty($params['distribuidora_filtro']) ? ' AND d.idDistribuidora='.$params['distribuidora_filtro'] : '';
                 $filtros .= !empty($params['distribuidoraSucursal_filtro']) ? ' AND ds.idDistribuidoraSucursal='.$params['distribuidoraSucursal_filtro'] : '';
+
+                $h_sucursales = $this->db->query("SELECT idDistribuidoraSucursal FROM ImpactTrade_bd.trade.usuario_historicoDistribuidoraSucursal WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
+		        $sucursales = !empty($h_sucursales) ? implode(',', array_map('array_shift', $h_sucursales)): '';
+                !empty($sucursales) ? $filtros .= " AND uhdd.idDistribuidoraSucursal IN({$sucursales})" : '' ;
             }
 
             if($segmentacion['tipoSegmentacion'] == "mayorista") 
             {
                 $filtros .= !empty($params['plaza_filtro']) ? ' AND sct.idPlaza='.$params['plaza_filtro'] : '';
+
+                //Permisos
+                $h_plazas = $this->db->query("SELECT idPlaza FROM ImpactTrade_bd.trade.usuario_historicoPlaza WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
+                $plazas = !empty($h_plazas) ? implode(',', array_map('array_shift', $h_plazas)): '';
+                !empty($plazas) ? $filtros .= " AND uhp.idPlaza IN({$plazas})" : '' ;
             }
 
             if($segmentacion['tipoSegmentacion'] == "moderno") 
             {
                 $filtros .= !empty($params['cadena_filtro']) ? ' AND cad.idCadena='.$params['cadena_filtro'] : '';
                 $filtros .= !empty($params['banner_filtro']) ? ' AND ba.idBanner='.$params['banner_filtro'] : '';
+
+                //Permisos
+                $h_banners = $this->db->query("SELECT idBanner FROM ImpactTrade_bd.trade.usuario_historicoBanner WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
+                $banners = !empty($h_banners) ? implode(',', array_map('array_shift', $h_banners)): '';
+                !empty($banners) ? $filtros .= " AND uhb.idBanner IN({$banners})" : '' ;
             }
 
         }else{
@@ -240,6 +283,16 @@ class M_Home extends MY_Model{
 
         if(!empty($params['grupoCanal'])){$filtros.= " AND gc.idGrupoCanal = {$params['grupoCanal']} ";}
         if(!empty($params['canal'])){$filtros.= " AND c.idCanal = {$params['canal']} ";}
+
+
+        $h_zonas = $this->db->query("SELECT idZona FROM ImpactTrade_bd.trade.usuario_historicoZona WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
+		$zonas = !empty($h_zonas) ? implode(',', array_map('array_shift', $h_zonas)): '';
+
+		$h_canales = $this->db->query("SELECT idCanal FROM ImpactTrade_bd.trade.usuario_historicoCanal WHERE idUsuarioHist = {$this->idUsuarioHist}")->result_array();
+		$canales = !empty($h_canales) ? implode(',', array_map('array_shift', $h_canales)): '';
+		
+        !empty($canales) ? $filtros .= " AND uhca.idCanal IN({$canales})" : '' ;
+        !empty($zonas) ? $filtros .= " AND uhz.idZona IN({$zonas})" : '' ;
 
         $sessIdTipoUsuario = $this->idTipoUsuario;
 		$sessDemo = $this->demo;
@@ -284,6 +337,11 @@ class M_Home extends MY_Model{
             JOIN trade.grupoCanal gc WITH(NOLOCK) ON gc.idGrupoCanal = c.idGrupoCanal
             LEFT JOIN trade.usuario_historico uh ON uh.idUsuario=r.idUsuario AND @hoy BETWEEN uh.fecIni AND ISNULL(uh.fecFin,@hoy)
             LEFT JOIN trade.usuario_historicoZona uhz ON uhz.idUsuarioHist=uh.idUsuarioHist
+
+            LEFT JOIN trade.usuario_historicoCanal uhca ON uhca.idUsuarioHist = uh.idUsuarioHist AND uhca.estado = 1
+            LEFT JOIN trade.usuario_historicoDistribuidoraSucursal uhdd ON uhdd.idUsuarioHist = uh.idUsuarioHist AND uhdd.estado = 1
+			LEFT JOIN trade.usuario_historicoPlaza uhp ON uhp.idUsuarioHist = uh.idUsuarioHist AND uhp.estado = 1
+			LEFT JOIN trade.usuario_historicoBanner uhb ON uhb.idUsuarioHist = uh.idUsuarioHist AND uhb.estado = 1
            {$segmentacion['join']} 
         WHERE 
             r.fecha BETWEEN @inicio_mes AND @hoy

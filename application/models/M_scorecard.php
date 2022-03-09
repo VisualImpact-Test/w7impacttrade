@@ -244,7 +244,6 @@ class M_scorecard extends MY_Model{
 					AND (r.demo = 0 OR r.demo IS NULL)
 					AND v.estado = 1
 					AND r.estado = 1
-					AND r.idUsuario = 623
 					
 					{$subfiltros}
 					

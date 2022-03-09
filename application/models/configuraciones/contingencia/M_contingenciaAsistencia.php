@@ -94,7 +94,8 @@ class M_contingenciaAsistencia extends My_Model{
                 , tu.nombre tipoUsuario
 				, CONVERT(VARCHAR,t.fecha,103) AS fecha
 				, uh.idProyecto, py.nombre proyecto, py.idCuenta, cu.nombre cuenta
-				, ca.idCanal, ca.nombre canal, ca.idGrupoCanal, gc.nombre grupoCanal
+				, ca.idCanal, ca.nombre canal, ca.idGrupoCanal
+				, ISNULL(pgc.nombre,gc.nombre) grupoCanal
 				, enc.idEncargado, u.apePaterno+' '+u.apeMaterno+' '+u.nombres encargado, enc.idUsuario idUsuarioEncargado
 				, ub.cod_departamento, ub.departamento, ub.cod_provincia, ub.provincia, ub.cod_distrito, ub.distrito
 				, ocu.nombre ocurrencia
@@ -108,6 +109,7 @@ class M_contingenciaAsistencia extends My_Model{
 				LEFT JOIN trade.usuario_historicoCanal uhd ON uhd.idUsuarioHist = uh.idUsuarioHist
 				LEFT JOIN trade.canal ca ON ca.idCanal = uhd.idCanal
 				LEFT JOIN trade.grupoCanal gc ON gc.idGrupoCanal = ca.idGrupoCanal
+				LEFT JOIN trade.proyectoGrupoCanal pgc ON pgc.idGrupoCanal = gc.idGrupoCanal AND pgc.idProyecto = {$this->sessIdProyecto}
 				LEFT JOIN trade.proyecto py ON py.idProyecto = uh.idProyecto
 				LEFT JOIN trade.cuenta cu ON cu.idCuenta = py.idCuenta
 				

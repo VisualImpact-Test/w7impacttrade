@@ -130,7 +130,7 @@ class M_contingenciaRutas extends My_Model{
 				, v.estadoIncidencia
 				, v.idCanal 
 				, v.canal
-
+				, ISNULL(pgc.nombre,gca.nombre) grupoCanal
 				, ub.cod_departamento
 				, ub.departamento
 				, ub.provincia
@@ -168,6 +168,9 @@ class M_contingenciaRutas extends My_Model{
 				JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
 				LEFT JOIN ".getClienteHistoricoCuenta()." ch ON ch.idCliente = v.idCliente 
 				AND General.dbo.fn_fechaVigente(ch.fecIni,ch.fecFin,r.fecha,r.fecha)=1 AND ch.idProyecto = {$input['idProyecto']}
+				JOIN trade.canal ca ON ca.idCanal = v.idCanal
+				JOIN trade.grupoCanal gca ON gca.idGrupoCanal = ca.idGrupoCanal
+				LEFT JOIN trade.proyectoGrupoCanal pgc ON pgc.idGrupoCanal = gca.idGrupoCanal AND pgc.idProyecto = {$this->sessIdProyecto}
 				LEFT JOIN trade.usuario u ON u.idUsuario=r.idUsuario
 				LEFT JOIN General.dbo.ubigeo ub ON ub.cod_ubigeo=v.cod_ubigeo
 				LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaIncidencia vi ON vi.idVisita=v.idVisita

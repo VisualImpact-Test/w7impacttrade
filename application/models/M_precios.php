@@ -1056,7 +1056,7 @@ class M_precios extends CI_Model{
 		}
 		if(in_array($segmentacion['grupoCanal'], GC_MAYORISTAS))
 		{
-			$orderby = 'ORDER BY t.anio, t.idSemana, t.mes, ch.idPlaza, ch.nombre, ch.idDistribuidoraSucursal, producto';
+			$orderby = 'ORDER BY t.anio, t.idSemana, t.mes, ch.idPlaza, ch.idDistribuidoraSucursal, producto';
 			$groupby = '
 			, ch.plaza 
 			, ch.idPlaza
@@ -1118,7 +1118,7 @@ class M_precios extends CI_Model{
 			t.anio
 			, t.mes
 			, t.idSemana AS semana
-			, gca.nombre AS grupoCanal
+			, ISNULL(pgc.nombre,gca.nombre) AS grupoCanal
 			, ca.nombre AS canal
 
 			{$groupby}
@@ -1133,6 +1133,7 @@ class M_precios extends CI_Model{
 		LEFT JOIN lista_clientes ch ON v.idCliente = ch.idCliente
 		LEFT JOIN trade.canal ca ON ca.idCanal=v.idCanal
 		LEFT JOIN trade.grupoCanal gca ON ca.idGrupoCanal=gca.idGrupoCanal
+		LEFT JOIN trade.proyectoGrupoCanal pgc ON pgc.idGrupoCanal = gca.idGrupoCanal AND pgc.idProyecto = {$this->sessIdProyecto}
 		LEFT JOIN trade.producto ele ON ele.idProducto=v.idProducto
 		LEFT JOIN trade.producto_marca m ON m.idMarca = ele.idMarca
 		LEFT JOIN trade.producto_categoria cat ON cat.idCategoria = ele.idCategoria
@@ -1143,7 +1144,7 @@ class M_precios extends CI_Model{
 		t.anio
 		, t.mes
 		, t.idSemana
-		, gca.nombre
+		, ISNULL(pgc.nombre,gca.nombre)
 		, ca.nombre
 
 		{$groupby}
