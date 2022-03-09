@@ -184,9 +184,19 @@ class Home extends MY_Controller {
 
 		$post['idCuenta'] = $this->sessIdCuenta;
 		$post['idProyecto'] = $this->sessIdProyecto;
+		$gruposCanal = $this->m_control->get_grupoCanal(['idGrupoCanal' => $post['grupoCanal']]);
 
 		$data_asistencia = $this->model->obtener_asistencias($post);
-		$data_asistencia_usuarios = $this->model->get_asistencia($post);
+		$data_asistencia_usuarios = [];
+
+		foreach ($gruposCanal as $v) {
+			$post['grupoCanal'] = $v['id'];
+			$asistencias = $this->model->get_asistencia($post);
+
+			foreach ($asistencias as $k => $v) {
+				$data_asistencia_usuarios[$v['idUsuario']] = $v;
+			}
+		}
 
 		foreach ($data_asistencia as $ka => $row) {
 			$array['asistencias'][$row['fecha_id']]['usuarios'][$row['idUsuario']]['asistencias'][$row['idTipoAsistencia']]['tipoAsistencia'] = $row['tipoAsistencia'];

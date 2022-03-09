@@ -2,6 +2,7 @@ var Home={
 	url: "home/",
 	carteraHoy: '',
 	usuariosFaltas: [],
+	intervalo: '',
 	load: function(){
 		$(document).on('click', '.lk-show-gps1', function(){
 			var control =  $(this);
@@ -106,12 +107,16 @@ var Home={
 				});
 			});
 
-			setInterval(() => {
-				if($('.tooltipload').length > 0 || $('.icon-load').length > 0 ){
-					$('select, .txt-fecha').addClass('disabled')
-				}else{
-					$('select, .txt-fecha').removeClass('disabled')
+			Home.intervalo = setInterval(() => {
 
+				if($("#sessIdCuenta").val() == "2")
+				{
+					if($('.tooltipload').length > 0 || $('.icon-load').length > 0 ){
+						$('select, .txt-fecha').addClass('disabled')
+					}else{
+						$('select, .txt-fecha').removeClass('disabled')
+
+					}
 				}
 			}, 500);
 		});

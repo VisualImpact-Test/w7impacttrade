@@ -156,13 +156,6 @@ class Tracking extends MY_Controller{
 						$ruta[$j]['latitud']=!empty($row['lati_ini']) ? $row['lati_ini'] : $row['latitud'];
 						$ruta[$j]['longitud']=!empty($row['long_ini']) ? $row['long_ini'] : $row['longitud'] ;
 						
-						// if(empty($ruta[$j]['latitud'])){
-						// 	$ruta[$j]['latitud']=!empty($row['lati_fin']) ? $row['lati_fin'] : $row['latitud'];
-						// }
-						// if(empty($ruta[$j]['longitud'])){
-						// 	$ruta[$j]['longitud']=!empty($row['long_fin']) ? $row['long_fin'] : $row['longitud'] ;
-						// }
-
 						if($puntos[$j]['ultima_visita'] == true){
 							$ruta[$j]['ultimo']=1;
 							if(!empty($row['hora_ini']) && empty($row['hora_fin'])) $puntos[$j]['accion']='encurso';

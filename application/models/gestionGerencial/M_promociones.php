@@ -62,7 +62,7 @@ class M_promociones extends MY_Model{
 			, v.idPlaza
 
 			, gc.idGrupoCanal
-			, gc.nombre grupoCanal
+			, ISNULL(pgc.nombre,gc.nombre) grupoCanal
 			, ct.nombre subCanal
 			{$segmentacion['columnas_bd']}
 		FROM {$this->sessBDCuenta}.trade.data_ruta r
@@ -75,6 +75,7 @@ class M_promociones extends MY_Model{
 		JOIN trade.cuenta cu ON cu.idCuenta=r.idCuenta
 		JOIN trade.canal ca ON ca.idCanal=v.idCanal
 		JOIN trade.grupoCanal gc ON gc.idGrupoCanal = ca.idGrupoCanal
+		LEFT JOIN trade.proyectoGrupoCanal pgc ON pgc.idGrupoCanal = gc.idGrupoCanal AND pgc.idProyecto = {$this->sessIdProyecto}
 		JOIN trade.cliente c ON v.idCliente = c.idCliente
 		LEFT JOIN General.dbo.ubigeo ubi ON ubi.cod_ubigeo=v.cod_ubigeo
 
@@ -953,7 +954,7 @@ class M_promociones extends MY_Model{
 			, v.direccion
 			, v.idPlaza
 			, gc.idGrupoCanal
-			, gc.nombre grupoCanal
+			, ISNULL(pgc.nombre,gc.nombre) grupoCanal
 			, m.idMarca
 			, m.nombre marca
 			, cat.idCategoria
@@ -977,6 +978,7 @@ class M_promociones extends MY_Model{
 		JOIN trade.cuenta cu ON cu.idCuenta=r.idCuenta
 		JOIN trade.canal ca ON ca.idCanal=v.idCanal
 		JOIN trade.grupoCanal gc ON gc.idGrupoCanal = ca.idGrupoCanal
+		LEFT JOIN trade.proyectoGrupoCanal pgc ON pgc.idGrupoCanal = gc.idGrupoCanal AND pgc.idProyecto = {$this->sessIdProyecto}
 		JOIN {$cliente_historico} ch ON ch.idCliente = v.idCliente AND General.dbo.fn_fechaVigente(ch.fecIni,ch.fecFin,@fecIni,@fecFin)=1 AND ch.idProyecto = {$input['proyecto_filtro']}
 		LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisitaFoto = vpd.idVisitaFoto
 		LEFT JOIN trade.segmentacionNegocio sn ON sn.idSegNegocio = ch.idSegNegocio

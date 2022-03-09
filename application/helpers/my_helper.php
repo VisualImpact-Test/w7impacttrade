@@ -1261,7 +1261,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 						'smtp_host' => 'ssl://smtp.googlemail.com',
 						'smtp_port' => 465,
 						'smtp_user' => 'teamsystem@visualimpact.com.pe',
-						'smtp_pass' => 'v1su4l2010',
+						'smtp_pass' => '#nVi=0sN0ti$',
 						'mailtype' => 'html',
 						'charset' => 'utf-8',
 						'newline' => "\r\n"

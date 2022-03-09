@@ -464,7 +464,7 @@ class M_Fotos extends MY_Model
 				,v.idUsuario
 				,v.usuario
 				,ca.nombre canal
-				,gca.nombre grupoCanal
+				,ISNULL(pgc.nombre,gca.nombre) grupoCanal
 				,UPPER(v.tipoUsuario) tipoUsuario 
 				,v.idVisitaFoto
 				,v.tipoFoto
@@ -482,6 +482,7 @@ class M_Fotos extends MY_Model
 			JOIN lista_clientes ch ON v.idCliente = ch.idCliente
 			LEFT JOIN trade.canal ca ON ca.idCanal=v.idCanal
 			LEFT JOIN trade.grupoCanal gca ON ca.idGrupoCanal=gca.idGrupoCanal
+			LEFT JOIN trade.proyectoGrupoCanal pgc ON pgc.idGrupoCanal = gca.idGrupoCanal AND pgc.idProyecto = {$this->sessIdProyecto}
 			LEFT JOIN trade.proyecto py ON py.idProyecto = v.idProyecto
 			LEFT JOIN trade.cuenta c ON c.idCuenta = py.idCuenta
 			ORDER BY canal,departamento, provincia, distrito, razonSocial, fecha, tipoFoto DESC;

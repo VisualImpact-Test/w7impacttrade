@@ -95,7 +95,7 @@ class M_encuesta extends MY_Model
 				, CONVERT(varchar,r.fecha,103) fecha
 				, r.idUsuario
 				, r.nombreUsuario usuario
-				, gc.nombre AS grupoCanal
+				, ISNULL(pgc.nombre,gc.nombre) AS grupoCanal
 				, v.canal
 				, sc.nombre AS subCanal
 				, ubi01.provincia
@@ -119,6 +119,8 @@ class M_encuesta extends MY_Model
 			LEFT JOIN General.dbo.ubigeo ubi01 ON c.cod_ubigeo=ubi01.cod_ubigeo
 			JOIN trade.canal ca ON ca.idCanal = v.idCanal
 			LEFT JOIN trade.grupoCanal gc ON ca.idGrupoCanal = gc.idGrupoCanal
+			LEFT JOIN trade.proyectoGrupoCanal pgc ON pgc.idGrupoCanal = gc.idGrupoCanal AND pgc.idProyecto = {$this->sessIdProyecto}
+
 			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaIncidencia vi ON  vi.idVisita = v.idVisita
 			LEFT JOIN master.incidencias ti ON ti.idIncidencia = vi.idIncidencia
 

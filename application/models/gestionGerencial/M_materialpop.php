@@ -58,7 +58,7 @@ class M_materialpop extends MY_Model{
 			, v.direccion
 			, v.idPlaza
 			, ct.nombre subCanal
-			, gca.nombre grupoCanal
+			, ISNULL(pgc.nombre,gca.nombre) grupoCanal
 
 			{$segmentacion['columnas_bd']}
 		FROM {$this->sessBDCuenta}.trade.data_ruta r
@@ -67,6 +67,7 @@ class M_materialpop extends MY_Model{
 		JOIN trade.cuenta cu ON cu.idCuenta=r.idCuenta
 		JOIN trade.canal ca ON ca.idCanal=v.idCanal
 		JOIN trade.grupoCanal gca ON ca.idGrupoCanal=gca.idGrupoCanal
+		LEFT JOIN trade.proyectoGrupoCanal pgc ON pgc.idGrupoCanal = gca.idGrupoCanal AND pgc.idProyecto = {$this->sessIdProyecto}
 		LEFT JOIN General.dbo.ubigeo ubi ON ubi.cod_ubigeo=v.cod_ubigeo
 		LEFT JOIN trade.encargado ec ON ec.idEncargado=r.idEncargado
 		LEFT JOIN trade.usuario us ON us.idUsuario=ec.idUsuario
