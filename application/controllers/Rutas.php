@@ -135,6 +135,7 @@ class Rutas extends MY_Controller{
 					$disabledTH['EvidenciaFotografica'] = 'tdDisabledRutacuenta';
 					$disabledTH['OrdenAuditoria'] = 'tdDisabledRutacuenta';
 					$disabledTH['Modulacion'] = 'tdDisabledRutacuenta';
+					$disabledTH['MaterialPop'] = 'tdDisabledRutacuenta';
 
 					
 					foreach ($array['permisos_modulos_cuenta'] as $key => $row) {
@@ -561,6 +562,21 @@ class Rutas extends MY_Controller{
 							array_push($new_data[$kr],
 								$mod
 							); 
+						//--------MaterialPop
+							$mod = isset($row['materialPop']) ? $row['materialPop'] : '';
+							if (!empty($mod)) {
+								$mod = '<custom data-clases=" text-center"></custom><a href="javascript:;" class="lk-detalle" data-modulo="materialPop" data-perfil="' . $row['tipoUsuario'] . '"  data-usuario="' . $row['nombreUsuario'] . '" data-cliente="' . $row['razonSocial'] . '" data-title="MATERIAL POP" data-visita="' . $row['idVisita'] . '" >SI <i class="fa fa-file-text"></i></a>';
+							}
+							$disabled = '';
+							if (!isset($permisos_modulos[$row['idTipoUsuario']][27])) {
+								$disabled = 'tdDisabledRuta';
+							}
+							if(empty($mod)){
+								$mod = "<p class='text-center {$disabledTH['MaterialPop']} {$disabled}'>".'-'."</p>" ;
+							}  
+							array_push($new_data[$kr],
+								$mod
+							); 
 
 					}
 					
@@ -809,6 +825,9 @@ class Rutas extends MY_Controller{
 
 			case 'modulacion':
 				$html = $this->detalle_modulacion($idVisita);
+				break;
+			case 'materialPop':
+				$html = $this->detalle_material_pop($idVisita);
 				break;
 		}
 		
@@ -1417,6 +1436,23 @@ class Rutas extends MY_Controller{
 		if( !empty($query) ){
 			$data = [ 'modulacion' => $modulacion,'flagCorrecto' => $flagCorrecto];
 			$html = $this->load->view("modulos/rutas/detalle_modulacion", $data, true);
+		} else {
+			$html = $this->htmlNoResultado;
+		}
+
+		return $html;
+	}
+	public function detalle_material_pop($idVisita){
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visitaMaterialesPop" ];
+
+		$query = $this->model->detalle_material_pop($idVisita);
+
+
+		if( !empty($query) ){
+			$data = [
+				'materialPop' => $query,
+			];
+			$html = $this->load->view("modulos/rutas/detalle_material_pop", $data, true);
 		} else {
 			$html = $this->htmlNoResultado;
 		}

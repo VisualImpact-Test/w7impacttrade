@@ -143,6 +143,7 @@ class M_rutas extends MY_Model{
 				, v.seguimientoPlan
 				, v.despachos
 				, v.encartes
+				, v.materialPop
 				, v.numFotos fotos
 				, v.frecuencia
 				, v.qr
@@ -1027,6 +1028,27 @@ class M_rutas extends MY_Model{
 			FROM {$this->sessBDCuenta}.trade.data_visitaModulacion dvm
 			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaModulacionDet dvd ON dvd.idVisitaModulacion=dvm.idVisitaModulacion
 			LEFT JOIN trade.elementoVisibilidadTrad ev ON ev.idElementoVis=dvd.idElementoVis
+			where dvm.idVisita = {$idVisita}";
+
+		return $this->db->query($sql)->result_array();
+	}
+	public function detalle_material_pop($idVisita){
+		$sql = "
+			SELECT
+				dvm.idVisita,
+				tm.nombre material,
+				dvd.idMarca,
+				m.nombre marca,
+				dvd.cantidad,
+				vf.fotoUrl foto,
+				amg.carpetaFoto
+			FROM {$this->sessBDCuenta}.trade.data_visitaMaterialesPop dvm
+			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaMaterialesPopDet dvd ON dvd.idVisitaMaterialPop=dvm.idVisitaMaterialPop
+			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON dvd.idVisitaFoto = vf.idVisitaFoto
+			LEFT JOIN trade.aplicacion_modulo am ON am.idModulo = vf.idModulo
+			LEFT JOIN trade.aplicacion_modulo_grupo amg ON amg.idModuloGrupo = am.idModuloGrupo
+			LEFT JOIN trade.producto_marca m ON m.idMarca = dvd.idMarca
+			LEFT JOIN {$this->sessBDCuenta}.trade.tipo_material tm ON tm.idTipoMaterial = dvd.idTipoMaterial
 			where dvm.idVisita = {$idVisita}";
 
 		return $this->db->query($sql)->result_array();

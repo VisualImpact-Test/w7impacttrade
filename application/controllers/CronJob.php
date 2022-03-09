@@ -338,7 +338,7 @@ class CronJob extends CI_Controller{
 				'smtp_port' => 465,
 				'smtp_timeout' => 20,
 				'smtp_user' => 'requerimiento.visual@visualimpact.com.pe',
-				'smtp_pass' => 'Req.2020',
+				'smtp_pass' => 'SF8FUd^BBcdv',
 				'mailtype' => 'html',
 				'charset' => 'utf-8',
 				'newline' => "\r\n"
