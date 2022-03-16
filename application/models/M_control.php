@@ -1099,4 +1099,28 @@ class M_control extends MY_Model{
 
 		return $this->db->query($sql)->result_array();
 	}
+
+	public function get_tipoFoto($input = array()){
+		$idProyecto = $this->sessIdProyecto;
+		$idCuenta = $this->sessIdCuenta;
+
+	
+		$filtro = "";
+			if( !empty($idProyecto) ) $filtro .= " AND ft.idProyecto = ".$idProyecto;
+			if( !empty($input['idGrupoCanal']) ) $filtro .= " AND ft.idGrupoCanal = ".$input['idGrupoCanal'];
+			// if( !empty($input['idCanal']) ) $filtro .= " AND ca.idCanal = ".$input['idCanal'];
+
+		$sql = "
+			SELECT DISTINCT 
+				ft.idTipoFoto AS id
+				, ft.nombre
+			FROM trade.foto_tipo ft
+			LEFT JOIN trade.grupoCanal gc ON gc.idGrupoCanal = ft.idGrupoCanal
+			WHERE ft.estado = 1 
+			{$filtro} 
+			ORDER BY ft.nombre
+		";
+
+		return $this->db->query($sql)->result_array();
+	}
 }

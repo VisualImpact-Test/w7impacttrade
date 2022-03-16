@@ -64,6 +64,7 @@ class M_inteligencia extends MY_Model{
 			JOIN trade.usuario_historico uh On uh.idUsuario=r.idUsuario
 			 and General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,@fecIni,@fecFin)=1
 			 and uh.idProyecto=r.idProyecto
+
 			LEFT JOIN trade.cliente c ON v.idCliente = c.idCliente
 			LEFT JOIN trade.segmentacionNegocio sn
 				ON sn.idSegNegocio = ch.idSegNegocio
@@ -83,7 +84,7 @@ class M_inteligencia extends MY_Model{
 			{$segmentacion['join']}
 			WHERE r.fecha BETWEEN @fecIni AND @fecFin
 			AND r.estado = 1 AND v.estado = 1
-			--AND r.demo = 0 
+			AND r.demo = 0 
 			{$filtros}
 			ORDER BY fecha, departamento, canal, tipoUsuario, supervisor, nombreUsuario  ASC
 		";		

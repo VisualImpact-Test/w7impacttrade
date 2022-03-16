@@ -40,7 +40,7 @@
 </form>
 <script>
     $('.my_select2').select2({
-        dropdownParent: $("div.modal-content"),
+        dropdownParent: $("#formNew"),
         width: '100%'
     });
     $('#fechaInicio').daterangepicker(singleDatePickerModal);

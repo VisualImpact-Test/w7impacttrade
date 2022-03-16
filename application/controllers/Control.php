@@ -37,6 +37,9 @@ class Control extends MY_Controller{
 				if( isset($input['combos']['canal']) ){
 					$data['canal'] = $this->m_control->get_canal($input);
 				}
+				if( isset($input['combos']['tipoFoto']) ){
+					$data['tipoFoto'] = $this->m_control->get_tipoFoto($input);
+				}
 
 				if( isset($input['combos']['subCanal']) ){
 					$data['subCanal'] = $this->m_control->get_subCanal($input);

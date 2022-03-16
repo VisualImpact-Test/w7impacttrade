@@ -6,7 +6,7 @@
     'aliases' => 
     array (
     ),
-    'reference' => 'b091e410d0792cc46ea968586d016fe6644c67d9',
+    'reference' => '935714b12486b5a4920fdd68291ff83b4ff7afa1',
     'name' => '__root__',
   ),
   'versions' => 
@@ -18,25 +18,25 @@
       'aliases' => 
       array (
       ),
-      'reference' => 'b091e410d0792cc46ea968586d016fe6644c67d9',
+      'reference' => '935714b12486b5a4920fdd68291ff83b4ff7afa1',
     ),
     'markbaker/complex' => 
     array (
-      'pretty_version' => '1.4.8',
-      'version' => '1.4.8.0',
+      'pretty_version' => '1.5.0',
+      'version' => '1.5.0.0',
       'aliases' => 
       array (
       ),
-      'reference' => '8eaa40cceec7bf0518187530b2e63871be661b72',
+      'reference' => 'c3131244e29c08d44fefb49e0dd35021e9e39dd2',
     ),
     'markbaker/matrix' => 
     array (
-      'pretty_version' => '1.2.0',
-      'version' => '1.2.0.0',
+      'pretty_version' => '1.2.3',
+      'version' => '1.2.3.0',
       'aliases' => 
       array (
       ),
-      'reference' => '5348c5a67e3b75cd209d70103f916a93b1f1ed21',
+      'reference' => '44bb1ab01811116f01fe216ab37d921dccc6c10d',
     ),
     'mpdf/mpdf' => 
     array (
@@ -49,16 +49,12 @@
     ),
     'myclabs/deep-copy' => 
     array (
-      'pretty_version' => '1.9.5',
-      'version' => '1.9.5.0',
+      'pretty_version' => '1.11.0',
+      'version' => '1.11.0.0',
       'aliases' => 
       array (
       ),
-      'reference' => 'b2c28789e80a97badd14145fda39b545d83ca3ef',
-      'replaced' => 
-      array (
-        0 => '1.9.5',
-      ),
+      'reference' => '14daed4296fae74d9e3201d2c4925d1acb7aa614',
     ),
     'paragonie/random_compat' => 
     array (
@@ -78,23 +74,14 @@
       ),
       'reference' => 'f79611d6dc1f6b7e8e30b738fc371b392001dbfd',
     ),
-    'predis/predis' => 
-    array (
-      'pretty_version' => 'v1.1.10',
-      'version' => '1.1.10.0',
-      'aliases' => 
-      array (
-      ),
-      'reference' => 'a2fb02d738bedadcffdbb07efa3a5e7bd57f8d6e',
-    ),
     'psr/log' => 
     array (
-      'pretty_version' => '1.1.3',
-      'version' => '1.1.3.0',
+      'pretty_version' => '1.1.4',
+      'version' => '1.1.4.0',
       'aliases' => 
       array (
       ),
-      'reference' => '0f73288fd15629204f9d42b7055f72dacbe811fc',
+      'reference' => 'd49695b909c3b7628b6289db5479a1c204601f11',
     ),
     'psr/simple-cache' => 
     array (
@@ -107,12 +94,12 @@
     ),
     'setasign/fpdi' => 
     array (
-      'pretty_version' => 'v2.3.3',
-      'version' => '2.3.3.0',
+      'pretty_version' => 'v2.3.6',
+      'version' => '2.3.6.0',
       'aliases' => 
       array (
       ),
-      'reference' => '50c388860a73191e010810ed57dbed795578e867',
+      'reference' => '6231e315f73e4f62d72b73f3d6d78ff0eed93c31',
     ),
     'tecnickcom/tcpdf' => 
     array (

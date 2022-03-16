@@ -1303,7 +1303,13 @@ class Encuesta extends MY_Controller
 												{
 													foreach($row['fotos'] as $rowFotos){
 														if($rowFotos!=null){
-															$html .= '<img class="foto" src="'.'http://movil.visualimpact.com.pe/fotos/impactTrade_Android/encuestas/'.$rowFotos.'" width="280" height="200" />';
+															$params = explode("_",$rowFotos);
+															$last = end($params);
+															$pos = strpos($last,"WASABI");
+															$ruta = '';
+															if($pos === false ) $ruta = 'http://movil.visualimpact.com.pe/fotos/impactTrade_android/';
+															else $ruta = 'https://s3.us-west-1.wasabisys.com/visualimpact.app/fotos/impactTrade_Android/';
+															$html .= '<img class="foto" src="'.$ruta.'encuestas/'.$rowFotos.'" width="280" height="200" />';
 														}
 													}
 												}

@@ -22,18 +22,13 @@ class ControlFoto extends MY_Controller{
         header('Content-Type: image/jpg');
         // $ruta = "http://movil.visualimpact.com.pe/fotos/impactTrade/".$carpeta."/".$foto;
 
-        // $carpeta = 'checklist';
-        // $foto = '188767207420200930172746_102_CHECKLIST.jpg';
         $params = explode("_",$foto);
-        foreach ($params as $v) {
-            if($v == "WASABI"){
-                define('RUTA_MOVIL_FOTOS','https://s3.us-west-1.wasabisys.com/visualimpact.app/fotos/impactTrade_android/');
-            }
-            if($v != "WASABI"){
-                define('RUTA_MOVIL_FOTOS','http://movil.visualimpact.com.pe/fotos/impactTrade_android/');
-            }
-        }
-
+        $last = end($params);
+        $pos = strpos($last,"WASABI");
+        
+        if($pos === false ) define('RUTA_MOVIL_FOTOS','http://movil.visualimpact.com.pe/fotos/impactTrade_android/');
+        else define('RUTA_MOVIL_FOTOS','https://s3.us-west-1.wasabisys.com/visualimpact.app/fotos/impactTrade_Android/');
+        $ruta = RUTA_MOVIL_FOTOS;
         readfile(RUTA_MOVIL_FOTOS.$carpeta.'/'.$foto.'');
         
     }
@@ -73,7 +68,7 @@ class ControlFoto extends MY_Controller{
         $arreglo = json_encode($_POST['arreglo']) ;
         putenv('TMPDIR=/foo/bar');
         $dir = sys_get_temp_dir();
-        $url = "http://movil.visualimpact.com.pe/api_impactTrade_android.php/c_control_v25/guardarFotoMultiple_v2/";
+        $url = "http://movil.visualimpact.com.pe/api_impactTrade_android.php/c_control_v41/guardarFotoMultiple_v2/";
         // $url = "http://movil.movilphp56.loc/api_impactTrade_android.php/c_control_v25/guardarFotoMultiple_v2/";
         // $url = "http://visualimpact.test/movil/api_impactTrade_android.php/c_control_v25/guardarFotoMultiple_v2/";
 

@@ -90,13 +90,9 @@
 
                         <div class="mb-2 mr-sm-2 position-relative form-group custom_tooltip">
                             <span class="tooltiptext">Tipo Foto</span>
-                            <select class="pt-0 custom-select my_select2Full" name="tipoFoto" id="tipoFoto">
-                                <option value="">-- Tipo Foto --</option>
-                                <?php foreach ($tipoFotos as $row) { ?>
-                                    <option value="<?= $row['idTipoFoto'] ?>"><?= $row['nombre'] ?></option>
-                                <?php } ?>
-                            </select>
+                            <?= getFiltros(['tipoFoto' => ['label' => 'Tipo Foto', 'name' => 'tipoFoto', 'id' => 'tipoFoto', 'data' => false, 'select2' => 'my_select2Full custom-select', 'html' => '']]) ?>
                         </div>
+                       
                         <div class="mb-2 mr-sm-2 position-relative form-group custom_tooltip">
                             <span class="tooltiptext">Modulo</span>
                             <select class="pt-0 custom-select my_select2Full" name="tipoModulo" id="tipoModulo">

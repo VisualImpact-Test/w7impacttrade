@@ -49,6 +49,7 @@ class Usuarios extends MY_Controller
 
 	public function index()
 	{
+		
 		$this->aSessTrack[] = ['idAccion' => 4];
 
 		$config = array();
