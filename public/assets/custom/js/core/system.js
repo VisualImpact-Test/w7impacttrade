@@ -140,6 +140,7 @@ var _aSelectAll = {
 				'colaborador'
 			],
 		'grupoCanal': [
+				'tipoFoto',
 				'canal',
 				'subCanal',
 				'encargado',
@@ -1150,7 +1151,7 @@ var View={
 			var control = $(this);
 			var aCombos = _aSelectAll['grupoCanal'].slice(0);
 
-			var aCombosHead = [ 'canal', 'encargado' ];
+			var aCombosHead = [ 'canal', 'encargado', 'tipoFoto' ];
 			var aCombosExist = {};
 			$.each(aCombos, function(i,v){
 				if( $('.flt_' + v).length > 0 ){

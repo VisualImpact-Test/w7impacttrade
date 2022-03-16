@@ -609,6 +609,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 				if( isset($get['canal']) && $get['canal']['data'] ){
 					$aDatos['canal'] = $CI->m_control->get_canal([ 'idProyecto' => $sessIdProyecto ]);
 				}
+				if( isset($get['tipoFoto']) && $get['tipoFoto']['data'] ){
+					$aDatos['tipoFoto'] = $CI->m_control->get_tipoFoto([ 'idProyecto' => $sessIdProyecto ]);
+				}
 
 				if( isset($get['zona']) && $get['zona']['data'] ){
 					$aDatos['zona'] = $CI->m_control->get_zona();
@@ -758,6 +761,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 				'proyecto' => array('label' => 'Proyecto', 'name' => 'idProyecto'),
 				'grupoCanal' => array('label' => 'Grupo Canal', 'name' => 'idGrupoCanal'),
 				'canal' => array('label' => 'Canal', 'name' => 'idCanal'),
+				'tipoFoto' => array('label' => 'Tipo Foto', 'name' => 'idTipoFoto'),
 				'subCanal' => array('label' => 'Sub Canal', 'name' => 'idSubCanal'),
 				'zona' => array('label' => 'Zona', 'name' => 'idZona'),
 				'zonaUsuario' => array('label' => 'Zona', 'name' => 'idZona'),

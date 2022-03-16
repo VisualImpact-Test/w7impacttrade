@@ -8,7 +8,7 @@ class M_Fotos extends MY_Model
 		parent::__construct();
 	}
 
-	public function getTipoFotos()
+	public function getTipoFotos($params)
 	{
 		$filtro = '';
 		$idCuenta = $this->sessIdCuenta;
@@ -16,6 +16,8 @@ class M_Fotos extends MY_Model
 			
 		$filtro .= ' AND py.idProyecto='.$idProyecto;
 		$filtro .= ' AND cu.idCuenta='.$idCuenta;
+		
+		!empty($params['idGrupoCanal']) ? $filtro .= " AND ft.idGrupoCanal = {$params['idGrupoCanal']}"  : '';
 
 		$sql = "
 		select 
@@ -303,10 +305,11 @@ class M_Fotos extends MY_Model
 		$fechas = getFechasDRP($input['txt-fechas']);
 		$filtros = '';
 		$filtros_cliente = '';
+		$filtros_visita_foto = '';
 			$input['idCuenta'] = $this->sessIdCuenta;
 			$input['idProyecto'] = $this->sessIdProyecto;
 
-			if(!empty($input['tipoFoto']) ) $filtros .= " AND mf.idTipoFoto = ".$input['tipoFoto'];
+			if(!empty($input['tipoFoto']) ) $filtros_visita_foto .= " AND mf.idTipoFoto = ".$input['tipoFoto'];
 
 			$filtros .= !empty($input['idProyecto']) ? ' AND r.idProyecto = '.$input['idProyecto'] : '';
 			$filtros .= !empty($input['grupoCanal_filtro']) ? " AND gca.idGrupoCanal=".$input['grupoCanal_filtro'] : "";
@@ -317,7 +320,7 @@ class M_Fotos extends MY_Model
 			$filtros .= !empty($input['tipoUsuario_filtro']) ? " AND r.idTipoUsuario=".$input['tipoUsuario_filtro'] : "";
 			$filtros .= !empty($input['usuario_filtro']) ? " AND r.idUsuario=".$input['usuario_filtro'] : "";
 			
-			$filtros .= !empty($input['tipoFoto']) ? " AND tf.idTipoFoto=".$input['tipoFoto'] : "";
+			$filtros_visita_foto .= !empty($input['tipoFoto']) ? " AND tf.idTipoFoto=".$input['tipoFoto'] : "";
 
 			$filtros_cliente .= !empty($input['codCliente']) ? " AND ch.codCliente='".$input['codCliente']."'" : "";
 			$filtros_cliente .= !empty($input['idClienteTipo']) ? " AND sn.idClienteTipo=".$input['idClienteTipo'] : "";
@@ -330,7 +333,7 @@ class M_Fotos extends MY_Model
 			$filtros_cliente .= !empty($input['banner_filtro']) ? ' AND ba.idBanner='.$input['banner_filtro'] : '';
 
 			$filtros_cliente .= !empty($input['departamento_filtro']) ? ' AND ubi01.cod_departamento='.$input['departamento_filtro'] : '';
-			$filtros .= !empty($input['tipoModulo']) ? ' AND mg.idModuloGrupo='.$input['tipoModulo'] : '';
+			$filtros_visita_foto .= !empty($input['tipoModulo']) ? ' AND mg.idModuloGrupo='.$input['tipoModulo'] : '';
 			$filtros_cliente .= !empty($input['provincia_filtro']) ? ' AND ubi01.cod_provincia='.$input['provincia_filtro'] : '';
 			$filtros_cliente .= !empty($input['distrito_filtro']) ? ' AND ubi01.cod_ubigeo='.$input['distrito_filtro'] : '';
 			
@@ -420,12 +423,13 @@ class M_Fotos extends MY_Model
 					, mg.carpetaFoto
 					, m.nombre modulo
 				FROM  list_visitas lv
-				JOIN ImpactTrade_pg.trade.data_visitaFotos vf ON vf.idVisita = lv.idVisita
+				JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisita = lv.idVisita
 				LEFT JOIN trade.aplicacion_modulo m ON m.idModulo = vf.idModulo
 				LEFT JOIN trade.aplicacion_modulo_grupo mg ON mg.idModuloGrupo = m.idModuloGrupo
 				   LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaModuloFotos mf ON mf.idVisitaFoto = vf.idVisitaFoto
 				LEFT JOIN trade.foto_tipo tf ON tf.idTipoFoto = mf.idTipoFoto
 				WHERE vf.idVisitaFoto IS NOT NULL
+				${filtros_visita_foto}
 			), lista_clientes AS (
 			SELECT
 				ch.idCliente

@@ -91,7 +91,7 @@ defined('PROYECTO_MODERNO_PG') OR define('PROYECTO_MODERNO_PG',17);
 defined('PROYECTO_PROMOTORIA_AJE') OR define('PROYECTO_PROMOTORIA_AJE',19);
 defined('COD_CUENTA_AJE')          OR define('COD_CUENTA_AJE',2);
 
-defined('RUTA_MOVIL_FOTOS')    OR define('RUTA_MOVIL_FOTOS','http://movil.visualimpact.com.pe/fotos/impactTrade_android/',true);
+// defined('RUTA_MOVIL_FOTOS')    OR define('RUTA_MOVIL_FOTOS','http://movil.visualimpact.com.pe/fotos/impactTrade_android/',true);
 // defined('RUTA_MOVIL_IMAGENES') OR define('RUTA_MOVIL_IMAGENES','http://movil.visualimpact.com.pe/archivos/');
 // defined('RUTA_BAT')            OR define('RUTA_BAT','C:\apache24\PHP\php7\php.exe -f "C:\apache24\htdocs\impactTrade\index.php" ');
 

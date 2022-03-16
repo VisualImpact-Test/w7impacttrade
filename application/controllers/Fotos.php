@@ -8,6 +8,7 @@ class Fotos extends MY_Controller
 	{
 		parent::__construct();
 		$this->load->model('M_Fotos', 'm_foto');
+		$this->load->model('M_control', 'm_control');
 	}
 
 	public function index()
@@ -29,7 +30,13 @@ class Fotos extends MY_Controller
 		$config['data']['title'] = 'Fotos';
 		$config['data']['message'] = 'Aquí encontrará fotos.';
 		$config['view'] = 'modulos/fotos/index';
-		$config['data']['tipoFotos'] = $this->m_foto->getTipoFotos()->result_array();
+		$gruposCanal = $this->m_control->get_grupoCanal();
+
+		$config['data']['tipoFotos'] = $this->m_foto->getTipoFotos(
+			['idGrupoCanal' => !empty($gruposCanal) ? $gruposCanal[0]['id'] : '']
+			)
+		->result_array();
+		
 		$config['data']['tipoCliente'] = $this->m_foto->getTipoCliente()->result_array();
 		$config['data']['modulos'] = $this->m_foto->getPermisosModulos()->result_array();
 		$this->view($config);
@@ -316,6 +323,10 @@ class Fotos extends MY_Controller
 					$html.='<hr class="hrFotos" />';
 
 					foreach ($arrayFoto[$key][$keyVisita] as $keyFoto => $foto) {
+
+
+				
+
 						$mpdf->imageVars[$foto["imgRef"]] = file_get_contents('http://movil.visualimpact.com.pe/fotos/impactTrade_android/'.$foto["carpetaFoto"].'/'.$foto["imgRef"] );
 						$html.='<div style="float:left;width:50%">';
 							$html.='<img class="foto" src="var:'.$foto["imgRef"].'" style="height:350px; border: 4px solid #cccccc;" />';
@@ -434,7 +445,7 @@ class Fotos extends MY_Controller
 			'line' => 1,
 		);
 		  
-		ini_set('memory_limit','1024M');
+		ini_set('memory_limit','3072M');
 		set_time_limit(0);
 
 		require_once('../vendor/autoload.php');

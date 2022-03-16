@@ -52,7 +52,7 @@ class M_usuarios extends My_Model
 		if (!empty($post['numDocumentoFiltro'])) $filtros .= " AND u.numDocumento LIKE '%" . $post['numDocumentoFiltro'] . "%'";
 		if (!empty($post['nombresApellidosFiltro'])) $filtros .= " AND u.nombres + ' - ' + u.apePaterno + ' - ' + u.apeMaterno LIKE '%" . $post['nombresApellidosFiltro'] . "%'";
 
-		$filtrosRRHH = " WHERE (e.flag = 'nuevo' OR e.flag = 'activo' OR e.flag IS NULL OR e.flag = 'cesado')";
+		$filtrosRRHH = " WHERE (e.flag = 'nuevo' OR e.flag = 'activo' OR e.flag IS NULL OR e.flag = 'cesado' )";
 		if($this->session->idTipoUsuario==4){
 			$filtrosRRHH .= !empty($post['usuariosActivos']) ? " AND u.historicoActivo = 1 " : "AND (u.historicoActivo = 0 OR u.historicoActivo IS NULL)";
 		} else{
@@ -140,7 +140,6 @@ class M_usuarios extends My_Model
 				  {$filtrosRRHH}
 			 ORDER BY flag_nuevo DESC, u.idUsuario DESC;
 		";
-
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'rrhh.dbo.Empleado' ];
 		return $this->db->query($sql);
 	}

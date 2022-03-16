@@ -287,7 +287,14 @@ class Encuestas extends MY_Controller
                             }
 
                             $htmlFoto .= '<td class="tdFoto" style="width:50% !important;">';
-                            $htmlFoto .= '<img class="foto" src="http://movil.visualimpact.com.pe/fotos/impactTrade_android/encuestas' . $fotoImage . '" />';
+                            $params = explode("_",$fotoImage);
+                            $last = end($params);
+                            $pos = strpos($last,"WASABI");
+                            $ruta = '';
+                            if($pos === false ) $ruta = 'http://movil.visualimpact.com.pe/fotos/impactTrade_android/';
+                            else $ruta = 'https://s3.us-west-1.wasabisys.com/visualimpact.app/fotos/impactTrade_Android/';
+
+                            $htmlFoto .= '<img class="foto" src="'.$ruta.'encuestas' . $fotoImage . '" />';
                             $htmlFoto .= '</td>';
 
                             $contTdFotos++;

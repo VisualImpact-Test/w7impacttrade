@@ -1278,7 +1278,7 @@ var ContingenciaRutas = {
 						arrayFoto = {
 							'idVisita':idVisita
 							,'contenido':foto
-							,'ruta': 'fotos/impactTrade_Android/encuestas/'
+							,'ruta': 'fotos/impactTrade_Android/encuestas'
 							,'sufijo':sufijo
 							,'columna':'encuesta'
 							,'encuesta':encuesta+'_'+index
@@ -1308,7 +1308,7 @@ var ContingenciaRutas = {
 					arrayFoto = {
 						'idVisita':idVisita
 						,'contenido':foto
-						,'ruta': 'fotos/impactTrade_Android/encuestas/'
+						,'ruta': 'fotos/impactTrade_Android/encuestas'
 						,'sufijo':sufijo
 						,'columna':'indice'
 						,'indice':indice
@@ -1359,7 +1359,7 @@ var ContingenciaRutas = {
 						arrayFoto = {
 							'idVisita':idVisita
 							,'contenido':foto
-							,'ruta': 'fotos/impactTrade_Android/encuestas/'
+							,'ruta': 'fotos/impactTrade_Android/encuestas'
 							,'sufijo':sufijo
 							,'columna':'indice'
 							,'indice':indice
@@ -1444,7 +1444,7 @@ var ContingenciaRutas = {
 				arrayFoto = {
 					'idVisita':idVisita
 					,'contenido':foto
-					,'ruta': 'fotos/impactTrade_Android/encuestas/'
+					,'ruta': 'fotos/impactTrade_Android/encuestas'
 					,'sufijo':sufijo
 					,'columna':'index'
 					,'index':index
@@ -1470,7 +1470,7 @@ var ContingenciaRutas = {
 				arrayFoto = {
 					'idVisita':idVisita
 					,'contenido':foto
-					,'ruta': 'fotos/impactTrade_Android/encuestas/'
+					,'ruta': 'fotos/impactTrade_Android/encuestas'
 					,'sufijo':sufijo
 					,'columna':'index'
 					,'index':index
@@ -1520,7 +1520,7 @@ var ContingenciaRutas = {
 				arrayFoto = {
 					'idVisita':idVisita
 					,'contenido':foto
-					,'ruta': 'fotos/impactTrade_Android/ipp/'
+					,'ruta': 'fotos/impactTrade_Android/ipp'
 					,'sufijo':sufijo
 					,'columna':'ipp'
 					,'ipp':ipp
@@ -1634,7 +1634,7 @@ var ContingenciaRutas = {
 					arrayFoto = {
 						'idVisita':idVisita
 						,'contenido':foto
-						,'ruta': 'fotos/impactTrade_Android/checklist/'
+						,'ruta': 'fotos/impactTrade_Android/checklist'
 						,'sufijo':sufijo
 						,'columna':'producto'
 						,'producto':producto
@@ -1785,7 +1785,7 @@ var ContingenciaRutas = {
 				arrayFoto = {
 					'idVisita':idVisita
 					,'contenido':foto
-					,'ruta': 'fotos/impactTrade_Android/promociones/'
+					,'ruta': 'fotos/impactTrade_Android/promociones'
 					,'sufijo':sufijo
 					,'columna':'visitaPromocionesDet'
 					,'visitaPromocionesDet':visitaPromocionesDet
@@ -1835,7 +1835,7 @@ var ContingenciaRutas = {
 				arrayFoto = {
 					'idVisita':idVisita
 					,'contenido':foto
-					,'ruta': 'fotos/impactTrade_Android/promociones/'
+					,'ruta': 'fotos/impactTrade_Android/promociones'
 					,'sufijo':sufijo
 					,'columna':'visitaPromocionesDet'
 					,'visitaPromocionesDet':visitaPromocionesDet
@@ -1927,7 +1927,7 @@ var ContingenciaRutas = {
 				arrayFoto = {
 					'idVisita':idVisita
 					,'contenido':foto
-					,'ruta': 'fotos/impactTrade_Android/sos/'
+					,'ruta': 'fotos/impactTrade_Android/sos'
 					,'sufijo':sufijo
 					,'columna':'categoria'
 					,'categoria':categoria
@@ -2063,7 +2063,7 @@ var ContingenciaRutas = {
 				arrayFoto = {
 					'idVisita':visita
 					,'contenido':foto
-					,'ruta': 'fotos/impactTrade_Android/sod/'
+					,'ruta': 'fotos/impactTrade_Android/sod'
 					,'sufijo':sufijo
 					,'columna':'indice'
 					,'indice':indice
@@ -2132,7 +2132,7 @@ var ContingenciaRutas = {
 				arrayFoto = {
 					'idVisita':idVisita
 					,'contenido':foto
-					,'ruta': 'fotos/impactTrade_Android/encartes/'
+					,'ruta': 'fotos/impactTrade_Android/encartes'
 					,'sufijo':sufijo
 					,'columna':'visitaEncartesDet'
 					,'visitaEncartesDet':visitaEncartesDet
@@ -2213,7 +2213,7 @@ var ContingenciaRutas = {
 				arrayFoto = {
 					'idVisita':idVisita
 					,'contenido':foto
-					,'ruta': 'fotos/impactTrade_Android/seguimientoPlan/'
+					,'ruta': 'fotos/impactTrade_Android/seguimientoPlan'
 					,'sufijo':sufijo
 					,'columna':'index'
 					,'index':index
@@ -2324,7 +2324,7 @@ var ContingenciaRutas = {
 				arrayFoto = {
 					'idVisita':idVisita
 					,'contenido':foto
-					,'ruta': 'fotos/impactTrade_Android/moduloFotos/'
+					,'ruta': 'fotos/impactTrade_Android/moduloFotos'
 					,'sufijo':sufijo
 					,'columna':'visitaModuloFoto'
 					,'visitaModuloFoto':visitaModuloFoto
@@ -2454,7 +2454,7 @@ var ContingenciaRutas = {
 				arrayFoto = {
 					'idVisita':idVisita
 					,'contenido':foto
-					,'ruta': 'fotos/impactTrade_Android/visibilidad/'
+					,'ruta': 'fotos/impactTrade_Android/visibilidad'
 					,'sufijo':sufijo
 					,'columna':'visitaVisibilidadDet'
 					,'visitaVisibilidadDet':visitaVisibilidadDet
@@ -2547,7 +2547,7 @@ var ContingenciaRutas = {
 				arrayFoto = {
 					'idVisita':idVisita
 					,'contenido':foto
-					,'ruta': 'fotos/impactTrade_Android/inteligencia/'
+					,'ruta': 'fotos/impactTrade_Android/inteligencia'
 					,'sufijo':sufijo
 					,'columna':'visitaInteligenciaCompetitiva'
 					,'visitaInteligenciaCompetitiva':visitaInteligenciaCompetitiva
@@ -2606,7 +2606,7 @@ var ContingenciaRutas = {
 			arrayFoto = {
 				'idVisita':idVisita
 				,'contenido':foto
-				,'ruta': 'fotos/impactTrade_Android/orden/'
+				,'ruta': 'fotos/impactTrade_Android/orden'
 				,'sufijo':sufijo
 				,'columna':'index'
 				,'index':index
@@ -2676,7 +2676,7 @@ var ContingenciaRutas = {
 				arrayFoto = {
 					'idVisita':idVisita
 					,'contenido':foto
-					,'ruta': 'fotos/impactTrade_Android/iniciativa/'
+					,'ruta': 'fotos/impactTrade_Android/iniciativa'
 					,'sufijo':sufijo
 					,'columna':'index'
 					,'index':index
@@ -2761,7 +2761,7 @@ var ContingenciaRutas = {
 				arrayFoto = {
 					'idVisita':idVisita
 					,'contenido':foto
-					,'ruta': 'fotos/impactTrade_Android/visibilidadAuditoria/'
+					,'ruta': 'fotos/impactTrade_Android/visibilidadAuditoria'
 					,'sufijo':sufijo
 					,'columna':'index'
 					,'index': index
@@ -2923,7 +2923,7 @@ var ContingenciaRutas = {
 				arrayFoto = {
 					'idVisita':idVisita
 					,'contenido':foto
-					,'ruta': 'fotos/impactTrade_Android/visibilidadAuditoria/'
+					,'ruta': 'fotos/impactTrade_Android/visibilidadAuditoria'
 					,'sufijo':sufijo
 					,'columna':'index'
 					,'index': index
@@ -2993,7 +2993,7 @@ var ContingenciaRutas = {
 					arrayFoto = {
 						'idVisita':idVisita
 						,'contenido':foto
-						,'ruta': 'fotos/impactTrade_Android/encuestasPremio/'
+						,'ruta': 'fotos/impactTrade_Android/encuestasPremio'
 						,'sufijo':sufijo
 						,'columna':'encuesta'
 						,'encuesta':encuesta

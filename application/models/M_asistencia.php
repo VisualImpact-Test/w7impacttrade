@@ -258,7 +258,7 @@ class M_asistencia extends MY_Model{
 			LEFT JOIN trade.banner b ON b.idBanner = uhb.idBanner AND b.estado = 1
 		WHERE
 			uh.idAplicacion IN (1, 4, 8)
-			AND u.demo = 0
+			-- AND u.demo = 0
 			$filtros
 			
 		ORDER BY cuenta, proyecto, grupoCanal, canal, departamento, provincia, distrito, usuario, fecha ASC";

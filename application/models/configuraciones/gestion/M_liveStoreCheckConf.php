@@ -237,7 +237,7 @@ class M_liveStorecheckConf extends My_Model
 		c.idCliente id
 		,c.razonSocial value
 		FROM pg.dbo.cliente c
-		JOIN pg.dbo.clienteHistorico ch ON c.idCliente = ch.idClienteTipo AND General.dbo.fn_fechaVigente(ch.fecCreacion,ch.fecTermino,GETDATE(),GETDATE())=1
+		JOIN pg.dbo.clienteHistorico ch ON c.idCliente = ch.idCliente AND General.dbo.fn_fechaVigente(ch.fecCreacion,ch.fecTermino,GETDATE(),GETDATE())=1
 		$filtros
 		";
 		return $this->db->query($sql);

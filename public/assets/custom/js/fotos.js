@@ -88,6 +88,10 @@ var Fotos = {
 			// $( ".btn-buscar" ).click();
 			$(".flt_grupoCanal").change();
 		});
+
+		$(document).on("change",".flt_grupoCanal",function(){
+			
+		});
 	},
 
 	llenarPaginacionFotos: function (fotosClientes, urlfotos = 'http://movil.visualimpact.com.pe/fotos/impactTrade_android/') {
