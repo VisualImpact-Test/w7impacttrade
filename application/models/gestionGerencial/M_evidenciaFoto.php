@@ -163,7 +163,7 @@ class M_evidenciaFoto extends MY_Model{
 	public function obtener_fotos($fotos){
 		$sql="
 			SELECT 
-				UPPER('evidenciaFotografica') modulo
+				('evidenciaFotografica') modulo
 				, CONVERT(VARCHAR(8),vf.hora)hora
 				, vf.fotoUrl foto
 			FROM 
@@ -324,7 +324,7 @@ class M_evidenciaFoto extends MY_Model{
 			LEFT JOIN trade.canal ca ON ca.idCanal=v.idCanal
 			LEFT JOIN trade.grupoCanal gca ON ca.idGrupoCanal=gca.idGrupoCanal
 			LEFT JOIN trade.proyectoGrupoCanal pgc ON pgc.idGrupoCanal = gca.idGrupoCanal
-				AND pgc.idProyecto = {$this->sessIdProyecto}
+			AND pgc.idProyecto = {$this->sessIdProyecto}
 
 		";
 

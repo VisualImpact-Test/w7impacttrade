@@ -142,7 +142,7 @@ class PremiacionesSimple extends MY_Controller
 
 		ini_set('memory_limit','1024M');
 		set_time_limit(0);
-
+		//
 		require APPPATH . '/vendor/autoload.php';
 		$mpdf = new \Mpdf\Mpdf();
 		$newPage = 0;
@@ -203,7 +203,13 @@ class PremiacionesSimple extends MY_Controller
 							$html .= '</tr>';
 							$html .= '<tr>';
 								if($row['fotoUrl']!=null){
-									$html .= '<td colspan="2" style="text-align:center;"><img class="foto" src="http://movil.visualimpact.com.pe/fotos/impacttrade_android/premiacion/'.$row['fotoUrl'].'" width="320" height="240" /></td>';
+									$params = explode("_",$row['fotoUrl']);
+									$last = end($params);
+									$pos = strpos($last,"WASABI");
+									$ruta = '';
+									if($pos === false ) $ruta = 'http://movil.visualimpact.com.pe/fotos/impactTrade_android/';
+									else $ruta = 'https://s3.us-west-1.wasabisys.com/visualimpact.app/fotos/impactTrade_Android/';
+									$html .= '<td colspan="2" style="text-align:center;"><img class="foto" src="'.$ruta.'premiacion/'.$row['fotoUrl'].'" width="320" height="240" /></td>';
 								}
 							$html .= '</tr>';
 						$html .= '</tbody>';

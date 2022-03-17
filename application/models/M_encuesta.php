@@ -199,8 +199,8 @@ class M_encuesta extends MY_Model
 		$fechas = getFechasDRP($input["txt-fechas"]);
 
 		$filtros = '';
-		$filtros .= !empty($input['idCuenta']) ? ' AND py.idCuenta = '.$this->sessIdCuenta : '';
-		$filtros .= !empty($input['idProyecto']) ? ' AND py.idProyecto = '.$this->sessIdProyecto : '';
+		$filtros .= !empty($input['idCuenta']) ? ' AND r.idCuenta = '.$this->sessIdCuenta : '';
+		$filtros .= !empty($input['idProyecto']) ? ' AND r.idProyecto = '.$this->sessIdProyecto : '';
 		$filtros .= !empty($input['idGrupoCanal']) ? ' AND ca.idGrupoCanal = '.$input['idGrupoCanal'] : '';
 		$filtros .= !empty($input['idCanal']) ? ' AND ca.idCanal = '.$input['idCanal'] : '';
 
@@ -212,13 +212,14 @@ class M_encuesta extends MY_Model
 		DECLARE @fecIni DATE='" . $fechas[0] . "',@fecFin DATE='" . $fechas[1] . "';
 			SELECT
 			DISTINCT
-				v.idVisita,ve.idEncuesta
+				v.idVisita
+				,ve.idEncuesta
 				,vf.idVisitaFoto
 				,vf.fotoUrl imgRef
 				,vfd.fotoUrl imgRefSub
 				,ep.idPregunta,
 				ep.idTipoPregunta,
-				isnull(ea.nombre,ved.respuesta) 'respuesta'
+				CASE WHEN ep.idTipoPregunta = 1 THEN isnull(ea.nombre,ved.respuesta) ELSE  ea.nombre END  'respuesta'
 				, v.idCliente
 				, ep.nombre pregunta
 				, ea.idAlternativa
@@ -232,7 +233,10 @@ class M_encuesta extends MY_Model
 				, ve.idVisitaEncuesta
 				, ve.flagFotoMultiple
 				, ved.idAlternativaOpcion
+				, eaop.nombre alternativaOpcion
 				, vfd2.fotoUrl imgPreg
+				, ep.orden
+				, te.nombre tipoPregunta
 			FROM {$this->sessBDCuenta}.trade.data_ruta r
 			JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta=v.idRuta
 			JOIN trade.cliente c ON v.idCliente=c.idCliente
@@ -244,11 +248,14 @@ class M_encuesta extends MY_Model
 			JOIN {$this->sessBDCuenta}.trade.encuesta e ON e.idEncuesta = ve.idEncuesta
 			JOIN {$this->sessBDCuenta}.trade.encuesta_pregunta ep ON ved.idPregunta=ep.idPregunta
 			LEFT JOIN {$this->sessBDCuenta}.trade.encuesta_alternativa ea ON ved.idAlternativa=ea.idAlternativa
+			LEFT JOIN {$this->sessBDCuenta}.trade.encuesta_alternativa_opcion eaop ON ved.idAlternativaOpcion=eaop.idAlternativaOpcion
 			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisitaFoto = ve.idVisitaFoto
 			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vfd ON vfd.idVisitaFoto = ved.idVisitaFoto
 			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vfd2 ON vfd2.idVisitaFoto = vedf.idVisitaFoto
 			LEFT JOIN trade.canal ca ON ca.idCanal = v.idCanal
-			
+			LEFT JOIN ImpactTrade_bd.master.tipoPregunta te ON te.idTipoPregunta = ep.idTipoPregunta
+				AND te.estado = 1
+				
 			JOIN ".getClienteHistoricoCuenta()." ch ON ch.idCliente = c.idCliente
 			AND r.fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin,r.fecha) AND ch.flagCartera=1 
 			
@@ -264,7 +271,7 @@ class M_encuesta extends MY_Model
 			
 			AND r.fecha between @fecIni AND @fecFin 
 		$filtros
-		ORDER BY respuesta
+		ORDER BY ep.orden,respuesta
 		";
 
 		$rs =  $this->db->query($sql)->result_array();

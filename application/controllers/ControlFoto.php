@@ -9,7 +9,7 @@ class ControlFoto extends MY_Controller{
 
     public function index()
     {
-        print_r('hola');
+        print_r('Trabajen oe');
     }
     
     public function obtener_foto($foto){

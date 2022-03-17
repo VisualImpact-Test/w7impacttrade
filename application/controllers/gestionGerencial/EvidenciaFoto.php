@@ -202,10 +202,10 @@ class EvidenciaFoto extends MY_Controller
 				$dataPdf[$v['idVisita']]['colDyn']['cadena'] = !empty($v['cadena']) ? strtoupper($v['cadena']) : '' ;
 				$dataPdf[$v['idVisita']]['colDyn']['banner'] = !empty($v['banner']) ? strtoupper($v['banner']) : '' ;
 
-				$dataPdf[$v['idVisita']]['evidenciaFotografica'][$v['idTipoFotoEvidencia']]['tipoFoto'] = !empty($v['tipoFoto']) ? strtoupper($v['tipoFoto']) : (!empty($v['comentario']) ? $v['comentario'] : '-') ;
-				$dataPdf[$v['idVisita']]['evidenciaFotografica'][$v['idTipoFotoEvidencia']]['foto'] = !empty($v['foto']) ? $v['foto'] : ''  ;
-				$dataPdf[$v['idVisita']]['evidenciaFotografica'][$v['idTipoFotoEvidencia']]['carpetaFoto'] = !empty($v['carpetaFoto']) ? $v['carpetaFoto'] : '-' ;
-				$dataPdf[$v['idVisita']]['evidenciaFotografica'][$v['idTipoFotoEvidencia']]['tipoFotoEvidencia'] = !empty($v['tipoFotoEvidencia']) ? $v['tipoFotoEvidencia'] : '-' ;
+				$dataPdf[$v['idVisita']]['evidenciaFotografica'][$v['idTipoFoto']][$v['idTipoFotoEvidencia']]['tipoFoto'] = !empty($v['tipoFoto']) ? strtoupper($v['tipoFoto']) : (!empty($v['comentario']) ? $v['comentario'] : '-') ;
+				$dataPdf[$v['idVisita']]['evidenciaFotografica'][$v['idTipoFoto']][$v['idTipoFotoEvidencia']]['foto'] = !empty($v['foto']) ? $v['foto'] : ''  ;
+				$dataPdf[$v['idVisita']]['evidenciaFotografica'][$v['idTipoFoto']][$v['idTipoFotoEvidencia']]['carpetaFoto'] = !empty($v['carpetaFoto']) ? $v['carpetaFoto'] : '-' ;
+				$dataPdf[$v['idVisita']]['evidenciaFotografica'][$v['idTipoFoto']][$v['idTipoFotoEvidencia']]['tipoFotoEvidencia'] = !empty($v['tipoFotoEvidencia']) ? $v['tipoFotoEvidencia'] : '-' ;
 
 			}
 	
@@ -290,6 +290,7 @@ class EvidenciaFoto extends MY_Controller
 					'myHeader',
 					$arr_header
 				);
+				
 
 				$mpdf->AddPageByArray(array(
 					'orientation' => 'L',
