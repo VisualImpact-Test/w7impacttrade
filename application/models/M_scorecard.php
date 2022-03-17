@@ -203,7 +203,7 @@ class M_scorecard extends MY_Model{
 					, v.estado
 					, r.fecha
 					, CASE 
-						WHEN v.horaIni IS NOT NULL AND v.horaFin IS NOT NULL AND ISNULL(estadoIncidencia,0) <> 1 AND v.idTipoExclusion IS NULL THEN 
+						WHEN v.horaIni IS NOT NULL AND v.horaFin IS NOT NULL AND ISNULL(CASE WHEN vi.idVisitaIncidencia IS NOT NULL THEN 1 ELSE NULL END ,0) <> 1 AND v.idTipoExclusion IS NULL THEN 
 						CASE 
 							WHEN r.fecha BETWEEN '01/10/2021' AND '15/10/2021' THEN 'EFECTIVA' 
 							ELSE 
@@ -213,7 +213,7 @@ class M_scorecard extends MY_Model{
 								ELSE 'NO EFECTIVA'
 								END
 						END 
-						WHEN v.estadoIncidencia = 1 AND v.idTipoExclusion IS NULL THEN 'INCIDENCIA'
+						WHEN vi.idVisitaIncidencia IS NOT NULL AND v.idTipoExclusion IS NULL THEN 'INCIDENCIA'
 						WHEN v.idTipoExclusion IS NOT NULL THEN 'EXCLUSION'
 						ELSE 'NO EFECTIVA'
 					END estadoVisita
@@ -237,6 +237,7 @@ class M_scorecard extends MY_Model{
 					--LEFT JOIN trade.subCanal sca ON sca.idSubCanal = sn.idSubCanal AND sca.estado = 1
 					JOIN trade.cliente_tipo sca ON sca.idClienteTipo = sn.idClienteTipo AND sca.estado = 1
 					JOIN trade.grupoCanal gc ON gc.idGrupoCanal = ca.idGrupoCanal 
+					LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaIncidencia vi ON vi.idVisita = v.idVisita 
 					{$segmentacion['join']}
 					
 				WHERE
@@ -379,6 +380,9 @@ class M_scorecard extends MY_Model{
 					AND (r.demo = 0 OR r.demo IS NULL)
 					AND v.estado = 1
 					AND r.estado = 1
+					AND v.idVisita IN(
+						357028
+					)
 					{$subfiltros}
 	
 		";

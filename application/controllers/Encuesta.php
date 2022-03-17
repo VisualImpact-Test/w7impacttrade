@@ -84,6 +84,12 @@ class Encuesta extends MY_Controller
 			}
 
 			$array_grafico = array();
+			$dataParaVista['dataEncuestaVertical'] = $encuesta;
+			foreach ($visitas as $k => $v) {
+
+					$dataParaVista['dataVisitaVertical'][$v['idVisita']] = $v;
+			}
+
 			foreach ($encuesta as $fila) {
 				$dataParaVista['visitaFoto'][$fila['idVisita']][$fila['idEncuesta']] = $fila['imgRef'];
 				$dataParaVista['visitaFotoPreg'][$fila['idVisita']][$fila['idEncuesta']][$fila['idPregunta']] = $fila['imgPreg'];
@@ -97,6 +103,7 @@ class Encuesta extends MY_Controller
 				$dataParaVista['visitaEncuesta'][$fila['idVisita']][$fila['idPregunta']][] = $fila['respuesta'];
 				$dataParaVista['visitaFotoSub'][$fila['idVisita']][$fila['idPregunta']][] = !empty($fila['imgRefSub']) ? 1 : 0;
 				$dataParaVista['visitaEncuesta'][$fila['idVisita']]['opciones'][$fila['idPregunta']][$fila['idAlternativaOpcion']][] = $fila['respuesta'];
+				 
 				if (isset($array_resultados[$fila['idCliente']])) {
 					if (!empty($fila['puntaje'])) $array_resultados[$fila['idCliente']]['puntaje'][$fila['idPregunta']] = floatval($fila['puntaje']);
 				}
@@ -116,7 +123,54 @@ class Encuesta extends MY_Controller
 
 		return $dataParaVista;
 	}
+	public function getTablaVertical($dataEncuesta,$segmentacion){
+		$dataEncuestaVertical = $dataEncuesta['dataEncuestaVertical'];
+		$dataVisitaVertical = $dataEncuesta['dataVisitaVertical'];
+		$new_data = [];
 
+		foreach ($dataEncuestaVertical as $k => $data) {
+			if(empty($dataVisitaVertical[$data['idVisita']])) continue;
+			$visita = $dataVisitaVertical[$data['idVisita']]; 
+
+			$new_data[$k] = [
+				($k + 1 ) ,
+				!empty($visita['fecha']) ? $visita['fecha'] : ' - ',
+				!empty($visita['tipoUsuario']) ? $visita['tipoUsuario'] : ' - ',
+				!empty($visita['idUsuario']) ? $visita['idUsuario'] : ' - ',
+				!empty($visita['usuario']) ? $visita['usuario'] : ' - ',
+				!empty($visita['grupoCanal']) ? $visita['grupoCanal'] : ' - ',
+				!empty($visita['canal']) ? $visita['canal'] : ' - ',
+			];
+
+			foreach ($segmentacion['headers'] as $k1 => $v) { 
+				array_push($new_data[$k],
+					!empty($visita[($v['columna'])]) ? "<p class='text-left'>{$visita[($v['columna'])]}</p>" : '-'
+				);
+			}
+
+			$fotoEncuesta =  !empty($data['imgRef']) ? rutafotoModulo(['foto'=>$data['imgRef'],'modulo'=>'encuestas','icono'=>'fal fa-image-polaroid fa-lg btn-outline-primary btn border-0']) : '';
+			$fotoPregunta =  !empty($data['imgPreg']) ? rutafotoModulo(['foto'=>$data['imgPreg'],'modulo'=>'encuestas','icono'=>'fal fa-image-polaroid fa-lg btn-outline-primary btn border-0']) : '';
+			$fotoAlternativa =  !empty($data['imgPreg']) ? rutafotoModulo(['foto'=>$data['imgRefSub'],'modulo'=>'encuestas','icono'=>'fal fa-image-polaroid fa-lg btn-outline-primary btn border-0']) : '';
+
+			array_push($new_data[$k],
+				!empty($visita['idCliente']) ? $visita['idCliente'] : ' - ',
+				!empty($visita['codCliente']) ? $visita['codCliente'] : ' - ',
+				!empty($visita['codDist']) ? $visita['codDist'] : ' - ',
+				!empty($visita['razonSocial']) ? $visita['razonSocial'] : ' - ',
+				!empty($visita['subCanal']) ? $visita['subCanal'] : ' - ',
+				!empty($visita['incidencia']) ? $visita['incidencia'] : ' - ',
+				!empty($data['encuesta']) ? $data['encuesta'] : '-' . $fotoEncuesta,
+				!empty($data['tipoPregunta']) ? $data['tipoPregunta'] : ' - ',
+				!empty($data['pregunta']) ? $data['pregunta'] : '-'  .  $fotoPregunta,
+				!empty($data['respuesta']) ? $data['respuesta'] : '-' .  $fotoAlternativa ,
+				($data['idTipoPregunta'] == 4 && !empty($data['alternativaOpcion'])) ? $data['alternativaOpcion'] : '-'
+			);
+
+		}
+
+		return $new_data;
+
+	}
 	public function getTablaEncuestas()
 	{
 		$result = $this->result;
@@ -160,7 +214,8 @@ class Encuesta extends MY_Controller
 		} else {
 			$segmentacion = getSegmentacion([ 'grupoCanal_filtro' => $params['idGrupoCanal'] ]);
 			$dataParaVista['segmentacion'] = $segmentacion;
-			$result['data']['html'] = $this->load->view("modulos/Encuesta/tablaDetalladoEncuesta", $dataParaVista, true);
+			
+
 			
 			$contador = 0;
 			$new_data = [];
@@ -174,6 +229,19 @@ class Encuesta extends MY_Controller
          $flagFotoMultiple = $dataParaVista['flagFotoMultiple'];
          $visitaEncuesta = $dataParaVista['visitaEncuesta'];
          $visitaFotoSub = $dataParaVista['visitaFotoSub'];
+
+		if($post['chk-reporte'] == 'vertical') {
+
+			$this->getTablaVertical($dataParaVista,$segmentacion);
+			$result['data']['html'] = $this->load->view("modulos/Encuesta/tablaDetalladoEncuestaVertical", $dataParaVista, true);
+			$result['data']['configTable'] =  [];
+			echo json_encode($result);
+			exit();
+		}
+
+		if($post['chk-reporte'] == 'horizontal') {
+			$result['data']['html'] = $this->load->view("modulos/Encuesta/tablaDetalladoEncuesta", $dataParaVista, true);
+		}
 
 			foreach ($dataParaVista['visitas'] as $i => $visita) {
 
@@ -285,9 +353,9 @@ class Encuesta extends MY_Controller
 				  
 			}	
 
-			$result['data']['configTable'] =  [
+		$result['data']['configTable'] =  [
             'data' => $new_data, 
-         ];
+		];
 		}
 
 		echo json_encode($result);

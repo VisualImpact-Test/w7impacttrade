@@ -17,10 +17,11 @@ $www = base_url() . 'public/assets/';
         width: 35%;
 
     }
+
     .center {
-    margin: auto;
-    border: 3px solid green;
-    padding: 10px;
+        margin: auto;
+        border: 3px solid green;
+        padding: 10px;
     }
 
     figure {
@@ -39,10 +40,12 @@ $www = base_url() . 'public/assets/';
 <table style="width:100%;float:left;">
     <?
     $i = 0;
-    foreach ($evidenciaFotografica as $k => $v) { ?>
-        <? if ($i == 0 || ($i % 2) == 0) { ?>
-            <tr>
-            <? } ?>
+    foreach ($evidenciaFotografica as $idTipoFoto => $tipoFoto) {
+        ?>
+        <?foreach ($tipoFoto as $v) {?>
+            <? if ($i == 0 || ($i % 2) == 0) { ?>
+                <tr>
+                <? } ?>
                 <td class="img-title">
                     <span><?= $v['tipoFoto'] ?></span>
                     <br><br>
@@ -50,21 +53,36 @@ $www = base_url() . 'public/assets/';
                     <br><br>
                     <span><?= $v['tipoFotoEvidencia'] ?></span>
                 </td>
-                <?= !empty($v['foto']) ? $img = 'http://movil.visualimpact.com.pe/fotos/impactTrade_Android/'.$v['carpetaFoto'].'/' . $v['foto'] : $img = $www . 'images/sin_imagen.jpg' ?>
-                <td class="img-content" style="<?= !empty($v['foto']) ? 'background-color: #DFDEDE;' : '' ?>">
-                    <img class=scaled src="<?= $img ?>" alt="<?= $v['tipoFoto'] ?>" style="height:250px;width:auto;">
-                </td>
-           
-        <? if (count($promociones) == 1) { ?>
-            <td class="img-title" style="background-color: white !important;"></td>
-            <td class="img-content"></td>
-        <? } ?> 
+                <?
+                $ruta = '';
+                if (!empty($v['foto'])) {
 
-        <? if ($i == 0 || ($i % 2) == 0) { ?>
-            </tr>
-        <? } ?>
+                    $params = explode("_", $v['foto']);
+                    $last = end($params);
+                    $pos = strpos($last, "WASABI");
+
+                    if ($pos === false) $ruta = 'http://movil.visualimpact.com.pe/fotos/impactTrade_android/';
+                    else $ruta = 'https://s3.us-west-1.wasabisys.com/visualimpact.app/fotos/impactTrade_Android/';
+                }
+
+
+                ?>
+                <?= !empty($v['foto']) ? $img = $ruta . $v['carpetaFoto'] . '/' . $v['foto'] : $img = $www . 'images/sin_imagen.jpg' ?>
+                <td class="img-content" style="<?= !empty($v['foto']) ? 'background-color: #DFDEDE;' : '' ?>">
+                    <img class=scaled src="<?= $img ?>" alt="<?= $v['tipoFoto'] ?>" style="height:250px;width:auto;margin-top: 1%;">
+                </td>
+
+                <? if (count($promociones) == 1) { ?>
+                    <td class="img-title" style="background-color: white !important;"></td>
+                    <td class="img-content"></td>
+                <? } ?>
+
+                <? if ($i == 0 || ($i % 2) == 0) { ?>
+                </tr>
+            <? } ?>
     <?
-        $i++;
+            $i++;
+        }
     }
     ?>
 </table>
