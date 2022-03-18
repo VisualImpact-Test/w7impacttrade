@@ -107,6 +107,7 @@ class M_encuesta extends MY_Model
 				, v.horaIni
 				, ct.idClienteTipo
 				, ct.nombre subCanal
+				{$segmentacion['columnas_bd']}
 				--, e.idEncuesta
 				--, e.nombre encuesta
 			FROM {$this->sessBDCuenta}.trade.data_ruta r
@@ -137,7 +138,7 @@ class M_encuesta extends MY_Model
 				ON ct.idClienteTipo = sn.idClienteTipo
 			LEFT JOIN trade.subCanal sc ON sn.idSubCanal = sc.idSubCanal
 			AND r.fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin,r.fecha) AND ch.flagCartera=1 
-
+			{$segmentacion['join']}
 			WHERE r.fecha between @fecIni AND @fecFin --AND r.demo=0
 				AND r.estado=1 AND v.estado=1
 				{$filtros}

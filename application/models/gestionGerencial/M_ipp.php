@@ -44,6 +44,7 @@ class M_ipp extends CI_Model{
 	
 	public function obtener_tienda($input){
 
+		$idProyecto = $this->sessIdProyecto;
 		$filtros = '';
 		// if(!empty($input['idUsuarioSub']) ) $filtros .= " AND sub.idEncargadoUsuario = '".$input['idUsuarioSub']."'";
 		// if(!empty($input['idUsuarioEnc']) ) $filtros .= " AND enc.idEncargado = '".$input['idUsuarioEnc']."'";
@@ -67,6 +68,7 @@ class M_ipp extends CI_Model{
 		WHERE r.estado=1 AND r.demo=0
 		AND r.fecha BETWEEN @fecIni AND @fecFin
 		AND v.idCliente= ".$input['idCliente']." 
+		AND r.idProyecto = {$idProyecto}
 		$filtros
 		ORDER BY fecha, v.idVisita, v.idCliente, id.idPregunta, id.idAlternativa ASC";
 		
@@ -105,10 +107,10 @@ class M_ipp extends CI_Model{
 		JOIN {$this->sessBDCuenta}.trade.data_visitaIpp i ON i.idVisita=v.idVisita
 		JOIN {$this->sessBDCuenta}.trade.data_visitaIppDet id ON id.idVisitaIpp=i.idVisitaIpp
 		JOIN trade.cliente c ON c.idCliente = v.idCliente
-		JOIN General.dbo.ubigeo ubi ON ubi.cod_ubigeo = c.cod_ubigeo
+		LEFT JOIN General.dbo.ubigeo ubi ON ubi.cod_ubigeo = c.cod_ubigeo
 		JOIN trade.canal cn ON cn.idCanal=v.idCanal
-		JOIN trade.banner b ON b.idBanner=v.idBanner
-		JOIN trade.cadena ca ON ca.idCadena =b.idCadena
+		LEFT JOIN trade.banner b ON b.idBanner=v.idBanner
+		LEFT JOIN trade.cadena ca ON ca.idCadena =b.idCadena
 		--
 		JOIN {$this->sessBDCuenta}.trade.ipp_pregunta ip ON ip.idPregunta=id.idPregunta
 		JOIN {$this->sessBDCuenta}.trade.ipp_criterio cc ON cc.idCriterio=ip.idCriterio
@@ -314,6 +316,7 @@ class M_ipp extends CI_Model{
 	}
 
 	public function obtener_banner($input){
+		$idProyecto = $this->sessIdProyecto;
 		$sql ="
 			DECLARE 
 				  @fecIni DATE = '01/".$input['mes']."/".$input['anio']."'
@@ -333,6 +336,7 @@ class M_ipp extends CI_Model{
 				r.estado=1 
 				AND r.demo=0
 				AND r.fecha BETWEEN @fecIni AND @fecFin
+				AND r.idProyecto  = {$idProyecto}
 			ORDER BY idBanner
 		";
 
@@ -341,6 +345,8 @@ class M_ipp extends CI_Model{
 	}
 	
 	public function obtener_data_semanal($input){
+
+		
 		$filtros = '';
     	if( !empty($input['sl-cuenta']) ) $filtros.=" AND r.idCuenta =".$input['sl-cuenta'];
     	if( !empty($input['sl-proyecto']) ) $filtros.=" AND r.idProyecto =".$input['sl-proyecto'];

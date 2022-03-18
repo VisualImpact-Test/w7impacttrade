@@ -1,4 +1,3 @@
-<?php $ubicacionFotos = "http://movil.visualimpact.com.pe/fotos/impactTrade_Android/reprogramaciones/"; ?>
 <form id="formReprogramacion">
     <input class="d-none" type="text" name="idVisitaReprogramacion" value="<?= $reprogramacion['idVisitaReprogramacion'] ?>">
     <input class="d-none" type="text" name="idVisita" value="<?= $reprogramacion['idVisita'] ?>">
@@ -85,7 +84,7 @@
 
         <div class='col-xs-3 col-sm-3 col-md-3 col-lg-3 mb-2'>
             <label>Foto</label><br>
-            <button <?= empty($reprogramacion['fotoUrl']) ? 'disabled' : '' ?> data-urlfoto="<?= $ubicacionFotos . $reprogramacion['fotoUrl'] ?>" class="btn btn-verFoto btn-outline-secondary border-0 btn-sm" title="Ver Foto"><i class="fa fa-camera"></i></button>
+            <button <?= empty($reprogramacion['fotoUrl']) ? 'disabled' : '' ?> data-urlfoto="<?= verificarUrlFotos($reprogramacion['fotoUrl']) . 'reprogramaciones/' . $reprogramacion['fotoUrl'] ?>" class="btn btn-verFoto btn-outline-secondary border-0 btn-sm" title="Ver Foto"><i class="fa fa-camera"></i></button>
         </div>
     </div>
 

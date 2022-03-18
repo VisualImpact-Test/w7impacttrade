@@ -11,7 +11,6 @@ var Ipp={
 		$('select[name="sl-encargado"]').html(Fn.selectOption('encargado',[$('#cuenta_filtro').val(),$('#proyecto_filtro').val()])).select2({width: '100%'});
 		$('select[name="sl-cuenta"]').change();
 		$('select[name="sl-proyecto"]').change();
-		$('select[name="grupoCanal_filtro"]').change();
 		$( document ).ready(function() {
 			$(".flt_grupoCanal").change();
 			$("#btn-ipp-consultar").click();

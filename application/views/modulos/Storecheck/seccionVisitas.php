@@ -1,6 +1,4 @@
 <?php $cantidadVisitas = count($visitas);
-$ubicacionFotos = "http://movil.visualimpact.com.pe/fotos/impactTrade_android/incidencias/";
-
 ?>
 <div class="col-md-12">
     <div class="mb-3 card">
@@ -48,7 +46,7 @@ $ubicacionFotos = "http://movil.visualimpact.com.pe/fotos/impactTrade_android/in
                                             <td><?= !empty($visita['incidencia']) ? $visita['incidencia'] : '-' ?></td>
                                             <td><?= !empty($visita['observacion']) ? $visita['observacion'] : '-' ?></td>
                                             <?php $visitaTieneFoto = !empty($visita['fotoUrl']) ? true : false ?>
-                                            <?php $linkFoto = $ubicacionFotos . $visita['fotoUrl'] ?>
+                                            <?php $linkFoto = verificarUrlFotos($visita['fotoUrl']) . 'incidencias/' . $visita['fotoUrl'] ?>
                                             <td class="text-center align-middle">
                                                 <?php if (!$visitaTieneFoto) { ?>
                                                     -

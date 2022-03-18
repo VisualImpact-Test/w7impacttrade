@@ -1,4 +1,3 @@
-<?php $ubicacionFotos = "http://movil.visualimpact.com.pe/fotos/impactTrade_Android/reprogramaciones/"; ?>
 <div class="card-datatable">
     <table class="table table-striped table-bordered nowrap" width="100%">
         <thead>
@@ -83,8 +82,9 @@
                     <td><?= !empty($value['motivoReprogramacion']) ? $value['motivoReprogramacion'] : '-' ?></td>
                     <td><?= !empty($value['observacion']) ? $value['observacion'] : '-' ?></td>
                     <td class="text-center">
-                        <?php if (!empty($value['fotoUrl'])) { ?>
-                            <button data-urlfoto="<?= $ubicacionFotos . $value['fotoUrl'] ?>" class="btn btn-verFoto btn-outline-secondary border-0 btn-sm" title="Ver Foto"><i class="fa fa-lg fa-camera"></i></button>
+                        <?php if (!empty($value['fotoUrl'])) {
+                        ?>
+                            <button data-urlfoto="<?= verificarUrlFotos($value['fotoUrl']) . 'reprogramaciones/' . $value['fotoUrl'] ?>" class="btn btn-verFoto btn-outline-secondary border-0 btn-sm" title="Ver Foto"><i class="fa fa-lg fa-camera"></i></button>
                         <?php } else { ?>
                             -
                         <?php } ?>

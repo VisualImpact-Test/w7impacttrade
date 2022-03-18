@@ -24,7 +24,7 @@ class M_rutas extends MY_Model{
 			$filtros .= !empty($input['usuario_filtro']) ? ' AND r.idUsuario IN ('.$input['usuario_filtro'].')': '';
 			$filtros .= !empty($input['distribuidora_filtro']) ? ' AND d.idDistribuidora='.$input['distribuidora_filtro'] : '';
 			$filtros .= !empty($input['distribuidoraSucursal_filtro']) ? ' AND ds.idDistribuidoraSucursal='.$input['distribuidoraSucursal_filtro'] : '';
-			$filtros .= !empty($input['zona_filtro']) ? ' AND z.idZona='.$input['zona_filtro'] : '';
+			$filtros .= !empty($input['zona_filtro']) ? ' AND (z.idZona='.$input['zona_filtro']." OR uhz.idZona = {$input['zona_filtro']}) " : '';
 			$filtros .= !empty($input['plaza_filtro']) ? ' AND sct.idPlaza='.$input['plaza_filtro'] : '';
 			$filtros .= !empty($input['cadena_filtro']) ? ' AND cd.idCadena='.$input['cadena_filtro'] : '';
 			$filtros .= !empty($input['banner_filtro']) ? ' AND b.idBanner='.$input['banner_filtro'] : '';
@@ -198,6 +198,11 @@ class M_rutas extends MY_Model{
 			JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta = v.idRuta 
 			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaIncidencia vi ON vi.idVisita = v.idVisita
 			LEFT JOIN list_usuarios_activos lua ON r.idUsuario = lua.idUsuario AND r.idTipoUsuario = lua.idTipoUsuario
+			LEFT JOIN trade.usuario_historico uh ON r.idUsuario = uh.idUsuario
+				AND uh.idProyecto = r.idProyecto
+				AND General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,r.fecha,r.fecha) = 1
+			LEFT JOIN trade.usuario_historicoZona uhz ON uhz.idUsuarioHist = uh.idUsuarioHist
+				AND uhz.estado = 1
 
 			JOIN trade.cliente c ON c.idCliente = v.idCliente
 			LEFT JOIN ".getClienteHistoricoCuenta()." ch ON ch.idCliente = c.idCliente 

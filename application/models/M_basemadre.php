@@ -36,7 +36,8 @@ class M_basemadre extends MY_Model{
 		return $arr_result;
 	}
 
-	public function obtener_basemadre_pg($input=array()){
+	public function obtener_basemadre_pg($input=array())
+	{
 		$filtros = "";
 
 		if( empty($input['idCuenta']) ){
@@ -134,7 +135,7 @@ class M_basemadre extends MY_Model{
 		$segmentacion = getSegmentacion(['grupoCanal_filtro' => $input['grupoCanal']]);
 		$sql = "
 		DECLARE @fecIni date='".$input['fecIni']."',@fecFin date='".$input['fecFin']."';
-		SELECT DISTINCT
+		SELECT DISTINCT TOP 1
 			c.idCliente
 			, c.razonSocial
 			, c.codCliente

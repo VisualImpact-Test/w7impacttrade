@@ -25,57 +25,6 @@
                 <th class="text-center align-middle">VALORACIÓN</th>
             </tr>
         </thead>
-        <tbody>
-            <? foreach ($dataEncuestaVertical as $k => $data) {
-                if(empty($dataVisitaVertical[$data['idVisita']])) continue;
-                $visita = $dataVisitaVertical[$data['idVisita']]; 
-            ?>
-                <tr>
-                    <td class="text-center" style="vertical-align: middle;"><?= $k; ?></td>
-                    <td class="text-center"><?= !empty($visita['fecha']) ? $visita['fecha'] : ' - '  ?></td>
-                    <td class="text-left"><?= !empty($visita['tipoUsuario']) ? $visita['tipoUsuario'] : ' - '  ?></td>
-                    <td class="text-center"><?= !empty($visita['idUsuario']) ? $visita['idUsuario'] : ' - '  ?></td>
-                    <td class="text-left"><?= !empty($visita['usuario']) ? $visita['usuario'] : ' - '  ?></td>
-                    <td class="text-left"><?= !empty($visita['grupoCanal']) ? $visita['grupoCanal'] : ' - '  ?></td>
-                    <td class="text-left"><?= !empty($visita['canal']) ? $visita['canal'] : ' - '  ?></td>
-                    <? foreach ($segmentacion['headers'] as $k => $v) { ?>
-                        <td class="text-left"><?= (!empty($visita[($v['columna'])]) ? $visita[($v['columna'])] : '-') ?></td>
-                    <? } ?>
-                    <td class="text-center"><?= !empty($visita['idCliente']) ? $visita['idCliente'] : ' - '  ?></td>
-                    <td class="text-center"><?= !empty($visita['codCliente']) ? $visita['codCliente'] : ' - '  ?></td>
-                    <td class="text-center"><?= !empty($visita['codDist']) ? $visita['codDist'] : ' - '  ?></td>
-                    <td class="text-left"><?= !empty($visita['razonSocial']) ? $visita['razonSocial'] : ' - '  ?></td>
-                    <td class="text-left"><?= !empty($visita['subCanal']) ? $visita['subCanal'] : ' - '  ?></td>
-                    <td class="text-left"><?= !empty($visita['incidencia']) ? $visita['incidencia'] : ' - '  ?></td>
-                    <td class="text-left"> 
-                        <?=!empty($data['encuesta']) ? $data['encuesta'] : '-' ?>
-                        <?=!empty($data['imgRef']) ? rutafotoModulo(['foto'=>$data['imgRef'],'modulo'=>'encuestas','icono'=>'fal fa-image-polaroid fa-lg btn-outline-primary btn border-0']) : ''?>
-                    </td>
-                    <td class="text-left"> <?= !empty($data['tipoPregunta']) ? $data['tipoPregunta'] : ' - '  ?> </td>
-                    <td class="text-left">
-                        <?=!empty($data['pregunta']) ? $data['pregunta'] : '-' ?>
-                        <?=!empty($data['imgPreg']) ? rutafotoModulo(['foto'=>$data['imgPreg'],'modulo'=>'encuestas','icono'=>'fal fa-image-polaroid fa-lg btn-outline-primary btn border-0']) : ''?>
 
-                    </td>
-                    <?if($data['idTipoPregunta'] != 4){?>
-                    <td class="text-left"> 
-                        <?=!empty($data['respuesta']) ? $data['respuesta'] : '-' ?>
-                        <?=!empty($data['imgRefSub']) ? rutafotoModulo(['foto'=>$data['imgRefSub'],'modulo'=>'encuestas','icono'=>'fal fa-image-polaroid fa-lg btn-outline-primary btn border-0']) : ''?>
-                    </td>
-                    <td class="text-center"> - </td>
-                    <?}?>
-                    <?if($data['idTipoPregunta'] == 4){?>
-                        <td class="text-left"> 
-                        <?=!empty($data['respuesta']) ? $data['respuesta'] : '-' ?>
-                        <?=!empty($data['imgRefSub']) ? rutafotoModulo(['foto'=>$data['imgRefSub'],'modulo'=>'encuestas','icono'=>'fal fa-image-polaroid fa-lg btn-outline-primary btn border-0']) : ''?>
-                        </td>
-                        <td class="text-center"> 
-                        <?=!empty($data['alternativaOpcion']) ? $data['alternativaOpcion'] : '-' ?>
-                        </td>
-                    <?}?>
-
-                </tr>
-            <? } ?>
-        </tbody>
     </table>
 </div>

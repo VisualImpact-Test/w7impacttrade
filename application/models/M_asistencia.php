@@ -33,7 +33,7 @@ class M_asistencia extends MY_Model{
 		$filtros .= !empty($input['distribuidora_filtro']) ? ' AND d.idDistribuidora='.$input['distribuidora_filtro'] : '';
 		$filtros .= !empty($input['zona_filtro']) ? ' AND z.idZona='.$input['zona_filtro'] : '';
 		$filtros .= !empty($input['plaza_filtro']) ? ' AND uhp.idPlaza='.$input['plaza_filtro'] : '';
-		$filtros .= !empty($input['cadena_filtro']) ? ' AND cd.idCadena='.$input['cadena_filtro'] : '';
+		$filtros .= !empty($input['cadena_filtro']) ? ' AND b.idCadena='.$input['cadena_filtro'] : '';
 		$filtros .= !empty($input['banner_filtro']) ? ' AND b.idBanner='.$input['banner_filtro'] : '';
 		$filtros .= !empty($input['zonausuario']) ? ' AND uhz.idZona='.$input['zonausuario'] : '';
 		
@@ -176,7 +176,7 @@ class M_asistencia extends MY_Model{
 			, py.idProyecto
 			, py.nombre proyecto
 			, gc.idGrupoCanal
-			, gc.nombre grupoCanal
+			, ISNULL(pgc.nombre,gc.nombre) grupoCanal
 			, ca.idCanal
 			, ca.nombre canal
 			, t.feriado
@@ -215,6 +215,8 @@ class M_asistencia extends MY_Model{
 			LEFT JOIN trade.usuario_historicoCanal uhd ON uhd.idUsuarioHist = uh.idUsuarioHist
 			LEFT JOIN trade.canal ca ON ca.idCanal = uhd.idCanal
 			LEFT JOIN trade.grupoCanal gc ON gc.idGrupoCanal = ca.idGrupoCanal
+			LEFT JOIN trade.proyectoGrupoCanal pgc ON pgc.idGrupoCanal = gc.idGrupoCanal
+					AND uh.idProyecto = pgc.idProyecto
 			LEFT JOIN trade.proyecto py ON py.idProyecto = uh.idProyecto
 			LEFT JOIN trade.cuenta cu ON cu.idCuenta = py.idCuenta
 

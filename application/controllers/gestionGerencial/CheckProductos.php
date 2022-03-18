@@ -857,8 +857,6 @@ class CheckProductos extends MY_Controller{
 				$array['productos'][$det['idCliente']][$det['idProducto']]['nombre'] = $det['elemento'];
 
 				$array['detalle_new'][$det['fecha']][$det['idCliente']][$det['idProducto']] = $det;
-
-
 				
 			}
 

@@ -11,7 +11,6 @@ $idTipoPreguntaAbierta = 1;
 $idTipoPreguntaCerrada = 2;
 $idTipoPreguntaMultiple = 3;
 $espacioColumnaTotal = 1;
-$ubicacionFotos = "http://movil.visualimpact.com.pe/fotos/impactTrade_android/encuestasPremio/";
 ?>
 
 <div class="col-md-12">
@@ -64,7 +63,7 @@ $ubicacionFotos = "http://movil.visualimpact.com.pe/fotos/impactTrade_android/en
                                                     <td class="text-center celdaNula">-</td>
                                                 <?php } else { ?>
                                                     <?php $encuestaTieneFoto = !empty($visita['encuestas'][$keyEncuesta]['fotoUrl']) ? true : false ?>
-                                                    <?php $linkFoto = $ubicacionFotos . $visita['encuestas'][$keyEncuesta]['fotoUrl'] ?>
+                                                    <?php $linkFoto = verificarUrlFotos($visita['encuestas'][$keyEncuesta]['fotoUrl']) . 'encuestasPremio/' . $visita['encuestas'][$keyEncuesta]['fotoUrl'] ?>
                                                     <td class="text-center">
                                                         HORA: <?= time_change_format($visita['encuestas'][$keyEncuesta]['hora']) ?>
                                                         <button data-urlfoto="<?= $linkFoto ?>" class="btn-verFoto btn-sm border-0 btn-transition btn btn-outline-primary" <?= !$encuestaTieneFoto ? 'disabled' : '' ?>><i class="fa fa-camera" aria-hidden="true"></i></button>

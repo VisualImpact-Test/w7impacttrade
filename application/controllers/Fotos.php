@@ -324,16 +324,10 @@ class Fotos extends MY_Controller
 
 					foreach ($arrayFoto[$key][$keyVisita] as $keyFoto => $foto) {
 						if($foto["imgRef"]!=null){
-							$params = explode("_",$foto["imgRef"]);
-							$last = end($params);
-							$pos = strpos($last,"WASABI");
-							$ruta = '';
-							if($pos === false ) $ruta = 'http://movil.visualimpact.com.pe/fotos/impactTrade_android/';
-							else $ruta = 'https://s3.us-west-1.wasabisys.com/visualimpact.app/fotos/impactTrade_Android/';
-							$html .= '<img class="foto" src="'.$ruta.'encuestas/'.$rowFotos.'" width="280" height="200" />';
+							$html .= '<img class="foto" src="'.verificarUrlFotos($foto["imgRef"]).'encuestas/'.$foto["imgRef"].'" width="280" height="200" />';
 						}
 
-						$mpdf->imageVars[$foto["imgRef"]] = file_get_contents($ruta.$foto["carpetaFoto"].'/'.$foto["imgRef"] );
+						$mpdf->imageVars[$foto["imgRef"]] = file_get_contents(verificarUrlFotos($foto["imgRef"]).$foto["carpetaFoto"].'/'.$foto["imgRef"] );
 						$html.='<div style="float:left;width:50%">';
 							$html.='<img class="foto" src="var:'.$foto["imgRef"].'" style="height:350px; border: 4px solid #cccccc;" />';
 							$html.='<table class="infoFoto" style="width:550px;text-align:left;margin:0 auto;">';

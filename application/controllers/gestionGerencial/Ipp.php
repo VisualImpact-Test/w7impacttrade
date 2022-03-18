@@ -112,8 +112,8 @@ class Ipp extends MY_Controller{
     		, 'sl-departamento' => $data->{'sl-departamento'}
     		, 'sl-provincia' => $data->{'sl-provincia'}
     		, 'sl-distrito' => $data->{'sl-distrito'}
-    		, 'sl-cadena' => $data->{'cadena_filtro'}
-    		, 'sl-banner' => $data->{'banner_filtro'}
+    		, 'sl-cadena' => !empty($data->{'cadena_filtro'}) ? $data->{'cadena_filtro'} : ''
+    		, 'sl-banner' => !empty($data->{'banner_filtro'}) ? $data->{'banner_filtro'} : ''
     		, 'sl-hfs' => $data->{'sl-hfs'}
 			, 'sl-whls' => $data->{'sl-whls'}
 			, 'idUsuarioEnc' => $data->{'sl-encargado'}
@@ -202,8 +202,8 @@ class Ipp extends MY_Controller{
     		, 'sl-departamento' => $data->{'sl-departamento'}
     		, 'sl-provincia' => $data->{'sl-provincia'}
     		, 'sl-distrito' => $data->{'sl-distrito'}
-    		, 'sl-cadena' => $data->{'cadena_filtro'}
-    		, 'sl-banner' => $data->{'banner_filtro'}
+    		, 'sl-cadena' => !empty($data->{'cadena_filtro'}) ? $data->{'cadena_filtro'} : ''
+    		, 'sl-banner' => !empty($data->{'banner_filtro'}) ? $data->{'banner_filtro'} : ''
     		, 'sl-hfs' => $data->{'sl-hfs'}
 			, 'sl-whls' => $data->{'sl-whls'}
 			, 'idUsuarioEnc' => $data->{'sl-encargado'}
@@ -284,8 +284,8 @@ class Ipp extends MY_Controller{
     		, 'sl-departamento' => $data->{'sl-departamento'}
     		, 'sl-provincia' => $data->{'sl-provincia'}
     		, 'sl-distrito' => $data->{'sl-distrito'}
-    		, 'sl-cadena' => $data->{'cadena_filtro'}
-    		, 'sl-banner' => $data->{'banner_filtro'}
+    		, 'sl-cadena' => !empty($data->{'cadena_filtro'}) ? $data->{'cadena_filtro'} : ''
+    		, 'sl-banner' => !empty($data->{'banner_filtro'}) ? $data->{'banner_filtro'} : ''
     		, 'sl-hfs' => $data->{'sl-hfs'}
 			, 'sl-whls' => $data->{'sl-whls'}
 			, 'idUsuarioEnc' => $data->{'sl-encargado'}
@@ -347,6 +347,8 @@ class Ipp extends MY_Controller{
 	
 	public function detallado_nuevo(){
 		//
+		
+
     	$data = json_decode($this->input->post('data'));
     	$fechas=explode(" - ",$data->{'txt-fechas'});
     	//
@@ -364,8 +366,8 @@ class Ipp extends MY_Controller{
     		, 'sl-departamento' => $data->{'sl-departamento'}
     		, 'sl-provincia' => $data->{'sl-provincia'}
     		, 'sl-distrito' => $data->{'sl-distrito'}
-    		, 'sl-cadena' => $data->{'cadena_filtro'}
-    		, 'sl-banner' => $data->{'banner_filtro'}
+    		, 'sl-cadena' => !empty($data->{'cadena_filtro'}) ? $data->{'cadena_filtro'} : ''
+    		, 'sl-banner' => !empty($data->{'banner_filtro'}) ? $data->{'banner_filtro'} : ''
     		, 'sl-hfs' => $data->{'sl-hfs'}
 			, 'sl-whls' => $data->{'sl-whls'}
 			, 'idUsuarioEnc' => $data->{'sl-encargado'}
@@ -387,7 +389,6 @@ class Ipp extends MY_Controller{
 			//
 			$data = $this->model->obtener_data()->result_array();
 			$array['banner'] = $this->model->obtener_banner($input)->result_array();
-			
 
 			if ( count($data)>0 ) {
 				$array['puntaje_maximo'] = 0;

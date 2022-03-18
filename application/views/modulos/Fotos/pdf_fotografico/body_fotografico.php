@@ -52,15 +52,7 @@ $www = base_url() . 'public/assets/';
                     <br><br>
                     <span><?= $v['hora'] ?></span>
                 </td>
-                <?
-                		$params = explode("_",$v['foto']);
-						$last = end($params);
-						$pos = strpos($last,"WASABI");
-                        $ruta = '';
-						if($pos === false ) $ruta = 'http://movil.visualimpact.com.pe/fotos/impactTrade_android/';
-						else $ruta = 'https://s3.us-west-1.wasabisys.com/visualimpact.app/fotos/impactTrade_Android/';
-                ?>
-                <?= !empty($v['foto']) ? $img = $ruta.$v['carpetaFoto'].'/' . $v['foto'] : $img = $www . 'images/sin_imagen.jpg' ?>
+                <?= !empty($v['foto']) ? $img = verificarUrlFotos($v['foto']) . $v['carpetaFoto'].'/' . $v['foto'] : $img = $www . 'images/sin_imagen.jpg' ?>
                 <td class="img-content" style="<?= !empty($v['foto']) ? 'background-color: #DFDEDE;' : '' ?>">
                     <img class=scaled src="<?= $img ?>" alt="<?= $v['modulo'] ?>" style="height:250px;width:auto;">
                 </td>

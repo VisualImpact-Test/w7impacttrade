@@ -1216,9 +1216,11 @@ class M_precios extends CI_Model{
 
 		$orderby = '';
 		$groupby = '';
+		$avg = '';
 		if(in_array($segmentacion['grupoCanal'], GC_MODERNOS))
 		{
 			$orderby = 'ORDER BY cadena, ele.nombre';
+			$avg = ', ch.idCadena, ch.idBanner';
 			$groupby = '
 			, ch.idCadena
 			, ch.idBanner
@@ -1229,6 +1231,7 @@ class M_precios extends CI_Model{
 		if(in_array($segmentacion['grupoCanal'], GC_MAYORISTAS))
 		{
 			$orderby = 'ORDER BY plaza, zona, ele.nombre';
+			$avg = ', ch.idPlaza, ch.idDistribuidoraSucursal';
 			$groupby = '
 			, ch.plaza 
 			, ch.idPlaza
@@ -1239,6 +1242,7 @@ class M_precios extends CI_Model{
 		if(in_array($segmentacion['grupoCanal'], GC_TRADICIONALES))
 		{
 			$orderby = 'ORDER BY distribuidora, ciudadDistribuidoraSuc, codUbigeoDisitrito, zona, ele.nombre';
+			$avg = ', ch.codUbigeoDisitrito, ch.idDistribuidoraSucursal';
 			$groupby = '
 			, ch.distribuidora
 			, ch.ciudadDistribuidoraSuc
@@ -1305,7 +1309,7 @@ class M_precios extends CI_Model{
 			, cat.idCategoria
 			, m.idMarca
 			, ele.idProducto
-			, AVG(v.precio) OVER(PARTITION BY t.idSemana, ch.idCadena, ch.idBanner, ele.idProducto) AS promedio_semana
+			, AVG(v.precio) OVER(PARTITION BY t.idSemana{$avg}, ele.idProducto) AS promedio_semana
 			{$groupby}
 			FROM list_visitasProductos v
 			LEFT JOIN lista_clientes ch ON v.idCliente = ch.idCliente

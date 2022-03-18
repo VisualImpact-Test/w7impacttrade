@@ -1850,3 +1850,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		}
 		return $day_name;
 	}
+
+	function verificarUrlFotos($foto)
+	{
+		$params = explode("_", $foto);
+		$last = end($params);
+		$pos = strpos($last, "WASABI");
+		$ruta = '';
+		if ($pos === false) $ruta = 'http://movil.visualimpact.com.pe/fotos/impactTrade_android/';
+		else $ruta = 'https://s3.us-west-1.wasabisys.com/visualimpact.app/fotos/impactTrade_Android/';
+
+		return $ruta;
+	}

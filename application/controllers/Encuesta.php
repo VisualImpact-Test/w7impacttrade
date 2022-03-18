@@ -232,9 +232,11 @@ class Encuesta extends MY_Controller
 
 		if($post['chk-reporte'] == 'vertical') {
 
-			$this->getTablaVertical($dataParaVista,$segmentacion);
+			
 			$result['data']['html'] = $this->load->view("modulos/Encuesta/tablaDetalladoEncuestaVertical", $dataParaVista, true);
-			$result['data']['configTable'] =  [];
+			$result['data']['configTable'] =  [
+				'data' => $this->getTablaVertical($dataParaVista,$segmentacion)
+			];
 			echo json_encode($result);
 			exit();
 		}
@@ -1371,13 +1373,7 @@ class Encuesta extends MY_Controller
 												{
 													foreach($row['fotos'] as $rowFotos){
 														if($rowFotos!=null){
-															$params = explode("_",$rowFotos);
-															$last = end($params);
-															$pos = strpos($last,"WASABI");
-															$ruta = '';
-															if($pos === false ) $ruta = 'http://movil.visualimpact.com.pe/fotos/impactTrade_android/';
-															else $ruta = 'https://s3.us-west-1.wasabisys.com/visualimpact.app/fotos/impactTrade_Android/';
-															$html .= '<img class="foto" src="'.$ruta.'encuestas/'.$rowFotos.'" width="280" height="200" />';
+															$html .= '<img class="foto" src="'.verificarUrlFotos($rowFotos).'encuestas/'.$rowFotos.'" width="280" height="200" />';
 														}
 													}
 												}
