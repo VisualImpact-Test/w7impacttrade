@@ -320,7 +320,7 @@ class Visibilidad extends MY_Controller{
 							}
 							$html .= '<tr>';
 							    if(!empty($row['fotoUrl'])){
-									$html .= '<td colspan="2" style="text-align:center;"><img class="foto" src="'.('http://movil.visualimpact.com.pe/fotos/impactTrade_Android/visibilidad/'.$row['fotoUrl']).'" width="280" height="200" /></td>';
+									$html .= '<td colspan="2" style="text-align:center;"><img class="foto" src="' . (verificarUrlFotos($row['fotoUrl']) . 'visibilidad/' . $row['fotoUrl']) . '" width="280" height="200" /></td>';
 								} else {
 									$html .= '<td colspan="2" style="text-align:center;"><img class="foto" src="'.$www.'/images/sin-imagen.jpg" width="280" height="200" /></td>';
 								}

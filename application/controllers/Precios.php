@@ -432,13 +432,23 @@ class Precios extends MY_Controller
 			$array = [];
 			$array['precios'] = $rs_precios;
 			$segmentacion = getSegmentacion($input);
+			$idSegmentador = '';
+			if (in_array($segmentacion['grupoCanal'], GC_TRADICIONALES)) {
+				$idSegmentador = 'idDistribuidoraSucursal';
+			}
+			if (in_array($segmentacion['grupoCanal'], GC_MAYORISTAS)) {
+				$idSegmentador = 'idPlaza';
+			}
+			if (in_array($segmentacion['grupoCanal'], GC_MODERNOS)) {
+				$idSegmentador = 'idCadena';
+			}
 			$array['segmentacion'] = $segmentacion;
 			$precios = [];
 			sort($semanas);
 			$array['semanas'] =  $semanas;
 			foreach ($rs_precios as $k => $v) {
-				$precios['cadenas'][$v['idCadena']][$v['idProducto']] = $v;
-				$precios['semana'][$v['semana']][$v['idCadena']][$v['idProducto']]['promedio'] = $v['promedio_semana'];
+				$precios['cadenas'][$v[$idSegmentador]][$v['idProducto']] = $v;
+				$precios['semana'][$v['semana']][$v[$idSegmentador]][$v['idProducto']]['promedio'] = $v['promedio_semana'];
 			}
 			$array['precios'] = $precios;
 			$html = $this->load->view("modulos/Precios/tablaDetalladoPreciosVariabilidad",$array,true);

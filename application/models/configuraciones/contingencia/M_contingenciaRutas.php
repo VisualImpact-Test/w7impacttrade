@@ -64,6 +64,15 @@ class M_contingenciaRutas extends My_Model{
 		$filtros .= !empty($input['provincia_filtro']) ? ' AND ub.cod_provincia='.$input['provincia_filtro'] : '';
 		$filtros .= !empty($input['distrito_filtro']) ? ' AND ub.cod_ubigeo='.$input['distrito_filtro'] : '';
 
+		$filtros .= !empty($input['canal_filtro']) ? ' AND ca.idCanal='.$input['canal_filtro'] : '';
+		$filtros .= !empty($input['subcanal']) ? ' AND ct.idClienteTipo='.$input['subcanal'] : '';
+		$filtros .= !empty($input['distribuidora_filtro']) ? ' AND d.idDistribuidora='.$input['distribuidora_filtro'] : '';
+		$filtros .= !empty($input['zona_filtro']) ? ' AND (z.idZona='.$input['zona_filtro']." OR uhz.idZona = {$input['zona_filtro']}) " : '';
+		$filtros .= !empty($input['plaza_filtro']) ? ' AND pl.idPlaza='.$input['plaza_filtro'] : '';
+		$filtros .= !empty($input['cadena_filtro']) ? ' AND cad.idCadena='.$input['cadena_filtro'] : '';
+		$filtros .= !empty($input['banner_filtro']) ? ' AND ba.idBanner='.$input['banner_filtro'] : '';
+		$filtros .= !empty($input['distribuidoraSucursal_filtro']) ? ' AND ds.idDistribuidoraSucursal='.$input['distribuidoraSucursal_filtro'] : '';
+
 		// $filtros .= " AND v.horaFin is null";
 
 		if(!empty($input['estadoUsuario']) && ($input['estadoUsuario'] == 1 || $input['estadoUsuario'] == 2)){
@@ -165,6 +174,11 @@ class M_contingenciaRutas extends My_Model{
 				, v.flagContingencia
 				{$segmentacion['columnas_bd']}
 			FROM {$this->sessBDCuenta}.trade.data_ruta r WITH(NOLOCK)
+				JOIN trade.usuario_historico uh ON r.idUsuario = uh.idUsuario
+					AND uh.idProyecto = r.idProyecto
+					AND General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,r.fecha,r.fecha) = 1
+				LEFT JOIN trade.usuario_historicoZona uhz ON uhz.idUsuarioHist = uh.idUsuarioHist
+					AND uhz.estado = 1
 				JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
 				LEFT JOIN ".getClienteHistoricoCuenta()." ch ON ch.idCliente = v.idCliente 
 				AND General.dbo.fn_fechaVigente(ch.fecIni,ch.fecFin,r.fecha,r.fecha)=1 AND ch.idProyecto = {$input['idProyecto']}

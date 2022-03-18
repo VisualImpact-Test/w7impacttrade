@@ -18,7 +18,7 @@ class M_checkproductos extends MY_Model{
 		$filtros .= !empty($input['canal_filtro']) ? ' AND ca.idCanal='.$input['canal_filtro'] : '';
 		$filtros .= !empty($input['subcanal']) ? ' AND ct.idClienteTipo='.$input['subcanal'] : '';
 		$filtros .= !empty($input['distribuidora_filtro']) ? ' AND d.idDistribuidora='.$input['distribuidora_filtro'] : '';
-		$filtros .= !empty($input['zona_filtro']) ? ' AND z.idZona='.$input['zona_filtro'] : '';
+		$filtros .= !empty($input['zona_filtro']) ? ' AND (z.idZona='.$input['zona_filtro']." OR uhz.idZona = {$input['zona_filtro']}) " : '';
 		$filtros .= !empty($input['plaza_filtro']) ? ' AND pl.idPlaza='.$input['plaza_filtro'] : '';
 		$filtros .= !empty($input['cadena_filtro']) ? ' AND cad.idCadena='.$input['cadena_filtro'] : '';
 		$filtros .= !empty($input['banner_filtro']) ? ' AND ba.idBanner='.$input['banner_filtro'] : '';
@@ -62,6 +62,11 @@ class M_checkproductos extends MY_Model{
 			{$segmentacion['columnas_bd']}
 		FROM {$this->sessBDCuenta}.trade.data_ruta r
 		JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
+		JOIN trade.usuario_historico uh ON r.idUsuario = uh.idUsuario
+				AND uh.idProyecto = r.idProyecto
+				AND General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,r.fecha,r.fecha) = 1
+		LEFT JOIN trade.usuario_historicoZona uhz ON uhz.idUsuarioHist = uh.idUsuarioHist
+				AND uhz.estado = 1
 		JOIN {$this->sessBDCuenta}.trade.data_visitaProductos dvv ON dvv.idVisita=v.idVisita
 		JOIN trade.cuenta cu ON cu.idCuenta=r.idCuenta
 		JOIN trade.canal ca ON ca.idCanal=v.idCanal

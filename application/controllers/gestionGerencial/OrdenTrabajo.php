@@ -313,15 +313,7 @@ class OrdenTrabajo extends MY_Controller{
 						
 							$html .= '<tr>';
 							    if(!empty($row['fotoUrl'])){
-									
-									$params = explode("_",$row['fotoUrl']);
-									$last = end($params);
-									$pos = strpos($last,"WASABI");
-									$ruta = '';
-									if($pos === false ) $ruta = 'http://movil.visualimpact.com.pe/fotos/impactTrade_android/';
-									else $ruta = 'https://s3.us-west-1.wasabisys.com/visualimpact.app/fotos/impactTrade_Android/';
-
-									$html .= '<td colspan="2" style="text-align:center;"><img class="foto" src="'.($ruta.'visibilidadAuditoria/'.$row['fotoUrl']).'" width="280" height="200" /></td>';
+									$html .= '<td colspan="2" style="text-align:center;"><img class="foto" src="' . (verificarUrlFotos($row['fotoUrl']) . 'visibilidadAuditoria/' . $row['fotoUrl']) . '" width="280" height="200" /></td>';
 								} else {
 									$html .= '<td colspan="2" style="text-align:center;"><img class="foto" src="'.$www.'/assets/images/sin_imagen.jpg" width="90" height="50" /></td>';
 								}

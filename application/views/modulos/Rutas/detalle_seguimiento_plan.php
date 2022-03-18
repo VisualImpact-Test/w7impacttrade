@@ -14,7 +14,8 @@
 				</tr>
 			</thead>
 			<tbody>
-				<? $i=1; foreach($seguimiento[$id_p] as $row){ ?>
+				<? $i=1; foreach($seguimiento[$id_p] as $row){
+				?>
 					<tr>
 						<td><?=$i++?></td>
 						<td><?=$row['tipoElemento']?></td>
@@ -23,8 +24,8 @@
 						<td><?=!empty($row['motivo'])? $row['motivo'] : '-'?></td>
 						<td><?=!empty($row['comentario'])? $row['comentario'] : '-'?></td>
 						<!--<td class="text-center">
-							<a href="javascript:;" class="lk-foto" data-fotoUrl="<?='http://movil.visualimpact.com.pe/fotos/impactTrade_Android/seguimientoPlan/'.$row->foto?>"  >
-							<?=($row->foto!=0)?'<img src="http://movil.visualimpact.com.pe/fotos/impactTrade_Android/seguimientoPlan/'.$row->foto.'" style="width:96px;border: 2px solid #CCC;" />':'-';?></a>
+							<a href="javascript:;" class="lk-foto" data-fotoUrl="<?=verificarUrlFotos($row->foto) . 'seguimientoPlan/'.$row->foto?>"  >
+							<?=($row->foto!=0)?'<img src="'. verificarUrlFotos($row->foto) . 'seguimientoPlan/'.$row->foto.'" style="width:96px;border: 2px solid #CCC;" />':'-';?></a>
 						</td>-->
 					</tr>
 				<? } ?>

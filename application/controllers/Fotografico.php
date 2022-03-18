@@ -206,17 +206,9 @@ class Fotografico extends MY_Controller
 				if( isset( $fotoVisita[$row['idVisita']] ) ){
 					$h=0;
 					foreach($fotoVisita[$row['idVisita']] as $row_f => $value_f){
-						if($value_f['foto']!=null){
-							$params = explode("_",$value_f['foto']);
-							$last = end($params);
-							$pos = strpos($last,"WASABI");
-							$ruta = '';
-							if($pos === false ) $ruta = 'http://movil.visualimpact.com.pe/fotos/impactTrade_android/';
-							else $ruta = 'https://s3.us-west-1.wasabisys.com/visualimpact.app/fotos/impactTrade_Android/';
-						}
 						if($h%2==0) $html .= '<tr>';
 							$html .= '<td class="item" >';
-								$html .='<img class="foto" src="'.$ruta.$value_f['tipoFoto'].'/'.$value_f['foto'].'" width="240" height="200" /><br />';
+								$html .='<img class="foto" src="'.verificarUrlFotos($value_f['foto']).$value_f['tipoFoto'].'/'.$value_f['foto'].'" width="240" height="200" /><br />';
 								$html .= 'Tipo Foto: '.$value_f['tipoFoto'].'<br />';
 							$html .= '</td>';
 						if($h%2==0) $html .= '</tr>';

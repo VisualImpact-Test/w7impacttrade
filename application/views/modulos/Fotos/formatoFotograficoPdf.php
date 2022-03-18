@@ -38,12 +38,12 @@
         </tr>
         <?php $contador = 0;
         foreach ($visita["fotos"] as $keyFoto => $foto) {
-            $contador++; ?>
+        ?>
             <?php if ($contador % 4 == 1) { ?>
                 <tr>
                 <?php } ?>
                 <td>
-                    <img class="foto" src="http://movil.visualimpact.com.pe/fotos/impactTrade_android/<?= $foto["carpetaFoto"] ?>/<?= $foto["imgRef"] ?>" />
+                    <img class="foto" src="<?= verificarUrlFotos($foto["imgRef"]) . $foto["carpetaFoto"] .'/'. $foto["imgRef"] ?>" />
                     <table class="infoFoto">
                         <tr>
                             <td class="nombreDatoInfoFoto">Hora:</td>

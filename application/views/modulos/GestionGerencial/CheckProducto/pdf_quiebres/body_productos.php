@@ -39,7 +39,8 @@ $www = base_url() . 'public/assets/';
 <table style="width:100%;float:left;">
     <?
     $i = 0;
-    foreach ($productos as $k => $v) { ?>
+    foreach ($productos as $k => $v) {
+    ?>
         <? if ($i == 0 || ($i % 2) == 0) { ?>
             <tr>
             <? } ?>
@@ -50,7 +51,7 @@ $www = base_url() . 'public/assets/';
                     <br><br>
                     <span><?= $v['motivo'] ?></span>
                 </td>
-                <?= !empty($v['foto']) ? $img = 'http://movil.visualimpact.com.pe/fotos/impactTrade_Android/checklist/' . $v['foto'] : $img = $www . 'images/sin_imagen.jpg' ?>
+                <?= !empty($v['foto']) ? $img = verificarUrlFotos($v['foto']) . 'checklist/' . $v['foto'] : $img = $www . 'images/sin_imagen.jpg' ?>
                 <td class="img-content" style="<?= !empty($v['foto']) ? 'background-color: #DFDEDE;' : '' ?>">
                     <img class=scaled src="<?= $img ?>" alt="<?= $v['producto'] ?>" style="height:250px;width:auto;">
                 </td>

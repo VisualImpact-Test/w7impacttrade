@@ -9,7 +9,6 @@ foreach ($visitasSeguimientoPlan as $key => $visita) {
 $limiteFotosMiniaturas = 11;
 $noPasoLimiteFotos = $cantidadVisitasSeguimientoPlanDetallados + $cantidadVisitasSeguimientoPlan < $limiteFotosMiniaturas;
 $contadorFotosCarousel = 0;
-$ubicacionFotos = "http://movil.visualimpact.com.pe/fotos/impactTrade_android/seguimientoPlan/";
 $direccionNoImage = base_url() . "public/assets/images/sin-imagen-small.png";
 $primeraIteracion = true;
 $numeroVisita = 1;
@@ -27,7 +26,7 @@ $numeroVisita = 1;
                         <div class="swiper-container swiper-container-v">
                             <div class="swiper-wrapper">
                                 <?php foreach ($visitasSeguimientoPlan as $keyVisita => $visita) {
-                                    $linkImagenVisita = !empty($visita['fotoUrl']) ? $ubicacionFotos . $visita['fotoUrl'] : $direccionNoImage;
+                                    $linkImagenVisita = !empty($visita['fotoUrl']) ? verificarUrlFotos($visita['fotoUrl']) . 'seguimientoPlan/' . $visita['fotoUrl'] : $direccionNoImage;
                                     $numeroDetalle = 1;
                                 ?>
                                     <div class="swiper-slide">

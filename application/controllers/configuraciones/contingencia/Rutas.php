@@ -98,6 +98,15 @@ class Rutas extends MY_Controller{
 		$input['provincia_filtro'] = !empty($data->{'provincia_filtro'}) ? $data->{'provincia_filtro'} : '' ;
 		$input['distrito_filtro'] = !empty($data->{'distrito_filtro'}) ? $data->{'distrito_filtro'} : '' ;
 
+		$input['canal_filtro'] = !empty($data->{'canal_filtro'}) ? $data->{'canal_filtro'} : '' ;
+		$input['subcanal'] = !empty($data->{'subcanal_filtro'}) ? $data->{'subcanal_filtro'} : '' ;
+		$input['distribuidora_filtro'] = empty($data->{'distribuidora_filtro'}) ? '' : $data->{'distribuidora_filtro'};
+		$input['distribuidoraSucursal_filtro'] = !empty($data->{'distribuidoraSucursal_filtro'}) ? $data->{'distribuidoraSucursal_filtro'} : '';
+		$input['zona_filtro'] = empty($data->{'zona_filtro'}) ? '' : $data->{'zona_filtro'};
+		$input['plaza_filtro'] = empty($data->{'plaza_filtro'}) ? '' : $data->{'plaza_filtro'};
+		$input['cadena_filtro'] = empty($data->{'cadena_filtro'}) ? '' : $data->{'cadena_filtro'};
+		$input['banner_filtro'] = empty($data->{'banner_filtro'}) ? '' : $data->{'banner_filtro'};
+
 		$rs_visitas = $this->model->obtener_rutas_visitas($input);
 		$segmentacion = getSegmentacion(['grupoCanal_filtro' => $input['grupoCanal_filtro']]);
 

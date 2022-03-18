@@ -306,6 +306,7 @@ class M_Fotos extends MY_Model
 		$filtros = '';
 		$filtros_cliente = '';
 		$filtros_visita_foto = '';
+		$filtros_generales = '';
 			$input['idCuenta'] = $this->sessIdCuenta;
 			$input['idProyecto'] = $this->sessIdProyecto;
 
@@ -327,7 +328,7 @@ class M_Fotos extends MY_Model
 
 			$filtros_cliente .= !empty($input['distribuidoraSucursal_filtro']) ? ' AND ds.idDistribuidoraSucursal='.$input['distribuidoraSucursal_filtro'] : '';
 			$filtros_cliente .= !empty($input['distribuidora_filtro']) ? ' AND d.idDistribuidora='.$input['distribuidora_filtro'] : '';
-			$filtros_cliente .= !empty($input['zona_filtro']) ? ' AND z.idZona='.$input['zona_filtro'] : '';
+			$filtros_generales .= !empty($input['zona_filtro']) ? ' AND (ch.idZona='.$input['zona_filtro']." OR uhz.idZona = {$input['zona_filtro']}) " : '';
 			$filtros_cliente .= !empty($input['plaza_filtro']) ? ' AND pl.idPlaza='.$input['plaza_filtro'] : '';
 			$filtros_cliente .= !empty($input['cadena_filtro']) ? ' AND cad.idCadena='.$input['cadena_filtro'] : '';
 			$filtros_cliente .= !empty($input['banner_filtro']) ? ' AND ba.idBanner='.$input['banner_filtro'] : '';
@@ -393,8 +394,12 @@ class M_Fotos extends MY_Model
 					, r.idUsuario
 					, r.nombreUsuario usuario
 					, r.tipoUsuario
+					, uh.idUsuarioHist
 					, CONVERT(VARCHAR(8), v.horaIni) horaVisita
 				FROM {$this->sessBDCuenta}.trade.data_ruta r
+				JOIN trade.usuario_historico uh ON r.idUsuario = uh.idUsuario
+					AND uh.idProyecto = r.idProyecto
+					AND General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,r.fecha,r.fecha) = 1
 				JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta=r.idRuta
 				LEFT JOIN trade.canal ca ON ca.idCanal=v.idCanal
 				LEFT JOIN trade.grupoCanal gca ON ca.idGrupoCanal=gca.idGrupoCanal
@@ -422,6 +427,7 @@ class M_Fotos extends MY_Model
 					, lv.tipoUsuario
 					, mg.carpetaFoto
 					, m.nombre modulo
+					, lv.idUsuarioHist
 				FROM  list_visitas lv
 				JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisita = lv.idVisita
 				LEFT JOIN trade.aplicacion_modulo m ON m.idModulo = vf.idModulo
@@ -444,6 +450,7 @@ class M_Fotos extends MY_Model
 				,ubi01.departamento
 				,ubi01.provincia
 				,ubi01.distrito
+				,ch.idZona
 				{$segmentacion['columnas_bd']}
 			FROM trade.cliente cli
 			JOIN {$cliente_historico} ch ON cli.idCliente = ch.idCliente
@@ -489,6 +496,11 @@ class M_Fotos extends MY_Model
 			LEFT JOIN trade.proyectoGrupoCanal pgc ON pgc.idGrupoCanal = gca.idGrupoCanal AND pgc.idProyecto = {$this->sessIdProyecto}
 			LEFT JOIN trade.proyecto py ON py.idProyecto = v.idProyecto
 			LEFT JOIN trade.cuenta c ON c.idCuenta = py.idCuenta
+			LEFT JOIN trade.usuario_historicoZona uhz ON v.idUsuarioHist = uhz.idUsuarioHist
+				AND uhz.estado = 1
+
+			WHERE 1=1
+			{$filtros_generales}
 			ORDER BY canal,departamento, provincia, distrito, razonSocial, fecha, tipoFoto DESC;
 		";
 
