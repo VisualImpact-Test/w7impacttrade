@@ -281,6 +281,7 @@ class M_encuestas extends My_Model
 					'foto' => isset($value['chkFoto'])? 'true' : 'false',
 					'obligatorio'=>isset($value['chkObligatorio'])? 'true' : 'false',
 					'flagFotoObligatorio'=>!empty($value['chkFotoObligatorio'])? true : false,
+					'flagComentario'=>!empty($value['chkComentario']) && $value['tipoPregunta'] == "4" ?  true : false,
 				];
 				if(!empty($fotos[$key])){
 
@@ -319,8 +320,8 @@ class M_encuestas extends My_Model
 					'nombre'=>$value['textoAlternativa'],
 					'estado'=>$value['estadoAlternativa'],
 					'foto'=>isset($value['chkFoto'])? 'true' : 'false',
-					'flagFotoObligatorio'=>!empty($value['chkFotoObligatorio'])? true : false
-
+					'flagFotoObligatorio'=>!empty($value['chkFotoObligatorio'])? true : false,
+					'flagComentario'=>!empty($value['chkComentario'])  ?  true : false,
 
 				];
 			}
@@ -342,7 +343,9 @@ class M_encuestas extends My_Model
 					'nombre'=>$value['textoAlternativa'],
 					'estado'=>$value['estadoAlternativa'],
 					'foto'=>isset($value['chkFoto'])? 'true' : 'false',
-					'flagFotoObligatorio'=>!empty($value['chkFotoObligatorio'])? true : false
+					'flagFotoObligatorio'=>!empty($value['chkFotoObligatorio'])? true : false,
+					'flagComentario'=>!empty($value['chkComentario'])  ?  true : false,
+
 					
 				];
 			}
@@ -1044,6 +1047,7 @@ class M_encuestas extends My_Model
 			'idEncuesta' => trim($post['idEncuesta']),
 			'nombre' => trim($post['nombre']),
 			'idTipoPregunta' => trim($post['idTipoPregunta']),
+			'flagComentario' => $post['flagComentario'],
 			'orden' => trim($post['orden']),
 			'obligatorio' => trim($post['obligatorio']),
 			'fechaCreacion' => getActualDateTime()
@@ -1059,7 +1063,8 @@ class M_encuestas extends My_Model
 	{
 		$insert = [
 			'idPregunta' => trim($post['idPregunta']),
-			'nombre' => trim($post['nombre']) 
+			'nombre' => trim($post['nombre']),
+			'flagComentario' => $post['flagComentario'] 
 		];
 		$insert = $this->db->insert($this->tablas['alternativa']['tabla'], $insert);
 		$this->insertId = $this->db->insert_id();
@@ -1116,6 +1121,7 @@ class M_encuestas extends My_Model
 					'nombre'=>$value['textoAlternativaOpcion'],
 					'estado'=>$value['estadoAlternativaOpcion'],
 					'orden'=>$value['txtOrden'],
+					'flagComentario'=>!empty($value['chkComentario']) ? true : false,
 					
 				];
 			}
@@ -1136,7 +1142,7 @@ class M_encuestas extends My_Model
 					'nombre'=>$value['textoAlternativaOpcion'],
 					'estado'=>$value['estadoAlternativaOpcion'],
 					'orden'=>$value['txtOrden'],
-
+					'flagComentario'=>!empty($value['chkComentario']) ? true : false,
 				];
 			}
 		}
@@ -1155,6 +1161,31 @@ class M_encuestas extends My_Model
 
 		$this->aSessTrack[] = [ 'idAccion' => 6, 'tabla' => $this->tablas['alternativaOpcion']['tabla'], 'id' => $this->insertId ];
 		return $insert;
+	}
+
+	public function getListaComentarios($input = []){
+
+		$filtros = 'WHERE 1 = 1';
+		$input['idProyecto'] = $this->sessIdProyecto;
+
+		!empty($input['id']) ? $filtros .= " AND ls.idPregunta = {$input['id']}" : ''; 
+		!empty($input['idEncuesta']) ? $filtros .= " AND ls.idEncuesta = {$input['idEncuesta']}" : ''; 
+		!empty($input['idProyecto']) ? $filtros .= " AND ls.idProyecto = {$input['idProyecto']}" : ''; 
+		$sql = "
+		SELECT  
+		ls.idProyecto,
+		ls.idEncuesta,
+		ls.idPregunta,
+		op.nombre opcion,
+		lsd.comentario
+		FROM 
+		{$this->sessBDCuenta}.trade.list_comentario_opcion ls 
+		JOIN {$this->sessBDCuenta}.trade.list_comentario_opcion_det lsd ON ls.idListComentario = lsd.idListComentario
+		JOIN {$this->sessBDCuenta}.trade.encuesta_alternativa_opcion op ON op.idAlternativaOpcion = lsd.idOpcion
+		{$filtros}
+		";
+
+		return $this->db->query($sql);
 	}
 
 }

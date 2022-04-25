@@ -23,22 +23,25 @@ class M_iniciativas extends MY_Model{
 	public function obtener_iniciativas($input = []){
 
 		$filtros = "";
-		$filtros .= !empty($input['cuenta']) ? ' AND r.idCuenta='.$input['cuenta'] : '';
-		$filtros .= !empty($input['proyecto']) ? ' AND r.idProyecto='.$input['proyecto'] : '';
-		$filtros .= !empty($input['grupoCanal']) ? ' AND ca.idGrupoCanal='.$input['grupoCanal'] : '';
-		$filtros .= !empty($input['canal']) ? ' AND v.idCanal='.$input['canal'] : '';
-		$filtros .= !empty($input['subcanal']) ? ' AND ct.idClienteTipo ='.$input['subcanal'] : '';
-
-		$filtros .= !empty($input['tipoUsuario']) ? " AND uh.idTipoUsuario=".$input['tipoUsuario'] : "";
-		$filtros .= !empty($input['usuario']) ? " AND uh.idUsuario=".$input['usuario'] : "";
-
-		$filtros .= !empty($input['distribuidoraSucursal']) ? ' AND ds.idDistribuidoraSucursal IN ('.$input['distribuidoraSucursal'].')' : '';
-		$filtros .= !empty($input['distribuidora']) ? ' AND d.idDistribuidora='.$input['distribuidora'] : '';
-		$filtros .= !empty($input['zona']) ? ' AND z.idZona='.$input['zona'] : '';
-		$filtros .= !empty($input['plaza']) ? ' AND pl.idPlaza='.$input['plaza'] : '';
-		$filtros .= !empty($input['cadena']) ? ' AND cad.idCadena='.$input['cadena'] : '';
-		$filtros .= !empty($input['banner']) ? ' AND ba.idBanner='.$input['banner'] : '';
-		$filtros .= !empty($input['usuario']) ? ' AND r.idUsuario='.$input['usuario'] : '';
+		$filtros_visita = "";
+		$filtros_cliente = "";
+		$filtros_visita .= !empty($input['cuenta']) ? ' AND r.idCuenta='.$this->sessIdCuenta : '';
+		$filtros_visita .= !empty($input['proyecto']) ? ' AND r.idProyecto='.$this->sessIdProyecto : '';
+		$filtros_visita .= !empty($input['grupoCanal']) ? ' AND ca.idGrupoCanal='.$input['grupoCanal'] : '';
+		$filtros_visita .= !empty($input['canal']) ? ' AND v.idCanal='.$input['canal'] : '';
+		$filtros_cliente .= !empty($input['subcanal']) ? ' AND ct.idClienteTipo ='.$input['subcanal'] : '';
+		
+		$filtros_visita .= !empty($input['tipoUsuario']) ? " AND uh.idTipoUsuario=".$input['tipoUsuario'] : "";
+		$filtros_visita .= !empty($input['usuario']) ? " AND uh.idUsuario=".$input['usuario'] : "";
+		
+		$filtros_cliente .= !empty($input['proyecto']) ? ' AND ch.idProyecto='.$this->sessIdProyecto : '';
+		$filtros_cliente .= !empty($input['distribuidoraSucursal']) ? ' AND ds.idDistribuidoraSucursal IN ('.$input['distribuidoraSucursal'].')' : '';
+		$filtros_cliente .= !empty($input['distribuidora']) ? ' AND d.idDistribuidora='.$input['distribuidora'] : '';
+		$filtros_cliente .= !empty($input['zona']) ? ' AND z.idZona='.$input['zona'] : '';
+		$filtros_cliente .= !empty($input['plaza']) ? ' AND pl.idPlaza='.$input['plaza'] : '';
+		$filtros_cliente .= !empty($input['cadena']) ? ' AND cad.idCadena='.$input['cadena'] : '';
+		$filtros_cliente .= !empty($input['banner']) ? ' AND ba.idBanner='.$input['banner'] : '';
+		$filtros_visita .= !empty($input['usuario']) ? ' AND r.idUsuario='.$input['usuario'] : '';
 
 		$filtros .= !empty($input['externo']) ? ' AND id.validacion_analista = 1' : '';
 
@@ -74,89 +77,118 @@ class M_iniciativas extends MY_Model{
 
 		$filtros .= !empty($input['elementos']) ? ' AND id.idElementoIniciativa IN ('.$input['elementos'].')' : '';
 		$filtros .= !empty($input['iniciativas']) ? ' AND id.idIniciativa IN ('.$input['iniciativas'].')' : '';
-		$filtros .= !empty($input['idDistribuidoraSucursal']) ? ' AND sct.idDistribuidoraSucursal IN ('.$input['idDistribuidoraSucursal'].')' : '';
+		
+		$filtros .= !empty($input['idIniciativaDet']) ? ' AND id.idVisitaIniciativaTradDet IN ('.$input['idIniciativaDet'].')' : '';
 
 		$segmentacion = getSegmentacion(['grupoCanal_filtro'=>$input['grupoCanal']]);
 
-		$sql = "
-			DECLARE
-				@fecIni DATE = '".$input['fecIni']."'
-				, @fecFin DATE = '".$input['fecFin']."'
-			SELECT TOP 10
-				  gc.idGrupoCanal
-				, gc.nombre grupoCanal
+		$sql2 = "
+		DECLARE
+			@fecIni DATE = '".$input['fecIni']."'
+			, @fecFin DATE = '".$input['fecFin']."';
+		WITH list_visitas AS (
+			SELECT
+				r.idRuta
+				, r.fecha
+				, r.idProyecto
+				, gca.idGrupoCanal
+				, gca.nombre AS grupoCanal
 				, ca.idCanal
-				, ca.nombre canal
+				, ca.nombre AS canal
 				, v.idCliente
-				, v.razonSocial
+				, v.idVisita
 				, r.idUsuario
 				, r.nombreUsuario
 				, r.tipoUsuario
-				, CONVERT(varchar,r.fecha,103) fecha
-				, CONVERT(varchar,i.hora,108) hora
-				, it.idIniciativa
+				, uh.idUsuarioHist
+				, CONVERT(VARCHAR(8), v.horaIni) horaVisita
+			FROM ImpactTrade_pg.trade.data_ruta r
+			JOIN trade.usuario_historico uh ON r.idUsuario = uh.idUsuario
+				AND uh.idProyecto = r.idProyecto
+				AND General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,r.fecha,r.fecha) = 1
+			JOIN ImpactTrade_pg.trade.data_visita v ON v.idRuta=r.idRuta
+			LEFT JOIN trade.canal ca ON ca.idCanal=v.idCanal
+			LEFT JOIN trade.grupoCanal gca ON ca.idGrupoCanal=gca.idGrupoCanal
+			WHERE 1 = 1
+			AND r.estado = 1 AND v.estado = 1
+			{$filtro_demo}
+			AND r.fecha BETWEEN @fecIni AND @fecFin
+			{$filtros_visita}
+		), list_visitasIniciativas AS (
+			SELECT
+				it.idIniciativa
+				, id.validacion_ejecutivo
+				, id.validacion_analista
+				, id.editado
+				, id.idVisitaIniciativaTradDet
 				, it.nombre iniciativa
 				, ei.idElementoVis idElementoIniciativa
 				, ei.nombre elementoIniciativa
 				, eit.idEstadoIniciativa
 				, eit.nombre estadoIniciativa
+				, ISNULL(vf.fotoURL,'') foto
+				, lv.idCliente
 				, ISNULL(id.presencia,0) presencia
 				, ISNULL(id.cantidad,0) cantidad
-				, ISNULL(vf.fotoURL,'') foto
-				, id.validacion_ejecutivo
-				, id.validacion_analista
-				, id.editado
-				, id.idVisitaIniciativaTradDet
-				, ISNULL(id.producto, 0) AS cuentaConProducto
-				, c.codDist
-				, c.codCliente
-				, ct.nombre subCanal
-				{$segmentacion['columnas_bd']}
-
-			FROM 
-				{$this->sessBDCuenta}.trade.data_visitaIniciativaTrad i
-				JOIN {$this->sessBDCuenta}.trade.data_visitaIniciativaTradDet id
-					ON id.idVisitaIniciativaTrad = i.idVisitaIniciativaTrad
-				JOIN {$this->sessBDCuenta}.trade.data_visita v
-					ON v.idVisita = i.idVisita
-				JOIN {$this->sessBDCuenta}.trade.data_ruta r
-					ON r.idRuta = v.idRuta
-				JOIN trade.usuario_historico uh On uh.idUsuario=r.idUsuario
-					AND General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,@fecIni,@fecFin)=1
-					AND uh.idProyecto=r.idProyecto
-
-				JOIN trade.cliente c 
-					ON c.idCliente = v.idCliente
-				LEFT JOIN ".getClienteHistoricoCuenta()." ch
-					ON ch.idCliente = v.idCliente
-					AND General.dbo.fn_fechavigente(ch.fecIni,ch.fecFin,@fecIni,@fecFin)=1
-					AND ch.idProyecto={$idProyecto}
-				LEFT JOIN trade.segmentacionNegocio sn
-					ON sn.idSegNegocio = ch.idSegNegocio
-				LEFT JOIN trade.cliente_tipo ct
-					ON ct.idClienteTipo = sn.idClienteTipo
-				JOIN trade.canal ca
-					ON ca.idCanal = v.idCanal
-				LEFT JOIN trade.grupoCanal gc
-					ON gc.idGrupoCanal = ca.idGrupoCanal
-				LEFT JOIN trade.subCanal subca 
-					ON subca.idSubCanal = sn.idSubcanal
-				JOIN {$this->sessBDCuenta}.trade.iniciativaTrad it
-					ON it.idIniciativa = id.idIniciativa
-				JOIN trade.elementoVisibilidadTrad ei
-					ON ei.idElementoVis=id.idElementoIniciativa
-				LEFT JOIN trade.estadoIniciativaTrad eit
-					ON eit.idEstadoIniciativa=id.idEstadoIniciativa
-				LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf
-					ON vf.idVisitaFoto = id.idVisitaFoto
-				{$segmentacion['join']}
-
-			WHERE r.fecha BETWEEN @fecIni AND @fecFin
+				, lv.idRuta
+				, lv.fecha
+				, lv.idProyecto
+				, lv.idGrupoCanal
+				, lv.grupoCanal
+				, lv.idCanal
+				, lv.canal
+				, lv.idVisita
+				, lv.idUsuario
+				, lv.nombreUsuario
+				, lv.tipoUsuario
+				, lv.idUsuarioHist
+				, lv.horaVisita
+			FROM list_visitas lv
+			JOIN ImpactTrade_pg.trade.data_visitaIniciativaTrad i ON i.idVisita = lv.idVisita
+			JOIN ImpactTrade_pg.trade.data_visitaIniciativaTradDet id ON id.idVisitaIniciativaTrad = i.idVisitaIniciativaTrad
+			JOIN ImpactTrade_pg.trade.iniciativaTrad it ON it.idIniciativa = id.idIniciativa
+			JOIN trade.elementoVisibilidadTrad ei ON ei.idElementoVis=id.idElementoIniciativa
+			LEFT JOIN trade.estadoIniciativaTrad eit ON eit.idEstadoIniciativa=id.idEstadoIniciativa
+			LEFT JOIN ImpactTrade_pg.trade.data_visitaFotos vf ON vf.idVisitaFoto = id.idVisitaFoto
+			WHERE 1 = 1
 			{$filtros}
-			{$filtro_demo}
+		), lista_clientes AS (
+			SELECT
+				ch.idCliente
+				, ch.idSegClienteModerno
+				, ch.idSegClienteTradicional
+				, ch.codCliente
+				, cli.nombreComercial
+				, cli.razonSocial
+				, cli.direccion
+				,ct.idClienteTipo
+				,ISNULL(ct.nombre,'-') AS cliente_tipo
+				,ubi01.departamento
+				,ubi01.provincia
+				,ubi01.distrito
+				,ch.idZona
+				, d.nombre AS distribuidora
+				, ubi1.provincia AS ciudadDistribuidoraSuc
+				, ubi1.cod_ubigeo AS codUbigeoDisitrito
+				, ds.idDistribuidoraSucursal
+				, z.nombre AS zona
+				, ISNULL(d.nombre, '') + ' - '+ ISNULL(ubi1.provincia,'') distribuidoraSucursal
+			FROM trade.cliente cli
+			JOIN ImpactTrade_pg.trade.cliente_historico ch ON cli.idCliente = ch.idCliente
+			LEFT JOIN General.dbo.ubigeo ubi01 ON ch.cod_ubigeo = ubi01.cod_ubigeo
+			LEFT JOIN trade.segmentacionNegocio sn ON sn.idSegNegocio = ch.idSegNegocio
+			LEFT JOIN trade.cliente_tipo ct ON ct.idClienteTipo = sn.idClienteTipo
+			{$segmentacion['join']}
+			WHERE General.dbo.fn_fechaVigente(ch.fecIni, ch.fecFin, @fecIni, @fecFin) = 1
+			{$filtros_cliente}
+		)
+		SELECT
+		*
+		FROM list_visitasIniciativas lvi
+		LEFT JOIN lista_clientes lc ON lvi.idCliente = lc.idCliente
 		";
 
-		return $this->query($sql);
+		return $this->query($sql2);
 	}
 	
 	public function obtener_iniciativas_det($params = []){
@@ -204,11 +236,14 @@ class M_iniciativas extends MY_Model{
 	}
 	
 	
-	public function visitas_pdf($filtro,$fecIni,$fecFin){
+	public function visitas_pdf($input = []){
+		$filtros = '';
+		$filtros .= !empty($input['idIniciativaDet']) ? ' AND id.idVisitaIniciativaTradDet IN ('.$input['idIniciativaDet'].')' : ' AND id.idVisitaIniciativaTradDet = 0';
+
 		$sql = "
 			DECLARE
-				  @fecIni DATE = '".$fecIni."'
-				, @fecFin DATE = '".$fecFin."'
+				@fecIni DATE = '".$input['fecIni']."'
+				, @fecFin DATE = '".$input['fecFin']."';
 			SELECT
 				  gc.idGrupoCanal
 				, gc.nombre grupoCanal
@@ -277,7 +312,7 @@ class M_iniciativas extends MY_Model{
 					ON vf.idVisitaFoto = id.idVisitaFoto
 			WHERE 
 				1=1
-				$filtro
+				{$filtros}
 		";
 
 		return $this->query($sql);

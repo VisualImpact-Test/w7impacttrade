@@ -76,6 +76,101 @@ class M_basemadre extends My_Model{
 
 	public function obtener_maestros_basemadre($input=array()){
 		$filtros = "";
+
+			//$filtros .= !empty($input['proyecto_filtro']) ? " AND p.idProyecto=".$input['proyecto_filtro'] : "";
+			$filtros .= !empty($input['grupoCanal_filtro']) ? " AND gc.idGrupoCanal =".$input['grupoCanal_filtro'] : "";
+			$filtros .= !empty($input['canal_filtro']) ? " AND cn.idCanal=".$input['canal_filtro'] : "";
+			$filtros .= !empty($input['idCuenta']) ? " AND cu.idCuenta=".$input['idCuenta'] : "";
+			$filtros .= !empty($input['idProyecto']) ? " AND p.idProyecto=".$input['idProyecto'] : "";
+
+			// $filtros .= !empty($input['distribuidora_filtro']) ? ' AND d.idDistribuidora='.$input['distribuidora_filtro'] : '';
+			// $filtros .= !empty($input['distribuidoraSucursal_filtro']) ? ' AND ds.idDistribuidoraSucursal='.$input['distribuidoraSucursal_filtro'] : '';
+			// $filtros .= !empty($input['zona_filtro']) ? ' AND z.idZona='.$input['zona_filtro'] : '';
+			// $filtros .= !empty($input['plaza_filtro']) ? ' AND sct.idPlaza='.$input['plaza_filtro'] : '';
+			// $filtros .= !empty($input['cadena_filtro']) ? ' AND cd.idCadena='.$input['cadena_filtro'] : '';
+			// $filtros .= !empty($input['banner_filtro']) ? ' AND b.idBanner='.$input['banner_filtro'] : '';
+
+			//Ubigeo
+			$filtros .= !empty($input['departamento_filtro']) ? ' AND ubi.cod_departamento='.$input['departamento_filtro'] : '';
+			$filtros .= !empty($input['provincia_filtro']) ? ' AND ubi.cod_provincia='.$input['provincia_filtro'] : '';
+			$filtros .= !empty($input['distrito_filtro']) ? ' AND ubi.cod_ubigeo='.$input['distrito_filtro'] : '';
+
+			if(!empty($input['clientes'])){
+				
+				$array=array(); $clientes=array(); $i=0;
+				$array=explode("\r\n",($input['clientes']));
+				$fl="";
+				$array_res=array();
+				if(is_array($array)){
+					$fl=" AND ch.nombreComercial IN ('";
+
+					foreach($array as $row){
+						array_push($array_res,preg_replace("/\s+/u", " ", $row));
+					}
+					$string_=implode("','",$array_res);
+					$fl=$fl.$string_."')";
+				}else{
+					$cl=trim($input['clientes']);
+					$fl=" AND ch.nombreComercial IN ('". preg_replace("/\s+/u", " ", $cl) . "' )'";
+				}
+				$filtros .=$fl;
+			}
+			
+		$sql = "DECLARE @fecha DATE=GETDATE(), @fecIni DATE='".$input['fecIni']."', @fecFin DATE='".$input['fecFin']."';
+		------
+		SELECT 
+			--TOP 1000
+			ch.idClienteHist
+			, ch.idCliente
+			, ISNULL(ch.razonSocial, c.razonSocial) AS razonSocial
+			, ISNULL(ch.nombreComercial, c.nombreComercial) AS nombreComercial
+			, ISNULL(ch.direccion, c.direccion) AS direccion
+			, ISNULL(ch.codCliente, c.codCliente) AS codCliente
+			, ISNULL(c.dni, c.dni) AS dni
+			, ISNULL(c.ruc, c.ruc) AS ruc
+			, CONVERT(VARCHAR,ch.fecIni,103) AS fecIni
+			, CONVERT(VARCHAR,ch.fecFin,103) AS fecFin
+			, cu.nombre AS cuenta
+			, p.nombre AS proyecto
+			, sg.idCanal
+			, cn.nombre AS canal
+			, ubi.cod_ubigeo
+			, ubi.departamento
+			, ubi.provincia
+			, ubi.distrito
+			, ctp.nombre AS clienteTipo
+		FROM trade.cliente c 
+		JOIN ".getClienteHistoricoCuenta()." ch ON ch.idCliente=c.idCliente
+		LEFT JOIN trade.cuenta cu ON cu.idCuenta=ch.idCuenta
+		LEFT JOIN trade.proyecto p ON p.idProyecto=ch.idProyecto
+		LEFT JOIN trade.segmentacionNegocio sg ON sg.idSegNegocio=ch.idSegNegocio
+		LEFT JOIN trade.canal cn ON cn.idCanal=sg.idCanal
+		LEFT JOIN trade.grupoCanal gc ON gc.idGrupoCanal = cn.idGrupoCanal
+		LEFT JOIN trade.cliente_tipo ctp ON sg.idClienteTipo = ctp.idClienteTipo
+		LEFT JOIN General.dbo.ubigeo ubi ON ubi.cod_ubigeo=ch.cod_ubigeo
+		WHERE c.estado=1 
+		{$filtros}
+		--AND @fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin,@fecha)
+		AND (
+			ch.fecIni <= ISNULL( ch.fecFin, @fecFin)
+			AND (
+				ch.fecIni BETWEEN @fecIni AND @fecFin 
+				OR
+				ISNULL( ch.fecFin, @fecFin ) BETWEEN @fecIni AND @fecFin 
+				OR
+				@fecIni BETWEEN ch.fecIni AND ISNULL( ch.fecFin, @fecFin ) 
+				OR
+				@fecFin BETWEEN ch.fecIni AND ISNULL( ch.fecFin, @fecFin )
+			)
+		)
+		ORDER BY ch.idClienteHist DESC";
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.cliente' ];
+		return $this->db->query($sql)->result_array();
+		
+	}
+
+	public function obtener_historicos_basemadre($input=array()){
+		$filtros = "";
 			//$filtros .= !empty($input['proyecto_filtro']) ? " AND p.idProyecto=".$input['proyecto_filtro'] : "";
 			$filtros .= !empty($input['grupoCanal_filtro']) ? " AND gc.idGrupoCanal =".$input['grupoCanal_filtro'] : "";
 			$filtros .= !empty($input['canal_filtro']) ? " AND cn.idCanal=".$input['canal_filtro'] : "";
@@ -138,6 +233,7 @@ class M_basemadre extends My_Model{
 			, ubi.provincia
 			, ubi.distrito
 			, ctp.nombre AS clienteTipo
+			, case when( @fecha between ch.fecIni and isnull(ch.fecFin,@fecha) ) THEN 1 ELSE 0 END activoActualmente
 		FROM trade.cliente c 
 		JOIN ".getClienteHistoricoCuenta()." ch ON ch.idCliente=c.idCliente
 		LEFT JOIN trade.cuenta cu ON cu.idCuenta=ch.idCuenta
@@ -149,20 +245,9 @@ class M_basemadre extends My_Model{
 		LEFT JOIN General.dbo.ubigeo ubi ON ubi.cod_ubigeo=ch.cod_ubigeo
 		WHERE c.estado=1 
 		{$filtros}
-		--AND @fecha BETWEEN ch.fecIni AND ISNULL(ch.fecFin,@fecha)
-		AND (
-			ch.fecIni <= ISNULL( ch.fecFin, @fecFin)
-			AND (
-				ch.fecIni BETWEEN @fecIni AND @fecFin 
-				OR
-				ISNULL( ch.fecFin, @fecFin ) BETWEEN @fecIni AND @fecFin 
-				OR
-				@fecIni BETWEEN ch.fecIni AND ISNULL( ch.fecFin, @fecFin ) 
-				OR
-				@fecFin BETWEEN ch.fecIni AND ISNULL( ch.fecFin, @fecFin )
-			)
-		)
-		ORDER BY ch.idClienteHist DESC";
+		
+		ORDER BY ch.idClienteHist DESC,ch.fecFin DESC";
+
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.cliente' ];
 		return $this->db->query($sql)->result_array();
 		
@@ -549,9 +634,10 @@ class M_basemadre extends My_Model{
 	}
 
 	public function obtener_segmentacion_negocio($input=array()){
-		$query = $this->db->select('idSegNegocio')
+		$query = $this->db->select('idSegNegocio,idCanal,idClienteTipo')
 				->where( $input )
 				->get('trade.segmentacionNegocio');
+		log_message('error',json_encode($query->result_array()));
 
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.segmentacionNegocio' ];
 		return $query->result_array();
@@ -934,6 +1020,25 @@ class M_basemadre extends My_Model{
 			WHERE 1=1 {$where}";
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.segmentacionClienteTradicional' ];
 		return $this->db->query($sql)->result_array();
+	}
+
+	public function obtener_id_plaza($plaza){
+		$sql = "
+		SELECT p.idPlaza, p.nombre AS plaza,0 as flagMayorista
+		FROM trade.plaza p WHERE p.estado=1
+		AND p.nombre LIKE '{$plaza}'
+
+		UNION 
+
+		SELECT
+		pl.idPlaza, pl.nombreMayorista AS plaza, pl.flagMayorista
+		FROM trade.plaza pl WHERE pl.estado=1 AND pl.flagMayorista=1
+		AND pl.nombreMayorista LIKE '{$plaza}'
+		"
+		;
+
+		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.plaza' ];
+		return $this->db->query($sql)->result_array();	
 	}
 
 	public function obtener_id_plaza_todo($plaza){
@@ -1517,11 +1622,14 @@ class M_basemadre extends My_Model{
 		$filtros = "";
 		$sql = "
 			DECLARE @fecIni DATE='".($input['fecIni'])."';
-			DECLARE @fecFin DATE=ISNULL(".$fecFin.",@fecIni);
-
 			SELECT idClienteHist,convert(varchar,fecIni,103) fecIni
 			FROM ".getClienteHistoricoCuenta()."
-			WHERE General.dbo.fn_fechaVigente(fecIni,fecFin,@fecIni,@fecFin)=1
+			WHERE 
+			(
+			@fecIni between fecIni and  ISNULL( fecFin, @fecIni ) 
+			OR
+			fecIni > @fecIni 
+			)
 			AND idProyecto IN (".$proyectos.")
 			AND idCliente=".$input['idCliente']."
 		";

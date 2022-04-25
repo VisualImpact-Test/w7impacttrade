@@ -144,7 +144,7 @@ var _aSelectAll = {
 				'canal',
 				'subCanal',
 				'encargado',
-				'colaborador'
+				'colaborador',
 			],
 		'canal': [
 				'subCanal',
@@ -175,7 +175,15 @@ var _aSelectAll = {
 			],
 		'provincia': [
 				'distrito',
-			]
+			],
+		'segFiltros':[
+			'zona',
+			'plaza',
+			'distribuidora',
+			'distribuidoraSucursal',
+			'cadena',
+			'banner',
+		]
 
 	};
 var _aSelectGrupoCanal = {
@@ -866,9 +874,12 @@ var View={
 			singleDatePicker: false,
 			showDropdowns: false,
 			autoApply: true,
-		});
 
-		
+		},
+			function(){
+				Fn.updateFiltrosSeg();
+			}
+		);
 		
 		$('.rango_fechas').daterangepicker({
 			locale: {
@@ -1173,7 +1184,15 @@ var View={
 				return false;
 			}
 
-			var data = { 'data': JSON.stringify({ 'idProyecto': idProyecto, 'idGrupoCanal': idGrupoCanal, 'combos': aCombosExist }) };
+ 
+			var data = { 'data': JSON.stringify(
+				{ 
+					'idProyecto': idProyecto, 
+					'idGrupoCanal': idGrupoCanal, 
+					'combos': aCombosExist,
+					
+
+				}) };
 			var url = 'control/get_combos';
 
 			$.when( Fn.ajax_filtros({ 'data': data, 'url': url, 'control': control }) ).then(function(a){
@@ -1490,6 +1509,7 @@ var View={
 			if( idProyecto == 0 || idEncargado == 0 ){
 				return false;
 			}
+			let fechaFiltro = ($('#txt-fechas').length >= 1) ? $('#txt-fechas').val() : `${$('input.fechaHome').val()} - ${$('input.fechaHome').val()}`;  
 
 			var filtros = {
 					'idProyecto': idProyecto,
@@ -1503,7 +1523,8 @@ var View={
 					'idCadena': $('.flt_cadena').val() ? $('.flt_cadena').val() : 0,
 					'idBanner': $('.flt_banner').val() ? $('.flt_banner').val() : 0,
 					'idEncargado': idEncargado,
-					'combos': aCombosExist
+					'combos': aCombosExist,
+					'fechas': fechaFiltro
 				}
 
 			var data = { 'data': JSON.stringify(filtros) };
@@ -1957,6 +1978,8 @@ var View={
 		if( $(".table").height() >= 500 ){ $(".table-content").css("overflow-y","scroll");}
 		$("#lb-num-rows").html( 'Resultados: ' + $('.table >tbody >tr').length);
 	},
+
+
 
 
 

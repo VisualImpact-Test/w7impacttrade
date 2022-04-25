@@ -29,7 +29,8 @@ class ControlFoto extends MY_Controller{
         if($pos === false ) define('RUTA_MOVIL_FOTOS','http://movil.visualimpact.com.pe/fotos/impactTrade_android/');
         else define('RUTA_MOVIL_FOTOS','https://s3.us-west-1.wasabisys.com/visualimpact.app/fotos/impactTrade_Android/');
         $ruta = RUTA_MOVIL_FOTOS;
-        readfile(RUTA_MOVIL_FOTOS.$carpeta.'/'.$foto.'');
+        
+        return readfile(RUTA_MOVIL_FOTOS.$carpeta.'/'.$foto.'');
         
     }
 	public function obtener_carpeta_imagen($carpeta,$foto){

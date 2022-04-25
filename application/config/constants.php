@@ -90,6 +90,7 @@ defined('ID_TIPOUSUARIO_TI')   OR define('ID_TIPOUSUARIO_TI',4);
 defined('PROYECTO_MODERNO_PG') OR define('PROYECTO_MODERNO_PG',17);
 defined('PROYECTO_PROMOTORIA_AJE') OR define('PROYECTO_PROMOTORIA_AJE',19);
 defined('COD_CUENTA_AJE')          OR define('COD_CUENTA_AJE',2);
+defined('ERRORSASO')          OR define('ERRORSASO','');
 
 // defined('RUTA_MOVIL_FOTOS')    OR define('RUTA_MOVIL_FOTOS','http://movil.visualimpact.com.pe/fotos/impactTrade_android/',true);
 // defined('RUTA_MOVIL_IMAGENES') OR define('RUTA_MOVIL_IMAGENES','http://movil.visualimpact.com.pe/archivos/');

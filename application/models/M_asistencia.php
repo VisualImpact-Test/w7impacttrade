@@ -237,7 +237,7 @@ class M_asistencia extends MY_Model{
 			
 
 			LEFT JOIN rrhh.asistencia.asistencia at ON e.idEmpleado=at.idEmpleado and at.fechaIngreso=t.fecha
-			LEFT JOIN general.dbo.ubigeo ub ON ub.cod_ubigeo = uh.cod_ubigeo
+			LEFT JOIN general.dbo.ubigeo ub ON ub.cod_ubigeo = e.idDireccionUbigeoLaboral
 			LEFT JOIN rrhh.dbo.Ocurrencias o ON o.idEmpleado = e.idEmpleado
 				AND t.fecha BETWEEN o.fecInicio AND ISNULL( o.fecTermino, t.fecha)
 			LEFT JOIN rrhh.dbo.TipoOcurrencia toc ON toc.idTipoOcurrencia = o.idTipoOcurrencia
@@ -260,7 +260,7 @@ class M_asistencia extends MY_Model{
 			LEFT JOIN trade.banner b ON b.idBanner = uhb.idBanner AND b.estado = 1
 		WHERE
 			uh.idAplicacion IN (1, 4, 8)
-			-- AND u.demo = 0
+			AND u.demo = 0
 			$filtros
 			
 		ORDER BY cuenta, proyecto, grupoCanal, canal, departamento, provincia, distrito, usuario, fecha ASC";

@@ -1062,3 +1062,31 @@ table.dataTable tbody td.select-checkbox:before{
 .has-error input, .has-error select, .has-error span span span.select2-selection{
   border-color: #eb211d;
 }
+
+.cabeceraPrincipal {
+  background-color: grey;
+  color: white;
+}
+
+.cabeceraSecundaria {
+  background-color: indianred;
+  color: white;
+}
+
+.celdaConError {
+  background-color: #FFC7CE !important;
+  color: #eb211d !important;
+}
+
+.celdaCorrecta {
+  background-color: #C6E0B4 !important;
+}
+
+.celdaConAdvertencia {
+  background-color: #FFEB9C !important;
+  color: #9C5700 !important;
+}
+
+.celdaVacia {
+  background-color: #FFF2CC;
+}

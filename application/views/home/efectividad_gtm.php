@@ -7,6 +7,10 @@
 				<th class="text-center" style="width:15%"><?=$this->sessIdProyecto == PROYECTO_PROMOTORIA_AJE ? "VISITADO" : "EFECTIVO" ?></th>
 				<th class="text-center noVis" style="width:15%"><?=$this->sessIdProyecto == PROYECTO_PROMOTORIA_AJE ? "% VISITA" : "EFECTIVIDAD" ?></th>
 
+				<?if( $this->sessIdProyecto != PROYECTO_PROMOTORIA_AJE ){?>
+					<th class="text-center" style="width:15%">INCIDENCIAS</th>
+				<?}?>
+
 				<?if($this->sessIdProyecto == PROYECTO_PROMOTORIA_AJE){?>
 					<th class="text-center" style="width:15%">COMPRA B2B</th>
 					<th class="text-center" style="width:15%">% EFECTIVIDAD B2B</th>

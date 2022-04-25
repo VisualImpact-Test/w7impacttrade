@@ -93,7 +93,7 @@ class M_rutas extends MY_Model{
 				WHERE General.dbo.fn_fechaVigente (uh.fecIni,uh.fecFin,@hoy,@hoy) = 1 AND uh.idAplicacion != 2 AND uh.idProyecto = {$sessIdProyecto}
 			)
 			, list_visitas as(
-			SELECT 
+			SELECT DISTINCT
 				CONVERT(VARCHAR(10),r.fecha,103) fecha
 				, CASE WHEN lua.idUsuario IS NULL THEN 1 ELSE 0 END cesado
 				, r.idUsuario cod_usuario
@@ -308,8 +308,8 @@ class M_rutas extends MY_Model{
 				dvm.nombreTipoFoto
 				, CONVERT(VARCHAR(8),vf.hora) AS hora
 				, vf.fotoUrl AS foto 
-			FROM {$this->sessBDCuenta}.trade.data_visitaModuloFotos dvm 
-			JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisitaFoto=dvm.idVisitaFoto
+			FROM {$this->sessBDCuenta}.trade.data_visitaFotos vf 
+			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaModuloFotos dvm  ON vf.idVisitaFoto=dvm.idVisitaFoto
 			WHERE vf.idVisita={$idVisita} 
 		";
 		return $this->db->query($sql)->result_array();
@@ -375,15 +375,16 @@ class M_rutas extends MY_Model{
 	}
 
 	public function detalle_checkproducto($idVisita, $idGrupoCanal = ''){
-		$columnas_adicionales = getColumnasAdicionales(['idModulo' => 3, 'shortag' => 'dvpd', 'idGrupoCanal' => $idGrupoCanal])['columnas_adicionales'];
+		$columnas_adicionales = getColumnasAdicionales(['idModulo' => 3, 'shortag' => 'lp', 'idGrupoCanal' => $idGrupoCanal])['columnas_adicionales'];
 		
 		if($columnas_adicionales!=null){
 			if (strpos($columnas_adicionales, 'fechaVencido') !== false) {
-				$columnas_adicionales=$columnas_adicionales.",dvpd.cantidadVencida";
+				$columnas_adicionales=$columnas_adicionales.",lp.cantidadVencida";
 			}
 		}
 
 		$sql = "
+		WITH listaProductos AS (
 			SELECT 
 				 dvpd.idVisitaProductosDet
 				,dvp.idVisita
@@ -401,7 +402,9 @@ class M_rutas extends MY_Model{
 				,vf.idVisitaFoto
 				,vf.fotoUrl AS foto
 				,p.flagCompetencia
-				{$columnas_adicionales}
+				,dvpd.fechaVencido
+				,dvpd.precioOferta
+				,dvpd.cantidadVencida
 			FROM {$this->sessBDCuenta}.trade.data_visitaProductosDet dvpd
 			JOIN {$this->sessBDCuenta}.trade.data_visitaProductos dvp ON dvpd.idVisitaProductos= dvp.idVisitaProductos
 			JOIN trade.producto p ON p.idProducto = dvpd.idProducto
@@ -409,8 +412,27 @@ class M_rutas extends MY_Model{
 			LEFT JOIN trade.unidadMedida und ON dvpd.idUnidadMedida = und.idUnidadMedida
 			LEFT JOIN trade.motivo mv ON dvpd.idMotivo = mv.idMotivo
 			WHERE dvp.idVisita = {$idVisita}
-			ORDER BY producto ASC
-		";	
+		)
+		SELECT
+			lp.idVisitaProductosDet
+			,lp.idVisita
+			,lp.idVisitaProductos
+			,lp.idProducto
+			,lp.producto
+			,lp.presencia
+			,lp.quiebre
+			,lp.stock
+			,lp.precio
+			,lp.idUnidadMedida
+			,lp.unidadMedida
+			,lp.idMotivo
+			,lp.idVisitaFoto
+			,lp.foto
+			,lp.flagCompetencia
+			{$columnas_adicionales}
+		FROM listaProductos AS lp
+		ORDER BY producto ASC
+		";
 
 		return $this->db->query($sql)->result_array();
 	}

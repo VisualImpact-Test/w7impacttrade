@@ -106,9 +106,31 @@ class M_control extends MY_Model{
 
 			!empty($zonas) ? $filtro .= " AND z.idZona IN({$zonas})" : '' ;
 
+			$cliente_historico = getClienteHistoricoCuenta();
+
+			if(!empty($input['fechas'])){
+				$fechas = explode(' - ', $input['fechas']);
+				$fecIni = "'{$fechas[0]}'";
+				$fecFin = "'{$fechas[1]}'";
+			}
+	
+			if(empty($input['fechas'])){
+				$fecIni = "GETDATE()";
+				$fecFin = "GETDATE()";
+			}
 
 
-		$sql = "SELECT DISTINCT z.idZona AS id, z.nombre FROM trade.zona z WHERE estado = 1{$filtro} ORDER BY z.nombre";
+		$sql = "
+		DECLARE @fecIni DATE={$fecIni}, @fecFin DATE={$fecFin};
+		SELECT DISTINCT 
+		z.idZona AS id, 
+		z.nombre
+		FROM trade.zona z
+		JOIN {$cliente_historico} ch ON ch.idZona = z.idZona
+			AND General.dbo.fn_fechaVigente(ch.fecIni,ch.fecFin,@fecIni,@fecFin) = 1
+			AND ch.idProyecto = {$idProyecto}
+		WHERE z.estado = 1{$filtro} 
+		ORDER BY z.nombre";
 		
 		return $this->db->query($sql)->result_array();
 	}
@@ -130,13 +152,28 @@ class M_control extends MY_Model{
 			
 
 			$cliente_historico = getClienteHistoricoCuenta();
+
+			if(!empty($input['fechas'])){
+				$fechas = explode(' - ', $input['fechas']);
+				$fecIni = "'{$fechas[0]}'";
+				$fecFin = "'{$fechas[1]}'";
+			}
+	
+			if(empty($input['fechas'])){
+				$fecIni = "GETDATE()";
+				$fecFin = "GETDATE()";
+			}
+
 		$sql = "
+		DECLARE @fecIni DATE={$fecIni}, @fecFin DATE={$fecFin};
 		SELECT DISTINCT
 		pl.idPlaza AS id
 		, pl.nombre FROM 
 		trade.plaza pl
 		JOIN trade.segmentacionClienteTradicional sct ON sct.idPlaza = pl.idPlaza
 		JOIN {$cliente_historico} ch ON ch.idSegClienteTradicional = sct.idSegClienteTradicional
+			AND General.dbo.fn_fechaVigente(ch.fecIni,ch.fecFin,@fecIni,@fecFin) = 1
+			AND ch.idProyecto = {$idProyecto}
 		WHERE pl.estado = 1 AND pl.flagMayorista = 1{$filtro} ORDER BY pl.nombre";
 		return $this->db->query($sql)->result_array();
 	}
@@ -246,7 +283,21 @@ class M_control extends MY_Model{
 
 			$cliente_historico = getClienteHistoricoCuenta();
 
+
+
+		if(!empty($input['fechas'])){
+			$fechas = explode(' - ', $input['fechas']);
+			$fecIni = "'{$fechas[0]}'";
+			$fecFin = "'{$fechas[1]}'";
+		}
+
+		if(empty($input['fechas'])){
+			$fecIni = "GETDATE()";
+			$fecFin = "GETDATE()";
+		}
+
 		$sql = "
+		DECLARE @fecIni DATE={$fecIni}, @fecFin DATE={$fecFin};
 		SELECT DISTINCT
 		d.idDistribuidora AS id
 		, d.nombre 
@@ -254,6 +305,8 @@ class M_control extends MY_Model{
 		JOIN trade.distribuidoraSucursal ds ON ds.idDistribuidora = d.idDistribuidora
 		JOIN trade.segmentacionClienteTradicionalDet sctd ON sctd.idDistribuidoraSucursal = ds.idDistribuidoraSucursal
 		JOIN {$cliente_historico} ch ON ch.idSegClienteTradicional = sctd.idSegClienteTradicional
+			AND General.dbo.fn_fechaVigente(ch.fecIni,ch.fecFin,@fecIni,@fecFin) = 1
+			AND ch.idProyecto = {$idProyecto}
 		WHERE d.estado = 1{$filtro} ORDER BY d.nombre";
 		return $this->db->query($sql)->result_array();
 	}
@@ -275,14 +328,30 @@ class M_control extends MY_Model{
 			}
 
 			!empty($sucursales) ? $filtro .= " AND ds.idDistribuidoraSucursal IN({$sucursales})" : '' ;
+			$cliente_historico = getClienteHistoricoCuenta();
+			
+		if(!empty($input['fechas'])){
+			$fechas = explode(' - ', $input['fechas']);
+			$fecIni = "'{$fechas[0]}'";
+			$fecFin = "'{$fechas[1]}'";
+		}
 
+		if(empty($input['fechas'])){
+			$fecIni = "GETDATE()";
+			$fecFin = "GETDATE()";
+		}
 
 		$sql = "
+			DECLARE @fecIni DATE={$fecIni}, @fecFin DATE={$fecFin};
 			SELECT DISTINCT
 				ds.idDistribuidoraSucursal AS id,
 				ubi.provincia +' - '+ ubi.distrito AS nombre
 			FROM trade.distribuidoraSucursal ds
 			JOIN General.dbo.ubigeo ubi ON ds.cod_ubigeo = ubi.cod_ubigeo
+			JOIN trade.segmentacionClienteTradicionalDet sctd ON sctd.idDistribuidoraSucursal = ds.idDistribuidoraSucursal
+			JOIN {$cliente_historico} ch ON ch.idSegClienteTradicional = sctd.idSegClienteTradicional
+				AND General.dbo.fn_fechaVigente(ch.fecIni,ch.fecFin,@fecIni,@fecFin) = 1
+				AND ch.idProyecto = {$idProyecto}
 			WHERE ds.estado = 1{$filtro}
 			ORDER BY nombre;
 		";
@@ -303,14 +372,29 @@ class M_control extends MY_Model{
 		}
 		!empty($banners) ? $filtro .= " AND b.idBanner IN({$banners})" : '' ;
 
-		$cliente_historico = getClienteHistoricoCuenta();			
-		$sql = "SELECT DISTINCT
+		$cliente_historico = getClienteHistoricoCuenta();
+		if(!empty($input['fechas'])){
+			$fechas = explode(' - ', $input['fechas']);
+			$fecIni = "'{$fechas[0]}'";
+			$fecFin = "'{$fechas[1]}'";
+		}
+
+		if(empty($input['fechas'])){
+			$fecIni = "GETDATE()";
+			$fecFin = "GETDATE()";
+		}
+
+		$sql = "
+			DECLARE @fecIni DATE={$fecIni}, @fecFin DATE={$fecFin};
+				SELECT DISTINCT
 				cd.idCadena AS id, 
 				cd.nombre 
 				FROM trade.cadena cd 
 				JOIN trade.banner b ON b.idCadena = cd.idCadena
 				JOIN trade.segmentacionClienteModerno segmod ON segmod.idBanner = b.idBanner
 				JOIN {$cliente_historico} ch ON segmod.idSegClienteModerno = ch.idSegClienteModerno
+					AND General.dbo.fn_fechaVigente(ch.fecIni,ch.fecFin,@fecIni,@fecFin) = 1
+					AND ch.idProyecto = {$idProyecto}
 				WHERE cd.estado = 1{$filtro} 
 				ORDER BY cd.nombre";
 		return $this->db->query($sql)->result_array();
@@ -334,8 +418,31 @@ class M_control extends MY_Model{
 
 			!empty($banners) ? $filtro .= " AND bn.idBanner IN({$banners})" : '' ;
 
+			$cliente_historico = getClienteHistoricoCuenta();
+			if(!empty($input['fechas'])){
+				$fechas = explode(' - ', $input['fechas']);
+				$fecIni = "'{$fechas[0]}'";
+				$fecFin = "'{$fechas[1]}'";
+			}
+	
+			if(empty($input['fechas'])){
+				$fecIni = "GETDATE()";
+				$fecFin = "GETDATE()";
+			}
 
-		$sql = "SELECT bn.idBanner AS id, bn.nombre FROM trade.banner bn WHERE bn.estado = 1{$filtro} ORDER BY bn.nombre";
+		$sql = "
+		DECLARE @fecIni DATE={$fecIni}, @fecFin DATE={$fecFin};
+		SELECT DISTINCT 
+		bn.idBanner AS id, 
+		bn.nombre 
+		FROM trade.banner bn 
+		JOIN trade.segmentacionClienteModerno segmod ON segmod.idBanner = bn.idBanner
+		JOIN {$cliente_historico} ch ON segmod.idSegClienteModerno = ch.idSegClienteModerno
+			AND General.dbo.fn_fechaVigente(ch.fecIni,ch.fecFin,@fecIni,@fecFin) = 1
+			AND ch.idProyecto = {$idProyecto}
+		WHERE bn.estado = 1
+		{$filtro} 
+		ORDER BY bn.nombre";
 		return $this->db->query($sql)->result_array();
 	}
 
@@ -909,6 +1016,7 @@ class M_control extends MY_Model{
 		$fecIni = $input['fecIni'];
 		$fecFin = $input['fecFin'];
 
+
 		$sql = "
 		DECLARE @fecIni date='".$fecIni."',@fecFin date='".$fecFin."';
 		SELECT DISTINCT
@@ -919,7 +1027,9 @@ class M_control extends MY_Model{
 		,ut.idTipoUsuario
 		,ut.nombre tipoUsuario
 		FROM trade.usuario u 
-		JOIN trade.usuario_historico uh ON uh.idUsuario = u.idUsuario AND uh.idTipoUsuario IN(2,11,17) AND General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,@fecIni,@fecFin)=1
+		JOIN trade.usuario_historico uh ON uh.idUsuario = u.idUsuario AND uh.idTipoUsuario IN(2,11,17) 
+			AND General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,@fecIni,@fecFin)=1
+			AND uh.idProyecto = {$this->sessIdProyecto}
 		JOIN trade.usuario_tipo ut ON ut.idTipoUsuario = uh.idTipoUsuario
 		JOIN trade.usuario_historicoDistribuidoraSucursal uhds ON uhds.idUsuarioHist = uh.idUsuarioHist AND uhds.estado = 1
 		";
@@ -940,7 +1050,9 @@ class M_control extends MY_Model{
 		,ut.idTipoUsuario
 		,ut.nombre tipoUsuario
 		FROM trade.usuario u 
-		JOIN trade.usuario_historico uh ON uh.idUsuario = u.idUsuario AND uh.idTipoUsuario IN(2,11,17) AND General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,@fecIni,@fecFin)=1
+		JOIN trade.usuario_historico uh ON uh.idUsuario = u.idUsuario 
+			AND uh.idTipoUsuario IN(2,11,17) AND General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,@fecIni,@fecFin)=1
+			AND uh.idProyecto = {$this->sessIdProyecto}
 		JOIN trade.usuario_tipo ut ON ut.idTipoUsuario = uh.idTipoUsuario
 		JOIN trade.usuario_historicoPlaza uhp ON uhp.idUsuarioHist = uh.idUsuarioHist
 		";
@@ -961,7 +1073,9 @@ class M_control extends MY_Model{
 		,ut.idTipoUsuario
 		,ut.nombre tipoUsuario
 		FROM trade.usuario u 
-		JOIN trade.usuario_historico uh ON uh.idUsuario = u.idUsuario AND uh.idTipoUsuario IN(2,11,17) AND General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,@fecIni,@fecFin)=1
+		JOIN trade.usuario_historico uh ON uh.idUsuario = u.idUsuario 
+			AND uh.idTipoUsuario IN(2,11,17) AND General.dbo.fn_fechaVigente(uh.fecIni,uh.fecFin,@fecIni,@fecFin)=1
+			AND uh.idProyecto = {$this->sessIdProyecto}
 		JOIN trade.usuario_tipo ut ON ut.idTipoUsuario = uh.idTipoUsuario
 		JOIN trade.usuario_historicoBanner uhb ON uhb.idUsuarioHist = uh.idUsuarioHist
 		";

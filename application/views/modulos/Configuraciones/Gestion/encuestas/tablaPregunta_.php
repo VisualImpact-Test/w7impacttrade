@@ -8,6 +8,7 @@ $select2 = "my_select2EditarPreguntas";
 $nameCheckObligatorio = "chkObligatorio";
 $nameCheckFoto = "chkFoto";
 $nameCheckFotoObligatorio = "chkFotoObligatorio";
+$nameCheckComentario = "chkComentario";
 $nameInputFile = "fotoPreg";
 ?>
  
@@ -54,6 +55,9 @@ $nameInputFile = "fotoPreg";
                             <th class="text-center align-middle">
                                 <div class="wr-6">OBLIGATORIO</div>
                             </th>
+                            <!-- <th class="text-center align-middle">
+                                <div class="wr-6">COMENTARIO</div>
+                            </th> -->
                             <th class="text-center align-middle">
                                 <div class="wr-6">FOTO</div>
                             </th>
@@ -71,7 +75,7 @@ $nameInputFile = "fotoPreg";
                                 <button style="left: 45%;" class="border-0 btn btn-BorrarElemento btn-outline-secondary" title="Eliminar Elemento"><i class="fa fa-trash"></i></button>
                             </td> 
                             <td class="text-center" data-name='<?= $nameTipoPregunta ?>'>
-                                <select class='form-control form-control-sm'>
+                                <select class='form-control form-control-sm '>
                                     <option value=''>-- Seleccionar --</option>
                                     <?php foreach ($tiposPregunta as $idTipoPregunta => $tipos) { ?>
                                         <option value='<?= $tipos['idTipoPregunta'] ?>'><?= $tipos['nombre'] ?></option>
@@ -99,8 +103,14 @@ $nameInputFile = "fotoPreg";
                                 <div class="form-check form-check-inline" style="margin-right: 0;">
                                     <input class="form-check-input" type="checkbox" value="true">
                                 </div>
-                               
                             </td>
+                            <?/*?>
+                            <!-- <td class="text-center" data-name='<?= $nameCheckComentario ?>'>
+                                <div class="form-check form-check-inline" style="margin-right: 0;">
+                                    <input class="form-check-input" type="checkbox" value="true">
+                                </div>
+                            </td> -->
+                            <?*/?>
                             <td class="text-center" data-name='<?= $nameCheckFoto ?>' >
                                 <div class="form-check form-check-inline" style="margin-right: 0;">
                                     <input class="form-check-input chk-foto"  type="checkbox" value="true" >
@@ -118,7 +128,7 @@ $nameInputFile = "fotoPreg";
 
                         <?php
                         foreach ($data as $key => $row) { ?>
-                            <tr class='trHijo table-secondary' data-codpregunta = "<?=$row['idPregunta']?>" data-fila="<?=$num?>">
+                            <tr class='trHijo table-secondary' data-cod-encuesta="<?=$row['idEncuesta']?>" data-codpregunta = "<?=$row['idPregunta']?>" data-fila="<?=$num?>">
                                 <td class="text-center">
                                     <input name='id-<?= $num ?>' class="chk-ActualizarElemento" type="checkbox" value='<?= $row['idPregunta'] ?>'>
                                 </td>
@@ -142,10 +152,11 @@ $nameInputFile = "fotoPreg";
                                     <?endif?>
                                     <?if($row['idTipoPregunta'] == 4  ):?>
                                         <button type="button" class="border-0 btn btn-EditarAlternativasOpciones btn-outline-secondary" title="Editar Opciones" disabled><i class="fas fa-ellipsis-h"></i></button>
+                                        <button type="button" class="border-0 btn btn-EditarListasComentariosOpciones btn-outline-secondary" title="Editar Lista Comentarios" disabled><i class="fa fa-lg fa-border-none"></i></button>
                                     <?endif?>
                                 </td>
                                 <td class="text-center">
-                                    <select name='<?= $nameTipoPregunta ?>-<?= $num ?>' id='<?= $nameTipoPregunta ?>-<?= $num ?>' class='form-control form-control-sm <?= $select2 ?>' disabled>
+                                    <select name='<?= $nameTipoPregunta ?>-<?= $num ?>' id='<?= $nameTipoPregunta ?>-<?= $num ?>' class='form-control form-control-sm sl-tipoPregunta <?= $select2 ?>' disabled>
                                         <option value=''>-- Seleccionar --</option>
                                         <?php
                                         foreach ($tiposPregunta as $tipoPregunta) {
@@ -176,6 +187,14 @@ $nameInputFile = "fotoPreg";
                                         <label class="form-check-label"></label>
                                     </div>
                                 </td>
+                                <?/*?>
+                                <!-- <td class="text-center">
+                                    <div id='<?= $nameCheckComentario ?>-<?= $num ?>' class="form-check form-check-inline" style="margin-right: 0;">
+                                        <input name='<?= $nameCheckComentario ?>-<?= $num ?>' class="form-check-input chk-comentarios" type="checkbox" value="1" disabled <?=$row['flagComentario'] == 1 ? "Checked":'' ?> >
+                                        <label class="form-check-label"></label>
+                                    </div>
+                                </td> -->
+                                <?*/?>
                                 <td class="text-center">
                                     <div id='<?= $nameCheckFoto ?>-<?= $num ?>' class="form-check form-check-inline " style="margin-right: 0;">
                                         <input name='<?= $nameCheckFoto ?>-<?= $num ?>' class="form-check-input chk-foto" type="checkbox" value="1" disabled <?=$row['foto'] == 1 ? "Checked":'' ?> >

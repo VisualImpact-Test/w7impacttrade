@@ -1475,6 +1475,52 @@ var Fn = {
         //options.index = parseInt(j); Abrir numero de foto
         gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items[seg], options);
         gallery.init();
-    }
+    },
+	updateFiltrosSeg: function(){
+		var control = $(this);
+			var aCombos = _aSelectAll['segFiltros'];
+
+			var aCombosHead = [ 'distribuidora', 'distribuidoraSucursal', 'cadena', 'banner', 'plaza', 'zona' ];
+			var aCombosExist = {};
+			$.each(aCombos, function(i,v){
+				if( $('.flt_' + v).length > 0 ){
+					$('.flt_' + v).find('option').not(':first').remove();
+					$('.flt_' + v).val('').change();
+
+					if( $.inArray(v, aCombosHead) != -1 ){
+						aCombosExist[v] = 1;
+					}
+				}
+			});
+			var idProyecto = $("#sessIdProyecto").val();
+			if( idProyecto == 0 ){
+				return false;
+			}
+			let fechaFiltro = ($('#txt-fechas').length >= 1) ? $('#txt-fechas').val() : `${$('input.fechaHome').val()} - ${$('input.fechaHome').val()}`;  
+
+			var filtros = {
+				'combos': aCombosExist,	
+				'fechas': fechaFiltro,
+				}
+
+			var data = { 'data': JSON.stringify(filtros) };
+			var url = 'control/get_combos';
+			
+			$.when( Fn.ajax_filtros({ 'data': data, 'url': url, 'control': control }) ).then(function(a){
+				
+				if( a['result'] == null ){
+					return false;
+				}
+
+				$.each(aCombosExist, function(i_cbx, v_cbx){
+					if( typeof(a['data'][i_cbx]) == 'object' ){
+						$.each(a['data'][i_cbx], function(i, v){
+							var options = '<option value="' + v['id'] + '">' + v['nombre'] + '</option>';
+							$('.flt_' + i_cbx).append(options);
+						});
+					}
+				})
+			});
+	}
 
 }

@@ -1,5 +1,5 @@
 <div class="card-datatable">
-	<table id="data-table" class="table table-striped table-bordered nowrap" style="font-size:12px;width:100%">
+	<table id="tb-Iniciativas" class="table table-striped table-bordered nowrap" style="font-size:12px;width:100%">
 		<thead>
 			<tr>
 				<th>TOTAL: <?= count($iniciativas) ?></th>

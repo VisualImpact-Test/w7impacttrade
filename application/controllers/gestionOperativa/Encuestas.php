@@ -92,9 +92,9 @@ class Encuestas extends MY_Controller
         }
         if (!empty($dataParaVista['fotosEncuesta'])) {
             foreach ($dataParaVista['fotosEncuesta'] as $key => $value) {
-                $maximoDeColumasEncuesta = max(count($value['ENCUESTA']), $maximoDeColumasEncuesta);
-                $maximoDeColumasPregunta = max(count($value['PREGUNTA']), $maximoDeColumasPregunta);
-                $maximoDeColumasAlternativa = max(count($value['ALTERNATIVA']), $maximoDeColumasAlternativa);
+                !empty($value['ENCUESTA']) ? $maximoDeColumasEncuesta = max(count($value['ENCUESTA']), $maximoDeColumasEncuesta) : '' ;
+                !empty($value['PREGUNTA']) ? $maximoDeColumasPregunta = max(count($value['PREGUNTA']), $maximoDeColumasPregunta) : '';
+                !empty($value['ALTERNATIVA']) ? $maximoDeColumasAlternativa = max(count($value['ALTERNATIVA']), $maximoDeColumasAlternativa) : '' ;
             }
         }
         $dataParaVista['maximoDeColumasEncuesta'] = $maximoDeColumasEncuesta;

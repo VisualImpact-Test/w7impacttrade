@@ -1496,10 +1496,14 @@ class M_carga_masiva extends CI_Model{
 		JOIN trade.segmentacionNegocio sn ON sn.idSegNegocio=ch.idSegNegocio
 		LEFT JOIN trade.canal cn ON cn.idCanal=sn.idCanal
 		WHERE c.estado=1
-		AND General.dbo.fn_fechaVigente(ch.fecIni,ch.fecFin,@fecha,@fecha)=1
-		{$filtros}";
-
+		AND
+		(
+		@fecha between fecIni and  ISNULL( fecFin, @fecha ) 
+		OR
+		fecIni > @fecha 
+		)
 		
+		{$filtros}";
 		return $this->db->query($sql)->result_array();
 	}
 

@@ -35,6 +35,10 @@
 					<i class="fas fa-search"></i>
 				</button>
 
+				<button id="btn-filtrarHistoricoBasemadre" class="btn btn-outline-trade-visual border-0" data-url="filtrar" title="Filtrar Historicos">
+					<i class="fas fa-file-search"></i>
+				</button>
+
 				<button id="btn-deBajaMaestrosBasemadre" class="btn btn-outline-trade-visual border-0 <?= $verClientesActivar; ?>" data-url="deBaja" title="De Baja Basemadre">
 					<i class="fas fa-times-circle"></i>
 				</button>
