@@ -141,7 +141,7 @@
                         }
                     } else {
                         ?>
-                        <td>-</td>
+                       <?=  ($maximoDeColumasEncuesta != 0 ) ?  '<td>-</td>' : ''   ?>    
                     <?
                     }
                     ?>
@@ -172,7 +172,7 @@
                         }
                     } else {
                         ?>
-                        <td>-</td>
+                        <?=  ($maximoDeColumasEncuesta != 0 ) ?  '<td>-</td>' : ''   ?>    
                     <?
                     }
                     ?>
@@ -203,7 +203,7 @@
                         }
                     } else {
                         ?>
-                        <td>-</td>
+                       <?=  ($maximoDeColumasEncuesta != 0 ) ?  '<td>-</td>' : ''   ?>    
                     <?
                     }
                     ?>

@@ -3,5 +3,8 @@
 	"dockerComposeFile": ["../../docker-compose.yml"],
 	"service": "${localWorkspaceFolderBasename}",
 	"workspaceFolder": "/var/www/html/${localWorkspaceFolderBasename}",
-	"extensions": ["felixfbecker.php-debug"],
+	"extensions": [
+		"felixfbecker.php-debug",
+		"icrawl.discord-vscode"
+	],
 }

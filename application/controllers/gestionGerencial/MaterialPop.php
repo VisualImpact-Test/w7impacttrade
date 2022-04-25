@@ -90,17 +90,19 @@ class MaterialPop extends MY_Controller{
 			$rs_det=$this->model->obtener_detalle_material_pop($input);
 			foreach($rs_det as $det){
 				$array['materiales'][$det['idTipoMaterial']]=$det['tipoMaterial'];
-				$array['elementos'][$det['idTipoMaterial']][$det['idMarca']]['nombre']=$det['marca'];
-                $array['elementos'][$det['idTipoMaterial']][$det['idMarca']]['flagCompetencia'] = 0;
-				$array['detalle'][$det['idVisita']][$det['idMarca']] = $det;
+				if(!empty($det['idMarca'])){
+					$array['elementos'][$det['idTipoMaterial']][$det['idMarca']]['nombre']=$det['marca'];
+					$array['elementos'][$det['idTipoMaterial']][$det['idMarca']]['flagCompetencia'] = 0;
+				}
+				if(!empty($det['idMarca'])){
+					$array['detalle'][$det['idVisita']][$det['idTipoMaterial']][$det['idMarca']] = $det;
+				}
 			}
 
 			$rs_lista=$this->model->obtener_lista_elementos_material_pop($input);
 			foreach($rs_lista as $list){
 				$array['lista'][$list['idVisita']][$list['idMarca']]='1';
 			}
-
-			
 			
 			$array['segmentacion'] = $segmentacion;
 			$html = $this->load->view("modulos/gestionGerencial/MaterialPop/detalle_material_pop",$array,true);

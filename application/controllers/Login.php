@@ -20,13 +20,13 @@ class Login extends MY_Controller {
 	public function acceder(){
 		$data = json_decode($this->input->post('data'));
 
-		$captcha = $this->validar_captcha_v2($data->{'g-recaptcha-response'});
-		if(!$captcha->{'success'}){
-			$result['result'] = 0;
-			$config_ = array( 'type' => 2, 'message' => "Debe completar el captcha");
-			$result['msg']['content'] = createMessage($config_);
-			goto responder;
-		}
+		// $captcha = $this->validar_captcha_v2($data->{'g-recaptcha-response'});
+		// if(!$captcha->{'success'}){
+		// 	$result['result'] = 0;
+		// 	$config_ = array( 'type' => 2, 'message' => "Debe completar el captcha");
+		// 	$result['msg']['content'] = createMessage($config_);
+		// 	goto responder;
+		// }
 
 		$input = array(
 			'usuario' => $data->user,

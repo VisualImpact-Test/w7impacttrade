@@ -238,6 +238,7 @@ class M_encuesta extends MY_Model
 				, vfd2.fotoUrl imgPreg
 				, ep.orden
 				, te.nombre tipoPregunta
+				, ved.comentario
 			FROM {$this->sessBDCuenta}.trade.data_ruta r
 			JOIN {$this->sessBDCuenta}.trade.data_visita v ON r.idRuta=v.idRuta
 			JOIN trade.cliente c ON v.idCliente=c.idCliente
@@ -469,10 +470,10 @@ class M_encuesta extends MY_Model
 			, ve.idEncuesta
 			, COUNT(ve.idEncuesta) OVER (PARTITION BY r.idUsuario, v.idCliente, ve.idEncuesta) num
 		FROM
-			ImpactTrade_pg.trade.data_ruta r
-			JOIN ImpactTrade_pg.trade.data_visita v ON v.idRuta = r.idRuta
-			JOIN ImpactTrade_pg.trade.data_visitaEncuesta ve ON ve.idVisita = v.idVisita
-			JOIN ImpactTrade_pg.trade.data_visitaEncuestaDet ved ON ved.idVisitaEncuesta=ve.idVisitaEncuesta
+			{$this->sessBDCuenta}.trade.data_ruta r
+			JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta = r.idRuta
+			JOIN {$this->sessBDCuenta}.trade.data_visitaEncuesta ve ON ve.idVisita = v.idVisita
+			JOIN {$this->sessBDCuenta}.trade.data_visitaEncuestaDet ved ON ved.idVisitaEncuesta=ve.idVisitaEncuesta
 			JOIN ImpactTrade_bd.trade.cliente t ON t.idCliente = v.idCliente
 				AND t.estado = 1
 		WHERE 
@@ -500,18 +501,19 @@ class M_encuesta extends MY_Model
 			, e.nombre AS encuesta
 			, ep.nombre AS pregunta
 			, ea.nombre AS alternativa
+			--, CASE WHEN ep.idTipoPregunta = 1 THEN isnull(ea.nombre,ved.respuesta) ELSE  ea.nombre END  'respuesta'
 			, ved.respuesta
 		FROM
-			ImpactTrade_pg.trade.data_ruta r
-			JOIN ImpactTrade_pg.trade.data_visita v ON v.idRuta = r.idRuta
-			JOIN ImpactTrade_pg.trade.data_visitaEncuesta ve ON ve.idVisita = v.idVisita
-			JOIN ImpactTrade_pg.trade.data_visitaEncuestaDet ved ON ved.idVisitaEncuesta=ve.idVisitaEncuesta
-			JOIN ImpactTrade_pg.trade.encuesta e ON ve.idEncuesta = e.idEncuesta
-			JOIN ImpactTrade_pg.trade.encuesta_pregunta ep ON ved.idPregunta = ep.idPregunta
-			JOIN ImpactTrade_pg.trade.encuesta_alternativa ea ON ved.idAlternativa = ea.idAlternativa
+			{$this->sessBDCuenta}.trade.data_ruta r
+			JOIN {$this->sessBDCuenta}.trade.data_visita v ON v.idRuta = r.idRuta
+			JOIN {$this->sessBDCuenta}.trade.data_visitaEncuesta ve ON ve.idVisita = v.idVisita
+			JOIN {$this->sessBDCuenta}.trade.data_visitaEncuestaDet ved ON ved.idVisitaEncuesta=ve.idVisitaEncuesta
+			JOIN {$this->sessBDCuenta}.trade.encuesta e ON ve.idEncuesta = e.idEncuesta
+			JOIN {$this->sessBDCuenta}.trade.encuesta_pregunta ep ON ved.idPregunta = ep.idPregunta
+			JOIN {$this->sessBDCuenta}.trade.encuesta_alternativa ea ON ved.idAlternativa = ea.idAlternativa
 			JOIN ImpactTrade_bd.trade.cliente c ON v.idCliente = c.idCliente
 				AND c.estado = 1
-			JOIN ImpactTrade_pg.trade.cliente_historico ch ON c.idCliente = ch.idCliente
+			JOIN {$this->sessBDCuenta}.trade.cliente_historico ch ON c.idCliente = ch.idCliente
 			AND ch.idProyecto = r.idProyecto AND ch.fecFin IS NULL
 			LEFT JOIN ImpactTrade_bd.trade.segmentacionNegocio sn ON ch.idSegNegocio = sn.idSegNegocio
 			LEFT JOIN ImpactTrade_bd.trade.canal ca ON sn.idCanal = ca.idCanal
@@ -527,10 +529,14 @@ class M_encuesta extends MY_Model
 		return $this->db->query($sql);
 	}
 
-	public function obtenerFotosEncuesta($idVisitaEncuesta){
+	public function obtenerFotosEncuesta($idVisitaEncuesta = ''){
+		$filtros = '';
+		!empty($idVisitaEncuesta) ? $filtros .= " AND ve.idVisita IN ({$idVisitaEncuesta})" : '';
 		$sql = "
 			SELECT DISTINCT
 				CONVERT(VARCHAR(8),vf.hora) AS hora
+				, ve.idVisita
+				, ve.idVisitaEncuesta
 				, vf.fotoUrl AS foto
 				, CONVERT(VARCHAR(8),vfm.hora) AS horaMultiple
 				, vfm.fotoUrl AS fotoMultiple
@@ -539,7 +545,9 @@ class M_encuesta extends MY_Model
 			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaEncuestaFotos vef ON ve.idVisitaEncuesta = vef.idVisitaEncuesta
 			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vf.idVisitaFoto=ve.idVisitaFoto
 			LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vfm ON vfm.idVisitaFoto=vef.idVisitaFoto
-			WHERE ve.idVisitaEncuesta={$idVisitaEncuesta}
+			WHERE 
+			1=1 
+			{$filtros}
 		";
 
 		return $this->db->query($sql)->result_array();

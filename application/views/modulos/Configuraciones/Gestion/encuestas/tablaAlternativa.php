@@ -5,7 +5,7 @@ $estadoAlternativa = 'estadoAlternativa';
 $select2 = "my_select2EditarAlternativas"; 
 $checkFoto = "chkFoto";
 $checkFotoObligatorio = "chkFotoObligatorio";
-
+$nameCheckComentario = "chkComentario";
 ?>
  
 
@@ -35,6 +35,13 @@ $checkFotoObligatorio = "chkFotoObligatorio";
                             <th class="text-center align-middle">
                                 <div>ESTADO</div>
                             </th>
+                            <?/*?>
+                            <?if($pregunta['idTipoPregunta'] == 4):?>
+                            <th class="text-center align-middle">
+                                <div>COMENTARIO</div>
+                            </th>
+                            <?endif?>
+                            <?*/?>
                             <th class="text-center align-middle">
                                 <div>FOTO</div>
                             </th>
@@ -63,7 +70,16 @@ $checkFotoObligatorio = "chkFotoObligatorio";
                                     <label class="form-check-label">Desactivar</label>
                                 </div>
                             </td>
-                            <td class="text-center" data-name='<?= $checkFoto ?>'>
+                            <?/*?>
+                            <?if($pregunta['idTipoPregunta'] == 4):?>
+                            <td class="text-center" data-name='<?= $nameCheckComentario ?>'>
+                                <div class="form-check form-check-inline" style="margin-right: 0;">
+                                    <input class="form-check-input " type="checkbox" value="true">
+                                </div>
+                            </td>
+                             <?endif?>
+                            <?*/?>
+                             <td class="text-center" data-name='<?= $checkFoto ?>'>
                                 <div class="form-check form-check-inline" style="margin-right: 0;">
                                     <input class="form-check-input chk-foto" type="checkbox" value="true">
                                 </div>
@@ -99,6 +115,16 @@ $checkFotoObligatorio = "chkFotoObligatorio";
                                         <label class="form-check-label">Desactivar</label>
                                     </div>
                                 </td>
+                                <!-- Comentario Comentado, deberia permitirse para el tipo valorativo -->
+                                <?if($pregunta['idTipoPregunta'] == 0):?>
+                                <td class="text-center">
+                                    <div id='<?= $nameCheckComentario ?>-<?= $num ?>' class="form-check form-check-inline" style="margin-right: 0;">
+                                        <input name='<?= $nameCheckComentario ?>-<?= $num ?>' class="form-check-input " type="checkbox" value="1" disabled <?=$row['flagComentario'] == 1 ? "Checked":'' ?> >
+                                        <label class="form-check-label"></label>
+                                    </div>
+                                </td>
+                                <?endif?>
+
                                 <td class="text-center">
                                     <div id='<?= $checkFoto ?>-<?= $num ?>' class="form-check form-check-inline" style="margin-right: 0;">
                                         <input name='<?= $checkFoto ?>-<?= $num ?>' class="form-check-input chk-foto" type="checkbox" value="1" disabled <?=$row['foto'] == 1 ? "Checked":'' ?> >

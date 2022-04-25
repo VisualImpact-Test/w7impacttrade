@@ -75,15 +75,15 @@
 							</div>
 						</div>
 						<div class="mb-2 mr-sm-2 position-relative form-group chk_cesados">
-							<label for="ch-quiebre-inactivo"> Estado Usuarios: </label> <br>
+							<label for="ch-quiebre-inactivo"> Tipo de Reporte:  </label> <br>
 							<div class="btn-group btn-group-toggle w-100 " data-toggle="buttons">
 								<label class="btn btn-outline-secondary custom_tooltip">
 									<span class="tooltiptextButton">Reporte Vertical</span>
-									<input type="radio" name="chk-reporte" id="chk-reporte-vertical" autocomplete="off" checked="checked" value="vertical"> Vertical </i>
+									<input type="radio" data-tipo="vertical" name="chk-reporte" id="chk-reporte-vertical" autocomplete="off" checked="checked" value="vertical"> Vertical </i>
 								</label>
 								<label class="btn btn-outline-secondary  custom_tooltip">
 									<span class="tooltiptextButton">Reporte Horizontal</span>
-									<input type="radio" name="chk-reporte" id="chk-reporte-horizontal" autocomplete="off" value="horizontal" > Horizontal </i>
+									<input type="radio" data-tipo="horizontal" name="chk-reporte" id="chk-reporte-horizontal" autocomplete="off" value="horizontal" > Horizontal </i>
 								</label>
 							</div>
 						</div>

@@ -179,7 +179,6 @@ class M_encuestas extends MY_Model
 			JOIN {$this->sessBDCuenta}.trade.data_visitaFotos vf ON vef.idVisitaFoto = vf.idVisitaFoto
 			WHERE ve.idVisita = {$params['idVisita']}
 		";
-
 		$query = $this->db->query($sql);
 
 		if ($query) {

@@ -103,6 +103,7 @@ class Encuesta extends MY_Controller
 				$dataParaVista['visitaEncuesta'][$fila['idVisita']][$fila['idPregunta']][] = $fila['respuesta'];
 				$dataParaVista['visitaFotoSub'][$fila['idVisita']][$fila['idPregunta']][] = !empty($fila['imgRefSub']) ? 1 : 0;
 				$dataParaVista['visitaEncuesta'][$fila['idVisita']]['opciones'][$fila['idPregunta']][$fila['idAlternativaOpcion']][] = $fila['respuesta'];
+				$dataParaVista['visitaEncuesta'][$fila['idVisita']]['comentario'][$fila['idPregunta']][] = $fila['comentario'];
 				 
 				if (isset($array_resultados[$fila['idCliente']])) {
 					if (!empty($fila['puntaje'])) $array_resultados[$fila['idCliente']]['puntaje'][$fila['idPregunta']] = floatval($fila['puntaje']);
@@ -126,6 +127,12 @@ class Encuesta extends MY_Controller
 	public function getTablaVertical($dataEncuesta,$segmentacion){
 		$dataEncuestaVertical = $dataEncuesta['dataEncuestaVertical'];
 		$dataVisitaVertical = $dataEncuesta['dataVisitaVertical'];
+		$idsVisitaEncuesta = implode(",",array_keys($dataEncuesta['visitaEncuesta']));
+		$fotosEncuesta = $this->m_encuesta->obtenerFotosEncuesta($idsVisitaEncuesta);
+		$dataFotoEncuesta = [];
+		foreach ($fotosEncuesta as $v) {
+			!empty($v['foto']) ? $dataFotoEncuesta[$v['idVisita']][$v['idVisitaEncuesta']] = $v['foto'] : '';
+		}
 		$new_data = [];
 
 		foreach ($dataEncuestaVertical as $k => $data) {
@@ -148,9 +155,11 @@ class Encuesta extends MY_Controller
 				);
 			}
 
+			!empty($dataFotoEncuesta[$data['idVisita']][$data['idVisitaEncuesta']]) ? $data['imgRef'] = $dataFotoEncuesta[$data['idVisita']][$data['idVisitaEncuesta']] : '';
+
 			$fotoEncuesta =  !empty($data['imgRef']) ? rutafotoModulo(['foto'=>$data['imgRef'],'modulo'=>'encuestas','icono'=>'fal fa-image-polaroid fa-lg btn-outline-primary btn border-0']) : '';
 			$fotoPregunta =  !empty($data['imgPreg']) ? rutafotoModulo(['foto'=>$data['imgPreg'],'modulo'=>'encuestas','icono'=>'fal fa-image-polaroid fa-lg btn-outline-primary btn border-0']) : '';
-			$fotoAlternativa =  !empty($data['imgPreg']) ? rutafotoModulo(['foto'=>$data['imgRefSub'],'modulo'=>'encuestas','icono'=>'fal fa-image-polaroid fa-lg btn-outline-primary btn border-0']) : '';
+			$fotoAlternativa =  !empty($data['imgRefSub']) ? rutafotoModulo(['foto'=>$data['imgRefSub'],'modulo'=>'encuestas','icono'=>'fal fa-image-polaroid fa-lg btn-outline-primary btn border-0']) : '';
 
 			array_push($new_data[$k],
 				!empty($visita['idCliente']) ? $visita['idCliente'] : ' - ',
@@ -159,11 +168,13 @@ class Encuesta extends MY_Controller
 				!empty($visita['razonSocial']) ? $visita['razonSocial'] : ' - ',
 				!empty($visita['subCanal']) ? $visita['subCanal'] : ' - ',
 				!empty($visita['incidencia']) ? $visita['incidencia'] : ' - ',
-				!empty($data['encuesta']) ? $data['encuesta'] : '-' . $fotoEncuesta,
+				!empty($data['encuesta']) ? $data['encuesta']. $fotoEncuesta : '-' ,
 				!empty($data['tipoPregunta']) ? $data['tipoPregunta'] : ' - ',
-				!empty($data['pregunta']) ? $data['pregunta'] : '-'  .  $fotoPregunta,
-				!empty($data['respuesta']) ? $data['respuesta'] : '-' .  $fotoAlternativa ,
-				($data['idTipoPregunta'] == 4 && !empty($data['alternativaOpcion'])) ? $data['alternativaOpcion'] : '-'
+				!empty($data['pregunta']) ? $data['pregunta'] .  $fotoPregunta : '-'  ,
+				!empty($data['respuesta']) ? $data['respuesta'] . $fotoAlternativa : '-'   ,
+				($data['idTipoPregunta'] == 4 && !empty($data['alternativaOpcion'])) ? $data['alternativaOpcion'] : '-',
+				!empty($data['comentario']) ? $data['comentario'] . $fotoAlternativa : '-'   
+
 			);
 
 		}
@@ -215,7 +226,6 @@ class Encuesta extends MY_Controller
 			$segmentacion = getSegmentacion([ 'grupoCanal_filtro' => $params['idGrupoCanal'] ]);
 			$dataParaVista['segmentacion'] = $segmentacion;
 			
-
 			
 			$contador = 0;
 			$new_data = [];
@@ -223,8 +233,8 @@ class Encuesta extends MY_Controller
          $listaEncuesta = $dataParaVista['listaEncuesta'];
          $listaPregunta = $dataParaVista['listaPregunta'];
          $listaOpciones = !empty($dataParaVista['listaOpciones']) ? $dataParaVista['listaOpciones'] : [] ;
-         $visitaFoto = $dataParaVista['visitaFoto'];
-         $visitaFotoPreg = $dataParaVista['visitaFotoPreg'];
+         $visitaFoto = !empty($dataParaVista['visitaFoto']) ? $dataParaVista['visitaFoto'] : [];
+         $visitaFotoPreg = !empty($dataParaVista['visitaFotoPreg']) ? $dataParaVista['visitaFotoPreg'] : [];
          $idVisitaEncuesta = $dataParaVista['idVisitaEncuesta'];
          $flagFotoMultiple = $dataParaVista['flagFotoMultiple'];
          $visitaEncuesta = $dataParaVista['visitaEncuesta'];
@@ -310,6 +320,11 @@ class Encuesta extends MY_Controller
                            $respuesta,
                            "<p class='text-center'>{$fotoSub}</p>"
                         );
+						
+						$comentarioOpcion = !empty($visitaEncuesta[$visita['idVisita']]['comentario'][$keyPregunta]) ? implode(", ", array_unique($visitaEncuesta[$visita['idVisita']]['comentario'][$keyPregunta])): '-';
+						array_push($new_data[$i],
+							"<p class='text-center'>{$comentarioOpcion}</p>"
+						);
 
                         if($pregunta['idTipoPregunta'] != 4 ){
                            array_push($new_data[$i],
@@ -327,13 +342,17 @@ class Encuesta extends MY_Controller
 						   array_push($new_data[$i],
                               "<p class='text-center'>{$alternativasOpcion}</p>"
                            );
-						   
+						 
                         }
 						
 						if($pregunta['idTipoPregunta'] == 4 ){
-						   array_push($new_data[$i],
-						   "<p class='text-center'>{$fotoPreg}</p>"
-						   );
+
+							
+							array_push($new_data[$i],
+							"<p class='text-center'>{$fotoPreg}</p>"
+						);
+						
+					
 						}
 
                   }

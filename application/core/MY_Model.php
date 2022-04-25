@@ -47,5 +47,25 @@ class MY_Model extends CI_Model{
 	public function limpiar_cache_asistencia(){
 		$this->db->cache_delete('home', 'get_asistencia');
 	}
+	public function insert($table = '', $values = ''){
+
+		if(empty($table) || empty($values)) return false;
+		return $this->db->insert($table,$values);
+	}
+
+	public function insertarMasivo($table, $input)
+	{
+		return $this->db->insert_batch($table, $input);
+	}
+
+	public function getWhere($table,$where)
+	{
+		return $this->db->get_where($table,$where);
+	}
+	
+	public function deleteWhere($table,$where)
+	{
+		return $this->db->delete($table,$where);
+	}
 
 }

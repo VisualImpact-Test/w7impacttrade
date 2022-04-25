@@ -5,6 +5,8 @@ $estadoAlternativa = 'estadoAlternativaOpcion';
 $select2 = "my_select2EditarAlternativasOpciones"; 
 $checkFoto = "chkFoto";
 $nameTextoOrden = 'txtOrden';
+$nameCheckComentario = "chkComentario";
+
 ?>
  
 
@@ -35,6 +37,9 @@ $nameTextoOrden = 'txtOrden';
                                 <div class="wr-5">ORDEN</div>
                             </th>
                             <th class="text-center align-middle">
+                                <div>COMENTARIO</div>
+                            </th>
+                            <th class="text-center align-middle">
                                 <div>ESTADO</div>
                             </th>
                             <th class="text-center align-middle">
@@ -51,6 +56,11 @@ $nameTextoOrden = 'txtOrden';
                             </td>
                             <td class="text-center" data-name='<?= $nameTextoOrden ?>'>
                                 <input type="text" class="form-control form-control-sm txtOrden" placeholder="Orden" >
+                            </td>
+                            <td class="text-center" data-name='<?= $nameCheckComentario ?>'>
+                                <div class="form-check form-check-inline" style="margin-right: 0;">
+                                    <input class="form-check-input " type="checkbox" value="true">
+                                </div>
                             </td>
                             <td class="text-center" data-name='<?= $estadoAlternativa ?>'>
                                 <div class="form-check form-check-inline">
@@ -78,6 +88,12 @@ $nameTextoOrden = 'txtOrden';
                                 </td>
                                 <td class="text-center">
                                     <input value="<?=$row['orden']?>" name='<?= $nameTextoOrden ?>-<?= $num ?>' id='<?= $nameTextoOrden ?>-<?= $num ?>' type="text" class="txtOrden form-control form-control-sm" placeholder="orden" disabled>
+                                </td>
+                                <td class="text-center">
+                                    <div id='<?= $nameCheckComentario ?>-<?= $num ?>' class="form-check form-check-inline" style="margin-right: 0;">
+                                        <input name='<?= $nameCheckComentario ?>-<?= $num ?>' class="form-check-input " type="checkbox" value="1" disabled <?=$row['flagComentario'] == 1 ? "Checked":'' ?> >
+                                        <label class="form-check-label"></label>
+                                    </div>
                                 </td>
                                 <td class="text-center">
                                     <div id='<?= $estadoAlternativa ?>-<?= $num ?>' class="form-check form-check-inline">

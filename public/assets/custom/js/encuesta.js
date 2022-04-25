@@ -13,6 +13,10 @@ var Encuesta = {
 		$(document).on('click','#btn-filtrarEncuesta', function(e){
 			e.preventDefault();
 			var idTipoFormato = $('#idTipoFormato').val();
+
+			if($("input[name=chk-reporte]:checked").val() == "vertical") $("#btn-encuesta-pdf").addClass("d-none")
+			else $("#btn-encuesta-pdf").removeClass("d-none")
+				
 			if (idTipoFormato == 1) {
 				var data = Fn.formSerializeObject(Encuesta.idFormFiltros);
 				var jsonString = { 'data': JSON.stringify(data) };
@@ -189,6 +193,8 @@ var Encuesta = {
 				Fn.showModal({ id: modalId, show: true, title: a.msg.title, frm: a.data, btn: btn });
 			});
 		});
+
+
 
 	},
 }

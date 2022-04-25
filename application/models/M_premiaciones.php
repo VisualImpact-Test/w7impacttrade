@@ -138,9 +138,9 @@ class M_premiaciones extends MY_Model{
 		lista_premiaciones_fotos 
 		WHERE fotos <= 1
 		";
+
 		return $this->query($sql);
 	}
-
 	public function actualizarEstado($params = [])
 	{
 		$update = [
@@ -423,6 +423,7 @@ class M_premiaciones extends MY_Model{
 				, vp.codigo
 				, vp.monto
 				, CASE WHEN (vp.premiado = 1) OR (vf.fotoUrl IS NOT NULL AND (vp.monto IS NOT NULL OR vp.monto > 0) ) THEN 1 ELSE 0 END premiado
+				, ct.nombre subCanal
 				,vp.idVisitaPremiacion
 				,vp.estado
 				,vp.latitud as latitud_visita
@@ -448,6 +449,8 @@ class M_premiaciones extends MY_Model{
 					AND ch.idProyecto={$proyecto}
 				LEFT JOIN trade.segmentacionNegocio sn
 					ON sn.idSegNegocio = ch.idSegNegocio
+				LEFT JOIN trade.cliente_tipo ct
+					ON ct.idClienteTipo = sn.idClienteTipo
 				LEFT JOIN trade.canal ca
 					ON ca.idCanal = v.idCanal
 				LEFT JOIN trade.grupoCanal gc
@@ -461,7 +464,7 @@ class M_premiaciones extends MY_Model{
 				LEFT JOIN trade.subCanal subca ON subca.idSubCanal = sn.idSubcanal
 				{$segmentacion['join']}
 
-			WHERE r.fecha BETWEEN @fecIni AND @fecFin AND vp.estado = 1
+			WHERE r.fecha BETWEEN @fecIni AND @fecFin AND fotoUrl IS NOT NULL AND vp.estado <> 0
 			{$filtro_demo}
 			AND r.estado = 1 
 			AND v.estado = 1{$filtros}

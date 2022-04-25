@@ -23,6 +23,7 @@
                 <th class="text-center align-middle">PREGUNTA</th>
                 <th class="text-center align-middle">RESPUESTA</th>
                 <th class="text-center align-middle">VALORACIÓN</th>
+                <th class="text-center align-middle">COMENTARIO</th>
             </tr>
         </thead>
 

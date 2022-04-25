@@ -393,6 +393,7 @@ class Home extends MY_Controller {
 						$efectividad[$idUsuario] = [
 							'programados' => 0,
 							'efectivos' =>0,
+							'incidencias' =>0,
 							'ippProgramados' =>0,
 							'productosProgramados' =>0,
 							'fotosProgramados' =>0,
@@ -406,6 +407,7 @@ class Home extends MY_Controller {
 					}
 					$efectividad[$idUsuario]['programados'] += !empty($value['programados']) ? $value['programados'] : '0';
 					$efectividad[$idUsuario]['efectivos'] += !empty($value['efectivos']) ? $value['efectivos'] : '0';
+					$efectividad[$idUsuario]['incidencias'] += !empty($value['incidencias']) ? $value['incidencias'] : '0';
 					$efectividad[$idUsuario]['ippProgramados'] += !empty($value['ippProgramados']) ? $value['ippProgramados'] : '0';
 					$efectividad[$idUsuario]['productosProgramados'] += !empty($value['productosProgramados']) ? $value['productosProgramados'] : '0';
 					$efectividad[$idUsuario]['fotosProgramados'] += !empty($value['fotosProgramados']) ? $value['fotosProgramados'] : '0';
@@ -428,6 +430,7 @@ class Home extends MY_Controller {
 						'usuario'  => verificarEmpty($value['usuario'], 3),
 						'programados'  => $efectividad[$idUsuario]['programados'],
 						'efectivos' => $efectividad[$idUsuario]['efectivos'],
+						'incidencias' => $efectividad[$idUsuario]['incidencias'],
 						'ippProgramados' => $efectividad[$idUsuario]['ippProgramados'],	
 						'productosProgramados' => $efectividad[$idUsuario]['productosProgramados'],	
 						'fotosProgramados' => $efectividad[$idUsuario]['fotosProgramados'],	
@@ -472,6 +475,7 @@ class Home extends MY_Controller {
 						array_push($new_data[$i],
 							$value['efectivos'],
 							$prc_efectivos.'%',
+							$value['incidencias'],
 							$prc_ippProgramadoss.'%',
 							$prc_productosProgramados.'%',
 							$prc_fotosProgramados.'%'

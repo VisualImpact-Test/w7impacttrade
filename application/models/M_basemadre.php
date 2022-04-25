@@ -135,7 +135,7 @@ class M_basemadre extends MY_Model{
 		$segmentacion = getSegmentacion(['grupoCanal_filtro' => $input['grupoCanal']]);
 		$sql = "
 		DECLARE @fecIni date='".$input['fecIni']."',@fecFin date='".$input['fecFin']."';
-		SELECT DISTINCT TOP 1
+		SELECT DISTINCT
 			c.idCliente
 			, c.razonSocial
 			, c.codCliente

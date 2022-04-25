@@ -216,7 +216,7 @@ var Encuestas = {
 				var btn = [];
 				btn[0] = { title: 'Cerrar', fn: fn };
 				btn[1] = { title: 'Actualizar', fn: fn1 };
-				Fn.showModal({ id: modalId, class: a.data.class, show: true, title: "Editar Alternativas", frm: a.data.html, btn: btn,large:true });
+				Fn.showModal({ id: modalId, class: a.data.class, show: true, title: "Editar Alternativas", frm: a.data.html, btn: btn,width:a.data.width });
 			});
 	
         });
@@ -246,7 +246,42 @@ var Encuestas = {
 				var btn = [];
 				btn[0] = { title: 'Cerrar', fn: fn };
 				btn[1] = { title: 'Actualizar', fn: fn1 };
-				Fn.showModal({ id: modalId, class: a.data.class, show: true, title: "Editar Opciones de Alternativas", frm: a.data.html, btn: btn,large:true });
+				Fn.showModal({ id: modalId, class: a.data.class, show: true, title: "Editar Opciones de Alternativas", frm: a.data.html, btn: btn,width:a.data.width });
+			});
+	
+        });
+        $(document).on("click", ".table .trHijo .btn-EditarListasComentariosOpciones", function (e) {
+			e.preventDefault();
+			var tr = $(this).closest('tr');
+			var table = $(this).closest('table');
+			var lastTh = $(table).find('thead tr:first th:last');
+
+			var idSeleccionado = $(tr).find("input[name|='id']").val();
+	
+            var data = { 'id': idSeleccionado, 'idEncuesta' : tr.data("codEncuesta") };
+
+			var jsonString = { 'data': JSON.stringify(data) };
+
+			var config = { 'url': Gestion.urlActivo + 'getListComentarios', 'data': jsonString };
+
+			$.when(Fn.ajax(config)).then(function (a) {
+
+				if (a.result === 2) return false;
+
+				++modalId;
+				Gestion.idModalPrincipal = modalId;
+				var fn = 'Fn.showModal({ id:' + modalId + ',show:false });';
+                var configHT = { 
+                    'url': 'guardarListaComentarios', 
+                };
+				var fn1 = 'Gestion.confirmarHT({ fn:"Gestion.guardarHT( {url: `guardarListaComentarios`} );",content:"¿Esta seguro de registrar los datos?" });';
+
+				var btn = [];
+				btn[0] = { title: 'Cerrar', fn: fn };
+				btn[1] = { title: 'Actualizar', fn: fn1 };
+				Fn.showModal({ id: modalId, class: 'modalCargaMasiva', show: true, title: a.msg.title, frm: a.data.html, btn: btn,width:a.data.width });
+                console.log("HT");
+                HTCustom.llenarHTObjectsFeatures(a.data.ht);
 			});
 	
         });
@@ -534,7 +569,6 @@ var Encuestas = {
 			$.each(inputs, function (i, v) {
 				$(this).attr('disabled', !valorCheck);
 			});
-
             
 			valorCheck ? $(tr).removeClass('table-secondary') : $(tr).addClass('table-secondary');
             
@@ -544,12 +578,11 @@ var Encuestas = {
             // console.log(tr.find(".fotoMiniatura").attr("src"));
             if(tr.find(".fotoMiniatura").attr("src") == "") {
                 $(".btn-verImagenPreg").attr("disabled","disabled")
-
             }
-            else {
-            
-                tr.find(".btn-verImagenPreg").removeAttr("disabled")
-            };
+            else {tr.find(".btn-verImagenPreg").removeAttr("disabled")};
+
+            //Desactivando el Flag Comentario si no es de tipo Valorativa la pregunta
+            if(tr.find(".sl-tipoPregunta").val() != "4") tr.find(".chk-comentarios").attr("disabled","disabled");
            
 		});
         $(document).on("click", ".btn-verImagenPreg", function (e) {
@@ -729,7 +762,7 @@ var Encuestas = {
             var btn = [];
             btn[0] = { title: 'Cerrar', fn: fn };
             btn[1] = { title: 'Actualizar', fn: fn1 };
-            Fn.showModal({ id: modalId,class: a.data.class, show: true, title: "Editar Preguntas", frm: a.data.html, btn: btn,large:true });
+            Fn.showModal({ id: modalId, class: a.data.class, show: true, title: "Editar Preguntas", frm: a.data.html, btn: btn,width:a.data.width });
         });
     },
 

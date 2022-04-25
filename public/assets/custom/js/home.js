@@ -3,6 +3,7 @@ var Home={
 	carteraHoy: '',
 	usuariosFaltas: [],
 	intervalo: '',
+	cambios: 0,
 	load: function(){
 		$(document).on('click', '.lk-show-gps1', function(){
 			var control =  $(this);
@@ -30,6 +31,8 @@ var Home={
 			});
 		});
 		$(document).on('change', '.sl_filtros', function(){
+			if(Home.cambios == 1) return false;
+			
 			console.log('click');
 			$('.vista-efectividad').addClass('centrarContenidoDiv');
 			$('.vista-cobertura').addClass('centrarContenidoDiv');
@@ -40,16 +43,22 @@ var Home={
 			$('.vista-asistencia').html('<i class="fas fa-spinner-third fa-spin icon-load"></i>');
 
 			$.when(
-				Home.mostrar_cartera(),
-				Home.mostrar_efectividad()
+				Home.cambios = 1,
+				$.when(
+					Home.mostrar_cartera(),
+					Home.mostrar_efectividad()
+				).then(function(){
+					
+					if($("#txtcuenta").val() == 2){
+						Home.generarGraficosEfectividadGtm();
+						Home.generarGraficosAsistencia();
+						Home.generarGraficosGtm();
+					}
+				})
 			).then(function(){
-				
-				if($("#txtcuenta").val() == 2){
-					Home.generarGraficosEfectividadGtm();
-					Home.generarGraficosAsistencia();
-					Home.generarGraficosGtm();
-				}
-			});
+				Home.cambios = 0
+			})
+			
 			
 		});
 
@@ -87,6 +96,8 @@ var Home={
 
 			singleDatePickerModal.autoUpdateInput = false;
 			$('.txt-fecha').daterangepicker(singleDatePickerModal, function(chosen_date) {
+
+				Fn.updateFiltrosSeg();
 				$(this.element[0]).val(chosen_date.format('DD/MM/YYYY'));
 				$('.vista-efectividad').addClass('centrarContenidoDiv');
 				$('.vista-cobertura').addClass('centrarContenidoDiv');

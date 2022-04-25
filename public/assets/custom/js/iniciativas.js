@@ -19,7 +19,7 @@ var Iniciativas = {
 
 			var control = $(this);
 			var config = {
-				'idFrm' : Iniciativas.frmRutas
+				'idFrm' : Iniciativas.idFormFiltros
 				,'url': Iniciativas.url + Iniciativas.urlActivo
 				,'contentDetalle': Iniciativas.contentDetalle
 			}; 
@@ -149,25 +149,19 @@ var Iniciativas = {
 
 			Fn.showLoading(true);
 
-			var rows = $('#data-table').DataTable().rows({ 'search': 'applied' }).nodes();
+			var rows = $('#tb-Iniciativas').DataTable().rows({ 'search': 'applied' }).nodes();
 			var datos = {};
+			datos['idIniciativaDet'] = [];
 
 			$.each(rows, function(ir,vr){
-			   var input = $(vr).find('input');
-
-			   if( typeof(datos[ir]) == 'undefined' ){
-				   datos[ir] = { 'iniciativas': [] };
-			   }
- 
-				$.each(input, function(ii, vi){
-					if( $(vi).attr('type') == 'checkbox' ){
-						if( $(vi).is(':checked') ){
-							datos[ir]['iniciativas'].push($(vi).val());
-						}
+			var input = $(vr).find('input');
+			if( $(input).attr('type') == 'checkbox' ){
+					if( $(input).is(':checked') ){
+						datos['idIniciativaDet'].push($(input).val());
 					}
-				});
-			}); 
-			
+				}
+			});
+
 			var f = $('#txt-fechas').val();
 			var fechas = f.split('-');
 
@@ -176,7 +170,8 @@ var Iniciativas = {
 			var data = { 'data': JSON.stringify({ datos }) };
 			var url = Iniciativas.url+'iniciativas_pdf';
 			$.when( Fn.download(url,data) ).then(function(){
-				Fn.showLoading(false);
+				// Fn.showLoading(false);
+				$('.modal-backdrop').hide();
 			});
 		});
 
@@ -205,7 +200,7 @@ var Iniciativas = {
 		$(document).on('click','.checkAll',function(e){
 			e.preventDefault();
 
-			var rows = $('#data-table').DataTable().rows({ 'search': 'applied' }).nodes();
+			var rows = $('#tb-Iniciativas').DataTable().rows({ 'search': 'applied' }).nodes();
 			var datos = {};
 
 			$.each(rows, function(ir,vr){

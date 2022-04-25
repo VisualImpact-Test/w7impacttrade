@@ -1245,16 +1245,16 @@ class Visitas extends MY_Controller{
 		echo json_encode($result);
 	}
 
-	public function guardarNuevoPuntoMasivoRutaVisita(){
+	public function guardarNuevoPuntoMasivoRutaVisita( ){
 		$result = $this->result;
 		$data = json_decode($this->input->post('data'));
-		
+		// 
 		$html=''; $htmlNoRegistrados=''; $htmlDuplicados='';
 		$arrayListaUsuariosNoRegistrados = array();
-
+		// 
 		$idCuenta=$this->session->userdata('idCuenta');
 		$idProyecto=$this->session->userdata('idProyecto');
-
+		// 
 		$idTipoUsuario = $_POST['tipoUsuario'];
 		if ( !empty($data)) {
 			$contNoRegistrados = 0;
@@ -1263,14 +1263,14 @@ class Visitas extends MY_Controller{
 				$inputBusqueda=array();
 				$idUsuario= (isset($row[1]) && !empty($row[1]))? $row[1]:NULL;
 				$inputBusqueda['idUsuario']=$idUsuario;
-
+				
 				$inputBusqueda['fecha'] = (isset($row[0]) && !empty($row[0]))? $row[0]:NULL;
 				$idCliente = (isset($row[2]) && !empty($row[2]))? $row[2]:NULL;
 				$inputBusqueda['idTipoUsuario'] = $idTipoUsuario;
-
-				$rs_verificarRuta = $this->model->obtener_verificacion_existente($inputBusqueda);
 				
-
+				$rs_verificarRuta = $this->model->obtener_verificacion_existente($inputBusqueda);
+				//Revisar - 001
+				
 				if (empty($rs_verificarRuta)) {
 					//no tiene ruta
 					
@@ -1280,8 +1280,8 @@ class Visitas extends MY_Controller{
 						$inputBusquedaCliente['idCliente'] = $idCliente;
 						
 						$rs_clientes = $this->model->obtener_lista_clientes($inputBusquedaCliente);
-
-				
+						
+						
 						if ( !empty($rs_clientes)) {
 							$arrayInsertarRuta=array();
 							$arrayInsertarRuta['idUsuario']=$inputBusqueda['idUsuario'];
@@ -1295,18 +1295,18 @@ class Visitas extends MY_Controller{
 							$rs_usuarios = $this->model->obtener_lista_usuarios($inputUsuario);
 							
 							$insertarRuta = $this->model->insertar_ruta($arrayInsertarRuta);
-
+							
 								if ( $insertarRuta) {
 									$idRutaNueva = $this->model->insertId;
 									//crear ruta
 									
-
+									
 									$idCliente = $rs_clientes[0]['idCliente'];
 									$razonSocial = $rs_clientes[0]['razonSocial'];
 									$nombreComercial = $rs_clientes[0]['nombreComercial'];
 									
 									$nombreUsuario = $rs_usuarios[0]['nombreUsuario'];
-
+									
 									//INSERTAMOS LA VISITA
 									$arrayInsertarVisita=array();
 									$arrayInsertarVisita['idRuta'] = $idRutaNueva;
@@ -1315,7 +1315,7 @@ class Visitas extends MY_Controller{
 									$arrayInsertarVisita['nombreComercial'] = $nombreComercial;
 									
 									$insertarVisita = $this->model->insertar_visita($arrayInsertarVisita);
-
+									
 								if ( $insertarVisita) {
 									$html .= '<div class="alert alert-success fade show" role="alert"><i class="fas fa-store-alt"></i> SE LOGRÓ REGISTRAR AL CLIENTE <strong>'.$razonSocial.'</strong> PARA EL USUARIO <strong>'.$nombreUsuario.'</strong> CON LA FECHA <strong>'.$inputBusqueda['fecha'].'</strong> CORRECTAMENTE.</div>';
 								} else {
@@ -1325,7 +1325,7 @@ class Visitas extends MY_Controller{
 						}
 				}else{
 					//si tiene ruta
-
+					
 					$inputBusqueda=array();
 					$idUsuario=(isset($row[1]) && !empty($row[1]))? $row[1]:NULL;
 					$inputBusqueda['idUsuario'] = $idUsuario;
@@ -1336,12 +1336,12 @@ class Visitas extends MY_Controller{
 					if (!empty($rs_verificarRuta)) {
 						//HAY REGISTRO DE DATA
 						$idRutaNueva = $rs_verificarRuta[0]['idRuta'];
-
+						
 						//VERIFICAMOS EXISTENCIA DE VISITA 
 						$arrayVerificacion=array();
 						$arrayVerificacion['idRuta'] = $idRutaNueva;
 						$arrayVerificacion['idCliente'] = $idCliente;
-
+						
 						// ESTA FUNCION NO EXISTE
 						$rs_verificacionVisita = $this->model->obtener_verificacion_existente_visita_cliente($arrayVerificacion);
 						
@@ -1351,21 +1351,21 @@ class Visitas extends MY_Controller{
 							$inputBusquedaCliente['fecha'] = date('d/m/Y');
 							$inputBusquedaCliente['idCliente'] = $idCliente;
 							$rs_clientes = $this->model->obtener_lista_clientes($inputBusquedaCliente);
-
-					
+							
+							
 							if ( !empty($rs_clientes)) {
 								$idCliente = $rs_clientes[0]['idCliente'];
 								$razonSocial = $rs_clientes[0]['razonSocial'];
 								$nombreComercial = $rs_clientes[0]['nombreComercial'];
-
+								
 								//INSERTAMOS LA VISITA
 								$arrayInsertarVisita=array();
 								$arrayInsertarVisita['idRuta'] = $idRutaNueva;
 								$arrayInsertarVisita['idCliente'] = $idCliente;
 								$arrayInsertarVisita['razonSocial'] = $razonSocial;
 								$arrayInsertarVisita['nombreComercial'] = $nombreComercial;
-
-	
+								
+								
 								
 								$insertarVisita = $this->model->insertar_visita($arrayInsertarVisita);
 
@@ -1382,16 +1382,16 @@ class Visitas extends MY_Controller{
 					}
 				}
 			}
-
+			
 			
 		} else {
 			$html = getMensajeGestion('noRegistros');
 		}
-
+		
 		$result['result']=1;
 		$result['msg']['title'] = 'REGISTRAR NUEVA VISITA MASIVA';
 		$result['data']['html'] = $html;
-
+		
 		$this->aSessTrack = $this->model->aSessTrack;
 		echo json_encode($result);
 	}

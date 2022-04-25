@@ -53,6 +53,8 @@ class Iniciativas extends MY_Controller
 		set_time_limit(0);
 
 		$post = json_decode($this->input->post('data'), true);
+		$input['status'] = '0';
+
 		
 		$fechas = explode('-', $post['txt-fechas']);
 		$fechaIni = $fechas[0];
@@ -113,14 +115,21 @@ class Iniciativas extends MY_Controller
 		
 		 if( count($array['iniciativas']) < 1 ) {
 			$result['result']=1;
-			$result['data']=getMensajeGestion('noRegistros');
+			$html =getMensajeGestion('noRegistros');
 		}
 		else{
 			$segmentacion = getSegmentacion($post);
 			$array['segmentacion'] = $segmentacion;
 			$result['result']=1;
-			$result['data']=$this->load->view("modulos/iniciativas/lista_iniciativas", $array, true);
+			$html =$this->load->view("modulos/iniciativas/lista_iniciativas", $array, true);
 		}
+		$result['status'] = 1;
+		$result['data']['views']['contentIniciativas']['datatable'] = 'tb-Iniciativas';
+		$result['data']['views']['contentIniciativas']['html'] = $html;
+		$result['data']['configTable'] =  [
+			'targets' => [1],
+			'ordering' => false
+		];
 		
 		echo json_encode($result);
 	}
@@ -243,41 +252,22 @@ class Iniciativas extends MY_Controller
 		header('Set-Cookie: fileDownload=true; path=/');
 		header('Cache-Control: max-age=60, must-revalidate');
 
+		$input = [];
 		$post=json_decode($this->input->post('data'),true);
 		$fecIni = $post['datos']['fecIni'];
 		$fecFin = $post['datos']['fecFin'];
 
+		$input['fecIni'] = $fecIni;
+		$input['fecFin'] = $fecFin;
+
 		$nombreArchivo = 'Iniciativas '.$fecIni.'-'.$fecFin.'.pdf';
 		
 		$filtro = "";
-		$total = count($post['datos']);
-		$id = array();
-		$j=0;
-		for($i=0; $i<$total;$i++){
-			if(!empty($post['datos'][$i]['iniciativas'][0])){
-				$id[$j]=$post['datos'][$i]['iniciativas'][0];
-				$j++;
-			}
-		}
-		$total_id =count($id) ;
-		
-		if($total_id>1){
-			for($z=0; $z<$total_id;$z++){
-				if($z == 0){
-					$filtro.='AND id.idVisitaIniciativaTradDet IN ( '.$id[$z].',';
-				}
-				else if($z!=0 && $z!=($total_id-1) ){
-					$filtro.=$id[$z].',';
-				}
-				else if($z==($total_id-1)){
-					$filtro.=$id[$z].')';
-				} 
-			}
-		}else if($total_id==1){
-			$filtro.="AND id.idVisitaIniciativaTradDet IN ( ".$id[0].")";
-		}
 
-		$visitasTotal = $this->model->visitas_pdf($filtro,$fecIni,$fecFin);
+		$input['idIniciativaDet'] = implode(',', $post['datos']['idIniciativaDet']);
+
+		$visitasTotal = $this->model->visitas_pdf($input);
+		// $visitasTotal = $this->model->obtener_iniciativas($input);
 
 		$www=base_url().'public/';
 		$style="
@@ -372,8 +362,7 @@ class Iniciativas extends MY_Controller
 						}
 						$html .= '<tr>';
 							if(!empty($row['foto'])){
-								// $url = site_url().'ControlFoto/obtener_carpeta_foto/iniciativa/'.$row['foto'];
-								$url = 'https://movil.visualimpact.com.pe/fotos/impactTrade_android/iniciativa/'.$row['foto'];
+								$url = verificarUrlFotos($row['foto']) . 'iniciativa/'.$row['foto'];
 								$html .= '<td colspan="2" style="text-align:center;"><img class="foto" src="'.$url.'" width="280" height="200" /></td>';
 							} else {
 								$html .= '<td colspan="2" style="text-align:center;"><img class="foto" src="https://ww7.visualimpact.com.pe/impactTrade/public/assets/images/no_image_600x600.png" width="280" height="200" /></td>';

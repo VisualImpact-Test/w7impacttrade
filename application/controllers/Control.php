@@ -100,6 +100,10 @@ class Control extends MY_Controller{
 					$data['distrito'] = $this->m_control->get_ubigeo_distrito($input);
 				}
 
+				//UPDATE FILTROS SEGMENTACION 
+				if( isset($input['combos']['distrito']) ){
+					$data['distrito'] = $this->m_control->get_ubigeo_distrito($input);
+				}
 				$result['data'] = $data;
 				
 				if(!empty($input['idGrupoCanal']))

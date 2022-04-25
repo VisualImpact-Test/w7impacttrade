@@ -835,7 +835,7 @@ class M_Home extends MY_Model{
 		$canales = !empty($h_canales) ? implode(',', array_map('array_shift', $h_canales)): '';
 		
         
-        !empty($canales) ? $filtros .= " AND ca.idCanal IN({$canales})" : '' ;
+        !empty($canales) ? $filtros .= " AND c.idCanal IN({$canales})" : '' ;
         !empty($zonas) ? $filtros .= " AND uhz.idZona IN({$zonas})" : '' ;
 
         $sql = "
@@ -891,6 +891,18 @@ class M_Home extends MY_Model{
             AND numFotos >= 1 
             AND ISNULL(estadoIncidencia,0) <> 1
             GROUP BY lr.idUsuario
+        ), visitas_incidencia AS (
+            SELECT
+                i.idVisita
+            FROM {$this->sessBDCuenta}.trade.data_visitaIncidencia i
+            WHERE i.idVisita IN(SELECT idVisita FROM lista_rutas)
+        ), lista_incidencias AS (
+            SELECT
+                lr.idUsuario
+                , COUNT(lr.idVisita) AS incidencias
+            FROM lista_rutas lr
+            WHERE lr.idVisita IN(SELECT idVisita FROM visitas_incidencia)
+            GROUP BY lr.idUsuario
         ), lista_modulos AS (
             SELECT
                 lr.idUsuario
@@ -925,6 +937,7 @@ class M_Home extends MY_Model{
             , u.nombres+' '+u.apePaterno+' '+u.apeMaterno AS usuario
             , lp.programados
             , ISNULL(le.efectivos, 0) AS efectivos
+            , ISNULL(li.incidencias, 0) AS incidencias
             , ISNULL(lv.visitados, 0) AS visitados
             , ISNULL(lep.encuestaB2B, 0) AS comprab2b
             , lm.*
@@ -932,7 +945,8 @@ class M_Home extends MY_Model{
         LEFT JOIN lista_efectivos le ON lp.idUsuario = le.idUsuario
         LEFT JOIN lista_modulos lm ON lp.idUsuario = lm.idUsuario
         LEFT JOIN lista_visitados lv ON lv.idUsuario = lp.idUsuario
-        lEFT JOIN lista_encuestas_promotoria lep ON lep.idUsuario = lp.idUsuario
+        LEFT JOIN lista_encuestas_promotoria lep ON lep.idUsuario = lp.idUsuario
+        LEFT JOIN lista_incidencias li ON li.idUsuario = lp.idUsuario
         JOIN trade.usuario u ON lp.idUSuario = u.idUsuario
         ORDER BY efectivos ASC, programados DESC
         ";

@@ -566,7 +566,7 @@ class Usuarios extends MY_Controller
 				$width = '70%';
 				$html = $this->html['usuarios']['editarHistoricoCanal'];
 				$dataParaVista['canalesDeHistorico'] = $this->m_usuarios->getGrupoCanalYCanalDeHistorico($post)->result_array();
-				$grupoCanalYCanal = $this->m_usuarios->getGrupoCanalYCanal()->result_array();
+				$grupoCanalYCanal = $this->m_usuarios->getGrupoCanalYCanal($post)->result_array();
 				$canales = [];
 				$grupoCanales = [];
 				foreach ($grupoCanalYCanal as $value) {
@@ -639,7 +639,7 @@ class Usuarios extends MY_Controller
 				$width = '70%';
 				$html = $this->html['usuarios']['editarHistoricoBanner'];
 				$dataParaVista['bannersDeHistorico'] = $this->m_usuarios->getCadenaYBannerDeHistorico($post)->result_array();
-				$cadenaYBanner = $this->m_usuarios->getCadenaYBanner()->result_array();
+				$cadenaYBanner = $this->m_usuarios->getCadenaYBanner($post)->result_array();
 				$cadenas = [];
 				$banners = [];
 				foreach ($cadenaYBanner as $value) {
@@ -657,7 +657,7 @@ class Usuarios extends MY_Controller
 				$width = '70%';
 				$html = $this->html['usuarios']['editarHistoricoDistribuidoraSucursal'];
 				$dataParaVista['distribuidorasSucursalesDeHistorico'] = $this->m_usuarios->getDistribuidorasSucursalesDeHistorico($post)->result_array();
-				$distribuidorasSucursales = $this->m_usuarios->getDistribuidorasSucursales()->result_array();
+				$distribuidorasSucursales = $this->m_usuarios->getDistribuidorasSucursales($post)->result_array();
 				$distribuidoras = [];
 				$sucursales = [];
 				foreach ($distribuidorasSucursales as $value) {
@@ -675,7 +675,7 @@ class Usuarios extends MY_Controller
 				$width = '70%';
 				$html = $this->html['usuarios']['editarHistoricoPlaza'];
 				$dataParaVista['plazasDeHistorico'] = $this->m_usuarios->getPlazasDeHistorico($post)->result_array();
-				$dataParaVista['plazas'] = $this->m_usuarios->getPlazas()->result_array();
+				$dataParaVista['plazas'] = $this->m_usuarios->getPlazas($post)->result_array();
 				break;
 		}
 

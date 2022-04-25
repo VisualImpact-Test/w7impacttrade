@@ -151,6 +151,7 @@ class M_scorecard extends MY_Model{
 		$fecFin = $input['fecFin'];
 		$filtro = '';
 		$subfiltros = '';
+		$filtroCliente = '';
 
 		$filtro.=!empty($input['idsubcanal'])?'AND idSubCanal ='.$input['idsubcanal'] :'';
 		if(!empty($input['tipo'])){
@@ -163,89 +164,125 @@ class M_scorecard extends MY_Model{
 
 		$subfiltros .= !empty($input['idGrupoCanal']) ? 'AND gc.idGrupoCanal =' . $input['idGrupoCanal'] : '';
 		$subfiltros .= !empty($input['idCanal']) ? 'AND ca.idCanal =' . $input['idCanal'] : '';
-		$subfiltros .= !empty($input['idCanal']) ? 'AND ca.idCanal =' . $input['idCanal'] : '';
 		$subfiltros .= !empty($input['idProyecto']) ? 'AND r.idProyecto =' . $input['idProyecto'] : '';
-		$subfiltros .= !empty($input['idCanal']) ? 'AND ca.idCanal =' . $input['idCanal'] : '';
+		$subfiltros .= !empty($input['idClienteTipo']) ? 'AND c.idSubCanal =' . $input['idClienteTipo'] : '';
+
 		
-		$subfiltros .= !empty($input['idClienteTipo']) ? 'AND sn.idClienteTipo =' . $input['idClienteTipo'] : '';
+		// $filtroCliente .= !empty($input['idGrupoCanal']) ? 'AND gc.idGrupoCanal =' . $input['idGrupoCanal'] : '';
+		// $filtroCliente .= !empty($input['idCanal']) ? 'AND ca.idCanal =' . $input['idCanal'] : '';
+		// $filtroCliente .= !empty($input['idClienteTipo']) ? 'AND sn.idClienteTipo =' . $input['idClienteTipo'] : '';
 
 		//$subfiltros .= !empty($input['idCuenta']) ? 'AND cu.idCuenta =' . $input['idCuenta'] : '';
 		$segmentacion = getSegmentacion(['grupoCanal_filtro' => $input['idGrupoCanal']]);
 		$sql = "
 			DECLARE @fecIni date='".$fecIni."',@fecFin date='".$fecFin."';
-			SELECT 
-				*
+			WITH lst_clientes AS (
+                SELECT
+				ch.idCliente
+				, ct.idClienteTipo idSubCanal
+                , ct.nombre subCanal
+                , ca.idCanal
+                , ca.nombre canal
+                , gc.nombre grupoCanal
+                , gc.idGrupoCanal
+				{$segmentacion['columnas_bd']}
+			FROM trade.cliente cli
+			JOIN {$this->sessBDCuenta}.trade.cliente_historico ch ON cli.idCliente = ch.idCliente
+			LEFT JOIN General.dbo.ubigeo ubi01 ON ch.cod_ubigeo = ubi01.cod_ubigeo
+			JOIN trade.segmentacionNegocio sn ON sn.idSegNegocio = ch.idSegNegocio
+			JOIN trade.cliente_tipo ct ON ct.idClienteTipo = sn.idClienteTipo
+            JOIN trade.canal ca ON ca.idCanal = sn.idCanal AND ca.estado=1 AND ca.idCanal NOT IN (11)
+            JOIN trade.grupoCanal gc ON gc.idGrupoCanal = ca.idGrupoCanal 
+			{$segmentacion['join']}
+			WHERE ch.idProyecto = {$sessIdProyecto}
+			AND General.dbo.fn_fechaVigente(ch.fecIni, ch.fecFin, @fecIni, @fecFin) = 1
+			{$filtroCliente}
+            )
+			SELECT DISTINCT
+				idCliente
+				,ejecutivo
+				,coordinador
+				,supervisor
+				,idGrupoCanal
+				,grupoCanal
+				,idCanal
+				,canal
+				,idSubCanal
+				,subcanal
+				,codCliente
+				,razonSocial
+				,direccion
+				,idVisita
+				,numFotos
+				,estadoIncidencia
+				,horaIni
+				,horaFin
+				,estado
+				,fecha
+				,estadoVisita
+				,idFrecuencia	
 				, COUNT(idCliente) OVER (PARTITION BY idCanal,idSubCanal,estadoVisita) total_subcanal
 				, COUNT(idCliente) OVER (PARTITION BY idCanal,idSubCanal) visitas_programadas
 				, COUNT(CASE WHEN cant_cliente = 1 THEN idCliente END) OVER (PARTITION BY idCanal,idSubCanal,estadoVisita) cobertura_subcanal
 			FROM (
 				SELECT DISTINCT 
-					  v.idCliente
-					, 'EJECUTIVO' ejecutivo
-					, 'COORDINADOR' coordinador
-					, 'SUPERVISOR' supervisor
-					, gc.idGrupoCanal
-					, gc.nombre grupoCanal
-					, ca.idCanal
-					, ca.nombre canal
-					--, sca.idSubCanal
-					--, sca.nombre subcanal
-					, sca.idClienteTipo AS idSubCanal
-					, sca.nombre AS subcanal
-					, v.codCliente
-					, v.razonSocial
-					, v.direccion
-					, v.idVisita
-					, v.numFotos
-					, v.estadoIncidencia
-					, v.horaIni
-					, v.horaFin
-					, v.estado
-					, r.fecha
-					, CASE 
-						WHEN v.horaIni IS NOT NULL AND v.horaFin IS NOT NULL AND ISNULL(CASE WHEN vi.idVisitaIncidencia IS NOT NULL THEN 1 ELSE NULL END ,0) <> 1 AND v.idTipoExclusion IS NULL THEN 
-						CASE 
-							WHEN r.fecha BETWEEN '01/10/2021' AND '15/10/2021' THEN 'EFECTIVA' 
-							ELSE 
-								CASE 
-								WHEN v.numFotos >=1 THEN 'EFECTIVA'
-								WHEN v.idCliente IN(21599, 21665) THEN 'EFECTIVA'
-								ELSE 'NO EFECTIVA'
-								END
-						END 
-						WHEN vi.idVisitaIncidencia IS NOT NULL AND v.idTipoExclusion IS NULL THEN 'INCIDENCIA'
-						WHEN v.idTipoExclusion IS NOT NULL THEN 'EXCLUSION'
-						ELSE 'NO EFECTIVA'
-					END estadoVisita
-					, v.idFrecuencia
-					, ROW_NUMBER() OVER (PARTITION BY v.idCliente ORDER BY v.razonSocial) cant_cliente
-
-					{$segmentacion['columnas_bd']}
-
+				v.idCliente
+				, 'EJECUTIVO' ejecutivo
+				, 'COORDINADOR' coordinador
+				, 'SUPERVISOR' supervisor
+				, c.idGrupoCanal
+				, c.grupoCanal 
+				, c.idCanal
+				, c.canal 
+				--, sca.idSubCanal
+				--, sca.nombre subcanal
+				, c.idSubCanal 
+				, c.subcanal 
+				, v.codCliente
+				, v.razonSocial
+				, v.direccion
+				, v.idVisita
+				, v.numFotos
+				, v.estadoIncidencia
+				, v.horaIni
+				, v.horaFin
+				, v.estado
+				, r.fecha
+				, CASE 
+					--WHEN v.horaIni IS NOT NULL AND v.horaFin IS NOT NULL AND ISNULL(CASE WHEN vi.idVisitaIncidencia IS NOT NULL THEN 1 ELSE NULL END ,0) <> 1 AND v.idTipoExclusion IS NULL THEN 
+					WHEN v.horaIni IS NOT NULL AND v.horaFin IS NOT NULL AND ISNULL(CASE WHEN (SELECT COUNT(idVisitaIncidencia) FROM {$this->sessBDCuenta}.trade.data_visitaIncidencia WHERE idVisita = v.idVisita) > 0 THEN 1 ELSE NULL END ,0) <> 1 AND v.idTipoExclusion IS NULL THEN 
+					CASE 
+						WHEN r.fecha BETWEEN '01/10/2021' AND '15/10/2021' THEN 'EFECTIVA' 
+						ELSE 
+							CASE 
+							WHEN v.numFotos >=1 THEN 'EFECTIVA'
+							WHEN v.idCliente IN(21599, 21665) THEN 'EFECTIVA'
+							ELSE 'NO EFECTIVA'
+							END
+					END 
+					WHEN (SELECT COUNT(idVisitaIncidencia) FROM {$this->sessBDCuenta}.trade.data_visitaIncidencia WHERE idVisita = v.idVisita) > 0 AND v.idTipoExclusion IS NULL THEN 'INCIDENCIA'
+					WHEN v.idTipoExclusion IS NOT NULL THEN 'EXCLUSION'
+					ELSE 'NO EFECTIVA'
+				END estadoVisita
+				, v.idFrecuencia
+				, ROW_NUMBER() OVER (PARTITION BY v.idCliente ORDER BY v.razonSocial) cant_cliente
 				FROM
 					{$this->sessBDCuenta}.trade.data_ruta r WITH(NOLOCK)
 					JOIN {$this->sessBDCuenta}.trade.data_visita v
 						ON v.idRuta = r.idRuta
 						AND r.fecha BETWEEN @fecIni AND @fecFin
 						AND r.idTIpoUsuario IN(1,18)
-					JOIN ".getClienteHistoricoCuenta()." ch ON ch.idCliente = v.idCliente 
-						AND General.dbo.fn_fechaVigente(ch.fecIni,ch.fecFin,r.fecha,r.fecha)=1 AND ch.idProyecto = r.idProyecto
+					LEFT JOIN lst_clientes c ON c.idCliente = v.idCliente 
 					JOIN trade.proyecto py ON py.idProyecto = r.idProyecto
 					JOIN trade.cuenta cu ON cu.idCuenta = py.idCuenta
-					JOIN trade.segmentacionNegocio sn ON sn.idSegNegocio = ch.idSegNegocio AND sn.estado = 1 
-					JOIN trade.canal ca ON ca.idCanal = sn.idCanal AND ca.estado=1 AND ca.idCanal NOT IN (11)
-					--LEFT JOIN trade.subCanal sca ON sca.idSubCanal = sn.idSubCanal AND sca.estado = 1
-					JOIN trade.cliente_tipo sca ON sca.idClienteTipo = sn.idClienteTipo AND sca.estado = 1
-					JOIN trade.grupoCanal gc ON gc.idGrupoCanal = ca.idGrupoCanal 
-					LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaIncidencia vi ON vi.idVisita = v.idVisita 
-					{$segmentacion['join']}
-					
+					JOIN trade.canal ca ON ca.idCanal = v.idCanal
+					JOIN trade.grupoCanal gc ON gc.idGrupoCanal = ca.idGrupoCanal
+					--LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaIncidencia vi ON vi.idVisita = v.idVisita 
 				WHERE
 					1=1
 					AND (r.demo = 0 OR r.demo IS NULL)
 					AND v.estado = 1
 					AND r.estado = 1
-					
 					{$subfiltros}
 					
 			)a
@@ -271,18 +308,16 @@ class M_scorecard extends MY_Model{
 		$fecFin = $input['fecFin'];
 		$filtro = '';
 		$subfiltros = '';
+		$visitas = '';
 
 		if(empty($input['flagTotal'])){
 			
-			$subfiltros .= !empty($input['idGrupoCanal']) ? 'AND gc.idGrupoCanal =' . $input['idGrupoCanal'] : '';
-			$subfiltros .= !empty($input['idCanal']) ? 'AND ca.idCanal =' . $input['idCanal'] : '';
-			$subfiltros .= !empty($input['idsubcanal']) ? 'AND sn.idClienteTipo =' . $input['idsubcanal'] : '';
+			$subfiltros .= !empty($input['idGrupoCanal']) ? 'AND ch.idGrupoCanal =' . $input['idGrupoCanal'] : '';
+			$subfiltros .= !empty($input['idCanal']) ? 'AND ch.idCanal =' . $input['idCanal'] : '';
+			$subfiltros .= !empty($input['idsubcanal']) ? 'AND ch.idSubCanal =' . $input['idsubcanal'] : '';
 		}
-		$subfiltros .=!empty($input['str_visitas'])?'AND v.idVisita IN ('.$input['str_visitas'].')' :'';
+		$visitas .=!empty($input['str_visitas'])?'AND v.idVisita IN ('.$input['str_visitas'].')' :'';
 		
-		$subfiltros .= !empty($input['idProyecto']) ? 'AND r.idProyecto =' . $input['idProyecto'] : '';
-		//$subfiltros .= !empty($input['idCuenta']) ? 'AND cu.idCuenta =' . $input['idCuenta'] : '';
-
 		if(empty($input['flagTotal']))
 		{
 			$segmentacion = getSegmentacion(['grupoCanal_filtro' => $input['idGrupoCanal']]);
@@ -310,78 +345,83 @@ class M_scorecard extends MY_Model{
 
 		$sql = "
 			DECLARE @fecha DATE = GETDATE(),@fecIni date='".$fecIni."',@fecFin date='".$fecFin."';
-				WITH list_usuarios_activos as(
-					SELECT DISTINCT
-					u.idUsuario
-					FROM
-					trade.usuario u 
-					JOIN trade.usuario_historico uh ON uh.idUsuario = u.idUsuario
-					WHERE General.dbo.fn_fechaVigente (uh.fecIni,uh.fecFin,@fecha,@fecha) = 1 AND uh.idProyecto IN (".$input['idProyecto'].")
-				)
-				SELECT DISTINCT 
-					  v.idCliente
-					, CASE WHEN r.idUsuario NOT IN(SELECT idUsuario FROM list_usuarios_activos) THEN 1 ELSE 0 END cesado
-					, gc.idGrupoCanal
-					, gc.nombre grupoCanal
-					, ca.idCanal
-					, ca.nombre canal
-					--, sca.idSubCanal
-					--, sca.nombre subcanal
-					, sca.idClienteTipo AS idSubCanal
-					, sca.nombre AS subcanal
-					, v.codCliente
-					, c.codDist
-					, v.razonSocial
-					, v.direccion
-					, v.idVisita
-					, v.numFotos
-					, v.estadoIncidencia
-					, v.horaIni
-					, v.horaFin
-					, CONVERT(VARCHAR(8), v.horaIni) hora_ini
-					, CONVERT(VARCHAR(8), v.horaFin) hora_fin
-					, DATEDIFF(MINUTE,v.horaIni,v.horaFin) minutos
-					, v.estado
-					, r.fecha
-					, r.nombreUsuario
-					, r.idUsuario
-					, r.idTipoUsuario
-					, r.tipoUsuario
-					, (SELECT TOP 1 nombreIncidencia FROM {$this->sessBDCuenta}.trade.data_visitaIncidencia WHERE idVisita = v.idVisita ORDER BY idVisitaIncidencia DESC) incidencia_nombre
-					, (SELECT TOP 1 CONVERT(VARCHAR(8), hora) FROM {$this->sessBDCuenta}.trade.data_visitaIncidencia WHERE idVisita = v.idVisita ORDER BY idVisitaIncidencia DESC) incidencia_hora
-					, ISNULL(v.latIni,0) lati_ini
-					, ISNULL(v.lonIni,0) long_ini
-					, ISNULL(v.latFin,0) lati_fin
-					, ISNULL(v.lonFin,0) long_fin
-					, ISNULL(c.latitud,0) latitud
-					, ISNULL(c.longitud,0) longitud
-					, v.idFrecuencia
-					{$segmentacion['columnas_bd']}
-
+			WITH list_usuarios_activos as(
+				SELECT DISTINCT
+				u.idUsuario
 				FROM
-					{$this->sessBDCuenta}.trade.data_ruta r WITH(NOLOCK)
-					JOIN {$this->sessBDCuenta}.trade.data_visita v
-						ON v.idRuta = r.idRuta
-						AND r.fecha BETWEEN @fecIni AND @fecFin
-						AND r.idTIpoUsuario IN(1,18)
-					JOIN trade.cliente c ON c.idCliente = v.idCliente
-					JOIN ".getClienteHistoricoCuenta()." ch ON ch.idCliente = v.idCliente 
-						AND General.dbo.fn_fechaVigente(ch.fecIni,ch.fecFin,r.fecha,r.fecha)=1 AND ch.idProyecto = {$sessIdProyecto} 
-					JOIN trade.proyecto py ON py.idProyecto = r.idProyecto
-					JOIN trade.cuenta cu ON cu.idCuenta = py.idCuenta
-					JOIN trade.segmentacionNegocio sn ON sn.idSegNegocio = ch.idSegNegocio AND sn.estado = 1 
-					JOIN trade.canal ca ON ca.idCanal = sn.idCanal AND ca.estado=1 AND ca.idCanal NOT IN (11)
-					JOIN trade.cliente_tipo sca ON sca.idClienteTipo = sn.idClienteTipo AND sca.estado = 1
-					JOIN trade.grupoCanal gc ON gc.idGrupoCanal = ca.idGrupoCanal 
-					LEFT JOIN {$this->sessBDCuenta}.trade.data_visitaIncidencia vi ON vi.idVisita = v.idVisita
-					{$segmentacion['join']}
-				WHERE
-					1=1
-					AND (r.demo = 0 OR r.demo IS NULL)
-					AND v.estado = 1
-					AND r.estado = 1
-					{$subfiltros}
-	
+				trade.usuario u 
+				JOIN trade.usuario_historico uh ON uh.idUsuario = u.idUsuario
+				WHERE General.dbo.fn_fechaVigente (uh.fecIni,uh.fecFin,@fecha,@fecha) = 1 AND uh.idProyecto IN (3)
+			), lst_clientes AS (
+				SELECT 
+				ch.idCliente
+				, ct.idClienteTipo idSubCanal
+				, ct.nombre subcanal
+				, ca.idCanal
+				, ca.nombre canal
+				, gc.nombre grupoCanal
+				, gc.idGrupoCanal
+				, ch.idSegNegocio
+				, ch.idSegClienteTradicional
+				, ch.idZona
+				, ch.latitud
+				, ch.longitud
+				, cli.codDist
+				  
+				{$segmentacion['columnas_bd']}
+		
+			FROM trade.cliente cli
+			JOIN {$this->sessBDCuenta}.trade.cliente_historico ch ON cli.idCliente = ch.idCliente
+			LEFT JOIN General.dbo.ubigeo ubi01 ON ch.cod_ubigeo = ubi01.cod_ubigeo
+			JOIN trade.segmentacionNegocio sn ON sn.idSegNegocio = ch.idSegNegocio
+			JOIN trade.cliente_tipo ct ON ct.idClienteTipo = sn.idClienteTipo
+			JOIN trade.canal ca ON ca.idCanal = sn.idCanal AND ca.estado=1 AND ca.idCanal NOT IN (11)
+			JOIN trade.grupoCanal gc ON gc.idGrupoCanal = ca.idGrupoCanal 
+			{$segmentacion['join']}
+		
+			WHERE ch.idProyecto = {$sessIdProyecto}
+			AND General.dbo.fn_fechaVigente(ch.fecIni, ch.fecFin, @fecIni, @fecFin) = 1
+			), lst_visitas AS(
+
+				SELECT 
+				v.idCliente
+				, CASE WHEN (SELECT idUsuario FROM {$this->sessBDCuenta}.trade.data_ruta WHERE idRuta = v.idRuta) NOT IN(SELECT idUsuario FROM list_usuarios_activos) THEN 1 ELSE 0 END cesado
+                , (SELECT fecha FROM {$this->sessBDCuenta}.trade.data_ruta WHERE idRuta = v.idRuta) fecha
+                , (SELECT nombreUsuario FROM {$this->sessBDCuenta}.trade.data_ruta WHERE idRuta = v.idRuta) nombreUsuario
+                , (SELECT idUsuario FROM {$this->sessBDCuenta}.trade.data_ruta WHERE idRuta = v.idRuta) idUsuario
+                , (SELECT idTipoUsuario FROM {$this->sessBDCuenta}.trade.data_ruta WHERE idRuta = v.idRuta) idTipoUsuario
+                , (SELECT tipoUsuario FROM {$this->sessBDCuenta}.trade.data_ruta WHERE idRuta = v.idRuta) tipoUsuario
+				, v.razonSocial
+				, v.direccion
+				, v.idVisita
+				, v.numFotos
+				, v.estadoIncidencia
+				, v.horaIni
+				, v.horaFin
+				, CONVERT(VARCHAR(8), v.horaIni) hora_ini
+				, CONVERT(VARCHAR(8), v.horaFin) hora_fin
+				, DATEDIFF(MINUTE,v.horaIni,v.horaFin) minutos
+				, v.estado
+				, v.idFrecuencia
+				, ISNULL(v.latIni,0) lati_ini
+				, ISNULL(v.lonIni,0) long_ini
+				, ISNULL(v.latFin,0) lati_fin
+				, ISNULL(v.lonFin,0) long_fin
+				, (SELECT TOP 1 nombreIncidencia FROM {$this->sessBDCuenta}.trade.data_visitaIncidencia WHERE idVisita = v.idVisita ORDER BY idVisitaIncidencia DESC) incidencia_nombre
+				, (SELECT TOP 1 CONVERT(VARCHAR(8), hora) FROM {$this->sessBDCuenta}.trade.data_visitaIncidencia WHERE idVisita = v.idVisita ORDER BY idVisitaIncidencia DESC) incidencia_hora
+				FROM 
+				{$this->sessBDCuenta}.trade.data_visita v 
+				WHERE 
+				1 = 1 
+				$visitas
+			)	
+			SELECT 
+			v.*,
+			ch.* 
+			FROM lst_visitas v 
+			LEFT JOIN lst_clientes ch ON ch.idCliente = v.idCliente
+			{$subfiltros}
+			
 		";
 
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => "{$this->sessBDCuenta}.trade.data_visita" ];

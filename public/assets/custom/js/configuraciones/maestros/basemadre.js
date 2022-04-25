@@ -49,6 +49,7 @@ var Basemadre = {
 			switch(opcion){
 				case 1:
 					$('#btn-filtrarMaestrosBasemadre').show();
+					$('#btn-filtrarHistoricoBasemadre').show();
 					$("#btn-deBajaMaestrosBasemadre").show();
 					$("#btn-cargaMasivaHistorico").show();
 					$("#btn-cargaMasivaAlternativa").show();
@@ -74,6 +75,8 @@ var Basemadre = {
                     break;
                 case 2:
 					$('#btn-filtrarMaestrosBasemadre').hide();
+					$('#btn-filtrarHistoricoBasemadre').hide();
+
 					$("#btn-deBajaMaestrosBasemadre").hide();
 					$("#btn-cargaMasivaHistorico").hide();
 					$("#btn-cargaMasivaAlternativa").hide();
@@ -129,8 +132,50 @@ var Basemadre = {
 				,'url': Basemadre.url + control.data('url')
 				,'contentDetalle': Basemadre.contentSeleccionado
 			};
-			Fn.loadReporte(config);
+			Fn.loadReporte_new(config);
 		});
+
+		$(document).on('click','#btn-filtrarHistoricoBasemadre', function(e){
+			e.preventDefault();
+
+			var control = $(this);
+			var config = {
+				'idFrm' : Basemadre.frmMaestrosBasemadre
+				,'url': Basemadre.url + "filtrarHistoricos"
+				,'contentDetalle': Basemadre.contentSeleccionado
+			};
+			Fn.loadReporte_new(config);
+		});
+
+		$(document).on('click','.btn-CambiarEstadoHistorico', function(e){
+			e.preventDefault();
+			var control = $(this);
+			var idClienteHist = $(this).data('cliente-historico');
+			var ac = $(this).data('activo-actualmente');
+
+			console.log(idClienteHist);
+			console.log(ac);
+
+
+			++modalId;
+			var fn1='Basemadre.confirmarCambiarEstado("'+ac+'","'+idClienteHist+'");Fn.showModal({ id:'+modalId+',show:false });';
+			var fn2='Fn.showModal({ id:'+modalId+',show:false });';
+			var btn=new Array();
+				btn[0]={title:'Continuar',fn:fn1};
+				btn[1]={title:'Cerrar',fn:fn2};
+			var estado="";
+			if(ac=="1"){
+				estado="Desactivar";
+			}else{
+				estado="Activar";
+			}
+			var message = Fn.message({ 'type': 3, 'message': '¿Desea '+estado+' el historico seleccionado?' });
+			Fn.showModal({ id:modalId,title:'Alerta',content:message,btn:btn,show:true});
+		});
+
+		
+		
+		
 
 		$(document).on('click','#btn-deBajaMaestrosBasemadre', function(e){
 			e.preventDefault();
@@ -1176,9 +1221,9 @@ var Basemadre = {
 
 		});
 
-		// $(document).ready(function () {
-		// 	$('#btn-filtrarMaestrosBasemadre').click();
-		// });
+		$(document).ready(function () {
+			$('#btn-filtrarMaestrosBasemadre').click();
+		});
 	},
 
 	initialize: function() {
@@ -3115,6 +3160,28 @@ var Basemadre = {
 
 			}
 		});
+	},
+
+	confirmarCambiarEstado: function(estado,idClienteHist){
+		var data={"estado":estado,"idClienteHist":idClienteHist};
+		var jsonString = { 'data': JSON.stringify(data) };
+		var config = { 'url':Basemadre.url+'cambiarEstadoHistorico', 'data': jsonString };
+
+		$.when( Fn.ajax(config) ).then( function(a){
+			
+			Fn.showModal({ id:modalId,show:false });
+			++modalId;
+			if (a.result==1) {
+				++modalId;
+				var fn1='$("#btn-filtrarHistoricoBasemadre").click();Fn.showModal({ id:('+modalId+'),show:false });';
+				var btn=new Array();
+					btn[0]={title:'Continuar',fn:fn1};
+				var message = Fn.message({ 'type': 3, 'message': 'Se realizo la operacion correctamente.' });
+				Fn.showModal({ id:modalId,title:'Alerta',content:message,btn:btn,show:true});
+				
+			}
+		});
+		 
 	},
 
 

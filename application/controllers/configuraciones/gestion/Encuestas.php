@@ -178,7 +178,7 @@ class Encuestas extends MY_Controller
 		}
 
 		$titulo = '';
-		$width = '';
+		$width = '80%';
 		$result['msg']['title'] = $titulo;
 		$result['data']['width'] = $width;
 		$result['data']['class'] = $class;
@@ -206,7 +206,7 @@ class Encuestas extends MY_Controller
 		
 
 		$titulo = '';
-		$width = '';
+		$width = '75%';
 		$result['msg']['title'] = $titulo;
 		$result['data']['width'] = $width;
 		$result['data']['class'] = $class;
@@ -1098,6 +1098,9 @@ class Encuestas extends MY_Controller
 				, 'fotoAlt'=> null
 				, 'fotoObligatoriaAlt'=> null
 				, 'opcionesAlt' => null
+				, 'comentarioPreg' => null
+				, 'comentarioAlt' => null
+				// , 'comentarioAltOp' => null
                 ]
 			],
             'headers' => [
@@ -1106,13 +1109,16 @@ class Encuestas extends MY_Controller
 				, 'Tipo Pregunta'
 				, 'Pregunta'
 				, 'Pregunta Obligatoria'
+				// , 'Comentario'
 				, 'Foto'
 				, 'Foto Obligatoria'
 				, 'Orden'
 				, 'Alternativa'
+				// , 'Comentario'
 				, 'Foto'
 				, 'Foto Obligatoria'
 				, 'Opciones'
+				// , 'Comentarios Opciones'
 
             ],
 			'columns' => [
@@ -1121,13 +1127,16 @@ class Encuestas extends MY_Controller
 				['data' => 'tipoPregunta', 'type' => 'myDropdown', 'placeholder' => 'Tipo Pregunta', 'source' => $tipos],
 				['data' => 'pregunta', 'type' => 'text', 'placeholder' => 'Pregunta', 'width' => 200 ],
 				['data' => 'obligatorio', 'type' => 'myDropdown', 'placeholder' => 'Pregunta Obligatoria', 'source' => $obligatorio ],
+				// ['data' => 'comentarioPreg', 'type' => 'myDropdown', 'placeholder' => 'Comentario Pregunta', 'source' => $obligatorio ],
 				['data' => 'fotoPreg', 'type' => 'myDropdown', 'placeholder' => 'Foto Pregunta', 'source' => $obligatorio ],
 				['data' => 'fotoObligatoriaPreg', 'type' => 'myDropdown', 'placeholder' => 'Foto Pregunta Obligatoria', 'source' => $obligatorio ],
 				['data' => 'orden', 'type' => 'text', 'placeholder' => 'Orden', 'width' => 100],
 				['data' => 'alternativa', 'type' => 'text', 'placeholder' => 'Alternativa', 'width' => 300],
+				// ['data' => 'comentarioAlt', 'type' => 'myDropdown', 'placeholder' => 'Comentario Alternativa', 'source' => $obligatorio ],
 				['data' => 'fotoAlt', 'type' => 'myDropdown', 'placeholder' => 'Foto Alternativa', 'source' => $obligatorio ],
 				['data' => 'fotoObligatoriaAlt', 'type' => 'myDropdown', 'placeholder' => 'Foto Alternativa Obligatoria', 'source' => $obligatorio ],
 				['data' => 'opcionesAlt', 'type' => 'text', 'placeholder' => 'Opciones Pregunta (Valorativas)' ],
+				// ['data' => 'comentarioAltOp', 'type' => 'text', 'placeholder' => 'Comentarios de Opciones (Valorativas)' ],
 
 			],
 			'colWidths' => 200,
@@ -1136,7 +1145,7 @@ class Encuestas extends MY_Controller
 		//MOSTRANDO VISTA
 		$dataParaVista['hojas'] = [0 => $HT[0]['nombre']];
 		$result['result'] = 1;
-		$result['data']['width'] = '70%';
+		$result['data']['width'] = '95%';
 		$result['data']['html'] = $this->load->view("formCargaMasivaGeneral", $dataParaVista, true);
 		$result['data']['ht'] = $HT;
 
@@ -1179,7 +1188,7 @@ class Encuestas extends MY_Controller
 		foreach($dataArray as $index => $value){
 			$arrDataEncuesta[$value["encuesta"]]=$value;
 			$arrDataPregunta[$value["encuesta"]][$value["pregunta"]]=$value;
-			$arrData[$value["encuesta"]][$value["pregunta"]][$index]= $value["alternativa"];
+			$arrData[$value["encuesta"]][$value["pregunta"]][$index]= $value;
 
 		}
 
@@ -1198,13 +1207,6 @@ class Encuestas extends MY_Controller
 				foreach($arrDataPregunta[$index_encuesta] as $index_pregunta => $value_preg){
 
 					$params_pregunta = [] ;
-					$params_pregunta['idEncuesta']=$idEncuesta;
-					$params_pregunta['nombre']= $value_preg["pregunta"];
-					$params_pregunta['obligatorio']= ($value_enc["obligatorio"]=="Si")? 1 : 0 ;;	
-					$params_pregunta['orden']= $value_preg["orden"];	
-					$params_pregunta['foto']= !empty($value_preg["fotoPreg"]) && $value_preg["fotoPreg"] == "Si" ? true : false  ;	
-					$params_pregunta['flagFotoObligatorio']= !empty($value_preg["fotoObligatoriaPreg"]) && $value_preg["fotoObligatoriaPreg"] == "Si" &&  $params_pregunta['foto'] ? true : false  ;	
-
 					if($value_preg["tipoPregunta"]=="Abierta"){
 						$params_pregunta['idTipoPregunta']=1;
 					}
@@ -1217,18 +1219,30 @@ class Encuestas extends MY_Controller
 					else{
 						$params_pregunta['idTipoPregunta']=4;
 					}
+
+					$params_pregunta['idEncuesta']=$idEncuesta;
+					$params_pregunta['nombre']= $value_preg["pregunta"];
+					$params_pregunta['obligatorio']= ($value_enc["obligatorio"]=="Si")? 1 : 0 ;;	
+					$params_pregunta['orden']= $value_preg["orden"];	
+					$params_pregunta['foto']= !empty($value_preg["fotoPreg"]) && $value_preg["fotoPreg"] == "Si" ? true : false  ;	
+					$params_pregunta['flagComentario']= ($params_pregunta['idTipoPregunta']==4) && !empty($value_preg["comentarioPreg"]) && $value_preg["comentarioPreg"] == "Si" ? true : false  ;	
+					$params_pregunta['flagFotoObligatorio']= !empty($value_preg["fotoObligatoriaPreg"]) && $value_preg["fotoObligatoriaPreg"] == "Si" &&  $params_pregunta['foto'] ? true : false  ;	
 					
 					$registroPregunta = $this->m_encuestas->registrarEncuestaPregunta($params_pregunta);
+
 					$idPregunta=$this->m_encuestas->insertId;
 					$params_pregunta_opcion = [];
 					if($params_pregunta['idTipoPregunta']==4){
 						$opcionesPreg = explode(",",$value_preg['opcionesAlt']);
+
 						foreach ($opcionesPreg as $k => $op) {
+							$op_commentario = explode("-",$op);
 							$params_pregunta_opcion[] = [
 								'idPregunta' => $idPregunta,
-								'nombre' => trim($op),
+								'nombre' => !empty($op_commentario[0]) ?  trim($op_commentario[0]) : '',
 								'estado' => true,
-								'orden' => ($k+1)
+								'orden' => ($k+1),
+								'flagComentario' => !empty($op_commentario[1]) && ($op_commentario[1] == "SI" || $op_commentario[1] == "Si" || $op_commentario[1] == "si" || $op_commentario[1] == 1 ) ? true : false ,
 							] ;
 						
 						}
@@ -1246,9 +1260,10 @@ class Encuestas extends MY_Controller
 
 									$params_pregunta_alternativa = [] ;
 									$params_pregunta_alternativa['idPregunta']=$idPregunta;
-									$params_pregunta_alternativa['nombre']=$value_alt;
+									$params_pregunta_alternativa['nombre']=!empty($value_alt['alternativa']) ? $value_alt['alternativa'] : '';
+									$params_pregunta_alternativa['flagComentario']= ($params_pregunta['idTipoPregunta'] == 4) && !empty($value_alt['comentarioAlt']) && $value_alt['comentarioAlt'] == "Si" ? true : false  ;
 									$params_pregunta_alternativa['foto']= !empty($value_alt['fotoAlt']) && $value_alt['fotoAlt'] == "Si" ? true : false  ;
-									$params_pregunta_alternativa['foto']= !empty($value_alt['fotoObligatoriaAlt']) && $value_alt['fotoObligatoriaAlt'] == "Si" && $params_pregunta_alternativa['foto'] ? true : false  ;
+									$params_pregunta_alternativa['flagFotoObligatorio']= !empty($value_alt['fotoObligatoriaAlt']) && $value_alt['fotoObligatoriaAlt'] == "Si" && $params_pregunta_alternativa['foto'] ? true : false  ;
 
 									$registroAlternativa = $this->m_encuestas->registrarPreguntaAlternativa($params_pregunta_alternativa);
 									if($registroAlternativa){
@@ -1609,6 +1624,142 @@ class Encuestas extends MY_Controller
 		$this->aSessTrack = $this->m_encuestas->aSessTrack;
 		echo json_encode($result);
 	}
+
+	public function getListComentarios()
+	{
+		$result = $this->result;
+		$result['msg']['title'] = 'Lista Comentarios';
+
+		$post = json_decode($this->input->post('data'), true);
+		$comentarios = $this->m_encuestas->getListaComentarios($post)->result_array();
+		$opciones = $this->m_encuestas->getAlternativasOpciones(['idPregunta' => $post['id']])->result_array();
+
+		$opcionesR = [];
+		foreach ($opciones as $row) {
+			if (!in_array($row['nombre'], $opcionesR)) $opcionesR[] = $row['nombre'];
+		}
+        $opciones = !empty($opcionesR) ? $opcionesR : [' '];
+
+		//ARMANDO HANDSONTABLE
+        $flag = [
+			0 => "NO",
+			1 => "SÍ",
+		];
+
+		if(empty($comentarios)){
+			$comentarios = [[
+				'idProyecto' => null,
+                'idEncuesta' => null,
+                'idPregunta' => null,
+                'opcion' => null,
+                'comentario' => null,
+            ]];
+		}
+
+		$HT[0] = [
+			'nombre' => 'Comentarios',
+			'data' => $comentarios,
+            'headers' => ['COD PROYECTO'
+                , 'COD ENCUESTA'
+                , 'COD PREGUNTA'
+                , 'COD OPCION'
+                , 'COD COMENTARIO'
+            ],
+			'columns' => [
+				['data' => 'idProyecto', 'type' => 'numeric', 'placeholder' => 'ID Proyecto', 'width' => 200],
+				['data' => 'idEncuesta', 'type' => 'numeric', 'placeholder' => 'ID Encuesta', 'width' => 200],
+				['data' => 'idPregunta', 'type' => 'numeric', 'placeholder' => 'ID Pregunta', 'width' => 200],
+				['data' => 'opcion', 'type' => 'myDropdown', 'placeholder' => 'Opcion', 'width' => 200, 'source' => $opciones],
+				['data' => 'comentario', 'type' => 'text', 'placeholder' => 'Comentario', 'width' => 200],
+                
+			],
+			'hideColumns' => [0,1,2],
+			'colWidths' => 200,
+		];
+
+		//MOSTRANDO VISTA
+		$dataParaVista['hojas'] = [0 => $HT[0]['nombre']];
+		$dataParaVista['data'] = [
+			'idEncuesta' => $post['idEncuesta'],
+			'idPregunta' => $post['id'],
+			'idProyecto' => $this->sessIdProyecto,
+		];
+		$result['result'] = 1;
+		$result['data']['width'] = '70%';
+		$result['data']['html'] = $this->load->view('modulos/Configuraciones/Gestion/encuestas/formCargaMasivaOpcionComentario', $dataParaVista, true);
+		$result['data']['ht'] = $HT;
+
+		$this->aSessTrack = $this->m_encuestas->aSessTrack;
+		echo json_encode($result);
+	}
+
+	public function guardarListaComentarios(){
+        $this->db->trans_start();
+		$result = $this->result;
+		$result['msg']['title'] = $this->titulo['masivoLista'];
+
+        $post = json_decode($this->input->post('data'), true);
+		$opcionesHT = [];
+		$opciones = $this->m_encuestas->getAlternativasOpciones(['idPregunta' => $post['idPregunta']])->result_array();
+
+		foreach ($opciones as $key => $row) {
+			$opcionesHT[$row['nombre']] = $row['idAlternativaOpcion'];
+		}
+		$limpiarCarga = [];
+		$insertComentarios = [];
+		$idEncuesta = $post['idEncuesta'];
+		$idPregunta = $post['idPregunta'];
+		$idProyecto = $this->sessIdProyecto;
+
+		$insertListaComentario = [
+			'idProyecto' => $idProyecto,
+			'idEncuesta' => $idEncuesta,
+			'idPregunta' => $idPregunta
+		];
+
+		$listaComentario = $this->m_encuestas->getWhere("{$this->sessBDCuenta}.trade.list_comentario_opcion",$insertListaComentario)->row_array();
+
+		if(empty($listaComentario)){
+			$rs = $this->m_encuestas->insert("{$this->sessBDCuenta}.trade.list_comentario_opcion",$insertListaComentario);
+			$idListComentario = $this->db->insert_id();
+		}
+
+		if(!empty($listaComentario)){
+			$idListComentario = $listaComentario['idListComentario'];
+		}
+
+		foreach ($post['HT'][0] as $k => $v) {
+			if(empty($v['opcion']) || empty($v['comentario'])) continue;
+			
+			if(!empty($limpiarCarga[$idEncuesta][$idPregunta][$v['opcion']][$v['comentario']])) continue;
+			else $limpiarCarga[$idEncuesta][$idPregunta][$v['opcion']][$v['comentario']] = 1;
+
+			$insertComentarios[] = [
+				'idListComentario' => $idListComentario,
+				'idOpcion' => $opcionesHT[$v['opcion']],
+				'comentario' => $v['comentario'],
+			];
+		}
+
+		$delete = $this->m_encuestas->deleteWhere("{$this->sessBDCuenta}.trade.list_comentario_opcion_det",['idListComentario' => $idListComentario]);
+		
+		if(!empty($insertComentarios)) $insertMasivo  = $this->m_encuestas->insertarMasivo("{$this->sessBDCuenta}.trade.list_comentario_opcion_det",$insertComentarios);
+		else $insertMasivo = true;
+
+		if (!$insertMasivo && $delete) {
+			$result['result'] = 0;
+			$result['msg']['content'] = getMensajeGestion('guardadoMasivoErroneo');
+		} else {
+			$result['result'] = 1;
+			$result['msg']['content'] = getMensajeGestion('guardadoMasivoExitoso');
+		}
+
+		responder:
+		$this->db->trans_complete();
+
+		$this->aSessTrack = $this->m_encuestas->aSessTrack;
+		echo json_encode($result);
+    }
 
 
 }

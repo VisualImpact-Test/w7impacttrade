@@ -181,7 +181,7 @@ class M_usuarios extends My_Model
 				c.idCuenta,
 				p.idProyecto,
 				c.nombre cuenta, 
-				p.nombre proyecto,
+				ISNULL(p.nombreCorto,p.nombre) proyecto,
 				tu.idTipoUsuario,
 				tu.nombre tipoUsuario, 
 				uh.fecIni, 
@@ -443,7 +443,7 @@ class M_usuarios extends My_Model
 	public function getGrupoCanalYCanalDeHistorico($post)
 	{
 		$idHistorico = $post['idUsuarioHistorico'];
-
+		$idProyecto = $post['idProyecto'];
 		$sql = "
 		SELECT uhc.*, 
 			c.nombre canal, 
@@ -452,6 +452,7 @@ class M_usuarios extends My_Model
 		FROM trade.usuario_historicoCanal uhc
 			LEFT JOIN trade.canal c ON c.idCanal = uhc.idCanal
 			LEFT JOIN trade.grupoCanal gc ON gc.idGrupoCanal = c.idGrupoCanal
+
 		WHERE uhc.estado = 1
 			AND uhc.idUsuarioHist = $idHistorico
 		";
@@ -460,17 +461,27 @@ class M_usuarios extends My_Model
 		return $this->db->query($sql);
 	}
 
-	public function getGrupoCanalYCanal()
-	{
+	public function getGrupoCanalYCanal($params = [])
+	{	
+		$filtros = '';
+		!empty($params['idProyecto']) ? $filtros .= " AND pgc.idProyecto = {$params['idProyecto']}"  : ''; 
+		!empty($params['idCuenta']) ? $filtros .= " AND cc.idCuenta = {$params['idCuenta']}"  : ''; 
+		
+		
 		$sql = "
 			SELECT gc.idGrupoCanal, 
 				gc.nombre grupoCanal, 
 				c.idCanal, 
 				c.nombre canal
 			FROM trade.canal c
+				JOIN trade.cuenta_canal cc ON cc.idCanal = c.idCanal
+					AND cc.estado = 1
 				JOIN trade.grupoCanal gc ON gc.idGrupoCanal = c.idGrupoCanal
-											AND gc.estado = 1
-			WHERE c.estado = 1
+						AND gc.estado = 1
+				JOIN trade.proyectoGrupoCanal pgc ON pgc.idGrupoCanal = gc.idGrupoCanal
+			WHERE 
+			c.estado = 1
+			{$filtros}
 			ORDER BY gc.nombre ASC, 
 					c.nombre DESC;
 		";
@@ -542,28 +553,42 @@ class M_usuarios extends My_Model
 		return $this->db->query($sql);
 	}
 
-	public function getPlazas()
+	public function getPlazas($params = [])
 	{
+		$cliente_historico = getClienteHistoricoCuenta();
+
 		$sql = "
-			SELECT *
-			FROM trade.plaza
-			WHERE estado = 1
+		DECLARE @fecIni DATE='{$params['fechaInicio']}', @fecFin DATE='{$params['fechaInicio']}';
+		SELECT DISTINCT
+		pl.idPlaza AS id
+		, pl.nombre FROM 
+		trade.plaza pl
+		JOIN trade.segmentacionClienteTradicional sct ON sct.idPlaza = pl.idPlaza
+		JOIN {$cliente_historico} ch ON ch.idSegClienteTradicional = sct.idSegClienteTradicional
+			AND General.dbo.fn_fechaVigente(ch.fecIni,ch.fecFin,@fecIni,@fecFin) = 1
+			AND ch.idProyecto = {$params['idProyecto']}	
 		";
 
 		$this->aSessTrack[] = [ 'idAccion' => 5, 'tabla' => 'trade.plaza' ];
 		return $this->db->query($sql);
 	}
 
-	public function getCadenaYBanner()
+	public function getCadenaYBanner($params = [])
 	{
+		$cliente_historico = getClienteHistoricoCuenta();
+		
 		$sql = "
+			DECLARE @fecIni DATE='{$params['fechaInicio']}', @fecFin DATE='{$params['fechaInicio']}';
 			SELECT c.idCadena, 
 				c.nombre nombreCadena, 
 				b.idBanner, 
 				b.nombre nombreBanner
 			FROM trade.cadena c
-				JOIN trade.banner b ON c.idCadena = b.idCadena
-										AND b.estado = 1
+				JOIN trade.banner b ON c.idCadena = b.idCadena AND b.estado = 1
+				JOIN trade.segmentacionClienteModerno segmod ON segmod.idBanner = b.idBanner
+				JOIN {$cliente_historico} ch ON segmod.idSegClienteModerno = ch.idSegClienteModerno
+					AND General.dbo.fn_fechaVigente(ch.fecIni,ch.fecFin,@fecIni,@fecFin) = 1
+					AND ch.idProyecto = {$params['idProyecto']}		
 			ORDER BY c.nombre ASC, 
 					b.nombre DESC;
 		";
@@ -572,9 +597,11 @@ class M_usuarios extends My_Model
 		return $this->db->query($sql);
 	}
 
-	public function getDistribuidorasSucursales()
+	public function getDistribuidorasSucursales($params = [])
 	{
+		$cliente_historico = getClienteHistoricoCuenta();
 		$sql = "
+			DECLARE @fecIni DATE='{$params['fechaInicio']}', @fecFin DATE='{$params['fechaInicio']}';
 			SELECT d.idDistribuidora, 
 				d.nombre distribuidora, 
 				ds.idDistribuidoraSucursal, 
@@ -582,8 +609,11 @@ class M_usuarios extends My_Model
 			FROM trade.distribuidoraSucursal ds
 				JOIN trade.distribuidora d ON d.idDistribuidora = ds.idDistribuidora
 				LEFT JOIN General.dbo.ubigeo ubi ON ubi.cod_ubigeo = ds.cod_ubigeo
-			WHERE ds.estado = 1
-				AND d.estado = 1
+				JOIN trade.segmentacionClienteTradicionalDet sctd ON sctd.idDistribuidoraSucursal = ds.idDistribuidoraSucursal
+				JOIN {$cliente_historico} ch ON ch.idSegClienteTradicional = sctd.idSegClienteTradicional
+					AND General.dbo.fn_fechaVigente(ch.fecIni,ch.fecFin,@fecIni,@fecFin) = 1
+					AND ch.idProyecto = {$params['idProyecto']}
+			WHERE ds.estado = 1 AND d.estado = 1
 			ORDER BY d.nombre, 
 					distribuidoraSucursal
 		";

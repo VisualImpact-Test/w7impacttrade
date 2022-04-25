@@ -132,8 +132,8 @@
 									$res = true;
 										$color = $eleme['flagCompetencia'] ? 'product-competencia' : 'product-propio';
 										if ( !empty($detalle[$row['idVisita']]) ) {
-											if( !empty($detalle[$row['idVisita']][$idEle]) ){
-												$row_d = $detalle[$row['idVisita']][$idEle];
+											if( !empty($detalle[$row['idVisita']][$idMat][$idEle]) ){
+												$row_d = $detalle[$row['idVisita']][$idMat][$idEle];
 												
 												$res = false;
 												$elemento_pertenece = false;
@@ -147,6 +147,7 @@
 						?>
 												<td class="text-center <?=$color?>" <?= ($elemento_pertenece) ? 'style="background: #b2d6f5;"' : '' ?>><?= (!empty($row_d['cantidad']) ? $row_d['cantidad'] : '-') ?></td>
 												<?
+												$fotoImg = '';
 												if (!empty($row_d['foto'])) {
 													$fotoImg = rutafotoModulo(['foto'=>$row_d['foto'],'modulo'=>$row_d['carpeta'],'icono'=>'fal fa-image-polaroid fa-lg btn-outline-primary btn border-0']); 
 												}

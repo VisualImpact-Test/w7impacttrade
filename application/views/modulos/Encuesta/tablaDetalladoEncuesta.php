@@ -29,8 +29,8 @@
                 <th rowspan="3" class="text-center">ENCUESTADO</th>
                 <? foreach ($listaEncuesta as $keyEncuesta => $encuesta) { ?>
                     <?
-                    $cant_col_preg = count($listaPregunta[$keyEncuesta]) * 3;
-                    $cant_col_preg_op = !empty($listaOpciones[$keyEncuesta]['opciones']) ? count($listaOpciones[$keyEncuesta]['opciones']) : 0;
+                    $cant_col_preg = count($listaPregunta[$keyEncuesta]) * 4;
+                    $cant_col_preg_op = !empty($listaOpciones[$keyEncuesta]['opciones']) ? count($listaOpciones[$keyEncuesta]['opciones'])  : 0;
                     ?>
                     <th rowspan="1" class="text-center" colspan="<?= ($cant_col_preg + $cant_col_preg_op) ?>"><?= !empty($encuesta["nombre"]) ? (($encuesta["nombre"])): '-'  ?></th>
                     <th rowspan="3" class="text-center">FOTO(S) <br> ENCUESTA</th>
@@ -42,7 +42,7 @@
                     foreach ($listaPregunta[$keyEncuesta] as $keyPregunta => $pregunta) { 
                         $col_opciones = !empty($listaOpciones[$keyEncuesta][$keyPregunta]) ? count($listaOpciones[$keyEncuesta][$keyPregunta]) : 0;
                     ?>
-                        <th rowspan="1" colspan="<?= (2+$col_opciones)?>" class="text-center">
+                        <th rowspan="1" colspan="<?= (3+$col_opciones)?>" class="text-center">
                             <!-- PREGUNTA -->
                             <?= !empty(($pregunta["nombre"])) ? (($pregunta["nombre"])) : '' ?>  
                         
@@ -60,6 +60,7 @@
                     foreach ($listaPregunta[$keyEncuesta] as $keyPregunta => $pregunta) { ?>
                         <th rowspan="1" class="text-center">ALTERNATIVA</th>
                         <th rowspan="1" class="text-center" colspan="1">FOTOS</th>
+                        <th rowspan="1" class="text-center" colspan="1">COMENTARIO</th>
                         
                         <?
                         if(empty($listaOpciones[$keyEncuesta][$keyPregunta])) continue;
